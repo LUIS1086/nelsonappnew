@@ -1828,6 +1828,20 @@
             document.getElementById('c-presupuesto').value = 'pendiente';
             document.getElementById('client-alert').innerText = '';
             playBeep(); closeCamera(); await updateTotal(); await updateSuggestions(); tab('ordenes');
+               // 🔥 GUARDAR EN FIREBASE (VERSIÓN SIMPLE)
+db.collection("ordenes").add({
+    cliente: document.getElementById("c-nom").value,
+    telefono: document.getElementById("c-tel").value,
+    equipo: document.getElementById("c-equ").value,
+    valor: document.getElementById("c-val").value,
+    fecha: new Date().toISOString()
+})
+.then(() => {
+    console.log("Guardado en Firebase 🔥");
+})
+.catch((error) => {
+    console.log("Error Firebase:", error);
+});
         }
 
         async function editOrder(id) {
@@ -3807,5 +3821,22 @@
             });
         }
     </script>
+     <!-- FIREBASE COMPAT (FUNCIONA EN HTML NORMAL) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "TU_API_KEY",
+  authDomain: "TU_DOMINIO",
+  projectId: "TU_PROJECT_ID"
+};
+
+// Inicializar
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+console.log("Firebase conectado 🔥");
+</script>
 </body>
 </html>
