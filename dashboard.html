@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NelsonApp \u2014 Dashboard</title>
+<title>NelsonApp — Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -60,7 +60,7 @@ body::after {
   pointer-events: none;
 }
 
-/* \u2500\u2500 LAYOUT \u2500\u2500 */
+/* ── LAYOUT ── */
 .shell {
   position: relative; z-index: 1;
   display: grid;
@@ -69,7 +69,7 @@ body::after {
   min-height: 100vh;
 }
 
-/* \u2500\u2500 SIDEBAR \u2500\u2500 */
+/* ── SIDEBAR ── */
 .sidebar {
   grid-row: 1 / 3;
   background: rgba(13,15,28,0.92);
@@ -169,7 +169,7 @@ body::after {
 .sidebar-footer button:hover { background: rgba(249,115,22,0.12); color: var(--accent); border-color: rgba(249,115,22,0.3); }
 .sidebar-footer button:last-child { margin-bottom: 0; }
 
-/* \u2500\u2500 TOPBAR \u2500\u2500 */
+/* ── TOPBAR ── */
 .topbar {
   grid-column: 2;
   display: flex; align-items: center; justify-content: space-between;
@@ -213,14 +213,14 @@ body::after {
 }
 .topbar-icon-btn:hover { background: rgba(249,115,22,0.15); border-color: rgba(249,115,22,0.35); }
 
-/* \u2500\u2500 MAIN CONTENT \u2500\u2500 */
+/* ── MAIN CONTENT ── */
 .main {
   grid-column: 2;
   padding: 28px 32px 40px;
   overflow-y: auto;
 }
 
-/* \u2500\u2500 KPI CARDS ROW \u2500\u2500 */
+/* ── KPI CARDS ROW ── */
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -277,7 +277,7 @@ body::after {
 .kpi-badge.warn { background: rgba(251,146,60,0.15); color: #fb923c; }
 .kpi-badge.danger { background: rgba(244,63,94,0.15); color: var(--rose); }
 
-/* \u2500\u2500 META BAR \u2500\u2500 */
+/* ── META BAR ── */
 .meta-card {
   background: var(--card);
   border: 1px solid var(--border);
@@ -326,7 +326,7 @@ body::after {
 .meta-amounts span { font-family: var(--font-mono); }
 .meta-amounts .done { color: var(--emerald); }
 
-/* \u2500\u2500 MIDDLE GRID \u2500\u2500 */
+/* ── MIDDLE GRID ── */
 .mid-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -334,7 +334,7 @@ body::after {
   margin-bottom: 24px;
 }
 
-/* \u2500\u2500 ORDERS PANEL \u2500\u2500 */
+/* ── ORDERS PANEL ── */
 .panel {
   background: var(--card);
   border: 1px solid var(--border);
@@ -395,7 +395,7 @@ body::after {
 .dot-reparado  { background: var(--violet); box-shadow: 0 0 6px var(--violet); }
 .dot-entregado { background: var(--emerald); box-shadow: 0 0 6px var(--emerald); }
 
-/* \u2500\u2500 STOCK PANEL \u2500\u2500 */
+/* ── STOCK PANEL ── */
 .stock-row {
   display: flex; align-items: center; gap: 12px;
   padding: 12px 0;
@@ -422,4 +422,686 @@ body::after {
   text-align: right; flex-shrink: 0; width: 40px;
 }
 .stock-bar-wrap { width: 70px; flex-shrink: 0; }
-.stock-bar-track { height: 4
+.stock-bar-track { height: 4px; background: rgba(255,255,255,0.07); border-radius: 99px; overflow: hidden; }
+.stock-bar-fill { height: 100%; border-radius: 99px; transition: width 0.8s ease; }
+
+/* ── BOTTOM GRID ── */
+.bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+/* ── STATUS BREAKDOWN ── */
+.status-ring-wrap {
+  padding: 20px 22px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.status-item {
+  display: flex; align-items: center; gap: 12px;
+}
+.status-bar-label { font-size: 12px; font-weight: 600; color: var(--muted2); flex: 1; }
+.status-bar-track {
+  flex: 2; height: 6px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 99px; overflow: hidden;
+}
+.status-bar-inner { height: 100%; border-radius: 99px; transition: width 1s ease; }
+.status-count {
+  font-family: var(--font-mono);
+  font-size: 13px; font-weight: 500; color: white;
+  width: 30px; text-align: right;
+}
+
+/* ── MOVIMIENTOS ── */
+.mov-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+}
+.mov-row:last-child { border-bottom: none; }
+.mov-dot {
+  width: 34px; height: 34px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; flex-shrink: 0;
+}
+.mov-dot.ingreso  { background: rgba(16,185,129,0.12); }
+.mov-dot.gasto    { background: rgba(244,63,94,0.12); }
+.mov-dot.reparacion { background: rgba(56,189,248,0.12); }
+.mov-info { flex: 1; min-width: 0; }
+.mov-name { font-weight: 600; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mov-date { font-size: 10px; color: var(--muted); margin-top: 2px; }
+.mov-val {
+  font-family: var(--font-mono);
+  font-size: 13px; font-weight: 500; flex-shrink: 0;
+}
+.mov-val.pos { color: var(--emerald); }
+.mov-val.neg { color: var(--rose); }
+
+/* ── CLIENTES DEUDA ── */
+.deuda-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+}
+.deuda-row:last-child { border-bottom: none; }
+.deuda-avatar {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: linear-gradient(135deg, rgba(244,63,94,0.25), rgba(244,63,94,0.1));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; flex-shrink: 0;
+}
+.deuda-name { flex: 1; font-weight: 600; font-size: 12px; }
+.deuda-val {
+  font-family: var(--font-mono);
+  font-size: 13px; font-weight: 500;
+  color: var(--rose);
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes countUp {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.kpi-card:nth-child(1) { animation-delay: 0.05s; }
+.kpi-card:nth-child(2) { animation-delay: 0.10s; }
+.kpi-card:nth-child(3) { animation-delay: 0.15s; }
+.kpi-card:nth-child(4) { animation-delay: 0.20s; }
+
+/* ── EMPTY STATE ── */
+.empty { text-align: center; padding: 30px 0; color: var(--muted); font-size: 13px; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
+
+/* ── ONLY SHOW ON PC ── */
+@media (max-width: 900px) {
+  body { display: none !important; }
+}
+
+/* ── TIME CHIP ── */
+.time-chip {
+  font-family: var(--font-mono);
+  font-size: 12px; color: var(--muted);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border2);
+  padding: 4px 12px; border-radius: 99px;
+}
+
+/* ── MINI CHART ── */
+.sparkline-wrap {
+  padding: 16px 22px 20px;
+}
+.sparkline-labels {
+  display: flex; justify-content: space-between;
+  font-size: 10px; color: var(--muted); margin-top: 8px;
+  font-family: var(--font-mono);
+}
+svg.spark { overflow: visible; }
+
+/* ── SEPARADOR VISUAL ── */
+.section-label {
+  font-family: var(--font-disp);
+  font-size: 11px; font-weight: 800;
+  color: var(--muted); letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 12px;
+}
+.section-label::after {
+  content: '';
+  flex: 1; height: 1px;
+  background: var(--border);
+}
+
+/* Light mode support */
+body.light-mode {
+  --bg: #f4f2ee; --bg2: #ece8e0; --card: #fdfcf9; --card2: #f7f4ef;
+  --border: rgba(0,0,0,0.07); --border2: rgba(0,0,0,0.12);
+  --text: #1c1917; --muted: #a8a29e; --muted2: #78716c;
+}
+body.light-mode .sidebar {
+  background: rgba(253,252,249,0.97);
+  border-right-color: rgba(0,0,0,0.08);
+}
+body.light-mode .topbar {
+  background: rgba(244,242,238,0.92);
+  border-bottom-color: rgba(0,0,0,0.08);
+}
+body.light-mode body::before {
+  background-image:
+    linear-gradient(rgba(0,0,0,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.025) 1px, transparent 1px);
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-row">
+        <div class="brand-icon">🔧</div>
+        <div>
+          <div class="brand-text-short" id="sb-short">TODO REPUESTOS</div>
+          <div class="brand-text-name" id="sb-name">NELSON</div>
+        </div>
+      </div>
+      <div class="sidebar-cash">
+        <div>
+          <div class="cash-label">Caja Neta</div>
+          <div class="cash-value" id="sb-cash">$0</div>
+        </div>
+        <span style="font-size:1.4rem;">💵</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="goApp('taller')">
+        <span class="nav-icon">🏠</span> Dashboard
+      </div>
+      <div class="nav-item" onclick="goApp('taller')">
+        <span class="nav-icon">🛠️</span> Nueva Recepción
+      </div>
+      <div class="nav-item" onclick="goApp('ordenes')">
+        <span class="nav-icon">📋</span> Órdenes
+      </div>
+      <div class="nav-item" onclick="goApp('ventas')">
+        <span class="nav-icon">💰</span> Caja & Inventario
+      </div>
+      <div class="nav-item" onclick="goApp('admin')">
+        <span class="nav-icon">⚙️</span> Datos & Config
+      </div>
+
+      <div class="nav-section-label">Acciones</div>
+      <div class="nav-item" onclick="goAction('notify')">
+        <span class="nav-icon">💬</span> Avisar listos
+      </div>
+      <div class="nav-item" onclick="goAction('report')">
+        <span class="nav-icon">📄</span> Reporte del mes
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button id="sb-theme-btn" onclick="toggleDashTheme()">🌙 &nbsp;Cambiar tema</button>
+      <button onclick="goApp('taller')" style="background:rgba(249,115,22,0.12);color:var(--accent);border-color:rgba(249,115,22,0.3);">← Ir a la app</button>
+    </div>
+  </aside>
+
+  <!-- ── TOPBAR ── -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-section">PANEL DE CONTROL</div>
+      <div class="topbar-title" id="tb-title">TODO REPUESTOS — NELSON</div>
+    </div>
+    <div class="topbar-right">
+      <div class="time-chip" id="time-chip">--:--</div>
+      <button class="topbar-btn green" onclick="goAction('notify')">💬 Avisar listos</button>
+      <button class="topbar-btn blue" onclick="goAction('report')">📄 Reporte mes</button>
+      <div class="topbar-icon-btn" onclick="toggleDashTheme()" title="Tema">🌙</div>
+    </div>
+  </header>
+
+  <!-- ── MAIN ── -->
+  <main class="main">
+
+    <!-- KPI ROW -->
+    <div class="section-label">Resumen de hoy</div>
+    <div class="kpi-grid">
+
+      <div class="kpi-card" data-icon="💵" style="--kpi-color:#10b981;">
+        <div class="kpi-label">Caja Neta</div>
+        <div class="kpi-value" id="kpi-caja">$0</div>
+        <div class="kpi-sub">
+          <span>Desde último cierre</span>
+        </div>
+      </div>
+
+      <div class="kpi-card" data-icon="📋" style="--kpi-color:#38bdf8;">
+        <div class="kpi-label">Órdenes activas</div>
+        <div class="kpi-value" id="kpi-activas">0</div>
+        <div class="kpi-sub">
+          <span id="kpi-activas-sub">cargando...</span>
+        </div>
+      </div>
+
+      <div class="kpi-card" data-icon="🔧" style="--kpi-color:#f97316;">
+        <div class="kpi-label">Entregadas este mes</div>
+        <div class="kpi-value" id="kpi-entregadas">0</div>
+        <div class="kpi-sub">
+          <span id="kpi-ingresos-mes">$0 facturado</span>
+        </div>
+      </div>
+
+      <div class="kpi-card" data-icon="⚠️" style="--kpi-color:#f43f5e;">
+        <div class="kpi-label">Stock bajo / agotado</div>
+        <div class="kpi-value" id="kpi-stock">0</div>
+        <div class="kpi-sub">
+          <span id="kpi-stock-sub">productos</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- META BAR -->
+    <div id="meta-section" class="meta-card" style="display:none;">
+      <div class="meta-header">
+        <div>
+          <div class="meta-title">🎯 Meta del mes</div>
+          <div style="font-size:11px;color:var(--muted2);margin-top:3px;" id="meta-desc">Cargando...</div>
+        </div>
+        <div class="meta-pct" id="meta-pct">0%</div>
+      </div>
+      <div class="meta-track">
+        <div class="meta-fill" id="meta-fill" style="width:0%"></div>
+      </div>
+      <div class="meta-amounts">
+        <span class="done" id="meta-done">$0 logrado</span>
+        <span id="meta-goal">Meta: $0</span>
+      </div>
+    </div>
+
+    <!-- MIDDLE GRID -->
+    <div class="section-label">Operaciones</div>
+    <div class="mid-grid">
+
+      <!-- Órdenes recientes -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">📋 Órdenes recientes</div>
+          <div class="panel-action" onclick="goApp('ordenes')">Ver todas →</div>
+        </div>
+        <div class="panel-body" id="orders-panel">
+          <div class="empty">Cargando órdenes...</div>
+        </div>
+      </div>
+
+      <!-- Inventario crítico -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">📦 Inventario crítico</div>
+          <div class="panel-action" onclick="goApp('ventas')">Ver inventario →</div>
+        </div>
+        <div class="panel-body" id="stock-panel">
+          <div class="empty">Cargando inventario...</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- BOTTOM GRID -->
+    <div class="section-label">Análisis</div>
+    <div class="bottom-grid">
+
+      <!-- Estado de órdenes -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">📊 Estado órdenes</div>
+        </div>
+        <div class="status-ring-wrap" id="status-panel">
+          <div class="empty">Cargando...</div>
+        </div>
+      </div>
+
+      <!-- Movimientos recientes -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">💸 Movimientos recientes</div>
+          <div class="panel-action" onclick="goApp('ventas')">Ver todo →</div>
+        </div>
+        <div class="panel-body" id="mov-panel">
+          <div class="empty">Cargando...</div>
+        </div>
+      </div>
+
+      <!-- Cartera / Deudas -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">💳 Clientes con deuda</div>
+          <div class="panel-action" onclick="goApp('ventas')">Ver cartera →</div>
+        </div>
+        <div class="panel-body" id="deuda-panel">
+          <div class="empty">Cargando...</div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//   CONEXIÓN A IndexedDB de NelsonApp
+// ══════════════════════════════════════════
+const DB_NAME = 'NelsonAppPro';
+let _db = null;
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    if (_db) return resolve(_db);
+    const req = indexedDB.open(DB_NAME, 9);
+    req.onerror = () => reject(req.error);
+    req.onsuccess = () => { _db = req.result; resolve(_db); };
+    req.onupgradeneeded = (e) => {
+      // No modificamos la DB, solo la leemos
+    };
+  });
+}
+
+async function getAll(store) {
+  try {
+    await openDB();
+    return new Promise((resolve) => {
+      const tx = _db.transaction(store, 'readonly');
+      const req = tx.objectStore(store).getAll();
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => resolve([]);
+    });
+  } catch { return []; }
+}
+
+// ══════════════════════════════════════════
+//   HELPERS
+// ══════════════════════════════════════════
+function getCurrency() { return localStorage.getItem('appCurrency') || '$'; }
+function fmt(val) { return getCurrency() + (val||0).toLocaleString('es-CO'); }
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmtDate(ts) {
+  return new Date(ts).toLocaleDateString('es-ES', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+}
+
+// ══════════════════════════════════════════
+//   RELOJ EN TIEMPO REAL
+// ══════════════════════════════════════════
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  const chip = document.getElementById('time-chip');
+  if (chip) chip.textContent = `${h}:${m}:${s}`;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// ══════════════════════════════════════════
+//   NOMBRES DEL NEGOCIO
+// ══════════════════════════════════════════
+function loadBizNames() {
+  try {
+    const cfg = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+    const name  = cfg.name  || 'NELSON';
+    const short = cfg.shortName || 'TODO REPUESTOS';
+    document.getElementById('sb-short').textContent  = short;
+    document.getElementById('sb-name').textContent   = name;
+    document.getElementById('tb-title').textContent  = `${short} — ${name}`;
+  } catch {}
+}
+
+// ══════════════════════════════════════════
+//   CARGA DE DATOS PRINCIPAL
+// ══════════════════════════════════════════
+async function loadDashboard() {
+  const [orders, stock, sales, gastos, clientes] =
+    await Promise.all([
+      getAll('orders'), getAll('stock'),
+      getAll('sales'),  getAll('gastos'),
+      getAll('clientes')
+    ]);
+
+  const lastCierre  = Number(localStorage.getItem('lastCierreCaja')) || 0;
+  const now         = Date.now();
+  const startMonth  = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
+  const threshold   = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
+
+  // ── CAJA NETA ──
+  const tOrders = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) > lastCierre)
+                        .reduce((a,b) => a+(b.val||0), 0);
+  const tSales  = sales.filter(s => s.fecha > lastCierre).reduce((a,b) => a+(b.val||0), 0);
+  const tGastos = gastos.filter(g => g.fecha > lastCierre).reduce((a,b) => a+(b.val||0), 0);
+  const caja    = tOrders + tSales - tGastos;
+  document.getElementById('kpi-caja').textContent  = fmt(caja);
+  document.getElementById('sb-cash').textContent   = fmt(caja);
+
+  // ── ÓRDENES ACTIVAS ──
+  const activas   = orders.filter(o => o.sta !== 'entregado');
+  const listas    = activas.filter(o => o.sta === 'reparado');
+  document.getElementById('kpi-activas').textContent = activas.length;
+  document.getElementById('kpi-activas-sub').innerHTML =
+    listas.length > 0
+      ? `<span style="color:var(--emerald);font-weight:700;">${listas.length} listas para entregar</span>`
+      : 'Sin equipos listos aún';
+
+  // ── ENTREGADAS MES ──
+  const entMes   = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= startMonth);
+  const ingMes   = entMes.reduce((a,b) => a+(b.val||0), 0)
+                 + sales.filter(s => s.fecha >= startMonth).reduce((a,b) => a+(b.val||0), 0);
+  document.getElementById('kpi-entregadas').textContent = entMes.length;
+  document.getElementById('kpi-ingresos-mes').textContent = fmt(ingMes) + ' facturado';
+
+  // ── STOCK CRÍTICO ──
+  const bajos   = stock.filter(s => s.q <= threshold && s.q > 0);
+  const agotados = stock.filter(s => s.q === 0);
+  document.getElementById('kpi-stock').textContent = bajos.length + agotados.length;
+  document.getElementById('kpi-stock-sub').innerHTML =
+    agotados.length > 0
+      ? `<span style="color:var(--rose);font-weight:700;">${agotados.length} agotados</span>, ${bajos.length} bajos`
+      : `${bajos.length} por debajo del mínimo`;
+
+  // ── META ──
+  const meta    = parseFloat(localStorage.getItem('metaMensual')) || 0;
+  const visible = localStorage.getItem('metaVisible') === 'true';
+  if (meta && visible) {
+    const pct = Math.min(100, Math.round((ingMes / meta) * 100));
+    document.getElementById('meta-section').style.display = 'block';
+    document.getElementById('meta-pct').textContent = pct + '%';
+    document.getElementById('meta-desc').textContent = `Mes de ${new Date().toLocaleDateString('es-ES', { month:'long', year:'numeric' })}`;
+    document.getElementById('meta-done').textContent = fmt(ingMes) + ' logrado';
+    document.getElementById('meta-goal').textContent = 'Meta: ' + fmt(meta);
+    const fill = document.getElementById('meta-fill');
+    setTimeout(() => { fill.style.width = pct + '%'; }, 300);
+    if (pct >= 100) {
+      fill.style.background = 'linear-gradient(to right,#10b981,#34d399)';
+    } else if (pct >= 60) {
+      fill.style.background = 'linear-gradient(to right,#f59e0b,#fbbf24)';
+    } else {
+      fill.style.background = 'linear-gradient(to right,#ef4444,#f87171)';
+    }
+    document.getElementById('meta-pct').style.color =
+      pct >= 100 ? 'var(--emerald)' : pct >= 60 ? '#f59e0b' : 'var(--rose)';
+  }
+
+  // ── ÓRDENES PANEL ──
+  renderOrdersPanel(orders);
+
+  // ── STOCK PANEL ──
+  renderStockPanel(stock, threshold);
+
+  // ── STATUS BREAKDOWN ──
+  renderStatusPanel(orders);
+
+  // ── MOVIMIENTOS ──
+  renderMovPanel(orders, sales, gastos, lastCierre);
+
+  // ── DEUDA ──
+  renderDeudaPanel(clientes);
+}
+
+// ── ÓRDENES RECIENTES ──
+function renderOrdersPanel(orders) {
+  const recent = [...orders]
+    .sort((a,b) => b.fecha - a.fecha)
+    .slice(0, 7);
+  const c = document.getElementById('orders-panel');
+  if (!recent.length) { c.innerHTML = '<div class="empty">Sin órdenes registradas</div>'; return; }
+  const dotClass = { recibido:'dot-recibido', 'revisión':'dot-revision', reparado:'dot-reparado', entregado:'dot-entregado' };
+  c.innerHTML = recent.map(o => {
+    const cfg = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+    const prefix = cfg.orderPrefix || '#';
+    return `<div class="order-row">
+      <div class="status-dot ${dotClass[o.sta] || 'dot-recibido'}"></div>
+      <div class="order-num-badge">${prefix}${o.num||''}</div>
+      <div class="order-info">
+        <div class="order-client">${escHtml(o.nom)}</div>
+        <div class="order-device">${escHtml(o.equ)}</div>
+      </div>
+      <div class="order-val">${fmt(o.val||0)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── INVENTARIO CRÍTICO ──
+function renderStockPanel(stock, threshold) {
+  const critical = stock
+    .filter(s => s.q <= threshold)
+    .sort((a,b) => a.q - b.q)
+    .slice(0, 7);
+  const all = stock;
+  const c = document.getElementById('stock-panel');
+  if (!critical.length) {
+    c.innerHTML = '<div class="empty">✅ Todo el stock está bien</div>'; return;
+  }
+  const catIcons = {
+    'Motores ventilador':'🌀','Motores licuadora':'⚙️','Acoples Samurái':'🔩',
+    'Élices':'🌊','Empaques olla':'🍲','Cuchillas licuadora':'🔪',
+    'Cuadrantes':'📐','Acoples Oster':'🔩','Suiches':'🔘',
+    'Tapones olla':'🔒','Otros':'📦'
+  };
+  c.innerHTML = critical.map(s => {
+    const isOut   = s.q === 0;
+    const minSt   = s.minStock || threshold;
+    const pct     = isOut ? 100 : Math.min(100, Math.round((s.q / Math.max(minSt * 2, 1)) * 100));
+    const barColor = isOut ? '#f43f5e' : '#f59e0b';
+    const icon    = catIcons[s.cat] || '📦';
+    return `<div class="stock-row">
+      <div class="stock-icon">${icon}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="stock-name">${escHtml(s.n)}</div>
+        <div class="stock-bar-wrap" style="width:auto;margin-top:4px;">
+          <div class="stock-bar-track" style="width:100%;">
+            <div class="stock-bar-fill" style="width:${pct}%;background:${barColor};"></div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div class="stock-price">${fmt(s.p)}</div>
+        <div class="stock-qty" style="color:${isOut?'var(--rose)':'#f59e0b'};font-weight:700;">${isOut?'AGOTADO':s.q+' uds'}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── STATUS BREAKDOWN ──
+function renderStatusPanel(orders) {
+  const counts = { recibido:0, 'revisión':0, reparado:0, entregado:0 };
+  orders.forEach(o => { if (counts[o.sta] !== undefined) counts[o.sta]++; });
+  const total = orders.length || 1;
+  const c = document.getElementById('status-panel');
+  const items = [
+    { key:'recibido',  label:'Recibido',  color:'var(--blue)',    icon:'📥' },
+    { key:'revisión',  label:'En revisión',color:'#fb923c',       icon:'🔍' },
+    { key:'reparado',  label:'Listo',     color:'var(--violet)',  icon:'✅' },
+    { key:'entregado', label:'Entregado', color:'var(--emerald)', icon:'🚚' },
+  ];
+  c.innerHTML = items.map(it => {
+    const n   = counts[it.key] || 0;
+    const pct = Math.round((n / total) * 100);
+    return `<div class="status-item">
+      <div style="font-size:1rem;width:24px;text-align:center;">${it.icon}</div>
+      <div class="status-bar-label">${it.label}</div>
+      <div class="status-bar-track">
+        <div class="status-bar-inner" style="width:${pct}%;background:${it.color};"></div>
+      </div>
+      <div class="status-count">${n}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── MOVIMIENTOS RECIENTES ──
+function renderMovPanel(orders, sales, gastos, lastCierre) {
+  const movSales  = sales.filter(s=>s.fecha>lastCierre).map(s=>({...s,_type:'sale',_fecha:s.fecha}));
+  const movGastos = gastos.filter(g=>g.fecha>lastCierre).map(g=>({...g,_type:'gasto',_fecha:g.fecha}));
+  const movOrd    = orders.filter(o=>o.sta==='entregado'&&(o.fechaEntrega||o.fecha)>lastCierre)
+                          .map(o=>({...o,_type:'repair',_fecha:o.fechaEntrega||o.fecha}));
+  const all = [...movSales,...movGastos,...movOrd].sort((a,b)=>b._fecha-a._fecha).slice(0,6);
+  const c = document.getElementById('mov-panel');
+  if (!all.length) { c.innerHTML='<div class="empty">Sin movimientos recientes</div>'; return; }
+  c.innerHTML = all.map(m => {
+    if (m._type==='sale')   return `<div class="mov-row"><div class="mov-dot ingreso">🛒</div><div class="mov-info"><div class="mov-name">${escHtml(m.item||'Venta')}</div><div class="mov-date">${fmtDate(m._fecha)}</div></div><div class="mov-val pos">+${fmt(m.val||0)}</div></div>`;
+    if (m._type==='repair') return `<div class="mov-row"><div class="mov-dot reparacion">🔧</div><div class="mov-info"><div class="mov-name">${escHtml(m.nom||'')} — ${escHtml(m.equ||'')}</div><div class="mov-date">${fmtDate(m._fecha)}</div></div><div class="mov-val pos">+${fmt(m.val||0)}</div></div>`;
+    return `<div class="mov-row"><div class="mov-dot gasto">💸</div><div class="mov-info"><div class="mov-name">${escHtml(m.det||'Gasto')}</div><div class="mov-date">${fmtDate(m._fecha)}</div></div><div class="mov-val neg">-${fmt(m.val||0)}</div></div>`;
+  }).join('');
+}
+
+// ── CARTERA / DEUDA ──
+function renderDeudaPanel(clientes) {
+  const deudores = clientes.filter(c=>c.deuda>0).sort((a,b)=>b.deuda-a.deuda).slice(0,6);
+  const c = document.getElementById('deuda-panel');
+  if (!deudores.length) { c.innerHTML='<div class="empty">✅ Sin deudas pendientes</div>'; return; }
+  c.innerHTML = deudores.map(cl=>`<div class="deuda-row">
+    <div class="deuda-avatar">👤</div>
+    <div class="deuda-name">${escHtml(cl.nombre)}</div>
+    <div class="deuda-val">${fmt(cl.deuda)}</div>
+  </div>`).join('');
+}
+
+// ══════════════════════════════════════════
+//   TEMA
+// ══════════════════════════════════════════
+function toggleDashTheme() {
+  const isLight = document.body.classList.toggle('light-mode');
+  localStorage.setItem('appTheme', isLight ? 'light' : 'dark');
+  const icon = isLight ? '☀️' : '🌙';
+  document.querySelectorAll('#sb-theme-btn, .topbar-icon-btn').forEach(el => {
+    if (el.id === 'sb-theme-btn') el.textContent = icon + '  Cambiar tema';
+    else el.textContent = icon;
+  });
+}
+function applyTheme() {
+  const saved = localStorage.getItem('appTheme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (saved === 'light' || (!saved && !prefersDark)) {
+    document.body.classList.add('light-mode');
+    document.getElementById('sb-theme-btn').textContent = '☀️  Cambiar tema';
+    document.querySelector('.topbar-icon-btn').textContent = '☀️';
+  }
+}
+
+// ══════════════════════════════════════════
+//   NAVEGACIÓN — vuelve a la app
+// ══════════════════════════════════════════
+function goApp(tabName) {
+  // Guarda el tab deseado en sessionStorage
+  sessionStorage.setItem('dashGoTab', tabName);
+  window.location.href = './index.html';
+}
+function goAction(action) {
+  sessionStorage.setItem('dashAction', action);
+  window.location.href = './index.html';
+}
+
+// ══════════════════════════════════════════
+//   INIT
+// ══════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  applyTheme();
+  loadBizNames();
+  document.body.style.display = 'block';
+  await loadDashboard();
+  // Recarga automática cada 30 segundos
+  setInterval(loadDashboard, 30000);
+});
+</script>
+</body>
+</html>
