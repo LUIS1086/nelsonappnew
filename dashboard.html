@@ -794,9 +794,149 @@ body::after {
 .panel-card:nth-child(3) { animation-delay: 0.18s; }
 
 /* ══════════════════════════════════════
-   ONLY DESKTOP
+   SIDEBAR COLLAPSE
 ══════════════════════════════════════ */
-@media (max-width: 960px) { body { display: none !important; } }
+.shell.sb-collapsed {
+  grid-template-columns: 58px 1fr;
+}
+.shell.sb-collapsed .sb-biz-short,
+.shell.sb-collapsed .sb-biz-name,
+.shell.sb-collapsed .sb-caja,
+.shell.sb-collapsed .sb-section-label,
+.shell.sb-collapsed .nav-item span:not(.nav-icon):not(.nav-badge),
+.shell.sb-collapsed .sb-btn span,
+.shell.sb-collapsed .sb-version {
+  display: none;
+}
+.shell.sb-collapsed .nav-item { justify-content: center; padding: 10px; }
+.shell.sb-collapsed .nav-badge { position: absolute; top: 4px; right: 4px; padding: 1px 4px; font-size: 8px; }
+.shell.sb-collapsed .sb-btn { justify-content: center; padding: 9px; }
+.shell.sb-collapsed .sb-logo-icon { margin: 0 auto; }
+.shell.sb-collapsed .sb-logo-row { justify-content: center; margin-bottom: 0; }
+.shell.sb-collapsed .sb-brand { padding: 14px 8px; }
+
+.sb-collapse-btn {
+  position: absolute; top: 14px; right: -14px; z-index: 10;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--panel2); border: 1px solid var(--border-hi);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; cursor: pointer; transition: all 0.2s;
+  color: var(--text2);
+}
+.sb-collapse-btn:hover { background: var(--accent-dim); color: var(--accent); border-color: rgba(249,115,22,0.3); }
+.shell.sb-collapsed .sb-collapse-btn { transform: rotate(180deg); }
+
+/* ══════════════════════════════════════
+   SKELETON LOADERS
+══════════════════════════════════════ */
+.skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.skel-line   { height: 12px; margin-bottom: 8px; }
+.skel-line.w80 { width: 80%; }
+.skel-line.w60 { width: 60%; }
+.skel-line.w40 { width: 40%; }
+
+/* ══════════════════════════════════════
+   KPI NÚMERO — CONTADOR ANIMADO
+══════════════════════════════════════ */
+.kpi-val { transition: none; }
+
+/* ══════════════════════════════════════
+   COMPARACIÓN VS MES ANTERIOR
+══════════════════════════════════════ */
+.kpi-vs {
+  font-size: 10px; color: var(--text3);
+  margin-top: 4px;
+}
+
+/* ══════════════════════════════════════
+   TOOLTIP MEJORADO
+══════════════════════════════════════ */
+.bar-fill::after { pointer-events: none; }
+
+/* ══════════════════════════════════════
+   SEARCH BAR EN TOPBAR
+══════════════════════════════════════ */
+.tb-search {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border-hi);
+  border-radius: var(--r-sm);
+  padding: 6px 12px;
+  transition: all 0.2s;
+}
+.tb-search:focus-within {
+  border-color: rgba(249,115,22,0.4);
+  background: rgba(249,115,22,0.05);
+}
+.tb-search input {
+  background: none; border: none; outline: none;
+  color: var(--text); font-size: 12px; font-family: var(--font-body);
+  width: 160px;
+}
+.tb-search input::placeholder { color: var(--text3); }
+.tb-search-icon { color: var(--text3); font-size: 12px; }
+
+/* ══════════════════════════════════════
+   PANEL ÓRDENES PENDIENTES — nuevo KPI
+══════════════════════════════════════ */
+.pending-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 9px; border-radius: 99px; font-size: 10px; font-weight: 700;
+  background: rgba(249,115,22,0.1); color: var(--accent);
+  border: 1px solid rgba(249,115,22,0.25);
+}
+
+/* ══════════════════════════════════════
+   LIGHT MODE DASHBOARD
+══════════════════════════════════════ */
+body.light-mode {
+  --bg:         #f0f2f8;
+  --bg2:        #e8eaf4;
+  --panel:      #ffffff;
+  --panel2:     #f5f6fc;
+  --border:     rgba(0,0,0,0.07);
+  --border-hi:  rgba(0,0,0,0.13);
+  --text:       #1a1d2e;
+  --text2:      #5a6380;
+  --text3:      #9aa0b8;
+}
+body.light-mode .glow-1 { background: rgba(249,115,22,0.08); }
+body.light-mode .glow-2 { background: rgba(61,184,245,0.06); }
+body.light-mode body::after { display: none; }
+body.light-mode .sidebar { background: rgba(255,255,255,0.96); }
+body.light-mode .topbar { background: rgba(248,249,255,0.92); }
+body.light-mode .kpi-val {
+  background: linear-gradient(135deg, #1a1d2e 0%, rgba(26,29,46,0.7) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE TABLET
+══════════════════════════════════════ */
+@media (max-width: 1100px) and (min-width: 780px) {
+  .shell { grid-template-columns: 58px 1fr; }
+  .sb-biz-short, .sb-biz-name, .sb-caja,
+  .sb-section-label, .sb-version { display: none; }
+  .nav-item span:not(.nav-icon):not(.nav-badge) { display: none; }
+  .nav-item { justify-content: center; padding: 10px; }
+  .sb-btn span { display: none; }
+  .sb-btn { justify-content: center; padding: 9px; }
+  .sb-logo-icon { margin: 0 auto; }
+  .sb-logo-row { justify-content: center; margin-bottom: 0; }
+  .sb-brand { padding: 14px 8px; }
+  .bottom-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 780px) { body { display: none !important; } }
 </style>
 </head>
 <body>
@@ -809,7 +949,8 @@ body::after {
 <div class="shell">
 
 <!-- ══ SIDEBAR ══ -->
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
+  <div class="sb-collapse-btn" onclick="toggleSidebar()" title="Colapsar">◀</div>
   <div class="sb-brand">
     <div class="sb-logo-row">
       <div class="sb-logo-icon">🔧</div>
@@ -862,7 +1003,7 @@ body::after {
   <div class="sb-footer">
     <button class="sb-btn" onclick="toggleDashTheme()">🌙 &nbsp; Cambiar tema</button>
     <button class="sb-btn primary" onclick="goApp('taller')">← &nbsp; Volver a la app</button>
-    <div class="sb-version" id="sb-version">v2.1.0 · NelsonApp Pro</div>
+    <div class="sb-version" id="sb-version">v2.2.0 · NelsonApp Pro</div>
   </div>
 </aside>
 
@@ -875,6 +1016,10 @@ body::after {
     </div>
   </div>
   <div class="tb-right">
+    <div class="tb-search">
+      <span class="tb-search-icon">🔍</span>
+      <input type="text" id="tb-search-input" placeholder="Buscar cliente u orden..." oninput="dashSearch(this.value)">
+    </div>
     <div class="tb-date" id="tb-date">—</div>
     <div class="tb-clock" id="tb-clock">00:00:00</div>
     <button class="tb-action green" onclick="goAction('notify')">💬 Avisar listos</button>
@@ -901,6 +1046,7 @@ body::after {
         <div class="kpi-sub" id="kpi-caja-sub">Desde último cierre</div>
         <div class="kpi-trend neutral" id="kpi-caja-trend">—</div>
       </div>
+      <div class="kpi-vs" id="kpi-caja-vs"></div>
     </div>
     <div class="kpi" style="--kpi-color:var(--blue)">
       <div class="kpi-accent-line" style="background:linear-gradient(to right,var(--blue),transparent)"></div>
@@ -911,6 +1057,7 @@ body::after {
         <div class="kpi-sub" id="kpi-activas-sub">—</div>
         <div class="kpi-trend neutral" id="kpi-activas-trend">—</div>
       </div>
+      <div class="kpi-vs" id="kpi-activas-vs"></div>
     </div>
     <div class="kpi" style="--kpi-color:var(--accent)">
       <div class="kpi-accent-line" style="background:linear-gradient(to right,var(--accent),transparent)"></div>
@@ -921,6 +1068,7 @@ body::after {
         <div class="kpi-sub" id="kpi-ingresos-sub">—</div>
         <div class="kpi-trend neutral" id="kpi-ingresos-trend">—</div>
       </div>
+      <div class="kpi-vs" id="kpi-ingresos-vs"></div>
     </div>
     <div class="kpi" style="--kpi-color:var(--violet)">
       <div class="kpi-accent-line" style="background:linear-gradient(to right,var(--violet),transparent)"></div>
@@ -931,6 +1079,7 @@ body::after {
         <div class="kpi-sub" id="kpi-inventario-sub">—</div>
         <div class="kpi-trend neutral" id="kpi-inventario-trend">—</div>
       </div>
+      <div class="kpi-vs" id="kpi-inventario-vs"></div>
     </div>
   </div>
 
@@ -1127,6 +1276,114 @@ body::after {
 
 <script>
 // ════════════════════════════════════════
+//  SIDEBAR COLLAPSE
+// ════════════════════════════════════════
+function toggleSidebar() {
+  const shell = document.querySelector('.shell');
+  const collapsed = shell.classList.toggle('sb-collapsed');
+  localStorage.setItem('sbCollapsed', collapsed ? '1' : '0');
+}
+function applySidebarState() {
+  if (localStorage.getItem('sbCollapsed') === '1') {
+    document.querySelector('.shell').classList.add('sb-collapsed');
+  }
+}
+
+// ════════════════════════════════════════
+//  BÚSQUEDA RÁPIDA EN DASHBOARD
+// ════════════════════════════════════════
+let _dashOrders = [];
+function dashSearch(q) {
+  q = q.trim().toLowerCase();
+  if (!q) { document.getElementById('orders-panel').innerHTML && buildOrdersPanel(_dashOrders, JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix||'#', Date.now()); return; }
+  const filtered = _dashOrders.filter(o =>
+    (o.nom||'').toLowerCase().includes(q) ||
+    (o.equ||'').toLowerCase().includes(q) ||
+    String(o.num||'').includes(q)
+  );
+  const el = document.getElementById('orders-panel');
+  const C2 = () => localStorage.getItem('appCurrency') || '$';
+  const fmt2 = v => C2() + Number(v||0).toLocaleString('es-CO');
+  const esc2 = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const daysDiff2 = (a,b) => Math.floor((b-a)/86400000);
+  const prefix = JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix||'#';
+  const now2 = Date.now();
+  if (!filtered.length) { el.innerHTML = '<div class="empty">Sin resultados para "'+q+'"</div>'; return; }
+  const dotClass = { recibido:'pip-recibido','revisión':'pip-revision', reparado:'pip-reparado', entregado:'pip-entregado' };
+  el.innerHTML = filtered.slice(0,8).map(o => {
+    const dias = daysDiff2(o.fecha, now2);
+    const dc = dias > 30 ? 'old' : dias > 7 ? 'medium' : 'fresh';
+    return `<div class="order-item">
+      <div class="order-status-pip ${dotClass[o.sta]||'pip-recibido'}"></div>
+      <div class="order-num">${prefix}${o.num||'—'}</div>
+      <div class="order-info">
+        <div class="order-client">${esc2(o.nom)}</div>
+        <div class="order-device">${esc2(o.equ)} <span class="order-days ${dc}">${dias}d</span></div>
+      </div>
+      <div class="order-val">${fmt2(o.val||0)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════
+//  SKELETON LOADERS
+// ════════════════════════════════════════
+function showSkeletons() {
+  ['orders-panel','mov-panel','top-panel','deuda-panel','garantia-panel','stock-panel','feed-panel'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = `
+      <div style="padding:12px 0;">
+        <div class="skeleton skel-line w80"></div>
+        <div class="skeleton skel-line w60"></div>
+        <div class="skeleton skel-line w80"></div>
+        <div class="skeleton skel-line w40"></div>
+        <div class="skeleton skel-line w60"></div>
+      </div>`;
+  });
+}
+
+// ════════════════════════════════════════
+//  CONTADOR ANIMADO KPI
+// ════════════════════════════════════════
+function animateCount(el, target, isMoney) {
+  const cur = () => localStorage.getItem('appCurrency') || '$';
+  const fmt2 = v => cur() + Math.round(v).toLocaleString('es-CO');
+  const start = 0; const duration = 900;
+  const startTime = performance.now();
+  function step(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    const value = start + (target - start) * ease;
+    el.textContent = isMoney ? fmt2(value) : Math.round(value);
+    if (progress < 1) requestAnimationFrame(step);
+    else el.textContent = isMoney ? fmt2(target) : target;
+  }
+  requestAnimationFrame(step);
+}
+
+// ════════════════════════════════════════
+//  COMPARACIÓN VS MES ANTERIOR
+// ════════════════════════════════════════
+function calcPrevMonthIngresos(orders, sales) {
+  const now = new Date();
+  const startPrev = new Date(now.getFullYear(), now.getMonth() - 1, 1).getTime();
+  const endPrev   = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+  const rep = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= startPrev && (o.fechaEntrega||o.fecha) < endPrev).reduce((a,b)=>a+(b.val||0),0);
+  const vta = sales.filter(s => s.fecha >= startPrev && s.fecha < endPrev).reduce((a,b)=>a+(b.val||0),0);
+  return rep + vta;
+}
+function renderVs(elId, current, prev) {
+  const el = document.getElementById(elId);
+  if (!el || !prev) return;
+  const diff = current - prev;
+  const pct  = Math.round((diff / prev) * 100);
+  const sign = diff >= 0 ? '▲' : '▼';
+  const color = diff >= 0 ? 'var(--green)' : 'var(--red)';
+  el.innerHTML = `<span style="color:${color};font-size:10px;font-weight:700;">${sign} ${Math.abs(pct)}%</span> <span style="color:var(--text3);font-size:10px;">vs mes anterior</span>`;
+}
+
+// ════════════════════════════════════════
 //  INDEXED DB
 // ════════════════════════════════════════
 const DB_NAME = 'NelsonAppPro';
@@ -1199,9 +1456,11 @@ function loadBiz() {
 //  DASHBOARD PRINCIPAL
 // ════════════════════════════════════════
 async function loadDashboard() {
+  showSkeletons();
   const [orders, stock, sales, gastos, clientes] = await Promise.all([
     getAll('orders'), getAll('stock'), getAll('sales'), getAll('gastos'), getAll('clientes')
   ]);
+  _dashOrders = orders;
 
   const now        = Date.now();
   const lastCierre = Number(localStorage.getItem('lastCierreCaja')) || 0;
@@ -1215,7 +1474,7 @@ async function loadDashboard() {
   const tSalesCaja= sales.filter(s => s.fecha > lastCierre).reduce((a,b) => a+(b.val||0), 0);
   const tGastos   = gastos.filter(g => g.fecha > lastCierre).reduce((a,b) => a+(b.val||0), 0);
   const caja      = tOrdCaja + tSalesCaja - tGastos;
-  document.getElementById('kpi-caja').textContent    = fmt(caja);
+  animateCount(document.getElementById('kpi-caja'), caja, true);
   document.getElementById('sb-cash').textContent     = fmt(caja);
   document.getElementById('kpi-caja-sub').textContent = `+${fmt(tOrdCaja+tSalesCaja)} ingresos · -${fmt(tGastos)} gastos`;
   const cajaT = document.getElementById('kpi-caja-trend');
@@ -1225,7 +1484,7 @@ async function loadDashboard() {
   // ── ACTIVAS ──
   const activas = orders.filter(o => o.sta !== 'entregado');
   const listas  = activas.filter(o => o.sta === 'reparado');
-  document.getElementById('kpi-activas').textContent = activas.length;
+  animateCount(document.getElementById('kpi-activas'), activas.length, false);
   document.getElementById('kpi-activas-sub').textContent = `${listas.length} listas para entregar`;
   document.getElementById('kpi-activas-trend').textContent = `${activas.length} en proceso`;
   document.getElementById('kpi-activas-trend').className = 'kpi-trend ' + (listas.length > 0 ? 'up' : 'neutral');
@@ -1237,17 +1496,20 @@ async function loadDashboard() {
   const ingRep  = entMes.reduce((a,b) => a+(b.val||0), 0);
   const ingVta  = sales.filter(s => s.fecha >= startMonth).reduce((a,b) => a+(b.val||0), 0);
   const ingMes  = ingRep + ingVta;
-  document.getElementById('kpi-ingresos').textContent     = fmt(ingMes);
+  animateCount(document.getElementById('kpi-ingresos'), ingMes, true);
   document.getElementById('kpi-ingresos-sub').textContent = `${entMes.length} reparaciones · ${sales.filter(s=>s.fecha>=startMonth).length} ventas`;
   const trendEl = document.getElementById('kpi-ingresos-trend');
   trendEl.textContent = fmt(ingRep) + ' reparac.';
   trendEl.className = 'kpi-trend up';
+  // Comparación mes anterior
+  const prevIng = calcPrevMonthIngresos(orders, sales);
+  renderVs('kpi-ingresos-vs', ingMes, prevIng);
 
   // ── INVENTARIO ──
   const valInv  = stock.reduce((a,b) => a+(b.p||0)*(b.q||0), 0);
   const bajos   = stock.filter(s => s.q <= threshold && s.q > 0).length;
   const agotados= stock.filter(s => s.q === 0).length;
-  document.getElementById('kpi-inventario').textContent     = fmt(valInv);
+  animateCount(document.getElementById('kpi-inventario'), valInv, true);
   document.getElementById('kpi-inventario-sub').textContent = `${stock.length} productos`;
   const invTrend = document.getElementById('kpi-inventario-trend');
   if (agotados > 0) { invTrend.textContent = `⚠ ${agotados} agotados`; invTrend.className = 'kpi-trend down'; }
@@ -1631,6 +1893,7 @@ function goAction(action) {
 // ════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', async () => {
   applyTheme();
+  applySidebarState();
   loadBiz();
   await loadDashboard();
   // Auto-refresh cada 30s

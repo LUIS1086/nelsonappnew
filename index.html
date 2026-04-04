@@ -3,13 +3,12 @@
 <head>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="NelsonApp">
-<link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NelsonApp">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#f97316">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Nelson App Pro | Taller & Ventas</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -45,7 +44,7 @@
         body {
             background: var(--bg-dark);
             color: var(--text-dark);
-            padding-bottom: 80px;
+            padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
             -webkit-tap-highlight-color: transparent;
             transition: background 0.35s ease, color 0.35s ease;
         }
@@ -663,7 +662,10 @@
                 <div id="meta-bar-wrap" class="hidden mt-1">
                     <div class="flex justify-between items-center mb-0.5">
                         <span class="text-[8px] text-slate-500 font-bold">META MES</span>
-                        <span id="meta-bar-pct" class="text-[8px] text-emerald-400 font-black">0%</span>
+                        <div class="flex items-center gap-2">
+                            <span id="meta-bar-amount" class="text-[8px] text-slate-400 font-bold"></span>
+                            <span id="meta-bar-pct" class="text-[8px] text-emerald-400 font-black">0%</span>
+                        </div>
                     </div>
                     <div class="w-32 h-1.5 bg-white/10 rounded-full overflow-hidden">
                         <div id="meta-bar-fill" class="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all duration-700" style="width:0%"></div>
