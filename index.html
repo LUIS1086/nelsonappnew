@@ -300,12 +300,310 @@
         .numpad-btn.delete { font-size: 1rem; color: #f87171; }
         .numpad-btn.enter { background: linear-gradient(135deg, #f97316, #ea580c); border-color: transparent; font-size: 0.7rem; font-weight: 900; letter-spacing: 1px; }
         .numpad-btn.enter:active { opacity: 0.8; }
+
+        /* ===== RESPONSIVE LAYOUT — TABLET & DESKTOP ===== */
+        @media (min-width: 768px) {
+            body { padding-bottom: 0; }
+
+            /* Ocultar nav bottom en desktop/tablet */
+            nav.bottom-nav-mobile { display: none !important; }
+
+            /* Layout principal: sidebar + contenido */
+            #app-layout {
+                display: flex;
+                min-height: 100vh;
+            }
+
+            /* SIDEBAR */
+            #sidebar {
+                display: flex;
+                flex-direction: column;
+                width: 240px;
+                min-height: 100vh;
+                position: fixed;
+                left: 0; top: 0; bottom: 0;
+                background: rgba(13,15,26,0.97);
+                border-right: 1px solid rgba(249,115,22,0.12);
+                backdrop-filter: blur(20px);
+                z-index: 100;
+                padding: 0;
+                box-shadow: 4px 0 40px rgba(0,0,0,0.4);
+            }
+            body.light-mode #sidebar {
+                background: rgba(253,252,249,0.97);
+                border-right-color: #ddd8ce;
+            }
+
+            #sidebar-header {
+                padding: 24px 20px 16px;
+                border-bottom: 1px solid rgba(255,255,255,0.06);
+            }
+            body.light-mode #sidebar-header { border-bottom-color: #ddd8ce; }
+
+            #sidebar-logo {
+                display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+            }
+            #sidebar-logo-icon {
+                width: 40px; height: 40px; border-radius: 12px;
+                background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+                display: flex; align-items: center; justify-content: center;
+                font-size: 1.2rem;
+                box-shadow: 0 4px 12px rgba(249,115,22,0.35);
+                flex-shrink: 0;
+            }
+            #sidebar-biz { flex: 1; min-width: 0; }
+            #sidebar-biz-short {
+                font-size: 8px; font-weight: 900;
+                color: var(--accent); letter-spacing: 3px; text-transform: uppercase;
+            }
+            #sidebar-biz-name {
+                font-size: 16px; font-weight: 900; font-style: italic;
+                white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            }
+            #sidebar-cash {
+                background: rgba(16,185,129,0.1);
+                border: 1px solid rgba(16,185,129,0.2);
+                border-radius: 12px; padding: 10px 14px;
+                display: flex; justify-content: space-between; align-items: center;
+                margin-top: 8px;
+            }
+            #sidebar-cash-label { font-size: 8px; font-weight: 800; color: #64748b; letter-spacing: 2px; text-transform: uppercase; }
+            #sidebar-cash-value { font-size: 18px; font-weight: 900; color: #10b981; }
+
+            #sidebar-meta-wrap { margin-top: 10px; }
+            #sidebar-meta-label { display: flex; justify-content: space-between; font-size: 8px; font-weight: 700; color: #64748b; margin-bottom: 4px; }
+
+            /* NAV ITEMS en sidebar */
+            #sidebar-nav {
+                padding: 12px 12px; flex: 1;
+                display: flex; flex-direction: column; gap: 4px;
+            }
+            .sidebar-nav-item {
+                display: flex; align-items: center; gap: 14px;
+                padding: 13px 16px; border-radius: 14px;
+                cursor: pointer; transition: all 0.2s;
+                color: #64748b; font-weight: 700; font-size: 13px;
+                border: 1px solid transparent;
+                -webkit-tap-highlight-color: transparent;
+            }
+            .sidebar-nav-item:hover {
+                background: rgba(249,115,22,0.08);
+                color: var(--accent);
+                border-color: rgba(249,115,22,0.15);
+            }
+            .sidebar-nav-item.active {
+                background: linear-gradient(135deg, rgba(249,115,22,0.18), rgba(249,115,22,0.08));
+                color: var(--accent);
+                border-color: rgba(249,115,22,0.3);
+                box-shadow: 0 2px 12px rgba(249,115,22,0.12);
+            }
+            body.light-mode .sidebar-nav-item:hover { background: rgba(249,115,22,0.06); }
+            body.light-mode .sidebar-nav-item.active { background: rgba(249,115,22,0.1); }
+            .sidebar-nav-icon { font-size: 1.3rem; width: 28px; text-align: center; flex-shrink: 0; }
+            .sidebar-nav-label { font-size: 13px; font-weight: 700; }
+
+            /* Botones rápidos en sidebar footer */
+            #sidebar-footer {
+                padding: 12px; border-top: 1px solid rgba(255,255,255,0.06);
+                display: flex; gap: 8px;
+            }
+            body.light-mode #sidebar-footer { border-top-color: #ddd8ce; }
+            #sidebar-footer button {
+                flex: 1; padding: 10px; border-radius: 12px;
+                font-size: 11px; font-weight: 800; text-transform: uppercase;
+                letter-spacing: 0.5px; cursor: pointer; transition: all 0.2s;
+                border: 1px solid rgba(255,255,255,0.08);
+                background: rgba(255,255,255,0.04);
+                color: #94a3b8;
+            }
+            #sidebar-footer button:hover { background: rgba(249,115,22,0.15); color: var(--accent); border-color: rgba(249,115,22,0.3); }
+
+            /* CONTENIDO PRINCIPAL desplazado por sidebar */
+            #main-content-area {
+                margin-left: 240px;
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                min-height: 100vh;
+            }
+
+            /* TOPBAR en desktop (reemplaza el header sticky) */
+            #desktop-topbar {
+                display: flex !important;
+                align-items: center; justify-content: space-between;
+                padding: 16px 32px;
+                background: rgba(13,15,26,0.85);
+                backdrop-filter: blur(20px);
+                border-bottom: 1px solid rgba(249,115,22,0.1);
+                position: sticky; top: 0; z-index: 50;
+                box-shadow: 0 1px 0 rgba(249,115,22,0.08), 0 4px 20px rgba(0,0,0,0.3);
+            }
+            body.light-mode #desktop-topbar {
+                background: rgba(245,243,238,0.92);
+                border-bottom-color: #ddd8ce;
+            }
+            #desktop-topbar-title { font-size: 20px; font-weight: 900; font-style: italic; }
+            #desktop-topbar-subtitle { font-size: 9px; color: var(--accent); font-weight: 800; letter-spacing: 3px; text-transform: uppercase; }
+            #desktop-topbar-right { display: flex; gap: 10px; align-items: center; }
+
+            /* Ocultar header mobile en desktop */
+            #app-header { display: none !important; }
+
+            /* Contenedores de vistas — más anchos en desktop */
+            .max-container {
+                max-width: 100%;
+                padding: 0 32px;
+            }
+            .app-view {
+                padding-top: 8px;
+                padding-bottom: 24px;
+            }
+
+            /* GRID de 2 columnas en vistas amplias */
+            #view-ventas {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                align-items: start;
+                padding: 24px 32px;
+            }
+            #view-ventas > .card:last-child {
+                grid-column: 1 / -1;
+            }
+
+            /* Vista taller en desktop: más espaciosa */
+            #view-taller {
+                padding: 24px 32px;
+            }
+            #view-taller .card {
+                max-width: 700px;
+                margin: 0 auto;
+            }
+
+            /* Vista órdenes */
+            #view-ordenes {
+                padding: 24px 32px;
+            }
+
+            /* Vista admin en 2 cols */
+            #view-admin {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                padding: 24px 32px;
+                align-items: start;
+            }
+            #view-admin > div:first-child { grid-column: 1 / -1; }
+
+            /* Modales más grandes en desktop */
+            .modal-custom > div {
+                max-width: 520px !important;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            #sidebar { width: 260px; }
+            #main-content-area { margin-left: 260px; }
+            #view-ventas { grid-template-columns: 1fr 1fr 1fr; }
+            #view-ventas > .card:last-child { grid-column: 1 / -1; }
+            #view-admin { grid-template-columns: 1fr 1fr 1fr; }
+            #view-admin > div:first-child { grid-column: 1 / 2; }
+        }
+
+        /* Mobile — mostrar sidebar oculto */
+        @media (max-width: 767px) {
+            #sidebar { display: none !important; }
+            #desktop-topbar { display: none !important; }
+            #main-content-area { margin-left: 0 !important; }
+        }
     </style>
 </head>
 <body class="swipe-area">
 
     <!-- BADGE OFFLINE/ONLINE -->
     <div id="net-badge"></div>
+
+    <!-- SIDEBAR (visible solo en tablet/desktop) -->
+    <aside id="sidebar">
+        <div id="sidebar-header">
+            <div id="sidebar-logo">
+                <div id="sidebar-logo-icon">🔧</div>
+                <div id="sidebar-biz">
+                    <div id="sidebar-biz-short">TODO REPUESTOS</div>
+                    <div id="sidebar-biz-name">NELSON</div>
+                </div>
+            </div>
+            <div id="sidebar-cash">
+                <div>
+                    <div id="sidebar-cash-label">Caja Neta</div>
+                    <div id="sidebar-cash-value">$0</div>
+                </div>
+                <button onclick="openCajaModal()" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#10b981;padding:6px 10px;border-radius:8px;font-size:10px;font-weight:900;cursor:pointer;">💵 Ver</button>
+            </div>
+            <div id="sidebar-meta-wrap-desktop" style="display:none;margin-top:10px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                    <span style="font-size:8px;font-weight:700;color:#64748b;letter-spacing:2px;">META MES</span>
+                    <span id="sidebar-meta-pct" style="font-size:8px;font-weight:900;color:#10b981;">0%</span>
+                </div>
+                <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;">
+                    <div id="sidebar-meta-fill" style="height:100%;width:0%;background:linear-gradient(to right,#10b981,#34d399);border-radius:99px;transition:width 0.7s ease;"></div>
+                </div>
+            </div>
+        </div>
+        <nav id="sidebar-nav">
+            <div class="sidebar-nav-item active" id="sidebar-btn-taller" onclick="tab('taller')">
+                <span class="sidebar-nav-icon">🛠️</span>
+                <span class="sidebar-nav-label">Nueva Recepción</span>
+            </div>
+            <div class="sidebar-nav-item" id="sidebar-btn-ordenes" onclick="tab('ordenes')">
+                <span class="sidebar-nav-icon">📋</span>
+                <span class="sidebar-nav-label">Órdenes</span>
+            </div>
+            <div class="sidebar-nav-item" id="sidebar-btn-ventas" onclick="tab('ventas')">
+                <span class="sidebar-nav-icon">💰</span>
+                <span class="sidebar-nav-label">Caja &amp; Inventario</span>
+            </div>
+            <div class="sidebar-nav-item" id="sidebar-btn-admin" onclick="tab('admin')">
+                <span class="sidebar-nav-icon">⚙️</span>
+                <span class="sidebar-nav-label">Datos &amp; Config</span>
+            </div>
+            <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);">
+                <div style="font-size:9px;font-weight:800;color:#475569;letter-spacing:2px;text-transform:uppercase;padding:0 4px 8px;">Acciones rápidas</div>
+                <div class="sidebar-nav-item" onclick="notifyAllReady()" style="padding:10px 16px;">
+                    <span class="sidebar-nav-icon">💬</span>
+                    <span class="sidebar-nav-label" style="font-size:12px;">Avisar listos</span>
+                </div>
+                <div class="sidebar-nav-item" onclick="exportMonthlyReport()" style="padding:10px 16px;">
+                    <span class="sidebar-nav-icon">📄</span>
+                    <span class="sidebar-nav-label" style="font-size:12px;">Reporte del mes</span>
+                </div>
+                <div class="sidebar-nav-item" onclick="openStatsModal()" style="padding:10px 16px;">
+                    <span class="sidebar-nav-icon">📊</span>
+                    <span class="sidebar-nav-label" style="font-size:12px;">Estadísticas</span>
+                </div>
+            </div>
+        </nav>
+        <div id="sidebar-footer">
+            <button onclick="toggleTheme()" id="sidebar-theme-btn">🌙 Tema</button>
+            <button onclick="openAdvancedConfig()">⚙️ Config</button>
+        </div>
+    </aside>
+
+    <!-- TOPBAR DESKTOP -->
+    <div id="desktop-topbar" style="display:none;">
+        <div>
+            <div id="desktop-topbar-subtitle" style="font-size:9px;color:var(--accent);font-weight:800;letter-spacing:3px;text-transform:uppercase;">TODO REPUESTOS</div>
+            <div id="desktop-topbar-title" style="font-size:20px;font-weight:900;font-style:italic;">NELSON</div>
+        </div>
+        <div id="desktop-topbar-right">
+            <button onclick="notifyAllReady()" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:8px 16px;border-radius:12px;font-size:11px;font-weight:800;cursor:pointer;">💬 AVISAR LISTOS</button>
+            <button onclick="exportMonthlyReport()" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:8px 16px;border-radius:12px;font-size:11px;font-weight:800;cursor:pointer;">📄 REPORTE MES</button>
+            <button onclick="toggleTheme()" id="desktop-theme-btn" style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);font-size:1.1rem;cursor:pointer;">🌙</button>
+        </div>
+    </div>
+
+    <!-- WRAPPER MAIN (desplazado por sidebar en desktop) -->
+    <div id="main-content-area">
 
     <!-- SPLASH SCREEN -->
     <div id="splash-screen">
@@ -1353,12 +1651,14 @@
         </div>
     </div>
 
-    <nav class="fixed bottom-4 left-4 right-4 max-container bg-black/70 backdrop-blur-xl border border-white/10 rounded-3xl flex justify-around items-center h-16 z-50 shadow-2xl">
+    <nav class="bottom-nav-mobile fixed bottom-4 left-4 right-4 max-container bg-black/70 backdrop-blur-xl border border-white/10 rounded-3xl flex justify-around items-center h-16 z-50 shadow-2xl">
         <button onclick="tab('taller')" id="btn-taller" class="flex flex-col items-center text-slate-400"><span class="text-2xl">🛠️</span><span class="text-[10px] font-bold">Taller</span></button>
         <button onclick="tab('ordenes')" id="btn-ordenes" class="flex flex-col items-center text-slate-400"><span class="text-2xl">📋</span><span class="text-[10px] font-bold">Órdenes</span></button>
         <button onclick="tab('ventas')" id="btn-ventas" class="flex flex-col items-center text-slate-400"><span class="text-2xl">💰</span><span class="text-[10px] font-bold">Caja/Stock</span></button>
         <button onclick="tab('admin')" id="btn-admin" class="flex flex-col items-center text-slate-400"><span class="text-2xl">⚙️</span><span class="text-[10px] font-bold">Datos</span></button>
     </nav>
+
+    </div><!-- /main-content-area -->
 
     <script>
         // ==================== CONFIGURACIÓN INICIAL ====================
@@ -1504,22 +1804,29 @@
         // ==================== TEMA CLARO / OSCURO ====================
         function toggleTheme() {
             const body = document.body;
-            const btn = document.getElementById('theme-btn');
             const isLight = body.classList.toggle('light-mode');
             body.classList.toggle('dark-mode', !isLight);
-            btn.innerText = isLight ? '☀️' : '🌙';
+            const icon = isLight ? '☀️' : '🌙';
+            const btn1 = document.getElementById('theme-btn'); if(btn1) btn1.innerText = icon;
+            const btn2 = document.getElementById('sidebar-theme-btn'); if(btn2) btn2.innerText = icon + ' Tema';
+            const btn3 = document.getElementById('desktop-theme-btn'); if(btn3) btn3.innerText = icon;
             localStorage.setItem('appTheme', isLight ? 'light' : 'dark');
         }
         function applyStoredTheme() {
             const saved = localStorage.getItem('appTheme');
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             const useLight = saved === 'light' || (!saved && !prefersDark);
+            const icon = useLight ? '☀️' : '🌙';
             if (useLight) {
                 document.body.classList.add('light-mode');
-                const btn = document.getElementById('theme-btn');
-                if (btn) btn.innerText = '☀️';
+                ['theme-btn','sidebar-theme-btn','desktop-theme-btn'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.innerText = id === 'sidebar-theme-btn' ? '☀️ Tema' : '☀️';
+                });
             }
         }
+
+        // (sidebar sync is embedded in tab() and syncSidebarCash() above)
         function showToast(msg, type = 'info') {
             const colors = { info: '#3b82f6', success: '#10b981', warning: '#f97316', error: '#ef4444' };
             const icons = { info: 'ℹ️', success: '✅', warning: '⚠️', error: '❌' };
@@ -2778,11 +3085,55 @@ db.collection("ordenes").add({
             document.querySelectorAll('.app-view').forEach(v => v.classList.add('hidden'));
             document.getElementById(`view-${t}`).classList.remove('hidden');
             document.querySelectorAll('nav button').forEach(b => { b.classList.remove('tab-active','text-orange-500'); b.classList.add('text-slate-400'); });
-            document.getElementById(`btn-${t}`).classList.add('tab-active','text-orange-500');
+            const mobileBtn = document.getElementById(`btn-${t}`);
+            if (mobileBtn) mobileBtn.classList.add('tab-active','text-orange-500');
             if(t === 'ordenes') await renderOrders();
             if(t === 'ventas') { await renderStock(); await renderMovimientos(); await updateVentaSelect(); await renderCartera(); }
             window.scrollTo(0,0);
+            // Sync sidebar
+            ['taller','ordenes','ventas','admin'].forEach(name => {
+                const sEl = document.getElementById(`sidebar-btn-${name}`);
+                if (sEl) sEl.classList.toggle('active', name === t);
+            });
+            // Sync desktop topbar title
+            const tabTitles = { taller:'Nueva Recepción', ordenes:'Órdenes', ventas:'Caja & Inventario', admin:'Datos & Config' };
+            const dtTitle = document.getElementById('desktop-topbar-title');
+            if (dtTitle) dtTitle.innerText = tabTitles[t] || 'NELSON';
+            syncSidebarCash();
         }
+
+        function syncSidebarCash() {
+            // Sync caja
+            const mainVal = document.getElementById('total-cash');
+            const sideVal = document.getElementById('sidebar-cash-value');
+            if (mainVal && sideVal) sideVal.innerText = mainVal.innerText;
+            // Sync biz names
+            const bizShort = document.getElementById('business-short-name');
+            const bizFull  = document.getElementById('business-name-display');
+            const sideShort   = document.getElementById('sidebar-biz-short');
+            const sideFull    = document.getElementById('sidebar-biz-name');
+            const dtSubtitle  = document.getElementById('desktop-topbar-subtitle');
+            const dtTitleMain = document.getElementById('desktop-topbar-title');
+            if (bizShort && sideShort)    sideShort.innerText   = bizShort.innerText;
+            if (bizFull  && sideFull)     sideFull.innerText    = bizFull.innerText;
+            if (bizShort && dtSubtitle)   dtSubtitle.innerText  = bizShort.innerText;
+            // Sync meta bar
+            const metaFill = document.getElementById('meta-bar-fill');
+            const metaPct  = document.getElementById('meta-bar-pct');
+            const metaWrap = document.getElementById('meta-bar-wrap');
+            const sideFill = document.getElementById('sidebar-meta-fill');
+            const sidePct  = document.getElementById('sidebar-meta-pct');
+            const sideMetaWrap = document.getElementById('sidebar-meta-wrap-desktop');
+            if (metaFill && sideFill) {
+                sideFill.style.width = metaFill.style.width;
+                sideFill.style.background = metaFill.style.background;
+            }
+            if (metaPct  && sidePct)  sidePct.innerText = metaPct.innerText;
+            if (sideMetaWrap && metaWrap) {
+                sideMetaWrap.style.display = metaWrap.classList.contains('hidden') ? 'none' : 'block';
+            }
+        }
+        setInterval(syncSidebarCash, 2000);
 
         window.onload = () => { document.getElementById('pin-modal').classList.remove('hidden'); };
 
@@ -3840,3 +4191,4 @@ console.log("Firebase conectado 🔥");
 </script>
 </body>
 </html>
+
