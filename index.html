@@ -2337,6 +2337,7 @@
         // ==================== IA: GENERAR DETALLE PROFESIONAL ====================
         let _currentInvoiceOrderId = null;
         let _iaDetalleGenerado = '';
+        let _iaVariantIndex = 0;
 
         async function generarDetalleConIA() {
             if (!_currentInvoiceOrderId) return;
@@ -2349,55 +2350,138 @@
             btn.innerHTML = '<span class="loading-spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:6px;"></span> Generando...';
             document.getElementById('ai-detalle-box').classList.add('hidden');
 
-            const business = JSON.parse(localStorage.getItem('businessConfig') || '{}');
-            const negocio = business.name || 'Todo Repuestos Nelson';
+            // Pequeña pausa para dar sensación de procesamiento
+            await new Promise(r => setTimeout(r, 600));
 
-            try {
-                const response = await fetch('https://api.anthropic.com/v1/messages', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        model: 'claude-sonnet-4-20250514',
-                        max_tokens: 1000,
-                        messages: [{
-                            role: 'user',
-                            content: `Eres el redactor técnico de un taller de reparación de electrodomésticos y equipos llamado "${negocio}".
+            const texto = generarTextoInteligente(o, _iaVariantIndex);
+            _iaVariantIndex++;
+            _iaDetalleGenerado = texto;
 
-Genera un detalle de reparación PROFESIONAL y CONCISO para incluir en un recibo/factura, basado en estos datos:
-- Equipo: ${o.equ}
-- Falla reportada por el cliente: ${o.det || 'No especificada'}
-- Estado actual: ${o.sta}
-- Garantía: ${o.garantia || 0} días
+            document.getElementById('ai-detalle-text').innerText = texto;
+            document.getElementById('ai-detalle-box').classList.remove('hidden');
+            btn.innerHTML = '🔄 OTRA VERSIÓN';
+            btn.disabled = false;
+        }
 
-El texto debe:
-- Ser máximo 3 líneas
-- Usar lenguaje técnico pero comprensible
-- Describir qué se revisó/reparó y el resultado
-- Sonar profesional para un recibo físico
-- Estar en español
-- NO incluir precios ni nombres de clientes
+        function generarTextoInteligente(o, varIdx = 0) {
+            const equ = (o.equ || 'equipo').toLowerCase();
+            const falla = (o.det || '').toLowerCase();
+            const garantia = o.garantia || 0;
 
-Responde ÚNICAMENTE con el texto del detalle, sin comillas ni explicaciones adicionales.`
-                        }]
-                    })
-                });
+            // ── Detectar tipo de equipo ──
+            const esVentilador   = /ventilador|abanico|fan/i.test(equ);
+            const esLicuadora    = /licuadora|blender/i.test(equ);
+            const esOlla         = /olla|arrocera|rice/i.test(equ);
+            const esLavadora     = /lavadora|washing/i.test(equ);
+            const esTV           = /tv|televisi|pantalla|monitor/i.test(equ);
+            const esCelular      = /celular|phone|samsung|iphone|xiaomi|motorola|huawei/i.test(equ);
+            const esPlancha      = /plancha|iron/i.test(equ);
+            const esMicro        = /microondas|micro/i.test(equ);
+            const esLampara      = /lámpara|lampara|bombillo|luz/i.test(equ);
+            const esBatidora     = /batidora|mixer/i.test(equ);
+            const esSecadora     = /secadora|secador/i.test(equ);
+            const esRefri        = /nevera|refrigerador|heladera/i.test(equ);
 
-                const data = await response.json();
-                const texto = data.content?.[0]?.text?.trim();
+            // ── Detectar tipo de falla ──
+            const fallaElectrica = /no enciende|no prende|sin luz|no funciona|no arranca|no conecta/i.test(falla);
+            const fallaMotor     = /motor|no gira|no rota|no mueve|traba|atascad/i.test(falla);
+            const fallaRuido     = /ruido|vibra|golpe|sonido|hace ruido/i.test(falla);
+            const fallaCalor     = /no calienta|fría|frío|temperatura|calienta poco/i.test(falla);
+            const fallaAgua      = /gotea|derrama|pierde agua|fuga/i.test(falla);
+            const fallaAcople    = /acople|cuchilla|vaso|tapa/i.test(falla);
+            const fallaPantalla  = /pantalla|display|no muestra|imagen/i.test(falla);
 
-                if (!texto) throw new Error('Sin respuesta');
+            const garStr = garantia > 0 ? ` Garantía de ${garantia} días sobre la reparación efectuada.` : '';
 
-                _iaDetalleGenerado = texto;
-                document.getElementById('ai-detalle-text').innerText = texto;
-                document.getElementById('ai-detalle-box').classList.remove('hidden');
-                btn.innerHTML = '🔄 REGENERAR CON IA';
-                btn.disabled = false;
+            // ── Banco de plantillas por tipo de equipo + falla ──
+            const plantillas = [];
 
-            } catch(e) {
-                btn.disabled = false;
-                btn.innerHTML = '<span>✨</span> GENERAR DETALLE CON IA';
-                showToast('Error al conectar con la IA. Verifica tu conexión.', 'error');
+            if (esVentilador) {
+                if (fallaMotor || fallaElectrica) {
+                    plantillas.push(
+                        `Se diagnosticó falla en el motor del ventilador. Se realizó sustitución del acople y revisión del sistema eléctrico. Equipo probado y verificado en correcto funcionamiento.${garStr}`,
+                        `Revisión completa del sistema de rotación. Se reemplazaron piezas desgastadas del motor y se realizó limpieza interna. Ventilador entregado operando a plena capacidad.${garStr}`,
+                        `Se identificó daño en componentes del motor. Reparación efectuada con reemplazo de partes y ajuste de élices. Funcionamiento comprobado satisfactoriamente.${garStr}`
+                    );
+                } else if (fallaRuido) {
+                    plantillas.push(
+                        `Se diagnosticó vibración anormal por desbalance en élices y desgaste de rodamientos. Se realizó reemplazo y balanceo. Equipo entregado silencioso y en óptimas condiciones.${garStr}`,
+                        `Revisión de sistema de rotación por ruido excesivo. Se lubricaron y reemplazaron componentes desgastados. Ventilador funcionando correctamente sin ruidos.${garStr}`
+                    );
+                } else {
+                    plantillas.push(
+                        `Se realizó diagnóstico, desmontaje y revisión general del ventilador. Se sustituyeron piezas en mal estado y se efectuaron pruebas de funcionamiento. Equipo entregado en óptimas condiciones.${garStr}`,
+                        `Revisión integral del ventilador. Se limpió, lubricó y repararon los componentes afectados. Equipo funcionando correctamente y listo para uso.${garStr}`
+                    );
+                }
+            } else if (esLicuadora) {
+                if (fallaAcople || fallaMotor) {
+                    plantillas.push(
+                        `Se diagnosticó falla en acople y sistema de transmisión. Se realizó sustitución de acople y cuchillas. Licuadora probada y entregada en perfecto estado de funcionamiento.${garStr}`,
+                        `Revisión del mecanismo de corte y transmisión. Reemplazo de acople desgastado y ajuste del vaso. Equipo entregado funcionando correctamente.${garStr}`
+                    );
+                } else if (fallaElectrica) {
+                    plantillas.push(
+                        `Se revisó sistema eléctrico y motor de licuadora. Se realizaron reparaciones en circuito de encendido. Equipo verificado y entregado en correcto funcionamiento.${garStr}`,
+                        `Diagnóstico y reparación del sistema eléctrico. Reemplazo de suiche y revisión del bobinado del motor. Licuadora entregada operando normalmente.${garStr}`
+                    );
+                } else {
+                    plantillas.push(
+                        `Revisión general de licuadora. Se diagnosticaron y repararon los componentes afectados. Equipo probado y entregado funcionando en óptimas condiciones.${garStr}`,
+                        `Se efectuó desmontaje completo y revisión de todos los componentes. Reparación realizada exitosamente. Licuadora entregada en buen estado de funcionamiento.${garStr}`
+                    );
+                }
+            } else if (esOlla) {
+                if (fallaElectrica || fallaCalor) {
+                    plantillas.push(
+                        `Se diagnosticó falla en resistencia y sistema de calentamiento. Se realizó reemplazo del elemento calefactor y revisión del termostato. Olla arrocera probada y entregada funcionando correctamente.${garStr}`,
+                        `Revisión del sistema eléctrico y de calentamiento. Se sustituyeron componentes defectuosos. Equipo verificado y entregado en correcto funcionamiento.${garStr}`
+                    );
+                } else {
+                    plantillas.push(
+                        `Revisión general de olla arrocera. Se diagnosticaron y repararon los componentes afectados. Equipo probado y entregado en óptimas condiciones de funcionamiento.${garStr}`,
+                        `Se realizó desmontaje y diagnóstico completo. Reparación efectuada con reemplazo de piezas defectuosas. Olla entregada funcionando correctamente.${garStr}`
+                    );
+                }
+            } else if (esCelular) {
+                if (fallaPantalla) {
+                    plantillas.push(
+                        `Se realizó sustitución de pantalla y digitalizador. Calibración táctil verificada. Equipo entregado con display en perfecto funcionamiento.${garStr}`,
+                        `Diagnóstico y reemplazo de módulo de pantalla. Se realizaron pruebas de imagen y respuesta táctil. Celular entregado en óptimas condiciones.${garStr}`
+                    );
+                } else if (fallaElectrica) {
+                    plantillas.push(
+                        `Diagnóstico del sistema de carga y alimentación. Se realizaron reparaciones en placa base y conector de carga. Equipo verificado y entregado funcionando correctamente.${garStr}`,
+                        `Revisión de sistema eléctrico y batería. Reparación efectuada satisfactoriamente. Celular entregado operando con normalidad.${garStr}`
+                    );
+                } else {
+                    plantillas.push(
+                        `Se realizó diagnóstico completo del equipo. Reparación efectuada sobre el componente afectado con pruebas de funcionamiento. Celular entregado en buen estado.${garStr}`,
+                        `Revisión y reparación del daño reportado. Se realizaron pruebas exhaustivas de funcionamiento. Equipo entregado operando correctamente.${garStr}`
+                    );
+                }
+            } else if (esLavadora) {
+                plantillas.push(
+                    `Se diagnosticó falla en el sistema reportado. Se realizó revisión de motor, bomba y sistema de control. Lavadora probada en ciclo completo y entregada funcionando correctamente.${garStr}`,
+                    `Revisión integral de lavadora. Reparación efectuada sobre los componentes afectados. Equipo verificado en ciclo de lavado completo y entregado en buen estado.${garStr}`
+                );
+            } else if (esRefri) {
+                plantillas.push(
+                    `Se realizó diagnóstico del sistema de refrigeración. Reparación efectuada sobre el componente afectado. Nevera entregada alcanzando temperatura óptima de funcionamiento.${garStr}`,
+                    `Revisión del sistema de enfriamiento y componentes eléctricos. Reparación realizada satisfactoriamente. Refrigerador entregado en correcto funcionamiento.${garStr}`
+                );
+            } else {
+                // Genérico profesional
+                const genericos = [
+                    `Se realizó diagnóstico completo del equipo con identificación de la falla reportada. Se efectuó reparación sobre los componentes afectados. Equipo probado y entregado en correcto funcionamiento.${garStr}`,
+                    `Revisión técnica integral del equipo. Se diagnosticaron y repararon los componentes con falla. Pruebas de funcionamiento realizadas satisfactoriamente. Equipo entregado en buen estado.${garStr}`,
+                    `Se efectuó diagnóstico y reparación del daño reportado por el cliente. Sustitución de piezas defectuosas y verificación del funcionamiento general. Equipo entregado operando correctamente.${garStr}`,
+                    `Diagnóstico técnico y reparación del equipo. Se identificó y corrigió la falla principal. Pruebas finales realizadas con resultado satisfactorio. Equipo listo para uso normal.${garStr}`
+                ];
+                return genericos[varIdx % genericos.length];
             }
+
+            return plantillas[varIdx % plantillas.length];
         }
 
         async function aplicarDetalleIA() {
@@ -2405,10 +2489,8 @@ Responde ÚNICAMENTE con el texto del detalle, sin comillas ni explicaciones adi
             const orders = await getAll('orders');
             const o = orders.find(x => x.id === _currentInvoiceOrderId);
             if (!o) return;
-            // Actualizar el detalle en la orden guardada
             o.det = _iaDetalleGenerado.toUpperCase();
             await put('orders', o);
-            // Regenerar el recibo con el nuevo detalle
             document.getElementById('ai-detalle-box').classList.add('hidden');
             showToast('✅ Detalle aplicado al recibo', 'success');
             await printInvoice(_currentInvoiceOrderId);
