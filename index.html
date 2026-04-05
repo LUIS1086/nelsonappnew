@@ -1397,8 +1397,28 @@
                             <textarea id="tpl-recepcion" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, recibimos tu {equipo}. Orden {orden}. Te avisamos cuando esté listo 🔧"></textarea>
                         </div>
                         <div>
+                            <label class="text-[10px] text-slate-400 block mb-1">🔍 EN REVISIÓN</label>
+                            <textarea id="tpl-revision" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, tu {equipo} está siendo revisado y diagnosticado 🔍"></textarea>
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-400 block mb-1">💼 ENVIAR PRESUPUESTO</label>
+                            <textarea id="tpl-presupuesto" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, el presupuesto para tu {equipo} es de ${valor}. ¿Apruebas? ✅"></textarea>
+                        </div>
+                        <div>
                             <label class="text-[10px] text-slate-400 block mb-1">✅ EQUIPO LISTO</label>
                             <textarea id="tpl-listo" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, tu {equipo} ya está listo! Valor: ${valor}. Puedes pasar a recogerlo 🎉"></textarea>
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-400 block mb-1">🛡️ RECORDATORIO DE GARANTÍA</label>
+                            <textarea id="tpl-garantia" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, tu {equipo} tiene garantía de {dias} días. Estamos a tu servicio 🛡️"></textarea>
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-400 block mb-1">⚠️ SIN REPARACIÓN</label>
+                            <textarea id="tpl-norepara" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, lamentamos que tu {equipo} no tiene reparación posible. Puedes pasar a recogerlo 😔"></textarea>
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-400 block mb-1">⏳ AVISO DE RETRASO</label>
+                            <textarea id="tpl-retraso" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, la reparación de tu {equipo} está tomando más tiempo. Gracias por tu paciencia ⏳"></textarea>
                         </div>
                         <div>
                             <label class="text-[10px] text-slate-400 block mb-1">💸 RECORDATORIO DE PAGO</label>
@@ -2329,9 +2349,14 @@
                         <div><p style="color:white;font-weight:900;font-size:14px;">💬 ENVIAR WHATSAPP</p><p style="color:rgba(255,255,255,0.7);font-size:10px;">${escapeHtml(o.nom)} · ${o.tel}</p></div>
                         <button onclick="document.getElementById('modal-wa-pick').remove()" style="color:white;background:rgba(0,0,0,0.3);width:28px;height:28px;border-radius:50%;font-size:14px;">✕</button>
                     </div>
-                    <div style="padding:16px;display:flex;flex-direction:column;gap:10px;">
+                    <div style="padding:16px;display:flex;flex-direction:column;gap:10px;max-height:72vh;overflow-y:auto;">
                         <button onclick="waPickSend('recepcion',${id})" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#93c5fd;padding:14px;border-radius:14px;font-weight:900;font-size:12px;text-align:left;">📥 Mensaje de recepción<br><span style="font-weight:400;font-size:10px;opacity:0.7;">Confirmar que recibiste el equipo</span></button>
+                        <button onclick="waPickSend('revision',${id})" style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:#fde68a;padding:14px;border-radius:14px;font-weight:900;font-size:12px;text-align:left;">🔍 En revisión<br><span style="font-weight:400;font-size:10px;opacity:0.7;">Equipo siendo diagnosticado</span></button>
+                        <button onclick="waPickSend('presupuesto',${id})" style="background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);color:#c4b5fd;padding:14px;border-radius:14px;font-weight:900;font-size:12px;text-align:left;">💼 Enviar presupuesto<br><span style="font-weight:400;font-size:10px;opacity:0.7;">Informar valor de la reparación</span></button>
                         <button onclick="waPickSend('listo',${id})" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#6ee7b7;padding:14px;border-radius:14px;font-weight:900;font-size:12px;text-align:left;">✅ Equipo listo para recoger<br><span style="font-weight:400;font-size:10px;opacity:0.7;">Avisar que la reparación terminó</span></button>
+                        <button onclick="waPickSend('garantia',${id})" style="background:rgba(20,184,166,0.12);border:1px solid rgba(20,184,166,0.3);color:#5eead4;padding:14px;border-radius:14px;font-weight:900;font-size:12px;text-align:left;">🛡️ Recordatorio de garantía<br><span style="font-weight:400;font-size:10px;opacity:0.7;">Informar días de garantía activos</span></button>
+                        <button onclick="waPickSend('norepara',${id})" style="background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.3);color:#fdba74;padding:14px;border-radius:14px;font-weight:900;font-size:12px;text-align:left;">⚠️ No tiene reparación<br><span style="font-weight:400;font-size:10px;opacity:0.7;">Equipo sin solución o sin repuesto</span></button>
+                        <button onclick="waPickSend('retraso',${id})" style="background:rgba(148,163,184,0.1);border:1px solid rgba(148,163,184,0.2);color:#cbd5e1;padding:14px;border-radius:14px;font-weight:900;font-size:12px;text-align:left;">⏳ Aviso de retraso<br><span style="font-weight:400;font-size:10px;opacity:0.7;">Pedir más tiempo para la reparación</span></button>
                         <button onclick="waPickSend('cobro',${id})" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;padding:14px;border-radius:14px;font-weight:900;font-size:12px;text-align:left;">💸 Recordatorio de pago<br><span style="font-weight:400;font-size:10px;opacity:0.7;">Recordar saldo pendiente</span></button>
                     </div>
                 </div>`;
@@ -3961,9 +3986,14 @@
         // ==================== PLANTILLAS WHATSAPP ====================
         function saveWhatsappTemplates() {
             const tpls = {
-                recepcion: document.getElementById('tpl-recepcion').value,
-                listo:     document.getElementById('tpl-listo').value,
-                cobro:     document.getElementById('tpl-cobro').value
+                recepcion:   document.getElementById('tpl-recepcion').value,
+                revision:    document.getElementById('tpl-revision').value,
+                presupuesto: document.getElementById('tpl-presupuesto').value,
+                listo:       document.getElementById('tpl-listo').value,
+                garantia:    document.getElementById('tpl-garantia').value,
+                norepara:    document.getElementById('tpl-norepara').value,
+                retraso:     document.getElementById('tpl-retraso').value,
+                cobro:       document.getElementById('tpl-cobro').value
             };
             localStorage.setItem('whatsappTemplates', JSON.stringify(tpls));
             showToast('Plantillas guardadas', 'success');
@@ -3972,17 +4002,24 @@
             const saved = localStorage.getItem('whatsappTemplates');
             if (!saved) return;
             const tpls = JSON.parse(saved);
-            const r = document.getElementById('tpl-recepcion'); if (r) r.value = tpls.recepcion || '';
-            const l = document.getElementById('tpl-listo');     if (l) l.value = tpls.listo     || '';
-            const c = document.getElementById('tpl-cobro');     if (c) c.value = tpls.cobro     || '';
+            const ids = ['recepcion','revision','presupuesto','listo','garantia','norepara','retraso','cobro'];
+            ids.forEach(k => {
+                const el = document.getElementById('tpl-' + k);
+                if (el) el.value = tpls[k] || '';
+            });
         }
         function buildWhatsappMsg(type, order) {
             const saved = localStorage.getItem('whatsappTemplates');
             const tpls  = saved ? JSON.parse(saved) : {};
             const defaults = {
-                recepcion: 'Hola {cliente}, recibimos tu {equipo}. Orden {orden}. Te avisamos cuando esté listo 🔧',
-                listo:     'Hola {cliente}, tu {equipo} ya está listo! Valor: ${valor}. Puedes pasar a recogerlo 🎉',
-                cobro:     'Hola {cliente}, tienes un saldo pendiente de ${valor}. Gracias 🙏'
+                recepcion:   'Hola {cliente}, recibimos tu {equipo}. Orden {orden}. Te avisamos cuando esté listo 🔧',
+                revision:    'Hola {cliente}, tu {equipo} está siendo revisado y diagnosticado. En breve te informamos el estado 🔍',
+                presupuesto: 'Hola {cliente}, el presupuesto para reparar tu {equipo} es de ${valor}. Por favor confírmanos si apruebas la reparación ✅',
+                listo:       'Hola {cliente}, tu {equipo} ya está listo! Valor: ${valor}. Puedes pasar a recogerlo 🎉',
+                garantia:    'Hola {cliente}, recuerda que tu {equipo} tiene garantía de {dias} días desde la fecha de entrega. Estamos a tu servicio 🛡️',
+                norepara:    'Hola {cliente}, lamentamos informarte que tu {equipo} no tiene reparación posible o no conseguimos el repuesto. Puedes pasar a recogerlo cuando gustes 😔',
+                retraso:     'Hola {cliente}, te informamos que la reparación de tu {equipo} está tomando un poco más de tiempo. Te avisamos en cuanto esté listo, gracias por tu paciencia ⏳',
+                cobro:       'Hola {cliente}, tienes un saldo pendiente de ${valor}. Gracias 🙏'
             };
             let msg = tpls[type] || defaults[type] || '';
             msg = msg
