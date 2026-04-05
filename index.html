@@ -2110,9 +2110,13 @@
             video.srcObject = null;
         }
         function closeCameraAndReturn() {
+            const modoActual = cameraMode;
             closeCamera();
-            if (cameraMode === 'entrega') {
+            if (modoActual === 'entrega') {
                 document.getElementById('modal-delivery-photos').classList.remove('hidden');
+            } else if (modoActual === 'retomar-recepcion' && _retomarOrdenId) {
+                // Volver al visor de fotos de la orden
+                openPhotoModal(_retomarOrdenId, 'recepcion');
             }
         }
         async function takePhoto() {
@@ -2123,7 +2127,24 @@
             canvas.height = video.videoHeight;
             canvas.getContext('2d').drawImage(video, 0, 0);
             const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.7));
-            if (cameraMode === 'entrega') {
+
+            if (cameraMode === 'retomar-recepcion') {
+                // Guardar foto directo en la orden existente sin tocar el formulario
+                if (!_retomarOrdenId) { closeCamera(); return; }
+                const orders = await getAll('orders');
+                const o = orders.find(x => x.id === _retomarOrdenId);
+                if (!o) { closeCamera(); return; }
+                if ((o.fotos || []).length >= 3) {
+                    showAlert('Máximo 3 fotos de recepción.', 'warning'); return;
+                }
+                o.fotos = [...(o.fotos || []), blob];
+                await put('orders', o);
+                showToast(`✅ Foto agregada (${o.fotos.length}/3)`, 'success');
+                if (o.fotos.length >= 3) {
+                    closeCamera();
+                    await openPhotoModal(_retomarOrdenId, 'recepcion');
+                }
+            } else if (cameraMode === 'entrega') {
                 if (currentDeliveryPhotos.length >= 3) { showAlert("Máximo 3 fotos de entrega.", "warning"); return; }
                 currentDeliveryPhotos.push(blob);
                 const img = document.createElement('img');
@@ -2660,6 +2681,8 @@
             });
         }
 
+        let _retomarOrdenId = null;
+
         async function retomarFotos() {
             if (!_fotoModalOrderId) return;
             const id = _fotoModalOrderId;
@@ -2668,21 +2691,20 @@
             if (tipo === 'entrega') {
                 await openDeliveryPhotosModal(id);
             } else {
-                // Cargar fotos existentes para continuar agregando
-                const orders = await getAll('orders');
-                const o = orders.find(x => x.id === id);
-                currentPhotos = o?.fotos ? [...o.fotos] : [];
-                // Mostrar previews actuales
-                const previews = document.getElementById('previews');
-                previews.innerHTML = '';
-                for (let blob of currentPhotos) {
-                    const img = document.createElement('img');
-                    img.src = URL.createObjectURL(blob);
-                    img.className = 'w-14 h-14 object-cover rounded-xl border-2 border-orange-500 shadow-md';
-                    previews.appendChild(img);
+                // Abrir cámara y guardar foto directo en la orden existente (sin ir a pestaña taller)
+                _retomarOrdenId = id;
+                cameraMode = 'retomar-recepcion';
+                if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                    const video = document.getElementById('video');
+                    video.srcObject = stream;
+                    await video.play();
+                    document.getElementById('camera-modal').classList.remove('hidden');
+                    showToast('Captura la nueva foto de recepción', 'info');
+                } catch(e) {
+                    showAlert('No se pudo acceder a la cámara. Verifica los permisos.', 'error');
                 }
-                tab('taller');
-                showToast('Agrega o reemplaza las fotos de recepción', 'info');
             }
         }
 
