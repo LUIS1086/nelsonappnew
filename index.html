@@ -966,8 +966,12 @@
 
     <div id="modal-fotos" class="hidden fixed inset-0 z-[1000] photo-modal flex flex-col items-center justify-center p-6">
         <button onclick="closePhotoModal()" class="absolute top-6 right-6 bg-white/10 w-12 h-12 rounded-full text-2xl backdrop-blur">✕</button>
-        <h3 id="modal-fotos-title" class="text-orange-500 font-black mb-5 text-center text-xl">FOTOS</h3>
-        <div id="modal-fotos-container" class="w-full max-w-lg space-y-4 max-h-[70vh] overflow-y-auto no-scrollbar"></div>
+        <h3 id="modal-fotos-title" class="text-orange-500 font-black mb-3 text-center text-xl">FOTOS</h3>
+        <div id="modal-fotos-container" class="w-full max-w-lg space-y-4 max-h-[60vh] overflow-y-auto no-scrollbar mb-4"></div>
+        <div class="flex gap-3 w-full max-w-lg">
+            <button id="btn-retomar-fotos" onclick="retomarFotos()" class="flex-1 bg-orange-600/20 border border-orange-500/40 text-orange-400 py-3 rounded-2xl font-black text-xs uppercase active:scale-95 transition">📸 RETOMAR FOTOS</button>
+            <button id="btn-borrar-fotos" onclick="borrarTodasFotos()" class="flex-1 bg-rose-600/20 border border-rose-500/40 text-rose-400 py-3 rounded-2xl font-black text-xs uppercase active:scale-95 transition">🗑️ BORRAR TODAS</button>
+        </div>
     </div>
 
     <div id="modal-delivery-photos" class="hidden fixed inset-0 z-[2000] photo-modal flex flex-col items-center justify-center p-6">
@@ -2559,28 +2563,128 @@
             const prefix = num.startsWith('57') ? '' : '57';
             window.location.href = `https://wa.me/${prefix}${num}?text=${encodeURIComponent(msg)}`;
         }
+        let _fotoModalOrderId = null;
+        let _fotoModalTipo = 'recepcion';
+
         async function openPhotoModal(id, tipo = 'recepcion') {
             const orders = await getAll('orders');
             const o = orders.find(x => x.id === id);
             const fotos = tipo === 'entrega' ? o?.fotosEntrega : o?.fotos;
             if (!fotos?.length) return showAlert(`Esta orden no tiene fotos de ${tipo === 'entrega' ? 'entrega' : 'recepción'} registradas.`, "info");
+
+            _fotoModalOrderId = id;
+            _fotoModalTipo = tipo;
+
             const color = tipo === 'entrega' ? 'text-emerald-400' : 'text-orange-500';
-            const icon = tipo === 'entrega' ? '📷' : '📸';
+            const icon  = tipo === 'entrega' ? '📷' : '📸';
             const label = tipo === 'entrega' ? 'ENTREGA' : 'RECEPCIÓN';
-            document.getElementById('modal-fotos-title').className = `font-black mb-5 text-center text-xl ${color}`;
-            document.getElementById('modal-fotos-title').innerText = `${icon} ${label} · ${escapeHtml(o.equ)}`;
+            document.getElementById('modal-fotos-title').className = `font-black mb-3 text-center text-xl ${color}`;
+            document.getElementById('modal-fotos-title').innerText = `${icon} ${label} · ${escapeHtml(o.equ)} (${fotos.length})`;
+
+            // Botón retomar: color según tipo
+            const btnRetomar = document.getElementById('btn-retomar-fotos');
+            if (tipo === 'entrega') {
+                btnRetomar.className = 'flex-1 bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 py-3 rounded-2xl font-black text-xs uppercase active:scale-95 transition';
+                btnRetomar.innerHTML = '📷 RETOMAR FOTOS';
+            } else {
+                btnRetomar.className = 'flex-1 bg-orange-600/20 border border-orange-500/40 text-orange-400 py-3 rounded-2xl font-black text-xs uppercase active:scale-95 transition';
+                btnRetomar.innerHTML = '📸 RETOMAR FOTOS';
+            }
+
             const container = document.getElementById('modal-fotos-container');
             container.innerHTML = '';
-            for (let blob of fotos) {
+
+            fotos.forEach((blob, idx) => {
+                const wrapper = document.createElement('div');
+                wrapper.style.cssText = 'position:relative;';
                 const img = document.createElement('img');
                 img.src = URL.createObjectURL(blob);
                 img.className = 'w-full rounded-2xl shadow-xl';
                 img.style.border = tipo === 'entrega' ? '1px solid rgba(52,211,153,0.3)' : '1px solid rgba(255,255,255,0.2)';
-                container.appendChild(img);
-            }
+                // Botón borrar foto individual
+                const delBtn = document.createElement('button');
+                delBtn.innerHTML = '🗑️';
+                delBtn.style.cssText = 'position:absolute;top:10px;right:10px;background:rgba(220,38,38,0.85);backdrop-filter:blur(4px);border:none;color:white;width:36px;height:36px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.5);';
+                delBtn.title = 'Borrar esta foto';
+                delBtn.onclick = () => borrarFotoIndividual(idx);
+                wrapper.appendChild(img);
+                wrapper.appendChild(delBtn);
+                container.appendChild(wrapper);
+            });
+
             document.getElementById('modal-fotos').classList.remove('hidden');
         }
-        function closePhotoModal() { document.getElementById('modal-fotos').classList.add('hidden'); document.getElementById('modal-fotos-container').innerHTML = ''; }
+
+        function closePhotoModal() {
+            document.getElementById('modal-fotos').classList.add('hidden');
+            document.getElementById('modal-fotos-container').innerHTML = '';
+            _fotoModalOrderId = null;
+        }
+
+        async function borrarFotoIndividual(idx) {
+            if (!_fotoModalOrderId) return;
+            showConfirm('¿Borrar esta foto?', async () => {
+                const orders = await getAll('orders');
+                const o = orders.find(x => x.id === _fotoModalOrderId);
+                if (!o) return;
+                if (_fotoModalTipo === 'entrega') {
+                    o.fotosEntrega = (o.fotosEntrega || []).filter((_, i) => i !== idx);
+                } else {
+                    o.fotos = (o.fotos || []).filter((_, i) => i !== idx);
+                }
+                await put('orders', o);
+                showToast('Foto borrada', 'success');
+                const fotos = _fotoModalTipo === 'entrega' ? o.fotosEntrega : o.fotos;
+                if (!fotos.length) {
+                    closePhotoModal();
+                    await renderOrders();
+                } else {
+                    await openPhotoModal(_fotoModalOrderId, _fotoModalTipo);
+                }
+            });
+        }
+
+        async function borrarTodasFotos() {
+            if (!_fotoModalOrderId) return;
+            const label = _fotoModalTipo === 'entrega' ? 'entrega' : 'recepción';
+            showConfirm(`¿Borrar TODAS las fotos de ${label}?`, async () => {
+                const orders = await getAll('orders');
+                const o = orders.find(x => x.id === _fotoModalOrderId);
+                if (!o) return;
+                if (_fotoModalTipo === 'entrega') o.fotosEntrega = [];
+                else o.fotos = [];
+                await put('orders', o);
+                closePhotoModal();
+                await renderOrders();
+                showToast(`Fotos de ${label} borradas`, 'success');
+            });
+        }
+
+        async function retomarFotos() {
+            if (!_fotoModalOrderId) return;
+            const id = _fotoModalOrderId;
+            const tipo = _fotoModalTipo;
+            closePhotoModal();
+            if (tipo === 'entrega') {
+                await openDeliveryPhotosModal(id);
+            } else {
+                // Cargar fotos existentes para continuar agregando
+                const orders = await getAll('orders');
+                const o = orders.find(x => x.id === id);
+                currentPhotos = o?.fotos ? [...o.fotos] : [];
+                // Mostrar previews actuales
+                const previews = document.getElementById('previews');
+                previews.innerHTML = '';
+                for (let blob of currentPhotos) {
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(blob);
+                    img.className = 'w-14 h-14 object-cover rounded-xl border-2 border-orange-500 shadow-md';
+                    previews.appendChild(img);
+                }
+                tab('taller');
+                showToast('Agrega o reemplaza las fotos de recepción', 'info');
+            }
+        }
 
         async function saveGasto() {
             const det = document.getElementById('g-det').value.trim().toUpperCase();
