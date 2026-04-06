@@ -713,9 +713,31 @@
                     </select>
                 </div>
             </div>
-            <div class="flex flex-col items-center gap-4">
-                <input type="number" id="c-val" placeholder="VALOR ESTIMADO" class="text-emerald-400 font-black text-center text-xl w-full" min="0" step="1000">
-                <div id="val-error" class="text-[10px] text-rose-400 font-bold mt-1 min-h-[15px]"></div>
+            <!-- Técnico asignado -->
+            <div>
+                <label class="text-[10px] text-slate-400 block mb-1 ml-1">👷 TÉCNICO ASIGNADO</label>
+                <select id="c-tecnico" class="w-full font-bold text-sm">
+                    <option value="">Sin asignar</option>
+                </select>
+            </div>
+            <!-- Valor y adelanto -->
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="text-[10px] text-slate-400 block mb-1 ml-1">💰 VALOR ESTIMADO</label>
+                    <input type="number" id="c-val" placeholder="$0" class="text-emerald-400 font-black text-center text-lg w-full" min="0" step="1000" oninput="calcSaldoPreview()">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 block mb-1 ml-1">💵 ADELANTO</label>
+                    <input type="number" id="c-adelanto" placeholder="$0" class="text-blue-400 font-black text-center text-lg w-full" min="0" step="1000" oninput="calcSaldoPreview()">
+                </div>
+            </div>
+            <div id="val-error" class="text-[10px] text-rose-400 font-bold min-h-[15px]"></div>
+            <!-- Saldo calculado -->
+            <div id="saldo-preview" class="hidden bg-slate-800/60 rounded-xl px-4 py-2 flex justify-between items-center text-xs font-bold">
+                <span class="text-slate-400">Saldo pendiente:</span>
+                <span id="saldo-preview-val" class="text-rose-400 font-black text-base"></span>
+            </div>
+            <div class="flex flex-col items-center gap-2">
                 <div class="flex gap-4">
                     <div class="flex flex-col items-center gap-1">
                         <button onclick="openCamera('recepcion')" class="camera-btn">📸</button>
@@ -753,6 +775,12 @@
                         <label class="flex items-center gap-1"><input type="checkbox" value="reparado" class="status-filter" onchange="applyFilters()"> Reparado</label>
                         <label class="flex items-center gap-1"><input type="checkbox" value="entregado" class="status-filter" onchange="applyFilters()"> Entregado</label>
                     </div>
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 block mb-2">👷 Técnico</label>
+                    <select id="filter-tecnico" class="w-full text-xs" onchange="applyFilters()">
+                        <option value="">Todos los técnicos</option>
+                    </select>
                 </div>
                 <div class="flex gap-3 pt-2">
                     <button onclick="clearFilters()" class="flex-1 bg-slate-700 py-2 rounded-xl text-xs font-bold hover:bg-slate-600 transition">LIMPIAR</button>
@@ -887,11 +915,30 @@
                 <h3 class="text-white font-black text-xl">✏️ EDITAR ORDEN</h3>
                 <button onclick="closeEditModal()" class="text-white bg-black/30 hover:bg-black/50 w-8 h-8 rounded-full flex items-center justify-center">✕</button>
             </div>
-            <div class="p-6 space-y-4">
+            <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto no-scrollbar">
                 <input type="text" id="edit-nom" placeholder="CLIENTE" class="w-full uppercase">
                 <input type="tel" id="edit-tel" placeholder="WHATSAPP" class="w-full">
                 <input type="text" id="edit-equ" placeholder="EQUIPO" class="w-full uppercase">
-                <input type="number" id="edit-val" placeholder="VALOR" class="w-full text-emerald-400 font-black" min="0">
+                <div>
+                    <label class="text-[10px] text-slate-400 block mb-1">👷 TÉCNICO</label>
+                    <select id="edit-tecnico" class="w-full font-bold text-sm">
+                        <option value="">Sin asignar</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[10px] text-slate-400 block mb-1">💰 VALOR TOTAL</label>
+                        <input type="number" id="edit-val" placeholder="$0" class="w-full text-emerald-400 font-black text-center" min="0">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-slate-400 block mb-1">💵 ADELANTO</label>
+                        <input type="number" id="edit-adelanto" placeholder="$0" class="w-full text-blue-400 font-black text-center" min="0">
+                    </div>
+                </div>
+                <div id="edit-saldo-info" class="hidden bg-slate-800/60 rounded-xl px-4 py-2 flex justify-between items-center text-xs font-bold">
+                    <span class="text-slate-400">Saldo pendiente:</span>
+                    <span id="edit-saldo-val" class="text-rose-400 font-black"></span>
+                </div>
                 <textarea id="edit-det" placeholder="DETALLE" class="w-full text-xs uppercase" rows="3"></textarea>
                 <button onclick="saveEditOrder()" class="w-full bg-orange-600 py-3 rounded-xl font-black uppercase">GUARDAR CAMBIOS</button>
             </div>
@@ -1958,7 +2005,6 @@
             checkOverdueOrders();
             checkWarrantyAlerts();
             checkSinMovimiento();
-            // Cargar configuración avanzada
             applyFontSize();
             applyHighContrast();
             loadBusinessConfig();
@@ -1968,8 +2014,25 @@
             tryDriveReconnect();
             setupReminderChecks();
             updateMetaBar();
-            // Iniciar respaldo automático (mejora 8)
             startAutoBackup();
+            // Cargar tecnicos en todos los selects
+            _refreshTecnicosSelects();
+        }
+
+        function _refreshTecnicosSelects() {
+            const tecnicos = getTecnicos();
+            const opts = '<option value="">Sin asignar</option>' + tecnicos.map(t => `<option value="${t}">${t}</option>`).join('');
+            ['c-tecnico','edit-tecnico'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) { const prev = el.value; el.innerHTML = opts; el.value = prev; }
+            });
+            // Filtro de técnicos
+            const ft = document.getElementById('filter-tecnico');
+            if (ft) {
+                const prev = ft.value;
+                ft.innerHTML = '<option value="">Todos los técnicos</option>' + tecnicos.map(t => `<option value="${t}">${t}</option>`).join('');
+                ft.value = prev;
+            }
         }
 
         // ==================== RESPALDO AUTOMÁTICO ====================
@@ -2168,6 +2231,21 @@
             alertBox.innerText = count > 0 ? `🌟 Cliente Frecuente: ${count} órdenes previas` : '';
         }
 
+        function calcSaldoPreview() {
+            const val = Number(document.getElementById('c-val').value) || 0;
+            const adelanto = Number(document.getElementById('c-adelanto').value) || 0;
+            const box = document.getElementById('saldo-preview');
+            const valEl = document.getElementById('saldo-preview-val');
+            if (adelanto > 0 && val > 0) {
+                const saldo = val - adelanto;
+                valEl.innerText = '$' + Math.max(0, saldo).toLocaleString();
+                valEl.className = saldo <= 0 ? 'text-emerald-400 font-black text-base' : 'text-rose-400 font-black text-base';
+                box.classList.remove('hidden');
+            } else {
+                box.classList.add('hidden');
+            }
+        }
+
         async function saveOrder() {
             const nom = document.getElementById('c-nom').value.trim().toUpperCase();
             if (!nom) return showAlert("Nombre del cliente requerido", "warning");
@@ -2175,22 +2253,34 @@
             const valor = rawVal === '' ? 0 : Number(rawVal);
             if (isNaN(valor) || valor < 0) { document.getElementById('val-error').innerText = "⚠️ El valor no puede ser negativo"; return; }
             document.getElementById('val-error').innerText = "";
+            const adelanto = Number(document.getElementById('c-adelanto').value) || 0;
+            if (adelanto > valor && valor > 0) return showAlert("El adelanto no puede superar el valor total.", "warning");
             const orderNum = await getNextOrderNum();
             const garantia = parseInt(document.getElementById('c-garantia').value) || 0;
             const presupuesto = document.getElementById('c-presupuesto').value;
+            const tecnico = document.getElementById('c-tecnico').value || '';
             const order = {
                 id: Date.now(), orderNum, nom, tel: document.getElementById('c-tel').value,
                 equ: document.getElementById('c-equ').value.toUpperCase(),
-                val: valor, fotos: currentPhotos, fotosEntrega: [], sta: 'recibido', det: document.getElementById('c-fal').value.toUpperCase(),
-                fecha: Date.now(), alertSent: false, garantia, presupuesto
+                val: valor, adelanto, saldo: valor - adelanto,
+                fotos: currentPhotos, fotosEntrega: [], sta: 'recibido',
+                det: document.getElementById('c-fal').value.toUpperCase(),
+                fecha: Date.now(), alertSent: false, garantia, presupuesto, tecnico
             };
             await put('orders', order);
+            // Si hay adelanto, registrarlo como ingreso en caja
+            if (adelanto > 0) {
+                await put('sales', { id: Date.now() + 1, item: `Adelanto ${nom} - ${order.equ.substring(0,20)}`, val: adelanto, qty: 1, stockId: null, fecha: Date.now(), tipo: 'adelanto', ordenId: order.id });
+            }
             currentPhotos = []; document.getElementById('previews').innerHTML = '';
-            ['c-nom','c-equ','c-tel','c-val','c-fal'].forEach(id => document.getElementById(id).value = '');
+            ['c-nom','c-equ','c-tel','c-val','c-fal','c-adelanto'].forEach(id => document.getElementById(id).value = '');
             document.getElementById('c-garantia').value = '30';
             document.getElementById('c-presupuesto').value = 'pendiente';
+            document.getElementById('c-tecnico').value = '';
             document.getElementById('client-alert').innerText = '';
+            document.getElementById('saldo-preview').classList.add('hidden');
             playBeep(); closeCamera(); await updateTotal(); await updateSuggestions(); tab('ordenes');
+            showToast(adelanto > 0 ? `✅ Orden registrada · Adelanto $${adelanto.toLocaleString()} guardado` : '✅ Orden registrada', 'success');
         }
 
         async function editOrder(id) {
@@ -2202,7 +2292,17 @@
             document.getElementById('edit-tel').value = order.tel || '';
             document.getElementById('edit-equ').value = order.equ;
             document.getElementById('edit-val').value = order.val;
+            document.getElementById('edit-adelanto').value = order.adelanto || 0;
             document.getElementById('edit-det').value = order.det || '';
+            // Cargar técnicos en el select
+            const tecnicos = getTecnicos();
+            const sel = document.getElementById('edit-tecnico');
+            sel.innerHTML = '<option value="">Sin asignar</option>' + tecnicos.map(t => `<option value="${t}" ${order.tecnico===t?'selected':''}>${t}</option>`).join('');
+            // Mostrar saldo
+            const saldo = (order.val||0) - (order.adelanto||0);
+            const saldoBox = document.getElementById('edit-saldo-info');
+            if (saldo > 0) { saldoBox.classList.remove('hidden'); document.getElementById('edit-saldo-val').innerText = '$' + saldo.toLocaleString(); }
+            else saldoBox.classList.add('hidden');
             document.getElementById('modal-edit-order').classList.remove('hidden');
         }
         async function saveEditOrder() {
@@ -2210,16 +2310,22 @@
             const order = orders.find(x => x.id === currentEditOrderId);
             if (!order) return;
             const newVal = Number(document.getElementById('edit-val').value);
+            const newAdelanto = Number(document.getElementById('edit-adelanto').value) || 0;
             if (isNaN(newVal) || newVal < 0) return showAlert("Valor inválido. Debe ser un número mayor o igual a 0.", "warning");
+            if (newAdelanto > newVal && newVal > 0) return showAlert("El adelanto no puede superar el valor total.", "warning");
             order.nom = document.getElementById('edit-nom').value.toUpperCase();
             order.tel = document.getElementById('edit-tel').value;
             order.equ = document.getElementById('edit-equ').value.toUpperCase();
             order.val = newVal;
+            order.adelanto = newAdelanto;
+            order.saldo = newVal - newAdelanto;
+            order.tecnico = document.getElementById('edit-tecnico').value;
             order.det = document.getElementById('edit-det').value.toUpperCase();
             await put('orders', order);
             closeEditModal();
             await renderOrders();
             await updateTotal();
+            showToast('Orden actualizada', 'success');
         }
         function closeEditModal() { document.getElementById('modal-edit-order').classList.add('hidden'); currentEditOrderId = null; }
 
@@ -2240,10 +2346,22 @@
 
         async function renderOrders() {
             let orders = await getAll('orders');
-            if (filters.text) orders = orders.filter(o => o.nom.includes(filters.text) || o.equ.includes(filters.text));
+            if (filters.text) {
+                const q = filters.text;
+                orders = orders.filter(o =>
+                    (o.nom || '').includes(q) ||
+                    (o.equ || '').includes(q) ||
+                    (o.det || '').includes(q) ||
+                    (o.tel || '').includes(q) ||
+                    (o.tecnico || '').toUpperCase().includes(q) ||
+                    formatOrderNum(o.orderNum || 0).includes(q) ||
+                    String(o.orderNum || '').includes(q)
+                );
+            }
             if (filters.dateFrom) orders = orders.filter(o => o.fecha >= filters.dateFrom);
             if (filters.dateTo) orders = orders.filter(o => o.fecha <= filters.dateTo);
             if (filters.statuses.length) orders = orders.filter(o => filters.statuses.includes(o.sta));
+            if (filters.tecnico) orders = orders.filter(o => (o.tecnico||'') === filters.tecnico);
             orders.sort((a,b) => b.fecha - a.fecha);
             const today = new Date();
             const container = document.getElementById('orders-list');
@@ -2269,24 +2387,46 @@
 
                 const deliveryPhotoCount = o.fotosEntrega ? o.fotosEntrega.length : 0;
 
+                const tecnicoBadge = o.tecnico ? `<span class="text-[9px] bg-slate-700/60 text-slate-300 px-2 py-0.5 rounded-full font-bold">👷 ${escapeHtml(o.tecnico)}</span>` : '';
+                const adelanto = Number(o.adelanto) || 0;
+                const saldo = Number(o.saldo != null ? o.saldo : o.val) || 0;
+                const saldoBadge = adelanto > 0
+                    ? `<div class="flex gap-2 text-[10px] font-bold mt-1">
+                        <span class="text-blue-400">💵 Adelanto: $${adelanto.toLocaleString()}</span>
+                        <span class="${saldo > 0 ? 'text-rose-400' : 'text-emerald-400'}">· Saldo: $${saldo.toLocaleString()}</span>
+                       </div>`
+                    : '';
+                // Días en estado actual
+                const fechaEstado = o.fechaEstado || o.fecha;
+                const daysInStatus = getBusinessDaysDiff(new Date(fechaEstado), today);
+                const staColors = { recibido:'text-slate-400', 'revisión':'text-yellow-400', reparado:'text-emerald-400', entregado:'text-blue-400' };
+
                 return `<div class="card p-4 border-l-4 ${isOverdue ? 'border-red-500' : (o.sta === 'entregado' ? 'border-emerald-500' : 'border-orange-500')}">
                     <div class="flex justify-between items-start mb-1">
                         <div class="flex-1">
-                            <div class="flex items-center gap-2 mb-0.5">
+                            <div class="flex items-center gap-2 mb-0.5 flex-wrap">
                                 <span class="order-num">${numLabel}</span>
                                 ${garantiaBadge}
+                                ${tecnicoBadge}
                             </div>
                             <h3 class="font-black text-lg cursor-pointer hover:text-orange-400" onclick="editOrder(${o.id})">${escapeHtml(o.nom)} ✏️</h3>
                             <p class="text-xs text-orange-400">${escapeHtml(o.equ)}</p>
+                            ${saldoBadge}
                         </div>
-                        <select onchange="updateSta(${o.id}, this.value)" class="text-[10px] bg-slate-800 rounded-full px-2 py-1 font-bold border-none">
+                        <select onchange="updateSta(${o.id}, this.value)" class="text-[10px] bg-slate-800 rounded-full px-2 py-1 font-bold border-none flex-shrink-0">
                             <option ${o.sta==='recibido'?'selected':''}>recibido</option>
                             <option ${o.sta==='revisión'?'selected':''}>revisión</option>
                             <option ${o.sta==='reparado'?'selected':''}>reparado</option>
                             <option ${o.sta==='entregado'?'selected':''}>entregado</option>
                         </select>
                     </div>
-                    <div class="flex justify-between text-xs text-slate-400 mb-2 mt-2"><span>📅 ${new Date(o.fecha).toLocaleDateString()}</span><span class="${isOverdue ? 'text-red-400 font-bold' : ''}">🕒 ${daysInShop} días háb.</span></div>
+                    <div class="flex justify-between text-xs text-slate-400 mb-2 mt-2">
+                        <span>📅 ${new Date(o.fecha).toLocaleDateString()}</span>
+                        <span class="flex gap-2">
+                            <span class="${isOverdue ? 'text-red-400 font-bold' : ''}">🕒 ${daysInShop}d taller</span>
+                            <span class="${staColors[o.sta]||'text-slate-400'} font-bold">· ${daysInStatus}d en ${o.sta}</span>
+                        </span>
+                    </div>
                     <div class="flex gap-2 mb-2">${presBadge}</div>
                     <div class="grid grid-cols-2 gap-2 mb-2">
                         <button onclick="openPhotoModal(${o.id})" class="bg-slate-800/60 py-2 rounded-xl text-xs font-bold">📸 RECEP. (${o.fotos?.length||0})</button>
@@ -2294,8 +2434,15 @@
                     </div>
                     <div class="text-xs bg-black/40 rounded-xl p-2 uppercase mb-2">${escapeHtml(o.det||'')}</div>
                     <div class="flex justify-between items-center mt-3">
-                        <div><span class="text-[10px] text-slate-400">TOTAL</span>${canEditValue ? `<button onclick="editOrderValue(${o.id})" class="text-emerald-400 font-black ml-2 underline">$${o.val.toLocaleString()} ✏️</button>` : `<span class="text-emerald-400 font-black ml-2">$${o.val.toLocaleString()}</span>`}</div>
-                        <div class="flex gap-2"><button onclick="printInvoice(${o.id})" class="bg-amber-500/20 p-2 rounded-xl text-amber-400">🧾</button><button onclick="sendWA(${o.id})" class="bg-emerald-500/20 p-2 rounded-xl text-emerald-400">💬</button><button onclick="delOrder(${o.id})" class="bg-rose-500/20 p-2 rounded-xl text-rose-400">🗑️</button></div>
+                        <div>
+                            <span class="text-[10px] text-slate-400">TOTAL</span>
+                            ${canEditValue ? `<button onclick="editOrderValue(${o.id})" class="text-emerald-400 font-black ml-2 underline">$${o.val.toLocaleString()} ✏️</button>` : `<span class="text-emerald-400 font-black ml-2">$${o.val.toLocaleString()}</span>`}
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="printInvoice(${o.id})" class="bg-amber-500/20 p-2 rounded-xl text-amber-400">🧾</button>
+                            <button onclick="sendWA(${o.id})" class="bg-emerald-500/20 p-2 rounded-xl text-emerald-400">💬</button>
+                            <button onclick="delOrder(${o.id})" class="bg-rose-500/20 p-2 rounded-xl text-rose-400">🗑️</button>
+                        </div>
                     </div>
                 </div>`;
             }).join('');
@@ -2524,16 +2671,124 @@
         async function updateSta(id, newSta) {
             const orders = await getAll('orders');
             const o = orders.find(x=>x.id===id);
-            if(o) {
-                const oldSta = o.sta;
-                o.sta = newSta;
-                if (newSta === 'entregado' && oldSta !== 'entregado') {
-                    o.fechaEntrega = Date.now();
-                    await updateClientDebt(o.nom, Number(o.val) || 0);
-                }
-                await put('orders', o);
-                await updateTotal(); await renderOrders(); await renderCartera();
+            if(!o) return;
+            const oldSta = o.sta;
+            if (oldSta === newSta) return;
+
+            // Confirmación si baja de estado (ej: entregado → recibido)
+            const staOrder = ['recibido','revisión','reparado','entregado'];
+            const isDowngrade = staOrder.indexOf(newSta) < staOrder.indexOf(oldSta);
+            if (isDowngrade) {
+                showConfirm(`¿Cambiar estado de "${oldSta}" a "${newSta}"? Esto puede afectar la caja.`, async () => {
+                    await _doUpdateSta(o, newSta, oldSta);
+                }, 'warning');
+                // Restaurar el select visualmente mientras confirma
+                await renderOrders();
+                return;
             }
+            await _doUpdateSta(o, newSta, oldSta);
+        }
+
+        async function _doUpdateSta(o, newSta, oldSta) {
+            o.sta = newSta;
+            o.fechaEstado = Date.now();
+
+            if (newSta === 'entregado' && oldSta !== 'entregado') {
+                // Modo entrega rápida con cobro
+                await _entregaRapida(o);
+                return;
+            }
+
+            await put('orders', o);
+            await updateTotal(); await renderOrders(); await renderCartera();
+
+            // Aviso automático WA al pasar a "reparado"
+            if (newSta === 'reparado' && o.tel) {
+                setTimeout(() => _mostrarAvisoReparado(o), 400);
+            }
+        }
+
+        function _mostrarAvisoReparado(o) {
+            const msg = buildWhatsappMsg('listo', o);
+            const num = o.tel.replace(/\D/g, '');
+            const prefix = num.startsWith('57') ? '' : '57';
+            const waLink = `https://wa.me/${prefix}${num}?text=${encodeURIComponent(msg)}`;
+            const modal = document.createElement('div');
+            modal.id = 'modal-aviso-reparado';
+            modal.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.85);display:flex;align-items:flex-end;justify-content:center;padding:16px;';
+            modal.innerHTML = `<div style="background:#111827;border:1px solid rgba(16,185,129,0.3);border-radius:24px;width:100%;max-width:400px;overflow:hidden;margin-bottom:90px;">
+                <div style="background:linear-gradient(to right,#059669,#10b981);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;">
+                    <div><p style="color:white;font-weight:900;font-size:14px;">✅ EQUIPO REPARADO</p><p style="color:rgba(255,255,255,0.8);font-size:11px;">${escapeHtml(o.nom)} · ${escapeHtml(o.equ)}</p></div>
+                    <button onclick="document.getElementById('modal-aviso-reparado').remove()" style="color:white;background:rgba(0,0,0,0.3);width:28px;height:28px;border-radius:50%;font-size:14px;">✕</button>
+                </div>
+                <div style="padding:16px;display:flex;flex-direction:column;gap:10px;">
+                    <p style="color:#94a3b8;font-size:12px;text-align:center;">¿Avisar al cliente que su equipo está listo?</p>
+                    <button onclick="location.href='${waLink}';document.getElementById('modal-aviso-reparado').remove();" style="background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.4);color:#6ee7b7;padding:14px;border-radius:14px;font-weight:900;font-size:13px;">
+                        💬 SÍ, AVISAR POR WHATSAPP
+                    </button>
+                    <button onclick="document.getElementById('modal-aviso-reparado').remove()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#64748b;padding:12px;border-radius:14px;font-weight:700;font-size:12px;">
+                        Después
+                    </button>
+                </div>
+            </div>`;
+            document.body.appendChild(modal);
+        }
+
+        async function _entregaRapida(o) {
+            const saldoPendiente = Number(o.saldo != null ? o.saldo : o.val) || 0;
+            const modal = document.createElement('div');
+            modal.id = 'modal-entrega-rapida';
+            modal.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.88);display:flex;align-items:flex-end;justify-content:center;padding:16px;';
+            modal.innerHTML = `<div style="background:#111827;border:1px solid rgba(59,130,246,0.3);border-radius:24px;width:100%;max-width:400px;overflow:hidden;margin-bottom:90px;">
+                <div style="background:linear-gradient(to right,#2563eb,#3b82f6);padding:14px 16px;">
+                    <p style="color:white;font-weight:900;font-size:15px;">🎉 ENTREGA DE EQUIPO</p>
+                    <p style="color:rgba(255,255,255,0.8);font-size:11px;">${escapeHtml(o.nom)} · ${escapeHtml(o.equ)}</p>
+                </div>
+                <div style="padding:16px;display:flex;flex-direction:column;gap:12px;">
+                    <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:12px;">
+                        <div style="display:flex;justify-content:space-between;font-size:12px;color:#94a3b8;margin-bottom:4px;"><span>Valor total:</span><span style="color:#fff;font-weight:900;">$${o.val.toLocaleString()}</span></div>
+                        <div style="display:flex;justify-content:space-between;font-size:12px;color:#94a3b8;margin-bottom:4px;"><span>Adelanto:</span><span style="color:#60a5fa;font-weight:900;">$${(Number(o.adelanto)||0).toLocaleString()}</span></div>
+                        <div style="display:flex;justify-content:space-between;font-size:14px;border-top:1px solid rgba(255,255,255,0.08);padding-top:8px;margin-top:4px;"><span style="color:#94a3b8;">Saldo a cobrar:</span><span style="color:${saldoPendiente > 0 ? '#f87171' : '#34d399'};font-weight:900;font-size:16px;">$${saldoPendiente.toLocaleString()}</span></div>
+                    </div>
+                    ${saldoPendiente > 0 ? `
+                    <div>
+                        <label style="font-size:10px;color:#64748b;font-weight:700;">COBRO AL ENTREGAR</label>
+                        <input type="number" id="entrega-cobro" placeholder="$${saldoPendiente.toLocaleString()}" value="${saldoPendiente}" style="background:#1e2235;border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;color:#fff;font-size:16px;font-weight:900;text-align:center;width:100%;margin-top:6px;">
+                    </div>` : '<p style="color:#34d399;text-align:center;font-weight:900;font-size:13px;">✅ Pagado completo</p>'}
+                    <button onclick="_confirmarEntrega(${o.id}, ${saldoPendiente})" style="background:linear-gradient(to right,#2563eb,#3b82f6);color:white;padding:14px;border-radius:14px;font-weight:900;font-size:13px;">
+                        ✅ CONFIRMAR ENTREGA
+                    </button>
+                    <button onclick="document.getElementById('modal-entrega-rapida').remove()" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:#64748b;padding:10px;border-radius:14px;font-size:12px;font-weight:700;">
+                        Cancelar
+                    </button>
+                </div>
+            </div>`;
+            document.body.appendChild(modal);
+        }
+
+        async function _confirmarEntrega(orderId, saldoPendiente) {
+            const orders = await getAll('orders');
+            const o = orders.find(x => x.id === orderId);
+            if (!o) return;
+            const cobro = saldoPendiente > 0 ? (Number(document.getElementById('entrega-cobro')?.value) || 0) : 0;
+            o.sta = 'entregado';
+            o.fechaEntrega = Date.now();
+            o.fechaEstado = Date.now();
+            o.saldo = Math.max(0, saldoPendiente - cobro);
+            // Registrar cobro en caja si cobró algo
+            if (cobro > 0) {
+                await put('sales', { id: Date.now() + 2, item: `Cobro entrega ${o.nom} - ${o.equ.substring(0,20)}`, val: cobro, qty: 1, stockId: null, fecha: Date.now(), tipo: 'cobro_entrega', ordenId: orderId });
+            }
+            // Si queda saldo, registrar deuda
+            if (o.saldo > 0) {
+                await updateClientDebt(o.nom, o.saldo);
+            }
+            await put('orders', o);
+            document.getElementById('modal-entrega-rapida')?.remove();
+            await updateTotal(); await renderOrders(); await renderCartera();
+            showToast(cobro > 0 ? `✅ Entregado · Cobrado $${cobro.toLocaleString()}${o.saldo > 0 ? ` · Saldo $${o.saldo.toLocaleString()}` : ''}` : '✅ Equipo entregado', 'success');
+            // Ofrecer WhatsApp si tiene tel
+            if (o.tel) setTimeout(() => _mostrarAvisoReparado({ ...o, sta: 'entregado' }), 400);
         }
         async function editOrderValue(id) {
             editOrder(id);
@@ -3182,11 +3437,19 @@
                 text: document.getElementById('search-orders').value.toUpperCase(),
                 dateFrom: document.getElementById('filter-date-from').value ? new Date(document.getElementById('filter-date-from').value).getTime() : null,
                 dateTo: document.getElementById('filter-date-to').value ? new Date(document.getElementById('filter-date-to').value).getTime() + 86399999 : null,
-                statuses: Array.from(document.querySelectorAll('.status-filter:checked')).map(cb=>cb.value)
+                statuses: Array.from(document.querySelectorAll('.status-filter:checked')).map(cb=>cb.value),
+                tecnico: document.getElementById('filter-tecnico')?.value || ''
             };
             renderOrders();
         }
-        function clearFilters() { document.getElementById('search-orders').value=''; document.getElementById('filter-date-from').value=''; document.getElementById('filter-date-to').value=''; document.querySelectorAll('.status-filter').forEach(cb=>cb.checked=false); applyFilters(); }
+        function clearFilters() {
+            document.getElementById('search-orders').value='';
+            document.getElementById('filter-date-from').value='';
+            document.getElementById('filter-date-to').value='';
+            document.querySelectorAll('.status-filter').forEach(cb=>cb.checked=false);
+            const ft = document.getElementById('filter-tecnico'); if(ft) ft.value='';
+            applyFilters();
+        }
         async function updateSuggestions() {
             const orders = await getAll('orders');
             const cl = [...new Set(orders.map(o=>o.nom))]; const eq = [...new Set(orders.map(o=>o.equ))];
@@ -4348,6 +4611,7 @@
             saveTecnicos(list);
             input.value = '';
             renderTecnicosList();
+            _refreshTecnicosSelects();
             showToast(`Técnico ${name} agregado`, 'success');
         }
         function removeTecnico(name) {
