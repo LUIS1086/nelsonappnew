@@ -652,7 +652,7 @@
             <div class="splash-sub">Taller & Repuestos</div>
         </div>
         <div class="splash-bar-track"><div class="splash-bar-fill"></div></div>
-        <p style="font-size:0.6rem;color:rgba(255,255,255,0.2);letter-spacing:2px;">v3.0.0</p>
+        <p style="font-size:0.6rem;color:rgba(255,255,255,0.2);letter-spacing:2px;">v2.1.0</p>
     </div>
 
     <!-- PIN MODAL MEJORADO -->
@@ -1986,6 +1986,7 @@
                 setTimeout(() => {
                     document.getElementById('pin-modal').classList.add('hidden');
                     document.getElementById('app-header').classList.remove('hidden');
+                    document.querySelectorAll('.app-view').forEach(v => v.classList.remove('hidden'));
                     tab('taller');
                     initApp();
                     if (!localStorage.getItem('tutorialShown')) {
@@ -3862,8 +3863,11 @@
 
         async function tab(t) {
             if (cameraMode !== 'entrega') closeCamera();
-            // Transición suave (no bloqueante)
-            document.querySelectorAll('.app-view').forEach(v => v.classList.add('hidden'));
+            // Transición suave
+            const allViews = document.querySelectorAll('.app-view:not(.hidden)');
+            allViews.forEach(v => v.classList.add('tab-out'));
+            await new Promise(r => setTimeout(r, 150));
+            document.querySelectorAll('.app-view').forEach(v => { v.classList.add('hidden'); v.classList.remove('tab-out'); });
             const newView = document.getElementById(`view-${t}`);
             newView.classList.remove('hidden');
             newView.classList.add('tab-in');
@@ -3922,7 +3926,7 @@
         }
         setInterval(syncSidebarCash, 2000);
 
-        // window.onload manejado por initSplash()
+        window.onload = () => { document.getElementById('pin-modal').classList.remove('hidden'); };
 
         // ==================== FOTOS DE ENTREGA ====================
         async function openDeliveryPhotosModal(orderId) {
@@ -4242,7 +4246,7 @@
             });
         }
         function checkUpdate() {
-            showAlert('Actualmente estás en la versión estable v3.0.0. Para actualizar, descarga el nuevo archivo desde tu proveedor.', 'info');
+            showAlert('Actualmente estás en la versión estable v2.1.0. Para actualizar, descarga el nuevo archivo desde tu proveedor.', 'info');
         }
         function openAdvancedConfig() {
             loadBusinessConfig();
@@ -4276,16 +4280,12 @@
         }
 
         // ==================== SPLASH SCREEN ====================
-        // ==================== SPLASH SCREEN INIT ====================
-        function initSplash() {
+        (function initSplash() {
             const bizConfig = localStorage.getItem('businessConfig');
             if (bizConfig) {
                 try {
                     const cfg = JSON.parse(bizConfig);
-                    if (cfg.name) {
-                        const el = document.getElementById('splash-biz-name');
-                        if (el) el.innerText = cfg.name;
-                    }
+                    if (cfg.name) document.getElementById('splash-biz-name').innerText = cfg.name;
                     if (cfg.shortName) {
                         const el = document.getElementById('splash-pin-bizname');
                         if (el) el.innerText = cfg.shortName;
@@ -4294,22 +4294,13 @@
             }
             setTimeout(() => {
                 const splash = document.getElementById('splash-screen');
-                if (!splash) return;
                 splash.classList.add('fade-out');
                 setTimeout(() => {
                     splash.style.display = 'none';
-                    const pinModal = document.getElementById('pin-modal');
-                    if (pinModal) pinModal.classList.remove('hidden');
+                    document.getElementById('pin-modal').classList.remove('hidden');
                 }, 600);
             }, 1800);
-        }
-
-        // Iniciar cuando el DOM esté listo (más seguro en WebView/APK)
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initSplash);
-        } else {
-            initSplash();
-        }
+        })();
 
         // ==================== NUMPAD PIN ====================
         const PIN_MAX = 6;
