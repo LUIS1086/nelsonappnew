@@ -164,8 +164,44 @@
         .max-container { max-width: 600px; margin: 0 auto; }
         .view-enter { animation: slideUp 0.3s ease; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ===== TRANSICIÓN SUAVE ENTRE PESTAÑAS ===== */
+        .app-view { transition: opacity 0.18s ease, transform 0.18s ease; }
+        .app-view.tab-out { opacity: 0; transform: translateY(6px); pointer-events: none; }
+        .app-view.tab-in  { animation: tabFadeIn 0.22s ease forwards; }
+        @keyframes tabFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ===== PRIORIDAD BADGES ===== */
+        .prioridad-normal  { background: rgba(100,116,139,0.2); color:#94a3b8; border:1px solid rgba(100,116,139,0.3); }
+        .prioridad-urgente { background: rgba(249,115,22,0.2);  color:#fb923c; border:1px solid rgba(249,115,22,0.4); animation: pulseUrgente 2s ease infinite; }
+        .prioridad-vip     { background: rgba(234,179,8,0.2);   color:#fbbf24; border:1px solid rgba(234,179,8,0.4); }
+        @keyframes pulseUrgente { 0%,100%{ box-shadow:0 0 0 0 rgba(249,115,22,0.3); } 50%{ box-shadow:0 0 0 5px rgba(249,115,22,0); } }
+
+        /* ===== ESTRELLAS DE CALIFICACIÓN ===== */
+        .star-btn { font-size:1.4rem; cursor:pointer; transition: transform 0.1s ease; filter: grayscale(1) opacity(0.4); }
+        .star-btn.active, .star-btn:hover { filter: grayscale(0) opacity(1); transform: scale(1.2); }
+
+        /* ===== HISTORIAL CAMBIOS ESTADO ===== */
+        .timeline-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; margin-top:3px; }
+        .timeline-line { width:2px; background:rgba(255,255,255,0.07); flex-shrink:0; margin-left:4px; }
+
+        /* ===== CENTRO NOTIFICACIONES ===== */
+        #notif-bell { position:relative; }
+        #notif-count { position:absolute; top:-4px; right:-4px; background:#ef4444; color:#fff; font-size:9px; font-weight:900; min-width:16px; height:16px; border-radius:999px; display:flex; align-items:center; justify-content:center; padding:0 3px; }
+
+        /* ===== GRÁFICA BARRAS CSS ===== */
+        .bar-day { display:flex; flex-direction:column; align-items:center; gap:3px; flex:1; cursor:default; }
+        .bar-fill { width:100%; border-radius:4px 4px 0 0; background:linear-gradient(to top, #f97316, #fbbf24); min-height:2px; transition:height 0.6s cubic-bezier(0.4,0,0.2,1); }
+        .bar-label { font-size:8px; color:#475569; font-weight:700; }
+        .bar-val   { font-size:7px; color:#f97316; font-weight:900; }
+
+        /* ===== KANBAN ===== */
+        .kanban-col { min-width:220px; flex-shrink:0; }
+        .kanban-card { cursor:grab; active:cursor:grabbing; user-select:none; -webkit-user-select:none; }
+        .kanban-card.dragging { opacity:0.4; transform:scale(0.97); }
+        .kanban-col.drag-over { background:rgba(249,115,22,0.07) !important; }
         .filter-panel { transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease; overflow: hidden; max-height: 0; opacity: 0; }
-        .filter-panel.open { max-height: 450px; opacity: 1; }
+        .filter-panel.open { max-height: 600px; opacity: 1; }
         .photo-modal { background: rgba(0,0,0,0.96); backdrop-filter: blur(16px); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .btn-icon { transition: transform 0.1s ease; }
@@ -583,6 +619,10 @@
             </div>
         </nav>
         <div id="sidebar-footer">
+            <button onclick="openNotifCenter()" style="position:relative;">
+                🔔
+                <span id="notif-count-sb" class="hidden" style="position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;font-size:8px;font-weight:900;min-width:14px;height:14px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;padding:0 2px;">0</span>
+            </button>
             <button onclick="toggleTheme()" id="sidebar-theme-btn">🌙 Tema</button>
             <button onclick="openAdvancedConfig()">⚙️ Config</button>
         </div>
@@ -612,7 +652,7 @@
             <div class="splash-sub">Taller & Repuestos</div>
         </div>
         <div class="splash-bar-track"><div class="splash-bar-fill"></div></div>
-        <p style="font-size:0.6rem;color:rgba(255,255,255,0.2);letter-spacing:2px;">v2.1.0</p>
+        <p style="font-size:0.6rem;color:rgba(255,255,255,0.2);letter-spacing:2px;">v3.0.0</p>
     </div>
 
     <!-- PIN MODAL MEJORADO -->
@@ -673,6 +713,11 @@
                 </div>
             </div>
             <div class="flex items-center gap-3">
+                <button id="notif-bell" onclick="openNotifCenter()" title="Notificaciones"
+                    class="w-10 h-10 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center text-xl hover:bg-rose-500/20 hover:border-rose-500/40 active:scale-90 transition-all">
+                    🔔
+                    <span id="notif-count" class="hidden">0</span>
+                </button>
                 <button onclick="toggleTheme()" id="theme-btn" title="Cambiar tema"
                     class="w-10 h-10 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center text-xl hover:bg-orange-500/20 hover:border-orange-500/40 active:scale-90 transition-all">
                     🌙
@@ -687,7 +732,15 @@
 
     <main id="view-taller" class="app-view hidden p-4 space-y-4 max-container">
         <div class="card p-6 space-y-5">
-            <h2 class="text-center text-[11px] font-black text-slate-400 uppercase tracking-[3px]">📝 NUEVA RECEPCIÓN</h2>
+            <div class="flex justify-between items-center">
+                <h2 class="text-[11px] font-black text-slate-400 uppercase tracking-[3px]">📝 NUEVA RECEPCIÓN</h2>
+                <div class="flex gap-2" id="prioridad-btns">
+                    <button onclick="setPrioridad('normal')"  class="prioridad-btn prioridad-normal  px-2 py-1 rounded-full text-[9px] font-black active" data-p="normal">⚪ NORMAL</button>
+                    <button onclick="setPrioridad('urgente')" class="prioridad-btn prioridad-urgente px-2 py-1 rounded-full text-[9px] font-black" data-p="urgente">🔥 URGENTE</button>
+                    <button onclick="setPrioridad('vip')"     class="prioridad-btn prioridad-vip     px-2 py-1 rounded-full text-[9px] font-black" data-p="vip">⭐ VIP</button>
+                </div>
+            </div>
+            <input type="hidden" id="c-prioridad" value="normal">
             <div>
                 <input type="text" id="c-nom" placeholder="CLIENTE" class="uppercase font-semibold w-full" list="clientes-list" onkeyup="checkClient()">
                 <div id="client-alert" class="text-[10px] text-emerald-400 font-bold mt-1 min-h-[15px] ml-2"></div>
@@ -756,6 +809,11 @@
                 <button onclick="notifyAllReady()" class="flex-1 bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition">💬 AVISAR LISTOS</button>
                 <button onclick="exportMonthlyReport()" class="flex-1 bg-blue-600/20 border border-blue-500/30 text-blue-400 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition">📄 REPORTE MES</button>
             </div>
+            <!-- Toggle vista lista / kanban -->
+            <div class="flex gap-2">
+                <button id="btn-vista-lista"   onclick="setVistaOrdenes('lista')"  class="flex-1 bg-orange-600/30 border border-orange-500/40 text-orange-400 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition">☰ LISTA</button>
+                <button id="btn-vista-kanban"  onclick="setVistaOrdenes('kanban')" class="flex-1 bg-white/5 border border-white/10 text-slate-400 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition">⬜⬜ KANBAN</button>
+            </div>
             <input type="text" id="search-orders" placeholder="🔍 Buscar cliente o equipo..." class="w-full text-sm font-semibold uppercase tracking-wide" oninput="onSearchInput()" list="search-suggestions">
             <datalist id="search-suggestions"></datalist>
             <button onclick="toggleFilters()" id="filterToggleBtn" class="filter-toggle w-full py-3 rounded-xl text-xs font-bold uppercase flex items-center justify-between px-4">
@@ -782,12 +840,42 @@
                         <option value="">Todos los técnicos</option>
                     </select>
                 </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 block mb-2">🚨 Prioridad</label>
+                    <div class="flex gap-2">
+                        <label class="flex items-center gap-1 text-xs"><input type="checkbox" value="urgente" class="prioridad-filter" onchange="applyFilters()"> 🔥 Urgente</label>
+                        <label class="flex items-center gap-1 text-xs"><input type="checkbox" value="vip" class="prioridad-filter" onchange="applyFilters()"> ⭐ VIP</label>
+                        <label class="flex items-center gap-1 text-xs"><input type="checkbox" value="normal" class="prioridad-filter" onchange="applyFilters()"> ⚪ Normal</label>
+                    </div>
+                </div>
                 <div class="flex gap-3 pt-2">
                     <button onclick="clearFilters()" class="flex-1 bg-slate-700 py-2 rounded-xl text-xs font-bold hover:bg-slate-600 transition">LIMPIAR</button>
                 </div>
             </div>
         </div>
+        <!-- Vista Lista -->
         <div id="orders-list" class="space-y-4 pb-4"></div>
+        <!-- Vista Kanban -->
+        <div id="kanban-view" class="hidden pb-20">
+            <div class="flex gap-3 overflow-x-auto no-scrollbar pb-4">
+                <div class="kanban-col" id="kcol-recibido">
+                    <div class="text-[10px] font-black text-slate-400 uppercase mb-2 px-1 flex items-center gap-1">⚪ Recibido <span id="kcount-recibido" class="ml-auto bg-slate-700 px-2 py-0.5 rounded-full">0</span></div>
+                    <div id="klist-recibido" class="space-y-2 min-h-16 rounded-2xl p-2 transition-all"></div>
+                </div>
+                <div class="kanban-col" id="kcol-revision">
+                    <div class="text-[10px] font-black text-yellow-400 uppercase mb-2 px-1 flex items-center gap-1">🔍 Revisión <span id="kcount-revision" class="ml-auto bg-yellow-900/40 px-2 py-0.5 rounded-full">0</span></div>
+                    <div id="klist-revision" class="space-y-2 min-h-16 rounded-2xl p-2 transition-all"></div>
+                </div>
+                <div class="kanban-col" id="kcol-reparado">
+                    <div class="text-[10px] font-black text-emerald-400 uppercase mb-2 px-1 flex items-center gap-1">✅ Reparado <span id="kcount-reparado" class="ml-auto bg-emerald-900/40 px-2 py-0.5 rounded-full">0</span></div>
+                    <div id="klist-reparado" class="space-y-2 min-h-16 rounded-2xl p-2 transition-all"></div>
+                </div>
+                <div class="kanban-col" id="kcol-entregado">
+                    <div class="text-[10px] font-black text-blue-400 uppercase mb-2 px-1 flex items-center gap-1">📦 Entregado <span id="kcount-entregado" class="ml-auto bg-blue-900/40 px-2 py-0.5 rounded-full">0</span></div>
+                    <div id="klist-entregado" class="space-y-2 min-h-16 rounded-2xl p-2 transition-all"></div>
+                </div>
+            </div>
+        </div>
     </main>
 
     <main id="view-ventas" class="app-view hidden p-4 space-y-6 max-container">
@@ -1741,6 +1829,53 @@
         </div>
     </div>
 
+    <!-- ══ MODAL CENTRO DE NOTIFICACIONES ══ -->
+    <div id="modal-notif" class="hidden fixed inset-0 z-[4800] modal-custom flex flex-col items-center justify-end p-4">
+        <div class="bg-[#111827] border border-white/10 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl view-enter mb-20">
+            <div class="bg-gradient-to-r from-rose-600 to-rose-500 p-4 flex justify-between items-center">
+                <div><h3 class="text-white font-black text-lg">🔔 NOTIFICACIONES</h3><p id="notif-subtitle" class="text-rose-200 text-[10px] font-bold"></p></div>
+                <button onclick="closeNotifCenter()" class="text-white bg-black/30 w-8 h-8 rounded-full font-bold">✕</button>
+            </div>
+            <div id="notif-list" class="p-4 space-y-2 max-h-[55vh] overflow-y-auto no-scrollbar"></div>
+        </div>
+    </div>
+
+    <!-- ══ MODAL HISTORIAL DE ESTADO ══ -->
+    <div id="modal-historial-estado" class="hidden fixed inset-0 z-[4900] modal-custom flex flex-col items-center justify-center p-4">
+        <div class="bg-[#111827] border border-white/10 w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl view-enter">
+            <div class="bg-gradient-to-r from-slate-700 to-slate-600 p-4 flex justify-between items-center">
+                <div><h3 class="text-white font-black">📋 HISTORIAL DE CAMBIOS</h3><p id="historial-order-label" class="text-slate-300 text-[10px] font-bold mt-0.5"></p></div>
+                <button onclick="closeHistorialModal()" class="text-white bg-black/30 w-8 h-8 rounded-full font-bold">✕</button>
+            </div>
+            <div id="historial-list" class="p-4 space-y-0 max-h-[60vh] overflow-y-auto no-scrollbar"></div>
+        </div>
+    </div>
+
+    <!-- ══ MODAL CALIFICACIÓN ══ -->
+    <div id="modal-rating" class="hidden fixed inset-0 z-[4700] modal-custom flex flex-col items-center justify-center p-4">
+        <div class="bg-[#111827] border border-white/10 w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl view-enter">
+            <div class="bg-gradient-to-r from-amber-600 to-amber-500 p-4 text-center">
+                <h3 class="text-white font-black text-lg">⭐ CALIDAD DEL SERVICIO</h3>
+                <p id="rating-order-label" class="text-amber-200 text-xs font-bold mt-1"></p>
+            </div>
+            <div class="p-6 space-y-5 text-center">
+                <p class="text-slate-400 text-sm">¿Cómo fue la experiencia del cliente?</p>
+                <div class="flex justify-center gap-3" id="star-container">
+                    <button class="star-btn" data-star="1" onclick="setRating(1)">⭐</button>
+                    <button class="star-btn" data-star="2" onclick="setRating(2)">⭐</button>
+                    <button class="star-btn" data-star="3" onclick="setRating(3)">⭐</button>
+                    <button class="star-btn" data-star="4" onclick="setRating(4)">⭐</button>
+                    <button class="star-btn" data-star="5" onclick="setRating(5)">⭐</button>
+                </div>
+                <p id="rating-label" class="text-slate-500 text-xs font-bold min-h-[16px]"></p>
+                <div class="flex gap-3">
+                    <button onclick="closeRatingModal()" class="flex-1 bg-slate-700 py-2 rounded-xl font-bold text-sm">OMITIR</button>
+                    <button onclick="saveRating()" class="flex-1 bg-amber-600 py-2 rounded-xl font-bold text-sm">GUARDAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <nav class="bottom-nav-mobile fixed bottom-4 left-4 right-4 max-container bg-black/70 backdrop-blur-xl border border-white/10 rounded-3xl flex justify-around items-center h-16 z-50 shadow-2xl">
         <button onclick="tab('taller')" id="btn-taller" class="flex flex-col items-center text-slate-400"><span class="text-2xl">🛠️</span><span class="text-[10px] font-bold">Taller</span></button>
         <button onclick="tab('ordenes')" id="btn-ordenes" class="flex flex-col items-center text-slate-400"><span class="text-2xl">📋</span><span class="text-[10px] font-bold">Órdenes</span></button>
@@ -1851,7 +1986,6 @@
                 setTimeout(() => {
                     document.getElementById('pin-modal').classList.add('hidden');
                     document.getElementById('app-header').classList.remove('hidden');
-                    document.querySelectorAll('.app-view').forEach(v => v.classList.remove('hidden'));
                     tab('taller');
                     initApp();
                     if (!localStorage.getItem('tutorialShown')) {
@@ -2018,6 +2152,9 @@
             startAutoBackup();
             // Cargar tecnicos en todos los selects
             _refreshTecnicosSelects();
+            // Badge de notificaciones
+            refreshNotifBadge();
+            setInterval(refreshNotifBadge, 120000); // cada 2 minutos
         }
 
         function _refreshTecnicosSelects() {
@@ -2144,6 +2281,7 @@
             document.getElementById('total-cash').innerText = '$' + total.toLocaleString();
             if (!document.getElementById('view-ventas').classList.contains('hidden')) renderMovimientos();
             updateMetaBar();
+            refreshNotifBadge();
         }
 
         function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
@@ -2260,13 +2398,17 @@
             const garantia = parseInt(document.getElementById('c-garantia').value) || 0;
             const presupuesto = document.getElementById('c-presupuesto').value;
             const tecnico = document.getElementById('c-tecnico').value || '';
+            const prioridad = document.getElementById('c-prioridad').value || 'normal';
+            const now = Date.now();
             const order = {
-                id: Date.now(), orderNum, nom, tel: document.getElementById('c-tel').value,
+                id: now, orderNum, nom, tel: document.getElementById('c-tel').value,
                 equ: document.getElementById('c-equ').value.toUpperCase(),
                 val: valor, adelanto, saldo: valor - adelanto,
                 fotos: currentPhotos, fotosEntrega: [], sta: 'recibido',
                 det: document.getElementById('c-fal').value.toUpperCase(),
-                fecha: Date.now(), alertSent: false, garantia, presupuesto, tecnico
+                fecha: now, alertSent: false, garantia, presupuesto, tecnico,
+                prioridad, rating: null,
+                historial: [{ sta: 'recibido', fecha: now, tecnico, nota: 'Orden creada' }]
             };
             await put('orders', order);
             // Si hay adelanto, registrarlo como ingreso en caja
@@ -2280,6 +2422,7 @@
             document.getElementById('c-tecnico').value = '';
             document.getElementById('client-alert').innerText = '';
             document.getElementById('saldo-preview').classList.add('hidden');
+            setPrioridad('normal');
             playBeep(); closeCamera(); await updateTotal(); await updateSuggestions(); tab('ordenes');
             showToast(adelanto > 0 ? `✅ Orden registrada · Adelanto $${adelanto.toLocaleString()} guardado` : '✅ Orden registrada', 'success');
         }
@@ -2363,7 +2506,15 @@
             if (filters.dateTo) orders = orders.filter(o => o.fecha <= filters.dateTo);
             if (filters.statuses.length) orders = orders.filter(o => filters.statuses.includes(o.sta));
             if (filters.tecnico) orders = orders.filter(o => (o.tecnico||'') === filters.tecnico);
-            orders.sort((a,b) => b.fecha - a.fecha);
+            if (filters.prioridades && filters.prioridades.length) orders = orders.filter(o => filters.prioridades.includes(o.prioridad||'normal'));
+            // Urgentes al tope, luego VIP, luego normal, por fecha dentro de cada grupo
+            const prioWeight = { urgente: 0, vip: 1, normal: 2 };
+            orders.sort((a,b) => {
+                const pa = prioWeight[a.prioridad||'normal'];
+                const pb = prioWeight[b.prioridad||'normal'];
+                if (pa !== pb) return pa - pb;
+                return b.fecha - a.fecha;
+            });
             const today = new Date();
             const container = document.getElementById('orders-list');
             if (!orders.length) { container.innerHTML = '<div class="text-center py-12 opacity-50">📭 No hay órdenes</div>'; return; }
@@ -2389,6 +2540,11 @@
                 const deliveryPhotoCount = o.fotosEntrega ? o.fotosEntrega.length : 0;
 
                 const tecnicoBadge = o.tecnico ? `<span class="text-[9px] bg-slate-700/60 text-slate-300 px-2 py-0.5 rounded-full font-bold">👷 ${escapeHtml(o.tecnico)}</span>` : '';
+                const prioMap = { urgente:'🔥 URGENTE', vip:'⭐ VIP', normal:'' };
+                const prioClass = { urgente:'prioridad-urgente', vip:'prioridad-vip', normal:'' };
+                const prioBadge = (o.prioridad && o.prioridad !== 'normal')
+                    ? `<span class="${prioClass[o.prioridad]} px-2 py-0.5 rounded-full text-[9px] font-black">${prioMap[o.prioridad]}</span>` : '';
+                const ratingBadge = o.rating ? `<span class="text-[9px] text-amber-400 font-bold">${'⭐'.repeat(o.rating)}</span>` : '';
                 const adelanto = Number(o.adelanto) || 0;
                 const saldo = Number(o.saldo != null ? o.saldo : o.val) || 0;
                 const saldoBadge = adelanto > 0
@@ -2407,8 +2563,10 @@
                         <div class="flex-1">
                             <div class="flex items-center gap-2 mb-0.5 flex-wrap">
                                 <span class="order-num">${numLabel}</span>
+                                ${prioBadge}
                                 ${garantiaBadge}
                                 ${tecnicoBadge}
+                                ${ratingBadge}
                             </div>
                             <h3 class="font-black text-lg cursor-pointer hover:text-orange-400" onclick="editOrder(${o.id})">${escapeHtml(o.nom)} ✏️</h3>
                             <p class="text-xs text-orange-400">${escapeHtml(o.equ)}</p>
@@ -2440,6 +2598,7 @@
                             ${canEditValue ? `<button onclick="editOrderValue(${o.id})" class="text-emerald-400 font-black ml-2 underline">$${o.val.toLocaleString()} ✏️</button>` : `<span class="text-emerald-400 font-black ml-2">$${o.val.toLocaleString()}</span>`}
                         </div>
                         <div class="flex gap-2">
+                            <button onclick="openHistorialModal(${o.id})" class="bg-slate-700/40 p-2 rounded-xl text-slate-400" title="Historial">📋</button>
                             <button onclick="printInvoice(${o.id})" class="bg-amber-500/20 p-2 rounded-xl text-amber-400">🧾</button>
                             <button onclick="sendWA(${o.id})" class="bg-emerald-500/20 p-2 rounded-xl text-emerald-400">💬</button>
                             <button onclick="delOrder(${o.id})" class="bg-rose-500/20 p-2 rounded-xl text-rose-400">🗑️</button>
@@ -2693,6 +2852,9 @@
         async function _doUpdateSta(o, newSta, oldSta) {
             o.sta = newSta;
             o.fechaEstado = Date.now();
+            // Registrar en historial
+            if (!o.historial) o.historial = [];
+            o.historial.push({ sta: newSta, fecha: Date.now(), tecnico: o.tecnico || '', nota: `Cambió de "${oldSta}" a "${newSta}"` });
 
             if (newSta === 'entregado' && oldSta !== 'entregado') {
                 // Modo entrega rápida con cobro
@@ -2788,8 +2950,10 @@
             document.getElementById('modal-entrega-rapida')?.remove();
             await updateTotal(); await renderOrders(); await renderCartera();
             showToast(cobro > 0 ? `✅ Entregado · Cobrado $${cobro.toLocaleString()}${o.saldo > 0 ? ` · Saldo $${o.saldo.toLocaleString()}` : ''}` : '✅ Equipo entregado', 'success');
+            // Ofrecer calificación
+            setTimeout(() => openRatingModal(orderId), 500);
             // Ofrecer WhatsApp si tiene tel
-            if (o.tel) setTimeout(() => _mostrarAvisoReparado({ ...o, sta: 'entregado' }), 400);
+            if (o.tel) setTimeout(() => _mostrarAvisoReparado({ ...o, sta: 'entregado' }), 2000);
         }
         async function editOrderValue(id) {
             editOrder(id);
@@ -3428,6 +3592,37 @@
             const itemCounts = {}; monthSales.forEach(s => itemCounts[s.item] = (itemCounts[s.item] || 0) + s.qty);
             const sorted = Object.entries(itemCounts).sort((a,b)=>b[1]-a[1]).slice(0,3);
             document.getElementById('stat-top-items').innerHTML = sorted.length ? sorted.map(([n,c],i)=>`<div class="flex justify-between bg-white/5 p-2 rounded-lg"><span>${i+1}. ${escapeHtml(n)}</span><span>${c} uds</span></div>`).join('') : '<p class="text-center text-xs">Sin ventas este mes</p>';
+            // Ticket promedio
+            const totalRepMes = monthOrders.reduce((a,b)=>a+(b.val||0),0);
+            const ticketProm = monthOrders.length ? Math.round(totalRepMes / monthOrders.length) : 0;
+            const cur = getCurrency();
+            // Calificación promedio
+            const rated = orders.filter(o => o.rating > 0);
+            const avgRating = rated.length ? (rated.reduce((a,b)=>a+(b.rating||0),0)/rated.length).toFixed(1) : null;
+            const ratingLabels = ['','😞','😐','🙂','😊','🤩'];
+            // Urgentes pendientes
+            const urgentes = orders.filter(o => o.prioridad === 'urgente' && o.sta !== 'entregado').length;
+            // Añadir al modal de stats
+            const extraHtml = `
+                <div class="grid grid-cols-2 gap-3 mt-3">
+                    <div class="bg-black/30 p-4 rounded-xl text-center">
+                        <p class="text-[10px] text-slate-400 uppercase font-bold">Ticket Promedio</p>
+                        <p class="text-xl font-black text-orange-400 mt-1">${cur}${ticketProm.toLocaleString()}</p>
+                    </div>
+                    <div class="bg-black/30 p-4 rounded-xl text-center">
+                        <p class="text-[10px] text-slate-400 uppercase font-bold">Calidad Promedio</p>
+                        <p class="text-xl font-black text-amber-400 mt-1">${avgRating ? avgRating + ' ' + (ratingLabels[Math.round(parseFloat(avgRating))]||'') : '—'}</p>
+                    </div>
+                </div>
+                ${urgentes > 0 ? `<div class="bg-orange-500/10 border border-orange-500/20 p-3 rounded-xl mt-3 text-center"><p class="text-xs font-black text-orange-400">🔥 ${urgentes} orden(es) URGENTE pendiente${urgentes>1?'s':''}</p></div>` : ''}`;
+            // Insertar extra stats si hay contenedor
+            let statsExtra = document.getElementById('stat-extra');
+            if (!statsExtra) {
+                statsExtra = document.createElement('div');
+                statsExtra.id = 'stat-extra';
+                document.getElementById('modal-stats').querySelector('.p-6.space-y-5').appendChild(statsExtra);
+            }
+            statsExtra.innerHTML = extraHtml;
             document.getElementById('modal-stats').classList.remove('hidden');
         }
         function closeStatsModal() { document.getElementById('modal-stats').classList.add('hidden'); }
@@ -3439,15 +3634,18 @@
                 dateFrom: document.getElementById('filter-date-from').value ? new Date(document.getElementById('filter-date-from').value).getTime() : null,
                 dateTo: document.getElementById('filter-date-to').value ? new Date(document.getElementById('filter-date-to').value).getTime() + 86399999 : null,
                 statuses: Array.from(document.querySelectorAll('.status-filter:checked')).map(cb=>cb.value),
-                tecnico: document.getElementById('filter-tecnico')?.value || ''
+                tecnico: document.getElementById('filter-tecnico')?.value || '',
+                prioridades: Array.from(document.querySelectorAll('.prioridad-filter:checked')).map(cb=>cb.value)
             };
             renderOrders();
+            if (_vistaOrdenes === 'kanban') renderKanban();
         }
         function clearFilters() {
             document.getElementById('search-orders').value='';
             document.getElementById('filter-date-from').value='';
             document.getElementById('filter-date-to').value='';
             document.querySelectorAll('.status-filter').forEach(cb=>cb.checked=false);
+            document.querySelectorAll('.prioridad-filter').forEach(cb=>cb.checked=false);
             const ft = document.getElementById('filter-tecnico'); if(ft) ft.value='';
             applyFilters();
         }
@@ -3664,12 +3862,19 @@
 
         async function tab(t) {
             if (cameraMode !== 'entrega') closeCamera();
+            // Transición suave (no bloqueante)
             document.querySelectorAll('.app-view').forEach(v => v.classList.add('hidden'));
-            document.getElementById(`view-${t}`).classList.remove('hidden');
+            const newView = document.getElementById(`view-${t}`);
+            newView.classList.remove('hidden');
+            newView.classList.add('tab-in');
+            setTimeout(() => newView.classList.remove('tab-in'), 300);
             document.querySelectorAll('nav button').forEach(b => { b.classList.remove('tab-active','text-orange-500'); b.classList.add('text-slate-400'); });
             const mobileBtn = document.getElementById(`btn-${t}`);
             if (mobileBtn) mobileBtn.classList.add('tab-active','text-orange-500');
-            if(t === 'ordenes') await renderOrders();
+            if(t === 'ordenes') {
+                await renderOrders();
+                if (_vistaOrdenes === 'kanban') renderKanban();
+            }
             if(t === 'ventas') { await renderStock(); await renderMovimientos(); await updateVentaSelect(); await renderCartera(); }
             window.scrollTo(0,0);
             // Sync sidebar
@@ -3717,7 +3922,7 @@
         }
         setInterval(syncSidebarCash, 2000);
 
-        window.onload = () => { document.getElementById('pin-modal').classList.remove('hidden'); };
+        // window.onload manejado por initSplash()
 
         // ==================== FOTOS DE ENTREGA ====================
         async function openDeliveryPhotosModal(orderId) {
@@ -3884,14 +4089,30 @@
                         <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px;"><span>Reparados listos</span><span style="color:#34d399;font-weight:900;">${statusCount.reparado||0}</span></div>
                         <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px;"><span>Total histórico</span><span style="font-weight:900;">${orders.length}</span></div>
                     </div>
+                    <!-- Gráfica de barras por día -->
+                    <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;margin-bottom:12px;">
+                        <p style="margin:0 0 10px;font-size:10px;color:#f97316;font-weight:900;letter-spacing:2px;">📊 INGRESOS POR DÍA</p>
+                        <div id="grafica-barras" style="display:flex;align-items:flex-end;gap:3px;height:80px;padding:0 4px;"></div>
+                        <p style="text-align:center;font-size:9px;color:#475569;margin-top:4px;">Últimos 15 días del mes</p>
+                    </div>
                     ${topItems.length ? `<div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;margin-bottom:12px;">
                         <p style="margin:0 0 8px;font-size:10px;color:#f97316;font-weight:900;letter-spacing:2px;">🔥 TOP REPUESTOS</p>
                         ${topItems.map(([n,c],i) => `<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px;"><span>${i+1}. ${escapeHtml(n)}</span><span style="color:#f97316;font-weight:900;">${c} uds</span></div>`).join('')}
                     </div>` : ''}
+                    <!-- Métricas extra -->
+                    <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;margin-bottom:12px;">
+                        <p style="margin:0 0 8px;font-size:10px;color:#f97316;font-weight:900;letter-spacing:2px;">🎯 MÉTRICAS CLAVE</p>
+                        <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px;"><span>Ticket promedio reparación</span><span style="color:#fb923c;font-weight:900;">${cur}${monthOrders.length ? Math.round(totalRep/monthOrders.length).toLocaleString() : '0'}</span></div>
+                        <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px;"><span>Calificación promedio</span><span style="color:#fbbf24;font-weight:900;">${(() => { const r=orders.filter(o=>o.rating>0); return r.length ? (r.reduce((a,b)=>a+(b.rating||0),0)/r.length).toFixed(1)+' ⭐' : 'Sin datos'; })()}</span></div>
+                        <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px;"><span>Urgentes pendientes</span><span style="color:#f87171;font-weight:900;">${orders.filter(o=>o.prioridad==='urgente'&&o.sta!=='entregado').length}</span></div>
+                        <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px;"><span>VIP pendientes</span><span style="color:#fbbf24;font-weight:900;">${orders.filter(o=>o.prioridad==='vip'&&o.sta!=='entregado').length}</span></div>
+                    </div>
                     <p style="text-align:center;font-size:10px;color:#6b7280;margin:0;">Generado: ${new Date().toLocaleString('es-ES')}</p>
-                </div>`;
+                </div>\`;
             document.getElementById('monthly-report-content').innerHTML = html;
             document.getElementById('modal-monthly-report').classList.remove('hidden');
+            // Renderizar gráfica después de que el DOM esté listo
+            setTimeout(() => renderGraficaBarras(orders, sales, gastos, startOfMonth), 80);
         }
 
         function closeMonthlyReportModal() { document.getElementById('modal-monthly-report').classList.add('hidden'); }
@@ -4021,7 +4242,7 @@
             });
         }
         function checkUpdate() {
-            showAlert('Actualmente estás en la versión estable v2.1.0. Para actualizar, descarga el nuevo archivo desde tu proveedor.', 'info');
+            showAlert('Actualmente estás en la versión estable v3.0.0. Para actualizar, descarga el nuevo archivo desde tu proveedor.', 'info');
         }
         function openAdvancedConfig() {
             loadBusinessConfig();
@@ -4055,12 +4276,16 @@
         }
 
         // ==================== SPLASH SCREEN ====================
-        (function initSplash() {
+        // ==================== SPLASH SCREEN INIT ====================
+        function initSplash() {
             const bizConfig = localStorage.getItem('businessConfig');
             if (bizConfig) {
                 try {
                     const cfg = JSON.parse(bizConfig);
-                    if (cfg.name) document.getElementById('splash-biz-name').innerText = cfg.name;
+                    if (cfg.name) {
+                        const el = document.getElementById('splash-biz-name');
+                        if (el) el.innerText = cfg.name;
+                    }
                     if (cfg.shortName) {
                         const el = document.getElementById('splash-pin-bizname');
                         if (el) el.innerText = cfg.shortName;
@@ -4069,13 +4294,22 @@
             }
             setTimeout(() => {
                 const splash = document.getElementById('splash-screen');
+                if (!splash) return;
                 splash.classList.add('fade-out');
                 setTimeout(() => {
                     splash.style.display = 'none';
-                    document.getElementById('pin-modal').classList.remove('hidden');
+                    const pinModal = document.getElementById('pin-modal');
+                    if (pinModal) pinModal.classList.remove('hidden');
                 }, 600);
             }, 1800);
-        })();
+        }
+
+        // Iniciar cuando el DOM esté listo (más seguro en WebView/APK)
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initSplash);
+        } else {
+            initSplash();
+        }
 
         // ==================== NUMPAD PIN ====================
         const PIN_MAX = 6;
@@ -4739,6 +4973,285 @@
                 header.classList.add('open');
                 setTimeout(() => body.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
             }
+        }
+
+        // ==================== PRIORIDAD ====================
+        function setPrioridad(p) {
+            document.getElementById('c-prioridad').value = p;
+            document.querySelectorAll('.prioridad-btn').forEach(btn => {
+                const isActive = btn.dataset.p === p;
+                btn.style.opacity = isActive ? '1' : '0.4';
+                btn.style.transform = isActive ? 'scale(1.05)' : 'scale(1)';
+            });
+        }
+
+        // ==================== CENTRO DE NOTIFICACIONES ====================
+        async function openNotifCenter() {
+            const orders  = await getAll('orders');
+            const stock   = await getAll('stock');
+            const clientes = await getAll('clientes');
+            const threshold = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
+            const today = new Date();
+            const notifs = [];
+
+            // Órdenes vencidas (+60 días)
+            orders.filter(o => o.sta !== 'entregado' && getBusinessDaysDiff(new Date(o.fecha), today) >= 60)
+                  .forEach(o => notifs.push({ tipo:'danger', icon:'⚠️', msg:`${o.nom} — ${o.equ}: más de 60 días en taller`, id: o.id }));
+
+            // Órdenes urgentes sin resolver
+            orders.filter(o => o.prioridad === 'urgente' && o.sta !== 'entregado')
+                  .forEach(o => notifs.push({ tipo:'warning', icon:'🔥', msg:`URGENTE: ${o.nom} — ${o.equ}`, id: o.id }));
+
+            // Garantías por vencer
+            const warnDays = parseInt(localStorage.getItem('warrantyAlertDays')) || 3;
+            orders.filter(o => o.sta === 'entregado' && o.garantia > 0 && o.fechaEntrega).forEach(o => {
+                const expiry = o.fechaEntrega + (o.garantia * 86400000);
+                const diff = (expiry - Date.now()) / 86400000;
+                if (diff >= 0 && diff <= warnDays) notifs.push({ tipo:'warning', icon:'🛡️', msg:`Garantía de ${o.nom} vence en ${Math.ceil(diff)} día(s)`, id: o.id });
+                if (diff < 0) notifs.push({ tipo:'info', icon:'🛡️', msg:`Garantía de ${o.nom} venció hace ${Math.abs(Math.floor(diff))} días`, id: o.id });
+            });
+
+            // Stock bajo
+            stock.filter(s => s.q <= (s.minStock || threshold) && s.q > 0)
+                 .forEach(s => notifs.push({ tipo:'warning', icon:'📦', msg:`Stock bajo: ${s.n} — ${s.q} uds.` }));
+
+            // Stock agotado
+            stock.filter(s => s.q === 0)
+                 .forEach(s => notifs.push({ tipo:'danger', icon:'❌', msg:`AGOTADO: ${s.n}` }));
+
+            // Saldos pendientes
+            clientes.filter(c => c.deuda > 0)
+                    .forEach(c => notifs.push({ tipo:'info', icon:'💸', msg:`Saldo pendiente: ${c.nombre} — $${c.deuda.toLocaleString()}` }));
+
+            // Actualizar contador
+            const count = notifs.length;
+            const badge = document.getElementById('notif-count');
+            badge.innerText = count;
+            badge.classList.toggle('hidden', count === 0);
+
+            document.getElementById('notif-subtitle').innerText = count === 0 ? 'Todo en orden ✅' : `${count} alerta(s) pendiente(s)`;
+            const list = document.getElementById('notif-list');
+            if (!notifs.length) {
+                list.innerHTML = '<div class="text-center py-8 text-slate-500 text-sm">✅ No hay alertas pendientes</div>';
+            } else {
+                const colors = { danger:'bg-rose-500/10 border-rose-500/20', warning:'bg-amber-500/10 border-amber-500/20', info:'bg-blue-500/10 border-blue-500/20' };
+                list.innerHTML = notifs.map(n => `
+                    <div class="flex items-start gap-3 ${colors[n.tipo]} border p-3 rounded-xl ${n.id ? 'cursor-pointer active:scale-[0.98]' : ''}" ${n.id ? `onclick="closeNotifCenter();tab('ordenes')"` : ''}>
+                        <span class="text-xl flex-shrink-0">${n.icon}</span>
+                        <p class="text-xs font-semibold text-slate-300 leading-relaxed">${n.msg}</p>
+                    </div>`).join('');
+            }
+            document.getElementById('modal-notif').classList.remove('hidden');
+        }
+
+        function closeNotifCenter() { document.getElementById('modal-notif').classList.add('hidden'); }
+
+        async function refreshNotifBadge() {
+            const orders  = await getAll('orders');
+            const stock   = await getAll('stock');
+            const clientes = await getAll('clientes');
+            const threshold = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
+            const today = new Date();
+            let count = 0;
+            count += orders.filter(o => o.sta !== 'entregado' && getBusinessDaysDiff(new Date(o.fecha), today) >= 60).length;
+            count += orders.filter(o => o.prioridad === 'urgente' && o.sta !== 'entregado').length;
+            count += stock.filter(s => s.q <= (s.minStock || threshold)).length;
+            count += clientes.filter(c => c.deuda > 0).length;
+            // Header badge
+            const badge = document.getElementById('notif-count');
+            if (badge) { badge.innerText = count; badge.classList.toggle('hidden', count === 0); }
+            // Sidebar badge
+            const badgeSb = document.getElementById('notif-count-sb');
+            if (badgeSb) { badgeSb.innerText = count; badgeSb.classList.toggle('hidden', count === 0); }
+        }
+
+        // ==================== HISTORIAL DE ESTADO ====================
+        async function openHistorialModal(orderId) {
+            const orders = await getAll('orders');
+            const o = orders.find(x => x.id === orderId);
+            if (!o) return;
+            document.getElementById('historial-order-label').innerText = `${o.nom} — ${o.equ}`;
+            const hist = o.historial || [{ sta: o.sta, fecha: o.fecha, tecnico: o.tecnico || '', nota: 'Sin historial previo' }];
+            const staColors = { recibido:'#94a3b8', 'revisión':'#fbbf24', reparado:'#34d399', entregado:'#60a5fa' };
+            const staIcons  = { recibido:'⚪', 'revisión':'🔍', reparado:'✅', entregado:'📦' };
+            const list = document.getElementById('historial-list');
+            list.innerHTML = hist.slice().reverse().map((h, i) => {
+                const fecha = new Date(h.fecha).toLocaleString('es-ES', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+                const color = staColors[h.sta] || '#94a3b8';
+                const icon  = staIcons[h.sta]  || '⚪';
+                return `<div class="flex gap-3 py-3 ${i < hist.length-1 ? 'border-b border-white/5' : ''}">
+                    <div class="flex flex-col items-center gap-1 flex-shrink-0">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm" style="background:${color}22;border:2px solid ${color}44;">${icon}</div>
+                        ${i < hist.length-1 ? '<div class="flex-1 w-0.5 bg-white/5 min-h-[16px]"></div>' : ''}
+                    </div>
+                    <div class="flex-1 pb-1">
+                        <p class="text-xs font-black" style="color:${color}">${h.sta.toUpperCase()}</p>
+                        <p class="text-[10px] text-slate-400">${fecha}${h.tecnico ? ' · ' + h.tecnico : ''}</p>
+                        <p class="text-[10px] text-slate-500 mt-0.5">${h.nota || ''}</p>
+                    </div>
+                </div>`;
+            }).join('');
+            document.getElementById('modal-historial-estado').classList.remove('hidden');
+        }
+        function closeHistorialModal() { document.getElementById('modal-historial-estado').classList.add('hidden'); }
+
+        // ==================== CALIFICACIÓN / RATING ====================
+        let _ratingOrderId = null;
+        let _ratingValue = 0;
+        const _ratingLabels = ['','😞 Muy malo','😐 Regular','🙂 Bueno','😊 Muy bueno','🤩 Excelente'];
+
+        async function openRatingModal(orderId) {
+            const orders = await getAll('orders');
+            const o = orders.find(x => x.id === orderId);
+            if (!o) return;
+            _ratingOrderId = orderId;
+            _ratingValue = o.rating || 0;
+            document.getElementById('rating-order-label').innerText = `${o.nom} — ${o.equ}`;
+            setRating(_ratingValue);
+            document.getElementById('modal-rating').classList.remove('hidden');
+        }
+
+        function setRating(val) {
+            _ratingValue = val;
+            document.querySelectorAll('.star-btn').forEach(btn => {
+                btn.classList.toggle('active', parseInt(btn.dataset.star) <= val);
+            });
+            document.getElementById('rating-label').innerText = _ratingLabels[val] || '';
+        }
+
+        async function saveRating() {
+            if (!_ratingOrderId) return;
+            const orders = await getAll('orders');
+            const o = orders.find(x => x.id === _ratingOrderId);
+            if (o) { o.rating = _ratingValue; await put('orders', o); }
+            closeRatingModal();
+            await renderOrders();
+            if (_ratingValue > 0) showToast(`⭐ Calificación guardada: ${_ratingLabels[_ratingValue]}`, 'success');
+        }
+
+        function closeRatingModal() {
+            document.getElementById('modal-rating').classList.add('hidden');
+            _ratingOrderId = null; _ratingValue = 0;
+            document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('rating-label').innerText = '';
+        }
+
+        // ==================== VISTA KANBAN ====================
+        let _vistaOrdenes = 'lista';
+
+        function setVistaOrdenes(vista) {
+            _vistaOrdenes = vista;
+            document.getElementById('orders-list').classList.toggle('hidden', vista === 'kanban');
+            document.getElementById('kanban-view').classList.toggle('hidden', vista === 'lista');
+            document.getElementById('btn-vista-lista').className  = vista === 'lista'
+                ? 'flex-1 bg-orange-600/30 border border-orange-500/40 text-orange-400 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition'
+                : 'flex-1 bg-white/5 border border-white/10 text-slate-400 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition';
+            document.getElementById('btn-vista-kanban').className = vista === 'kanban'
+                ? 'flex-1 bg-orange-600/30 border border-orange-500/40 text-orange-400 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition'
+                : 'flex-1 bg-white/5 border border-white/10 text-slate-400 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition';
+            if (vista === 'kanban') renderKanban();
+        }
+
+        async function renderKanban() {
+            let orders = await getAll('orders');
+            if (filters.text) orders = orders.filter(o =>
+                (o.nom||'').includes(filters.text) || (o.equ||'').includes(filters.text) ||
+                (o.det||'').includes(filters.text) || formatOrderNum(o.orderNum||0).includes(filters.text)
+            );
+            if (filters.statuses.length) orders = orders.filter(o => filters.statuses.includes(o.sta));
+            if (filters.tecnico) orders = orders.filter(o => (o.tecnico||'') === filters.tecnico);
+            if (filters.prioridades && filters.prioridades.length) orders = orders.filter(o => filters.prioridades.includes(o.prioridad||'normal'));
+            orders.sort((a,b) => b.fecha - a.fecha);
+
+            const cols = { recibido:[], 'revisión':[], reparado:[], entregado:[] };
+            orders.forEach(o => { if (cols[o.sta] !== undefined) cols[o.sta].push(o); });
+
+            const cur = getCurrency();
+            const prioEmoji = { urgente:'🔥', vip:'⭐', normal:'' };
+
+            Object.entries(cols).forEach(([sta, items]) => {
+                const key = sta === 'revisión' ? 'revision' : sta;
+                document.getElementById(`kcount-${key}`).innerText = items.length;
+                document.getElementById(`klist-${key}`).innerHTML = items.map(o => `
+                    <div class="kanban-card bg-[#181b28] border border-white/8 rounded-2xl p-3 space-y-1.5"
+                         draggable="true"
+                         ondragstart="kanbanDragStart(event,${o.id})"
+                         ondragend="kanbanDragEnd(event)">
+                        <div class="flex justify-between items-start gap-1">
+                            <div>
+                                <span class="order-num">${formatOrderNum(o.orderNum||0)}</span>
+                                ${o.prioridad && o.prioridad!=='normal' ? `<span class="text-[9px] ml-1">${prioEmoji[o.prioridad]}</span>` : ''}
+                            </div>
+                            ${o.rating ? `<span class="text-[9px] text-amber-400">${'⭐'.repeat(o.rating)}</span>` : ''}
+                        </div>
+                        <p class="font-black text-sm leading-tight">${escapeHtml(o.nom)}</p>
+                        <p class="text-[10px] text-orange-400 truncate">${escapeHtml(o.equ)}</p>
+                        <div class="flex justify-between items-center pt-1 border-t border-white/5">
+                            <span class="text-[10px] text-emerald-400 font-black">${cur}${(o.val||0).toLocaleString()}</span>
+                            <span class="text-[9px] text-slate-500">${new Date(o.fecha).toLocaleDateString('es-ES',{day:'2-digit',month:'short'})}</span>
+                        </div>
+                        ${o.tecnico ? `<p class="text-[9px] text-slate-500">👷 ${escapeHtml(o.tecnico)}</p>` : ''}
+                    </div>`).join('') || '<p class="text-[10px] text-slate-600 text-center py-4">Vacío</p>';
+            });
+
+            // Drop zones
+            ['recibido','revision','reparado','entregado'].forEach(key => {
+                const el = document.getElementById(`klist-${key}`);
+                el.ondragover = e => { e.preventDefault(); el.parentElement.classList.add('drag-over'); };
+                el.ondragleave = () => el.parentElement.classList.remove('drag-over');
+                el.ondrop = e => { e.preventDefault(); el.parentElement.classList.remove('drag-over'); kanbanDrop(key); };
+            });
+        }
+
+        let _kanbanDragId = null;
+        function kanbanDragStart(e, id) { _kanbanDragId = id; e.target.classList.add('dragging'); }
+        function kanbanDragEnd(e) { e.target.classList.remove('dragging'); }
+        async function kanbanDrop(targetKey) {
+            if (!_kanbanDragId) return;
+            const staMap = { recibido:'recibido', revision:'revisión', reparado:'reparado', entregado:'entregado' };
+            const newSta = staMap[targetKey];
+            const orders = await getAll('orders');
+            const o = orders.find(x => x.id === _kanbanDragId);
+            if (!o || o.sta === newSta) { _kanbanDragId = null; return; }
+            await updateSta(o.id, newSta);
+            _kanbanDragId = null;
+            if (_vistaOrdenes === 'kanban') renderKanban();
+        }
+
+        // ==================== GRÁFICA BARRAS REPORTE ====================
+        function renderGraficaBarras(orders, sales, gastos, startOfMonth) {
+            const el = document.getElementById('grafica-barras');
+            if (!el) return;
+            const now = new Date();
+            const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+            const days = {};
+            for (let d = 1; d <= daysInMonth; d++) days[d] = 0;
+
+            orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= startOfMonth)
+                  .forEach(o => { const d = new Date(o.fechaEntrega||o.fecha).getDate(); days[d] = (days[d]||0) + (o.val||0); });
+            sales.filter(s => s.fecha >= startOfMonth)
+                 .forEach(s => { const d = new Date(s.fecha).getDate(); days[d] = (days[d]||0) + (s.val||0); });
+
+            const vals = Object.values(days);
+            const maxVal = Math.max(...vals, 1);
+            const cur = getCurrency();
+            const maxH = 68;
+
+            // Mostrar últimos 15 días o todos si menos
+            const dayKeys = Object.keys(days).map(Number).slice(-15);
+            el.innerHTML = dayKeys.map(d => {
+                const v = days[d] || 0;
+                const h = Math.round((v / maxVal) * maxH);
+                const today = now.getDate();
+                const isToday = d === today;
+                const bg = isToday ? 'linear-gradient(to top,#f97316,#fbbf24)' : v > 0 ? 'linear-gradient(to top,#ea580c99,#f9731655)' : 'rgba(255,255,255,0.05)';
+                const valStr = v >= 1000000 ? (v/1000000).toFixed(1)+'M' : v >= 1000 ? (v/1000).toFixed(0)+'k' : v > 0 ? String(v) : '';
+                return `<div class="bar-day" title="${cur}${v.toLocaleString()}">
+                    <span class="bar-val">${valStr}</span>
+                    <div class="bar-fill" style="height:${h}px;background:${bg};"></div>
+                    <span class="bar-label" style="${isToday?'color:#f97316;font-weight:900;':''}">${d}</span>
+                </div>`;
+            }).join('');
         }
 
         // ==================== BADGE OFFLINE / ONLINE ====================
