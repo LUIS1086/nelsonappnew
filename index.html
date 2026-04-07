@@ -720,6 +720,25 @@
                     <option value="">Sin asignar</option>
                 </select>
             </div>
+            <!-- Fecha estimada de entrega -->
+            <div>
+                <label class="text-[10px] text-slate-400 block mb-1 ml-1">📅 FECHA ESTIMADA DE ENTREGA</label>
+                <input type="date" id="c-fecha-estimada" class="w-full text-sm font-bold text-blue-400">
+            </div>
+            <!-- Cómo nos conoció -->
+            <div>
+                <label class="text-[10px] text-slate-400 block mb-1 ml-1">📣 ¿CÓMO NOS CONOCIÓ?</label>
+                <select id="c-origen" class="w-full font-bold text-xs">
+                    <option value="">Sin especificar</option>
+                    <option value="recomendacion">🗣️ Recomendación</option>
+                    <option value="redes">📱 Redes sociales</option>
+                    <option value="cliente_frecuente">⭐ Cliente frecuente</option>
+                    <option value="google">🔍 Google</option>
+                    <option value="local">🏠 Pasó por el local</option>
+                    <option value="whatsapp">💬 WhatsApp</option>
+                    <option value="otro">📌 Otro</option>
+                </select>
+            </div>
             <!-- Valor y adelanto -->
             <div class="grid grid-cols-2 gap-3">
                 <div>
@@ -746,6 +765,11 @@
                 </div>
             </div>
             <div id="previews" class="flex gap-2 overflow-x-auto py-2 no-scrollbar"></div>
+            <!-- Notas internas (solo para el taller, no aparece en recibo) -->
+            <div>
+                <label class="text-[10px] text-slate-400 block mb-1 ml-1">🔒 NOTAS INTERNAS <span class="text-slate-600">(no aparece en recibo)</span></label>
+                <textarea id="c-notas" placeholder="Observaciones del técnico, contraseña del equipo, accesorios entregados..." class="h-16 text-xs w-full"></textarea>
+            </div>
             <button onclick="saveOrder()" class="w-full bg-gradient-to-r from-orange-600 to-orange-500 py-4 rounded-2xl font-black uppercase shadow-lg active:scale-95 transition-all">REGISTRAR ENTRADA</button>
         </div>
     </main>
@@ -941,6 +965,14 @@
                     <span id="edit-saldo-val" class="text-rose-400 font-black"></span>
                 </div>
                 <textarea id="edit-det" placeholder="DETALLE" class="w-full text-xs uppercase" rows="3"></textarea>
+                <div>
+                    <label class="text-[10px] text-slate-400 block mb-1">📅 FECHA ESTIMADA ENTREGA</label>
+                    <input type="date" id="edit-fecha-estimada" class="w-full text-sm font-bold text-blue-400">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 block mb-1">🔒 NOTAS INTERNAS <span class="text-slate-600">(no aparece en recibo)</span></label>
+                    <textarea id="edit-notas" placeholder="Contraseña del equipo, accesorios, observaciones técnicas..." class="w-full text-xs" rows="2"></textarea>
+                </div>
                 <button onclick="saveEditOrder()" class="w-full bg-orange-600 py-3 rounded-xl font-black uppercase">GUARDAR CAMBIOS</button>
             </div>
         </div>
@@ -972,7 +1004,15 @@
     <div id="modal-confirm" class="hidden fixed inset-0 z-[3500] modal-custom flex flex-col items-center justify-center p-4">
         <div class="bg-[#111827] border border-white/10 w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl">
             <div class="bg-gradient-to-r from-rose-600 to-rose-500 p-4"><h3 class="text-white font-black text-center">⚠️ CONFIRMAR CIERRE</h3></div>
-            <div class="p-6 text-center"><p class="text-slate-300 mb-4">¿Seguro que deseas reiniciar la caja a $0?</p><p class="text-xs text-slate-400 mb-6">Esta acción no elimina el historial, solo reinicia el contador actual</p><div class="flex gap-3"><button onclick="closeConfirmModal()" class="flex-1 bg-slate-700 py-2 rounded-xl font-bold">CANCELAR</button><button onclick="executeCierreCaja()" class="flex-1 bg-rose-600 py-2 rounded-xl font-bold">CONFIRMAR</button></div></div>
+            <div class="p-6 text-center">
+                <p class="text-slate-300 mb-2">¿Seguro que deseas cerrar la caja?</p>
+                <div class="bg-black/30 rounded-xl py-3 px-4 mb-3">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Neto actual a archivar</p>
+                    <p id="cierre-monto-preview" class="text-3xl font-black text-emerald-400 mt-1">$0</p>
+                </div>
+                <p class="text-xs text-slate-400 mb-6">Esta acción no elimina el historial, solo reinicia el contador actual</p>
+                <div class="flex gap-3"><button onclick="closeConfirmModal()" class="flex-1 bg-slate-700 py-2 rounded-xl font-bold">CANCELAR</button><button onclick="executeCierreCaja()" class="flex-1 bg-rose-600 py-2 rounded-xl font-bold">CONFIRMAR</button></div>
+            </div>
         </div>
     </div>
 
@@ -983,10 +1023,12 @@
                 <h3 class="text-white font-black text-xl tracking-wide flex items-center gap-2 relative z-10">RENDIMIENTO DEL MES</h3>
                 <button onclick="closeStatsModal()" class="text-white bg-black/30 hover:bg-black/50 w-8 h-8 rounded-full flex items-center justify-center transition relative z-10 font-bold">✕</button>
             </div>
-            <div class="p-6 space-y-5">
+            <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto no-scrollbar">
                 <div class="grid grid-cols-2 gap-3"><div class="bg-black/30 p-4 rounded-xl text-center"><p class="text-[10px] text-slate-400 uppercase font-bold">Órdenes Completadas</p><p id="stat-orders" class="text-2xl font-black text-white mt-1">0</p></div><div class="bg-black/30 p-4 rounded-xl text-center"><p class="text-[10px] text-slate-400 uppercase font-bold">Ventas Realizadas</p><p id="stat-sales" class="text-2xl font-black text-white mt-1">0</p></div></div>
                 <div class="grid grid-cols-2 gap-3"><div class="bg-black/30 p-4 rounded-xl text-center"><p class="text-[10px] text-slate-400 uppercase font-bold">En Proceso</p><p id="stat-in-progress" class="text-2xl font-black text-white mt-1">0</p></div><div class="bg-black/30 p-4 rounded-xl text-center"><p class="text-[10px] text-slate-400 uppercase font-bold">Total Reparaciones</p><p id="stat-total-orders" class="text-2xl font-black text-white mt-1">0</p></div></div>
+                <div class="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl text-center"><p class="text-[10px] text-slate-400 uppercase font-bold">💰 Ticket Promedio</p><p id="stat-ticket-prom" class="text-2xl font-black text-emerald-400 mt-1">$0</p></div>
                 <div class="bg-black/30 p-4 rounded-xl border border-white/5"><p class="text-[10px] text-slate-400 uppercase font-bold mb-3">🔥 TOP 3 Repuestos Más Vendidos</p><div id="stat-top-items" class="space-y-2"></div></div>
+                <div class="bg-black/30 p-4 rounded-xl border border-white/5"><p class="text-[10px] text-slate-400 uppercase font-bold mb-3">📣 Origen de Clientes</p><div id="stat-origen" class="space-y-2"></div></div>
             </div>
         </div>
     </div>
@@ -1652,7 +1694,7 @@
                         <button onclick="resetTutorial()" class="w-full bg-yellow-600/80 py-2 rounded-xl text-xs font-bold hover:bg-yellow-600 transition">🔄 Restablecer tutorial</button>
                         <button onclick="factoryReset()" class="w-full bg-rose-600/80 py-2 rounded-xl text-xs font-bold hover:bg-rose-600 transition">⚠️ RESTABLECER FÁBRICA</button>
                         <p class="text-[10px] text-slate-500 text-center">Borra TODOS los datos. PIN y configuración se mantienen.</p>
-                        <p class="text-center text-[10px] text-slate-600 pt-1">v2.1.0 — <a href="#" onclick="checkUpdate()" class="text-cyan-400 underline">Buscar actualizaciones</a></p>
+                        <p class="text-center text-[10px] text-slate-600 pt-1">v3.0.0 — <a href="#" onclick="checkUpdate()" class="text-cyan-400 underline">Buscar actualizaciones</a></p>
                     </div>
                 </div>
 
@@ -2244,13 +2286,17 @@
             const garantia = parseInt(document.getElementById('c-garantia').value) || 0;
             const presupuesto = document.getElementById('c-presupuesto').value;
             const tecnico = document.getElementById('c-tecnico').value || '';
+            const fechaEstimada = document.getElementById('c-fecha-estimada').value || '';
+            const notas = document.getElementById('c-notas').value.trim();
+            const origen = document.getElementById('c-origen').value || '';
             const order = {
                 id: Date.now(), orderNum, nom, tel: document.getElementById('c-tel').value,
                 equ: document.getElementById('c-equ').value.toUpperCase(),
                 val: valor, adelanto, saldo: valor - adelanto,
                 fotos: currentPhotos, fotosEntrega: [], sta: 'recibido',
                 det: document.getElementById('c-fal').value.toUpperCase(),
-                fecha: Date.now(), alertSent: false, garantia, presupuesto, tecnico
+                fecha: Date.now(), alertSent: false, garantia, presupuesto, tecnico,
+                fechaEstimada, notas, origen
             };
             await put('orders', order);
             // Si hay adelanto, registrarlo como ingreso en caja
@@ -2258,10 +2304,11 @@
                 await put('sales', { id: Date.now() + 1, item: `Adelanto ${nom} - ${order.equ.substring(0,20)}`, val: adelanto, qty: 1, stockId: null, fecha: Date.now(), tipo: 'adelanto', ordenId: order.id });
             }
             currentPhotos = []; document.getElementById('previews').innerHTML = '';
-            ['c-nom','c-equ','c-tel','c-val','c-fal','c-adelanto'].forEach(id => document.getElementById(id).value = '');
+            ['c-nom','c-equ','c-tel','c-val','c-fal','c-adelanto','c-notas','c-fecha-estimada'].forEach(id => document.getElementById(id).value = '');
             document.getElementById('c-garantia').value = '30';
             document.getElementById('c-presupuesto').value = 'pendiente';
             document.getElementById('c-tecnico').value = '';
+            document.getElementById('c-origen').value = '';
             document.getElementById('client-alert').innerText = '';
             document.getElementById('saldo-preview').classList.add('hidden');
             playBeep(); closeCamera(); await updateTotal(); await updateSuggestions(); tab('ordenes');
@@ -2279,6 +2326,8 @@
             document.getElementById('edit-val').value = order.val;
             document.getElementById('edit-adelanto').value = order.adelanto || 0;
             document.getElementById('edit-det').value = order.det || '';
+            document.getElementById('edit-notas').value = order.notas || '';
+            document.getElementById('edit-fecha-estimada').value = order.fechaEstimada || '';
             // Cargar técnicos en el select
             const tecnicos = getTecnicos();
             const sel = document.getElementById('edit-tecnico');
@@ -2306,6 +2355,8 @@
             order.saldo = newVal - newAdelanto;
             order.tecnico = document.getElementById('edit-tecnico').value;
             order.det = document.getElementById('edit-det').value.toUpperCase();
+            order.notas = document.getElementById('edit-notas').value.trim();
+            order.fechaEstimada = document.getElementById('edit-fecha-estimada').value || '';
             await put('orders', order);
             closeEditModal();
             await renderOrders();
@@ -2340,7 +2391,8 @@
                     (o.tel || '').includes(q) ||
                     (o.tecnico || '').toUpperCase().includes(q) ||
                     formatOrderNum(o.orderNum || 0).includes(q) ||
-                    String(o.orderNum || '').includes(q)
+                    String(o.orderNum || '').includes(q) ||
+                    (o.orderNum && formatOrderNum(o.orderNum).replace(/[^0-9]/g,'').includes(q.replace(/[^0-9]/g,'')))
                 );
             }
             if (filters.dateFrom) orders = orders.filter(o => o.fecha >= filters.dateFrom);
@@ -2385,6 +2437,13 @@
                 const fechaEstado = o.fechaEstado || o.fecha;
                 const daysInStatus = getBusinessDaysDiff(new Date(fechaEstado), today);
                 const staColors = { recibido:'text-slate-400', 'revisión':'text-yellow-400', reparado:'text-emerald-400', entregado:'text-blue-400' };
+                const fechaEstBadge = o.fechaEstimada && o.sta !== 'entregado'
+                    ? `<span class="text-[9px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-bold">📅 Entrega est: ${new Date(o.fechaEstimada+'T00:00:00').toLocaleDateString('es-ES',{day:'2-digit',month:'short'})}</span>` : '';
+                const notasBadge = o.notas
+                    ? `<div class="text-[10px] bg-yellow-500/10 border border-yellow-500/20 rounded-lg px-2 py-1 mt-1 text-yellow-300 font-bold">🔒 ${escapeHtml(o.notas)}</div>` : '';
+                const origenLabels = {recomendacion:'🗣️ Recomendación',redes:'📱 Redes',cliente_frecuente:'⭐ Frecuente',google:'🔍 Google',local:'🏠 Local',whatsapp:'💬 WhatsApp',otro:'📌 Otro'};
+                const origenBadge = o.origen && origenLabels[o.origen]
+                    ? `<span class="text-[9px] bg-slate-700/60 text-slate-400 px-2 py-0.5 rounded-full font-bold">${origenLabels[o.origen]}</span>` : '';
 
                 return `<div class="card p-4 border-l-4 ${isOverdue ? 'border-red-500' : (o.sta === 'entregado' ? 'border-emerald-500' : 'border-orange-500')}">
                     <div class="flex justify-between items-start mb-1">
@@ -2393,6 +2452,7 @@
                                 <span class="order-num">${numLabel}</span>
                                 ${garantiaBadge}
                                 ${tecnicoBadge}
+                                ${origenBadge}
                             </div>
                             <h3 class="font-black text-lg cursor-pointer hover:text-orange-400" onclick="editOrder(${o.id})">${escapeHtml(o.nom)} ✏️</h3>
                             <p class="text-xs text-orange-400">${escapeHtml(o.equ)}</p>
@@ -2405,14 +2465,16 @@
                             <option ${o.sta==='entregado'?'selected':''}>entregado</option>
                         </select>
                     </div>
-                    <div class="flex justify-between text-xs text-slate-400 mb-2 mt-2">
+                    <div class="flex justify-between text-xs text-slate-400 mb-1 mt-2">
                         <span>📅 ${new Date(o.fecha).toLocaleDateString()}</span>
                         <span class="flex gap-2">
                             <span class="${isOverdue ? 'text-red-400 font-bold' : ''}">🕒 ${daysInShop}d taller</span>
                             <span class="${staColors[o.sta]||'text-slate-400'} font-bold">· ${daysInStatus}d en ${o.sta}</span>
                         </span>
                     </div>
-                    <div class="flex gap-2 mb-2">${presBadge}</div>
+                    ${fechaEstBadge ? `<div class="flex gap-2 flex-wrap mb-1">${fechaEstBadge}</div>` : ''}
+                    ${notasBadge}
+                    <div class="flex gap-2 mb-2 mt-2">${presBadge}</div>
                     <div class="grid grid-cols-2 gap-2 mb-2">
                         <button onclick="openPhotoModal(${o.id})" class="bg-slate-800/60 py-2 rounded-xl text-xs font-bold">📸 RECEP. (${o.fotos?.length||0})</button>
                         <button onclick="${deliveryPhotoCount > 0 ? `openPhotoModal(${o.id},'entrega')` : `openDeliveryPhotosModal(${o.id})`}" class="bg-emerald-900/30 py-2 rounded-xl text-xs font-bold text-emerald-400">📷 ENTREGA (${deliveryPhotoCount})</button>
@@ -2598,9 +2660,13 @@
             if (cobro > 0) {
                 await put('sales', { id: Date.now() + 2, item: `Cobro entrega ${o.nom} - ${o.equ.substring(0,20)}`, val: cobro, qty: 1, stockId: null, fecha: Date.now(), tipo: 'cobro_entrega', ordenId: orderId });
             }
-            // Si queda saldo, registrar deuda
+            // Si queda saldo, registrar deuda; si pagó todo, limpiar deuda existente
             if (o.saldo > 0) {
                 await updateClientDebt(o.nom, o.saldo);
+            } else {
+                // Pago completo — asegurarse que no quede deuda registrada
+                let client = await getOne('clientes', o.nom);
+                if (client && client.deuda > 0) { client.deuda = 0; await put('clientes', client); }
             }
             await put('orders', o);
             document.getElementById('modal-entrega-rapida')?.remove();
@@ -2788,7 +2854,7 @@
             const lastCierre = Number(localStorage.getItem('lastCierreCaja')) || 0;
             const sales = await getAll('sales');
             const gastos = await getAll('gastos');
-            const movs = [...sales.filter(s=>s.fecha>lastCierre).map(s=>({...s,type:'sale'})), ...gastos.filter(g=>g.fecha>lastCierre).map(g=>({...g,type:'gasto'}))].sort((a,b)=>b.fecha-a.fecha);
+            const movs = [...sales.filter(s=>s.fecha>lastCierre && s.tipo!=='adelanto' && s.tipo!=='cobro_entrega').map(s=>({...s,type:'sale'})), ...gastos.filter(g=>g.fecha>lastCierre).map(g=>({...g,type:'gasto'}))].sort((a,b)=>b.fecha-a.fecha);
             const container = document.getElementById('movimientos-history');
             if(!movs.length) { container.innerHTML = '<div class="text-center py-4 text-slate-500 text-xs">Sin movimientos en la caja actual</div>'; return; }
             container.innerHTML = movs.map(m => m.type==='sale' ? `<div class="flex justify-between bg-emerald-500/10 p-2 rounded-xl"><div><p class="text-xs font-bold">+ ${escapeHtml(m.item)}</p><p class="text-[9px]">${m.qty} unid</p></div><div class="flex gap-2"><p class="text-xs font-black text-emerald-400">+$${m.val.toLocaleString()}</p><button onclick="annulSale(${m.id})" class="text-rose-400 text-[10px] bg-rose-500/20 px-2 py-1 rounded-lg">✕</button></div></div>` : `<div class="flex justify-between bg-rose-500/10 p-2 rounded-xl"><div><p class="text-xs font-bold">- ${escapeHtml(m.det)}</p><p class="text-[9px]">Gasto</p></div><div class="flex gap-2"><p class="text-xs font-black text-rose-400">-$${m.val.toLocaleString()}</p><button onclick="annulGasto(${m.id})" class="text-rose-400 text-[10px] bg-rose-500/20 px-2 py-1 rounded-lg">✕</button></div></div>`).join('');
@@ -3209,7 +3275,12 @@
         }
 
         // CAJA
-        function showCierreConfirmModal() { document.getElementById('modal-confirm').classList.remove('hidden'); closeCajaModal(); }
+        function showCierreConfirmModal() {
+            const total = document.getElementById('modal-caja-total')?.innerText || '$0';
+            document.getElementById('cierre-monto-preview').innerText = total;
+            document.getElementById('modal-confirm').classList.remove('hidden');
+            closeCajaModal();
+        }
         function closeConfirmModal() { document.getElementById('modal-confirm').classList.add('hidden'); }
         async function openCajaModal() {
             const lastCierre = Number(localStorage.getItem('lastCierreCaja')) || 0;
@@ -3241,11 +3312,26 @@
             document.getElementById('stat-orders').innerText = monthOrders.length;
             document.getElementById('stat-in-progress').innerText = inProgress;
             document.getElementById('stat-total-orders').innerText = orders.length;
-            const monthSales = sales.filter(s => s.fecha >= startOfMonth);
+            const monthSales = sales.filter(s => s.fecha >= startOfMonth && s.tipo !== 'adelanto' && s.tipo !== 'cobro_entrega');
             document.getElementById('stat-sales').innerText = monthSales.length;
             const itemCounts = {}; monthSales.forEach(s => itemCounts[s.item] = (itemCounts[s.item] || 0) + s.qty);
             const sorted = Object.entries(itemCounts).sort((a,b)=>b[1]-a[1]).slice(0,3);
             document.getElementById('stat-top-items').innerHTML = sorted.length ? sorted.map(([n,c],i)=>`<div class="flex justify-between bg-white/5 p-2 rounded-lg"><span>${i+1}. ${escapeHtml(n)}</span><span>${c} uds</span></div>`).join('') : '<p class="text-center text-xs">Sin ventas este mes</p>';
+            // Ticket promedio
+            const ticketProm = monthOrders.length > 0 ? Math.round(monthOrders.reduce((a,b)=>a+(b.val||0),0) / monthOrders.length) : 0;
+            const tpEl = document.getElementById('stat-ticket-prom');
+            if (tpEl) tpEl.innerText = getCurrency() + ticketProm.toLocaleString();
+            // Origen de clientes (solo órdenes con origen registrado)
+            const origenLabels = {recomendacion:'🗣️ Recomendación',redes:'📱 Redes',cliente_frecuente:'⭐ Frecuente',google:'🔍 Google',local:'🏠 Local',whatsapp:'💬 WhatsApp',otro:'📌 Otro'};
+            const origenCount = {};
+            orders.filter(o => o.origen).forEach(o => { origenCount[o.origen] = (origenCount[o.origen]||0)+1; });
+            const origenEl = document.getElementById('stat-origen');
+            if (origenEl) {
+                const total = Object.values(origenCount).reduce((a,b)=>a+b,0);
+                origenEl.innerHTML = total > 0
+                    ? Object.entries(origenCount).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="flex justify-between items-center bg-white/5 p-2 rounded-lg"><span class="text-xs">${origenLabels[k]||k}</span><span class="font-black text-orange-400 text-xs">${v} <span class="text-slate-500">(${Math.round(v/total*100)}%)</span></span></div>`).join('')
+                    : '<p class="text-center text-xs text-slate-500">Sin datos de origen aún</p>';
+            }
             document.getElementById('modal-stats').classList.remove('hidden');
         }
         function closeStatsModal() { document.getElementById('modal-stats').classList.add('hidden'); }
@@ -3662,17 +3748,26 @@
 
             const monthOrders = orders.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha) >= startOfMonth);
             const inProgress = orders.filter(o => o.sta !== 'entregado');
-            const monthSales = sales.filter(s => s.fecha >= startOfMonth);
+            const monthSales = sales.filter(s => s.fecha >= startOfMonth && s.tipo !== 'adelanto' && s.tipo !== 'cobro_entrega');
             const monthGastos = gastos.filter(g => g.fecha >= startOfMonth);
 
             const totalRep = monthOrders.reduce((a,b) => a+(b.val||0), 0);
             const totalVentas = monthSales.reduce((a,b) => a+(b.val||0), 0);
             const totalGastos = monthGastos.reduce((a,b) => a+(b.val||0), 0);
             const neto = totalRep + totalVentas - totalGastos;
+            const ticketProm = monthOrders.length > 0 ? Math.round(totalRep / monthOrders.length) : 0;
 
             const itemCounts = {};
             monthSales.forEach(s => itemCounts[s.item] = (itemCounts[s.item]||0) + s.qty);
             const topItems = Object.entries(itemCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+            // Origen de clientes
+            const origenLabels = {recomendacion:'🗣️ Recomendación',redes:'📱 Redes',cliente_frecuente:'⭐ Frecuente',google:'🔍 Google',local:'🏠 Local',whatsapp:'💬 WhatsApp',otro:'📌 Otro'};
+            const origenCount = {};
+            orders.filter(o => o.origen).forEach(o => { origenCount[o.origen] = (origenCount[o.origen]||0)+1; });
+            const origenTotal = Object.values(origenCount).reduce((a,b)=>a+b,0);
+            const origenRows = Object.entries(origenCount).sort((a,b)=>b[1]-a[1])
+                .map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px;"><span>${origenLabels[k]||k}</span><span style="color:#f97316;font-weight:900;">${v} (${Math.round(v/origenTotal*100)}%)</span></div>`).join('');
 
             const statusCount = { recibido:0, 'revisión':0, reparado:0, entregado:0 };
             orders.forEach(o => { if(statusCount[o.sta] !== undefined) statusCount[o.sta]++; });
@@ -3690,6 +3785,7 @@
                         <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;"><span>Reparaciones</span><span style="color:#34d399;font-weight:900;">${cur}${totalRep.toLocaleString()}</span></div>
                         <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;"><span>Ventas stock</span><span style="color:#34d399;font-weight:900;">${cur}${totalVentas.toLocaleString()}</span></div>
                         <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;"><span>Gastos</span><span style="color:#f87171;font-weight:900;">-${cur}${totalGastos.toLocaleString()}</span></div>
+                        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;"><span>Ticket promedio</span><span style="color:#60a5fa;font-weight:900;">${cur}${ticketProm.toLocaleString()}</span></div>
                         <div style="border-top:1px solid rgba(255,255,255,0.1);margin-top:8px;padding-top:8px;text-align:center;">
                             <p style="margin:0;font-size:10px;color:#9ca3af;">GANANCIA NETA</p>
                             <p style="margin:4px 0 0;font-size:22px;font-weight:900;color:#34d399;">${cur}${neto.toLocaleString()}</p>
@@ -3705,6 +3801,10 @@
                     ${topItems.length ? `<div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;margin-bottom:12px;">
                         <p style="margin:0 0 8px;font-size:10px;color:#f97316;font-weight:900;letter-spacing:2px;">🔥 TOP REPUESTOS</p>
                         ${topItems.map(([n,c],i) => `<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px;"><span>${i+1}. ${escapeHtml(n)}</span><span style="color:#f97316;font-weight:900;">${c} uds</span></div>`).join('')}
+                    </div>` : ''}
+                    ${origenTotal > 0 ? `<div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;margin-bottom:12px;">
+                        <p style="margin:0 0 8px;font-size:10px;color:#f97316;font-weight:900;letter-spacing:2px;">📣 ORIGEN DE CLIENTES</p>
+                        ${origenRows}
                     </div>` : ''}
                     <p style="text-align:center;font-size:10px;color:#6b7280;margin:0;">Generado: ${new Date().toLocaleString('es-ES')}</p>
                 </div>`;
@@ -3839,7 +3939,7 @@
             });
         }
         function checkUpdate() {
-            showAlert('Actualmente estás en la versión estable v2.1.0. Para actualizar, descarga el nuevo archivo desde tu proveedor.', 'info');
+            showAlert('Actualmente estás en la versión estable v3.0.0. Para actualizar, descarga el nuevo archivo desde tu proveedor.', 'info');
         }
         function openAdvancedConfig() {
             loadBusinessConfig();
@@ -4089,7 +4189,7 @@
             const sales  = await getAll('sales');
             const gastos = await getAll('gastos');
             const orders = await getAll('orders');
-            const movSales   = sales.filter(s => s.fecha > lastCierre).map(s => ({ ...s, type: 'sale',    fecha: s.fecha }));
+            const movSales   = sales.filter(s => s.fecha > lastCierre && s.tipo !== 'adelanto' && s.tipo !== 'cobro_entrega').map(s => ({ ...s, type: 'sale',    fecha: s.fecha }));
             const movGastos  = gastos.filter(g => g.fecha > lastCierre).map(g => ({ ...g, type: 'gasto',   fecha: g.fecha }));
             const movOrders  = orders.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha) > lastCierre)
                                      .map(o => ({ ...o, type: 'repair', fecha: o.fechaEntrega || o.fecha }));
@@ -4473,7 +4573,7 @@
             const orders = await getAll('orders');
             const sales  = await getAll('sales');
             const total  = orders.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha) >= start).reduce((a,b) => a+(b.val||0), 0)
-                         + sales.filter(s => s.fecha >= start).reduce((a,b) => a+(b.val||0), 0);
+                         + sales.filter(s => s.fecha >= start && s.tipo !== 'adelanto' && s.tipo !== 'cobro_entrega').reduce((a,b) => a+(b.val||0), 0);
             const pct = Math.min(100, Math.round((total / meta) * 100));
             document.getElementById('meta-bar-fill').style.width = pct + '%';
             document.getElementById('meta-bar-pct').innerText    = pct + '%';
