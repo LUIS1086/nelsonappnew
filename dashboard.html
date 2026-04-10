@@ -936,7 +936,7 @@ body.light-mode .kpi-val {
   .sb-brand { padding: 14px 8px; }
   .bottom-grid { grid-template-columns: 1fr 1fr; }
 }
-@media (max-width: 780px) { body { display: none !important; } }
+@media (max-width: 780px) { body { display: none !important; } /* JS maneja redirección amigable */}
 </style>
 </head>
 <body>
@@ -1003,7 +1003,7 @@ body.light-mode .kpi-val {
   <div class="sb-footer">
     <button class="sb-btn" onclick="toggleDashTheme()">🌙 &nbsp; Cambiar tema</button>
     <button class="sb-btn primary" onclick="goApp('taller')">← &nbsp; Volver a la app</button>
-    <div class="sb-version" id="sb-version">v2.2.0 · NelsonApp Pro</div>
+    <div class="sb-version" id="sb-version">v3.2.0 · NelsonApp Pro</div>
   </div>
 </aside>
 
@@ -1892,9 +1892,30 @@ function goAction(action) {
 //  INIT
 // ════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', async () => {
+  // ── Redirección amigable en móvil (< 780px) ──
+  if (window.innerWidth < 780) {
+    document.body.style.cssText = 'display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:#060810;color:#dde3f0;font-family:sans-serif;padding:32px;text-align:center;min-height:100vh;';
+    document.body.innerHTML = `
+      <div style="font-size:3.5rem;">📊</div>
+      <h2 style="font-size:1.3rem;font-weight:900;color:#f97316;margin:0;">Command Center</h2>
+      <p style="font-size:0.85rem;color:#7c8aab;max-width:280px;line-height:1.5;margin:0;">
+        Esta vista está optimizada para tablet y escritorio.<br>Redirigiendo a la app…
+      </p>
+      <div style="width:220px;height:5px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;margin-top:4px;">
+        <div style="height:100%;width:0%;background:linear-gradient(90deg,#f97316,#fbbf24);border-radius:99px;animation:mbar 1.8s ease forwards;"></div>
+      </div>
+      <style>@keyframes mbar{from{width:0%}to{width:100%}}</style>
+    `;
+    setTimeout(() => { window.location.href = './index.html'; }, 1900);
+    return;
+  }
+
   applyTheme();
   applySidebarState();
   loadBiz();
+  // Arrancar el reloj
+  tick();
+  setInterval(tick, 1000);
   await loadDashboard();
   // Auto-refresh cada 30s
   setInterval(loadDashboard, 30000);
