@@ -12,6 +12,7 @@
     <title>Nelson App Pro | Taller & Ventas</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,800&display=swap" rel="stylesheet">
     <style>
@@ -201,6 +202,26 @@
 
         /* ===== MEJORAS TALLER v3.2 ===== */
         .deadline-badge { display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:800; }
+
+        /* ===== BLOQUE 2: BÚSQUEDA GLOBAL + REPORTES ===== */
+        #global-search-bar { position:relative; }
+        #global-search-input { width:100%;padding:9px 14px 9px 36px;border-radius:14px;font-size:13px;font-weight:600;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#e8eaf6;transition:all 0.2s; }
+        #global-search-input:focus { border-color:var(--accent);box-shadow:0 0 0 3px rgba(249,115,22,0.15); }
+        #global-search-icon { position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none; }
+        #global-search-results { position:absolute;top:calc(100% + 6px);left:0;right:0;background:#1a1d2e;border:1px solid rgba(255,255,255,0.1);border-radius:16px;z-index:200;max-height:320px;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.5);display:none; }
+        #global-search-results.open { display:block;animation:slideUp 0.2s ease; }
+        .gsr-item { padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.05);transition:background 0.15s; }
+        .gsr-item:last-child { border-bottom:none; }
+        .gsr-item:hover { background:rgba(249,115,22,0.1); }
+        .gsr-tag { display:inline-block;padding:1px 6px;border-radius:6px;font-size:9px;font-weight:800;margin-right:4px; }
+        .gsr-tag.orden  { background:rgba(249,115,22,0.2);color:#fb923c; }
+        .gsr-tag.stock  { background:rgba(16,185,129,0.2);color:#34d399; }
+        .gsr-tag.cliente{ background:rgba(59,130,246,0.2);color:#60a5fa; }
+        /* Pestaña activa en el modal de reportes */
+        .report-tab { padding:8px 14px;border-radius:10px;font-size:11px;font-weight:800;cursor:pointer;transition:all 0.2s;border:1px solid transparent;color:#64748b; }
+        .report-tab.active { background:rgba(249,115,22,0.15);border-color:rgba(249,115,22,0.3);color:#fb923c; }
+        .bar-track { height:8px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;flex:1; }
+        .bar-fill  { height:100%;border-radius:99px;transition:width 0.7s ease; }
         .deadline-ok   { background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.3); }
         .deadline-warn { background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3); }
         .deadline-late { background:rgba(244,63,94,0.15);color:#f87171;border:1px solid rgba(244,63,94,0.3);animation:pulse-dead 1.4s ease infinite; }
@@ -701,6 +722,13 @@
                 </div>
             </div>
         </div>
+        <!-- BÚSQUEDA GLOBAL -->
+        <div class="max-container mt-3" id="global-search-bar">
+            <span id="global-search-icon">🔍</span>
+            <input type="text" id="global-search-input" placeholder="Buscar órdenes, repuestos, clientes…"
+                oninput="globalSearch(this.value)" onfocus="globalSearch(this.value)" autocomplete="off">
+            <div id="global-search-results"></div>
+        </div>
     </header>
 
     <main id="view-taller" class="app-view hidden p-4 space-y-4 max-container">
@@ -872,6 +900,7 @@
                 </div>
                 <div class="flex gap-2">
                     <button onclick="openStockReport()" class="text-[10px] bg-purple-600/20 text-purple-400 border border-purple-500/30 px-3 py-1.5 rounded-xl font-bold transition active:scale-95">📊</button>
+                    <button onclick="openQRBulk()" class="text-[10px] bg-violet-600/20 text-violet-400 border border-violet-500/30 px-3 py-1.5 rounded-xl font-bold transition active:scale-95" title="Etiquetas QR en lote">🏷️</button>
                     <button onclick="scanBarcode()" class="text-[10px] bg-blue-600/20 text-blue-400 border border-blue-500/30 px-3 py-1.5 rounded-xl font-bold transition active:scale-95">📷</button>
                     <button onclick="addStockItem()" class="text-[10px] bg-orange-600/20 text-orange-400 border border-orange-500/30 px-3 py-1.5 rounded-xl font-bold active:scale-95">+ NUEVO</button>
                 </div>
@@ -879,6 +908,7 @@
             <!-- Búsqueda y ordenar -->
             <div class="flex gap-2 mb-3">
                 <input type="text" id="stock-search" placeholder="🔍 Buscar nombre o código..." class="flex-1 text-xs py-2 px-3 rounded-xl" oninput="renderStock()">
+                <button onclick="openQRScanner('stock')" class="bg-violet-600/20 border border-violet-500/30 text-violet-300 px-3 rounded-xl text-lg active:scale-95 transition flex-shrink-0" title="Escanear código QR/barras">📷</button>
                 <select id="stock-sort" class="text-xs py-2 px-2 rounded-xl w-28" onchange="renderStock()">
                     <option value="name">A-Z</option>
                     <option value="stock-low">Menor stock</option>
@@ -929,12 +959,24 @@
                     <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-purple-500/20 text-purple-400 text-xl flex items-center justify-center">📊</div><div><p class="text-sm font-bold text-purple-400">Estadísticas</p><p class="text-[10px] text-slate-400">Resumen mensual y top repuestos</p></div></div><span class="text-slate-500">❯</span>
                 </button>
                 <hr class="border-white/5 my-1 mx-2">
+                <button onclick="openTecnicosReport()" class="w-full flex items-center justify-between p-4 hover:bg-white/5 transition rounded-xl group">
+                    <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 text-xl flex items-center justify-center">👷</div><div><p class="text-sm font-bold text-blue-400">Reporte por Técnico</p><p class="text-[10px] text-slate-400">Productividad, tiempos y órdenes por técnico</p></div></div><span class="text-slate-500">❯</span>
+                </button>
+                <hr class="border-white/5 my-1 mx-2">
+                <button onclick="openEquiposReport()" class="w-full flex items-center justify-between p-4 hover:bg-white/5 transition rounded-xl group">
+                    <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-amber-500/20 text-amber-400 text-xl flex items-center justify-center">🔧</div><div><p class="text-sm font-bold text-amber-400">Equipos más Reparados</p><p class="text-[10px] text-slate-400">Top equipos, marcas y fallas frecuentes</p></div></div><span class="text-slate-500">❯</span>
+                </button>
+                <hr class="border-white/5 my-1 mx-2">
                 <button onclick="openCajaModal()" class="w-full flex items-center justify-between p-4 hover:bg-white/5 transition rounded-xl group">
                     <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-rose-500/20 text-rose-400 text-xl flex items-center justify-center">💵</div><div><p class="text-sm font-bold text-rose-400">Cierre de Caja</p><p class="text-[10px] text-slate-400">Panel de ingresos, egresos y reinicio a $0</p></div></div><span class="text-slate-500">❯</span>
                 </button>
                 <hr class="border-white/5 my-1 mx-2">
                 <button onclick="openAdvancedConfig()" class="w-full flex items-center justify-between p-4 hover:bg-white/5 transition rounded-xl group">
                     <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-cyan-500/20 text-cyan-400 text-xl flex items-center justify-center">⚙️</div><div><p class="text-sm font-bold text-cyan-400">Configuración avanzada</p><p class="text-[10px] text-slate-400">Apariencia, plantillas, técnicos, metas</p></div></div><span class="text-slate-500">❯</span>
+                </button>
+                <hr class="border-white/5 my-1 mx-2">
+                <button onclick="openProveedoresModal()" class="w-full flex items-center justify-between p-4 hover:bg-white/5 transition rounded-xl group">
+                    <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-teal-500/20 text-teal-400 text-xl flex items-center justify-center">🏭</div><div><p class="text-sm font-bold text-teal-400">Proveedores</p><p class="text-[10px] text-slate-400">Gestión de proveedores y catálogos</p></div></div><span class="text-slate-500">❯</span>
                 </button>
                 <hr class="border-white/5 my-1 mx-2">
                 <button onclick="exportData()" class="w-full flex items-center justify-between p-4 hover:bg-white/5 transition rounded-xl group">
@@ -951,6 +993,178 @@
             </div>
         </div>
     </main>
+
+    <!-- MODAL PROVEEDORES -->
+    <div id="modal-proveedores" class="hidden fixed inset-0 z-[3300] modal-custom flex flex-col items-center justify-center p-4">
+        <div class="bg-[#111827] border border-white/10 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl view-enter">
+            <div class="bg-gradient-to-r from-teal-700 to-teal-500 p-5 flex justify-between items-center">
+                <h3 class="text-white font-black text-lg">🏭 PROVEEDORES</h3>
+                <button onclick="closeProveedoresModal()" class="text-white bg-black/30 w-9 h-9 rounded-full font-bold text-lg">✕</button>
+            </div>
+            <div class="p-4">
+                <button onclick="openProveedorForm(null)" class="w-full bg-teal-600/20 border border-teal-500/40 text-teal-300 py-3 rounded-xl font-black text-xs uppercase mb-4 active:scale-95 transition">+ AGREGAR PROVEEDOR</button>
+                <div id="proveedores-list" class="space-y-2 max-h-[55vh] overflow-y-auto no-scrollbar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL FORM PROVEEDOR -->
+    <div id="modal-proveedor-form" class="hidden fixed inset-0 z-[3400] modal-custom flex flex-col items-center justify-center p-4">
+        <div class="bg-[#111827] border border-white/10 w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl view-enter">
+            <div class="bg-gradient-to-r from-teal-700 to-teal-500 p-4 flex justify-between items-center">
+                <h3 id="prov-form-title" class="text-white font-black">NUEVO PROVEEDOR</h3>
+                <button onclick="closeProveedorForm()" class="text-white bg-black/30 w-8 h-8 rounded-full font-bold">✕</button>
+            </div>
+            <div class="p-4 space-y-3 max-h-[70vh] overflow-y-auto no-scrollbar">
+                <input type="hidden" id="prov-id">
+                <input type="text" id="prov-nombre" placeholder="NOMBRE DEL PROVEEDOR" class="w-full uppercase font-bold">
+                <input type="tel" id="prov-tel" placeholder="TELÉFONO / WHATSAPP" class="w-full">
+                <input type="text" id="prov-ciudad" placeholder="Ciudad" class="w-full text-sm">
+                <input type="text" id="prov-catalogo" placeholder="Productos que suministra..." class="w-full text-sm">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[10px] text-slate-400 font-bold block mb-1">⏱ ENTREGA (días)</label>
+                        <input type="number" id="prov-tiempo" placeholder="3" min="0" class="w-full text-center font-bold text-amber-400">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-slate-400 font-bold block mb-1">⭐ CALIFICACIÓN</label>
+                        <select id="prov-rating" class="w-full text-center font-bold text-sm">
+                            <option value="5">⭐⭐⭐⭐⭐ Excelente</option>
+                            <option value="4">⭐⭐⭐⭐ Bueno</option>
+                            <option value="3">⭐⭐⭐ Regular</option>
+                            <option value="2">⭐⭐ Malo</option>
+                            <option value="1">⭐ Pésimo</option>
+                        </select>
+                    </div>
+                </div>
+                <textarea id="prov-notas" rows="2" placeholder="Condiciones de pago, mínimo de pedido..." class="w-full text-xs"></textarea>
+                <button onclick="saveProveedor()" class="w-full bg-teal-600 py-3 rounded-xl font-black uppercase active:scale-95 transition">💾 GUARDAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL QR ARTÍCULO ===== -->
+    <div id="modal-qr-item" class="hidden fixed inset-0 z-[4500] modal-custom flex flex-col items-center justify-center p-4">
+        <div class="bg-[#111827] border border-white/10 w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl view-enter">
+            <div class="bg-gradient-to-r from-violet-700 to-violet-500 p-5 flex justify-between items-center">
+                <div>
+                    <h3 class="text-white font-black text-lg">🏷️ ETIQUETA QR</h3>
+                    <p id="qr-item-subtitle" class="text-violet-200 text-[10px] font-bold mt-0.5"></p>
+                </div>
+                <button onclick="closeQRItemModal()" class="text-white bg-black/30 w-9 h-9 rounded-full font-bold text-lg">✕</button>
+            </div>
+            <div class="p-5 flex flex-col items-center gap-4">
+                <!-- Tarjeta imprimible -->
+                <div id="qr-label-card" style="background:white;border-radius:16px;padding:20px;width:100%;max-width:280px;display:flex;flex-direction:column;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+                    <div id="qr-label-logo" style="display:none;width:40px;height:40px;border-radius:8px;overflow:hidden;flex-shrink:0;"><img id="qr-label-logo-img" style="width:100%;height:100%;object-fit:contain;"></div>
+                    <p id="qr-label-biz" style="font-size:9px;font-weight:800;color:#f97316;letter-spacing:3px;text-transform:uppercase;margin:0;font-family:sans-serif;text-align:center;"></p>
+                    <div id="qr-label-product-img" style="display:none;width:64px;height:64px;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><img id="qr-label-product-img-el" style="width:100%;height:100%;object-fit:cover;"></div>
+                    <p id="qr-label-name" style="font-size:13px;font-weight:900;color:#111;text-align:center;margin:0;font-family:sans-serif;line-height:1.3;word-break:break-word;"></p>
+                    <p id="qr-label-code" style="font-size:10px;color:#6b7280;font-family:monospace;margin:0;"></p>
+                    <div id="qr-code-canvas" style="padding:6px;background:white;border-radius:8px;border:1px solid #e5e7eb;"></div>
+                    <div id="qr-label-price-box" style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:6px 20px;text-align:center;width:100%;">
+                        <p style="font-size:9px;color:#16a34a;font-weight:700;font-family:sans-serif;margin:0;letter-spacing:1px;">PRECIO VENTA</p>
+                        <p id="qr-label-price" style="font-size:22px;font-weight:900;color:#15803d;font-family:sans-serif;margin:0;"></p>
+                    </div>
+                    <p id="qr-label-cat" style="font-size:9px;color:#9ca3af;font-family:sans-serif;margin:0;text-align:center;"></p>
+                </div>
+                <!-- Tamaño QR -->
+                <div class="w-full">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2 text-center">Tamaño del QR</p>
+                    <div class="flex gap-2">
+                        <button onclick="regenerateQR(80)"  class="qr-size-btn flex-1 py-2 rounded-xl text-xs font-bold bg-slate-700 hover:bg-violet-700 transition active:scale-95">Pequeño</button>
+                        <button onclick="regenerateQR(110)" class="qr-size-btn flex-1 py-2 rounded-xl text-xs font-bold bg-violet-600 transition active:scale-95">Mediano</button>
+                        <button onclick="regenerateQR(140)" class="qr-size-btn flex-1 py-2 rounded-xl text-xs font-bold bg-slate-700 hover:bg-violet-700 transition active:scale-95">Grande</button>
+                    </div>
+                </div>
+            </div>
+            <div class="px-5 pb-5 grid grid-cols-2 gap-2">
+                <button onclick="downloadQRLabel()" class="bg-violet-600 py-3 rounded-xl font-black uppercase text-xs active:scale-95 transition">📥 Descargar</button>
+                <button onclick="printQRLabel()" class="bg-slate-700 py-3 rounded-xl font-black uppercase text-xs active:scale-95 transition">🖨️ Imprimir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL QR EN LOTE ===== -->
+    <div id="modal-qr-bulk" class="hidden fixed inset-0 z-[4500] modal-custom flex flex-col items-center justify-center p-4">
+        <div class="bg-[#111827] border border-white/10 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl view-enter">
+            <div class="bg-gradient-to-r from-violet-700 to-indigo-600 p-5 flex justify-between items-center">
+                <div>
+                    <h3 class="text-white font-black text-lg">🏷️ ETIQUETAS EN LOTE</h3>
+                    <p class="text-violet-200 text-[10px] font-bold mt-0.5">Selecciona los artículos a imprimir</p>
+                </div>
+                <button onclick="closeQRBulk()" class="text-white bg-black/30 w-9 h-9 rounded-full font-bold text-lg">✕</button>
+            </div>
+            <div class="p-4">
+                <div class="flex gap-2 mb-3">
+                    <button onclick="selectAllQRItems(true)"  class="flex-1 text-xs font-bold py-2 rounded-xl bg-violet-600/20 border border-violet-500/30 text-violet-300 active:scale-95 transition">✅ Todos</button>
+                    <button onclick="selectAllQRItems(false)" class="flex-1 text-xs font-bold py-2 rounded-xl bg-slate-700/60 text-slate-300 active:scale-95 transition">⬜ Ninguno</button>
+                    <button onclick="printQRBulk()" class="flex-1 text-xs font-bold py-2 rounded-xl bg-violet-600 text-white active:scale-95 transition font-black">🖨️ Imprimir</button>
+                </div>
+                <div id="qr-bulk-list" class="space-y-1 max-h-[55vh] overflow-y-auto no-scrollbar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ESCÁNER QR / CÓDIGO DE BARRAS -->
+    <div id="modal-qr-scanner" class="hidden fixed inset-0 z-[9100] bg-black flex flex-col items-center justify-center">
+        <div class="absolute top-0 left-0 right-0 p-5 flex justify-between items-center z-10" style="background:linear-gradient(to bottom,rgba(0,0,0,0.8),transparent);">
+            <div>
+                <p class="text-white font-black text-base">📷 ESCÁNER</p>
+                <p id="qr-scan-hint" class="text-slate-400 text-xs mt-0.5">Apunta al código del repuesto</p>
+            </div>
+            <button onclick="closeQRScanner()" class="bg-white/15 backdrop-blur w-11 h-11 rounded-full text-xl text-white border border-white/20">✕</button>
+        </div>
+        <video id="qr-video" autoplay playsinline muted style="width:100%;max-width:480px;max-height:65vh;object-fit:cover;border-radius:16px;"></video>
+        <!-- Marco de escaneo -->
+        <div style="position:absolute;width:220px;height:220px;border:3px solid #f97316;border-radius:18px;box-shadow:0 0 0 9999px rgba(0,0,0,0.55);pointer-events:none;top:50%;left:50%;transform:translate(-50%,-58%);"></div>
+        <div class="absolute bottom-0 left-0 right-0 p-6" style="background:linear-gradient(to top,rgba(0,0,0,0.9),transparent);">
+            <p class="text-slate-400 text-xs text-center mb-3">O ingresa el código manualmente:</p>
+            <div class="flex gap-2 max-w-sm mx-auto">
+                <input type="text" id="qr-manual-input" placeholder="Código del repuesto…" class="flex-1 text-sm uppercase font-bold">
+                <button onclick="applyQRCode(document.getElementById('qr-manual-input').value)" class="bg-orange-600 px-5 rounded-xl font-black text-sm active:scale-95 transition">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL REPORTE TÉCNICOS -->
+    <div id="modal-tecnicos-report" class="hidden fixed inset-0 z-[3200] modal-custom flex flex-col items-center justify-center p-4">
+        <div class="bg-[#111827] border border-white/10 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl view-enter">
+            <div class="bg-gradient-to-r from-blue-700 to-blue-500 p-5 flex justify-between items-center">
+                <div>
+                    <h3 class="text-white font-black text-lg">👷 REPORTE POR TÉCNICO</h3>
+                    <p id="tec-report-period" class="text-blue-200 text-[10px] font-bold mt-0.5"></p>
+                </div>
+                <button onclick="closeTecnicosReport()" class="text-white bg-black/30 w-9 h-9 rounded-full font-bold text-lg">✕</button>
+            </div>
+            <!-- Tabs período -->
+            <div class="flex gap-2 p-4 pb-0">
+                <button class="report-tab active" id="tec-tab-mes" onclick="loadTecnicosReport('mes')">Este mes</button>
+                <button class="report-tab" id="tec-tab-todo" onclick="loadTecnicosReport('todo')">Todo el tiempo</button>
+            </div>
+            <div id="tecnicos-report-content" class="p-4 space-y-3 max-h-[65vh] overflow-y-auto no-scrollbar"></div>
+        </div>
+    </div>
+
+    <!-- MODAL REPORTE EQUIPOS -->
+    <div id="modal-equipos-report" class="hidden fixed inset-0 z-[3200] modal-custom flex flex-col items-center justify-center p-4">
+        <div class="bg-[#111827] border border-white/10 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl view-enter">
+            <div class="bg-gradient-to-r from-amber-700 to-amber-500 p-5 flex justify-between items-center">
+                <div>
+                    <h3 class="text-white font-black text-lg">🔧 EQUIPOS MÁS REPARADOS</h3>
+                    <p class="text-amber-200 text-[10px] font-bold mt-0.5">Historial completo del taller</p>
+                </div>
+                <button onclick="closeEquiposReport()" class="text-white bg-black/30 w-9 h-9 rounded-full font-bold text-lg">✕</button>
+            </div>
+            <!-- Tabs -->
+            <div class="flex gap-2 p-4 pb-0 flex-wrap">
+                <button class="report-tab active" id="equ-tab-equipo" onclick="loadEquiposReport('equipo')">Por equipo</button>
+                <button class="report-tab" id="equ-tab-falla" onclick="loadEquiposReport('falla')">Fallas frecuentes</button>
+                <button class="report-tab" id="equ-tab-valor" onclick="loadEquiposReport('valor')">Por valor</button>
+            </div>
+            <div id="equipos-report-content" class="p-4 space-y-2 max-h-[65vh] overflow-y-auto no-scrollbar"></div>
+        </div>
+    </div>
 
     <div id="modal-edit-order" class="hidden fixed inset-0 z-[3000] modal-custom flex flex-col items-center justify-center p-4">
         <div class="bg-[#111827] border border-white/10 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl view-enter">
@@ -1360,6 +1574,31 @@
                                 <input type="checkbox" id="high-contrast-toggle" class="sr-only peer" onchange="toggleHighContrast()">
                                 <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
                             </label>
+                        </div>
+                        <!-- Auto-tema por horario -->
+                        <div class="bg-slate-800/50 rounded-2xl p-3 space-y-3 border border-white/5">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-xs font-bold text-slate-300">🌅 Tema automático por horario</p>
+                                    <p class="text-[10px] text-slate-500">Claro de día · Oscuro de noche</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="auto-theme-toggle" class="sr-only peer" onchange="saveAutoThemeConfig()">
+                                    <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+                                </label>
+                            </div>
+                            <div id="auto-theme-hours" class="hidden grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="text-[9px] text-slate-500 font-bold block mb-1">☀️ HORA MODO CLARO</label>
+                                    <input type="number" id="auto-theme-day" min="0" max="23" value="7"
+                                        class="w-full text-center font-black text-amber-400 text-sm" oninput="saveAutoThemeConfig()">
+                                </div>
+                                <div>
+                                    <label class="text-[9px] text-slate-500 font-bold block mb-1">🌙 HORA MODO OSCURO</label>
+                                    <input type="number" id="auto-theme-night" min="0" max="23" value="19"
+                                        class="w-full text-center font-black text-blue-400 text-sm" oninput="saveAutoThemeConfig()">
+                                </div>
+                            </div>
                         </div>
                         <div>
                             <label class="text-[10px] text-slate-400 font-bold block mb-2">🎨 COLOR DE ACENTO</label>
@@ -1868,7 +2107,7 @@
         function openDB() {
             return new Promise((resolve, reject) => {
                 if (db && db.name === DB_NAME) return resolve(db);
-                const request = indexedDB.open(DB_NAME, 9);
+                const request = indexedDB.open(DB_NAME, 10);
                 request.onerror = () => reject(request.error);
                 request.onsuccess = () => { db = request.result; resolve(db); };
                 request.onupgradeneeded = (event) => {
@@ -1878,13 +2117,18 @@
                         store.createIndex('fecha', 'fecha');
                         store.createIndex('nom', 'nom');
                     }
-                    if (!idb.objectStoreNames.contains('stock')) idb.createObjectStore('stock', { keyPath: 'id' });
-                    if (!idb.objectStoreNames.contains('sales')) idb.createObjectStore('sales', { keyPath: 'id' });
-                    if (!idb.objectStoreNames.contains('gastos')) idb.createObjectStore('gastos', { keyPath: 'id' });
-                    if (!idb.objectStoreNames.contains('clientes')) idb.createObjectStore('clientes', { keyPath: 'nombre' });
-                    if (!idb.objectStoreNames.contains('payments')) idb.createObjectStore('payments', { keyPath: 'id' });
-                    if (!idb.objectStoreNames.contains('config')) idb.createObjectStore('config', { keyPath: 'key' });
+                    if (!idb.objectStoreNames.contains('stock'))        idb.createObjectStore('stock',        { keyPath: 'id' });
+                    if (!idb.objectStoreNames.contains('sales'))        idb.createObjectStore('sales',        { keyPath: 'id' });
+                    if (!idb.objectStoreNames.contains('gastos'))       idb.createObjectStore('gastos',       { keyPath: 'id' });
+                    if (!idb.objectStoreNames.contains('clientes'))     idb.createObjectStore('clientes',     { keyPath: 'nombre' });
+                    if (!idb.objectStoreNames.contains('payments'))     idb.createObjectStore('payments',     { keyPath: 'id' });
+                    if (!idb.objectStoreNames.contains('config'))       idb.createObjectStore('config',       { keyPath: 'key' });
                     if (!idb.objectStoreNames.contains('stockHistory')) idb.createObjectStore('stockHistory', { keyPath: 'id' });
+                    if (!idb.objectStoreNames.contains('changelog')) {
+                        const cl = idb.createObjectStore('changelog', { keyPath: 'id' });
+                        cl.createIndex('ordenId', 'ordenId');
+                    }
+                    if (!idb.objectStoreNames.contains('proveedores'))  idb.createObjectStore('proveedores',  { keyPath: 'id' });
                 };
             });
         }
@@ -2151,8 +2395,11 @@
             setupReminderChecks();
             updateMetaBar();
             startAutoBackup();
-            // Cargar tecnicos en todos los selects
             _refreshTecnicosSelects();
+            // Bloque 3
+            loadAutoThemeConfig();
+            startAutoThemeWatcher();
+            requestPushPermission();
         }
 
         function _refreshTecnicosSelects() {
@@ -3068,6 +3315,7 @@
                             <button onclick="modQty(${s.id},1)" class="w-7 h-7 rounded-full bg-orange-600/60 text-sm font-black active:scale-90 transition">+</button>
                         </div>
                         <div class="flex gap-1">
+                            <button onclick="openQRItemModal(${s.id})" class="text-violet-400 text-xs bg-violet-500/10 w-7 h-7 rounded-lg flex items-center justify-center" title="Generar etiqueta QR">🏷️</button>
                             <button onclick="openStockHistory(${s.id})" class="text-blue-400 text-xs bg-blue-500/10 w-7 h-7 rounded-lg flex items-center justify-center" title="Historial">📋</button>
                             <button onclick="editStockItem(${s.id})" class="text-slate-400 text-xs bg-slate-700/40 w-7 h-7 rounded-lg flex items-center justify-center">✏️</button>
                             <button onclick="deleteStockItem(${s.id})" class="text-rose-400 text-xs bg-rose-500/10 w-7 h-7 rounded-lg flex items-center justify-center">🗑️</button>
@@ -4901,6 +5149,812 @@
         window.addEventListener('offline', () => showNetBadge(false));
         window.addEventListener('online',  () => showNetBadge(true));
         if (!navigator.onLine) setTimeout(() => showNetBadge(false), 2500);
+
+        // ==================== BÚSQUEDA GLOBAL ====================
+        let _gsrDebounce = null;
+        async function globalSearch(q) {
+            const box = document.getElementById('global-search-results');
+            q = (q || '').trim().toUpperCase();
+            if (q.length < 2) { box.classList.remove('open'); return; }
+
+            clearTimeout(_gsrDebounce);
+            _gsrDebounce = setTimeout(async () => {
+                const [orders, stock, clientes] = await Promise.all([
+                    getAll('orders'), getAll('stock'), getAll('clientes')
+                ]);
+                const cur = getCurrency();
+                const results = [];
+
+                // Órdenes
+                orders.filter(o =>
+                    (o.nom||'').toUpperCase().includes(q) ||
+                    (o.equ||'').toUpperCase().includes(q) ||
+                    (o.det||'').toUpperCase().includes(q) ||
+                    (o.tel||'').includes(q) ||
+                    formatOrderNum(o.orderNum||0).includes(q)
+                ).slice(0,5).forEach(o => {
+                    const staEmoji = {recibido:'📥',revisión:'🔍',reparado:'✅',entregado:'📦'}[o.sta]||'📋';
+                    results.push({
+                        tipo:'orden', icon: staEmoji,
+                        titulo: `${formatOrderNum(o.orderNum||0)} · ${o.nom}`,
+                        sub: `${o.equ} — ${cur}${(o.val||0).toLocaleString()}`,
+                        action: () => { tab('ordenes'); document.getElementById('global-search-input').value=''; box.classList.remove('open'); }
+                    });
+                });
+
+                // Stock
+                stock.filter(s =>
+                    (s.name||'').toUpperCase().includes(q) ||
+                    (s.code||'').toUpperCase().includes(q) ||
+                    (s.category||'').toUpperCase().includes(q)
+                ).slice(0,4).forEach(s => {
+                    results.push({
+                        tipo:'stock', icon:'🔩',
+                        titulo: s.name,
+                        sub: `Stock: ${s.qty||0} uds · ${cur}${(s.price||0).toLocaleString()}`,
+                        action: () => { tab('ventas'); document.getElementById('global-search-input').value=''; box.classList.remove('open'); }
+                    });
+                });
+
+                // Clientes
+                clientes.filter(c => (c.nombre||'').toUpperCase().includes(q))
+                .slice(0,3).forEach(c => {
+                    results.push({
+                        tipo:'cliente', icon:'👤',
+                        titulo: c.nombre,
+                        sub: `Deuda: ${cur}${(c.deuda||0).toLocaleString()}`,
+                        action: () => { showClientHistory(c.nombre); document.getElementById('global-search-input').value=''; box.classList.remove('open'); }
+                    });
+                });
+
+                if (!results.length) {
+                    box.innerHTML = `<div class="gsr-item text-center text-slate-500 text-xs py-4">Sin resultados para "${escapeHtml(q)}"</div>`;
+                } else {
+                    box.innerHTML = results.map((r,i) => `
+                        <div class="gsr-item" onclick="_gsrItems[${i}].action()">
+                            <div class="flex items-center gap-2">
+                                <span style="font-size:16px;">${r.icon}</span>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-1">
+                                        <span class="gsr-tag ${r.tipo}">${r.tipo}</span>
+                                        <span class="text-xs font-bold text-white truncate">${escapeHtml(r.titulo)}</span>
+                                    </div>
+                                    <p class="text-[10px] text-slate-400 truncate">${escapeHtml(r.sub)}</p>
+                                </div>
+                            </div>
+                        </div>`).join('');
+                    window._gsrItems = results;
+                }
+                box.classList.add('open');
+            }, 220);
+        }
+
+        // Cerrar búsqueda al tocar fuera
+        document.addEventListener('click', e => {
+            if (!document.getElementById('global-search-bar')?.contains(e.target)) {
+                document.getElementById('global-search-results')?.classList.remove('open');
+            }
+        });
+
+        // ==================== REPORTE POR TÉCNICO ====================
+        let _tecReportMode = 'mes';
+
+        async function openTecnicosReport() {
+            document.getElementById('modal-tecnicos-report').classList.remove('hidden');
+            await loadTecnicosReport('mes');
+        }
+        function closeTecnicosReport() {
+            document.getElementById('modal-tecnicos-report').classList.add('hidden');
+        }
+
+        async function loadTecnicosReport(mode) {
+            _tecReportMode = mode;
+            ['mes','todo'].forEach(m => {
+                document.getElementById(`tec-tab-${m}`)?.classList.toggle('active', m === mode);
+            });
+
+            const orders = await getAll('orders');
+            const cur = getCurrency();
+            const now = new Date();
+            const startMes = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+
+            const filtered = mode === 'mes'
+                ? orders.filter(o => o.sta === 'entregado' && (o.fechaEntrega||o.fecha) >= startMes)
+                : orders.filter(o => o.sta === 'entregado');
+
+            document.getElementById('tec-report-period').innerText =
+                mode === 'mes' ? `${now.toLocaleString('es-ES',{month:'long',year:'numeric'})}` : 'Todo el tiempo';
+
+            // Agrupar por técnico
+            const tecMap = {};
+            filtered.forEach(o => {
+                const tec = o.tecnico || '(Sin asignar)';
+                if (!tecMap[tec]) tecMap[tec] = { ordenes:[], valor:0 };
+                tecMap[tec].ordenes.push(o);
+                tecMap[tec].valor += (o.val||0);
+            });
+
+            const stats = Object.entries(tecMap).map(([tec, data]) => {
+                const dias = data.ordenes
+                    .filter(o => o.fechaEntrega && o.fecha)
+                    .map(o => Math.round((o.fechaEntrega - o.fecha) / 86400000));
+                const promDias = dias.length ? Math.round(dias.reduce((a,b)=>a+b,0)/dias.length) : 0;
+                const minDias  = dias.length ? Math.min(...dias) : 0;
+                const maxDias  = dias.length ? Math.max(...dias) : 0;
+                return { tec, total: data.ordenes.length, valor: data.valor, promDias, minDias, maxDias };
+            }).sort((a,b) => b.total - a.total);
+
+            const maxVal = Math.max(...stats.map(s => s.valor), 1);
+            const container = document.getElementById('tecnicos-report-content');
+
+            if (!stats.length) {
+                container.innerHTML = '<p class="text-center text-slate-500 text-sm py-10">Sin órdenes entregadas en este período.</p>';
+                return;
+            }
+
+            container.innerHTML = stats.map(s => `
+                <div class="bg-black/30 rounded-2xl p-4 border border-white/5">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-black text-white text-sm">👷 ${escapeHtml(s.tec)}</span>
+                        <span class="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-1 rounded-full font-bold">${s.total} órdenes</span>
+                    </div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-[10px] text-slate-400 w-16 flex-shrink-0">Ingresos</span>
+                        <div class="bar-track">
+                            <div class="bar-fill bg-gradient-to-r from-emerald-600 to-emerald-400" style="width:${Math.round(s.valor/maxVal*100)}%"></div>
+                        </div>
+                        <span class="text-[10px] font-black text-emerald-400 w-20 text-right">${cur}${s.valor.toLocaleString()}</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 mt-2">
+                        <div class="text-center bg-white/5 rounded-xl p-2">
+                            <p class="text-[9px] text-slate-500 font-bold">PROM. DÍAS</p>
+                            <p class="text-base font-black text-blue-400">${s.promDias}d</p>
+                        </div>
+                        <div class="text-center bg-white/5 rounded-xl p-2">
+                            <p class="text-[9px] text-slate-500 font-bold">MÁS RÁPIDO</p>
+                            <p class="text-base font-black text-emerald-400">${s.minDias}d</p>
+                        </div>
+                        <div class="text-center bg-white/5 rounded-xl p-2">
+                            <p class="text-[9px] text-slate-500 font-bold">MÁS LENTO</p>
+                            <p class="text-base font-black text-amber-400">${s.maxDias}d</p>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-[10px] text-slate-500 text-right">Ticket prom: <span class="font-bold text-slate-300">${cur}${s.total ? Math.round(s.valor/s.total).toLocaleString() : 0}</span></div>
+                </div>`).join('');
+        }
+
+        // ==================== REPORTE EQUIPOS MÁS REPARADOS ====================
+        let _equReportMode = 'equipo';
+
+        async function openEquiposReport() {
+            document.getElementById('modal-equipos-report').classList.remove('hidden');
+            await loadEquiposReport('equipo');
+        }
+        function closeEquiposReport() {
+            document.getElementById('modal-equipos-report').classList.add('hidden');
+        }
+
+        async function loadEquiposReport(mode) {
+            _equReportMode = mode;
+            ['equipo','falla','valor'].forEach(m => {
+                document.getElementById(`equ-tab-${m}`)?.classList.toggle('active', m === mode);
+            });
+
+            const orders = await getAll('orders');
+            const cur = getCurrency();
+            const container = document.getElementById('equipos-report-content');
+
+            if (mode === 'equipo') {
+                // Top equipos por frecuencia
+                const equMap = {};
+                orders.forEach(o => {
+                    const key = (o.equ||'DESCONOCIDO').trim().toUpperCase();
+                    if (!equMap[key]) equMap[key] = { total:0, entregados:0, valor:0 };
+                    equMap[key].total++;
+                    if (o.sta === 'entregado') { equMap[key].entregados++; equMap[key].valor += (o.val||0); }
+                });
+                const sorted = Object.entries(equMap).sort((a,b) => b[1].total - a[1].total).slice(0,15);
+                const maxTotal = Math.max(...sorted.map(s => s[1].total), 1);
+
+                container.innerHTML = sorted.length ? sorted.map(([equ, d], i) => `
+                    <div class="flex items-center gap-3 bg-black/20 rounded-xl p-3">
+                        <span class="text-amber-400 font-black text-base w-6 text-center">${i+1}</span>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-black text-white truncate">${escapeHtml(equ)}</p>
+                            <div class="flex items-center gap-2 mt-1">
+                                <div class="bar-track" style="max-width:100px;">
+                                    <div class="bar-fill bg-gradient-to-r from-amber-600 to-amber-400" style="width:${Math.round(d.total/maxTotal*100)}%"></div>
+                                </div>
+                                <span class="text-[10px] text-slate-400">${d.total} reparaciones</span>
+                            </div>
+                        </div>
+                        <div class="text-right flex-shrink-0">
+                            <p class="text-[10px] font-black text-emerald-400">${cur}${d.valor.toLocaleString()}</p>
+                            <p class="text-[9px] text-slate-500">${d.entregados} entregados</p>
+                        </div>
+                    </div>`).join('')
+                : '<p class="text-center text-slate-500 text-sm py-10">Sin datos aún.</p>';
+
+            } else if (mode === 'falla') {
+                // Top fallas/diagnósticos frecuentes
+                const falMap = {};
+                orders.forEach(o => {
+                    const det = (o.det||'').trim().toUpperCase();
+                    if (det.length < 4) return;
+                    // Tomar primeras palabras como clave
+                    const key = det.split(' ').slice(0,5).join(' ');
+                    falMap[key] = (falMap[key]||0) + 1;
+                });
+                const sorted = Object.entries(falMap).sort((a,b) => b[1]-a[1]).slice(0,12);
+                const maxN = Math.max(...sorted.map(s=>s[1]),1);
+
+                container.innerHTML = sorted.length ? sorted.map(([fal,n],i) => `
+                    <div class="flex items-center gap-3 bg-black/20 rounded-xl p-3">
+                        <span class="text-rose-400 font-black text-sm w-5 text-center">${i+1}</span>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-[11px] font-bold text-white" style="word-break:break-word;">${escapeHtml(fal)}</p>
+                            <div class="flex items-center gap-2 mt-1">
+                                <div class="bar-track" style="max-width:80px;">
+                                    <div class="bar-fill bg-gradient-to-r from-rose-600 to-rose-400" style="width:${Math.round(n/maxN*100)}%"></div>
+                                </div>
+                                <span class="text-[10px] text-slate-400">${n} vez${n>1?'es':''}</span>
+                            </div>
+                        </div>
+                    </div>`).join('')
+                : '<p class="text-center text-slate-500 text-sm py-10">Sin diagnósticos registrados.</p>';
+
+            } else if (mode === 'valor') {
+                // Top equipos por valor generado
+                const valMap = {};
+                orders.filter(o => o.sta === 'entregado').forEach(o => {
+                    const key = (o.equ||'DESCONOCIDO').trim().toUpperCase();
+                    if (!valMap[key]) valMap[key] = { valor:0, total:0 };
+                    valMap[key].valor += (o.val||0);
+                    valMap[key].total++;
+                });
+                const sorted = Object.entries(valMap).sort((a,b) => b[1].valor - a[1].valor).slice(0,12);
+                const maxVal2 = Math.max(...sorted.map(s=>s[1].valor),1);
+
+                container.innerHTML = sorted.length ? sorted.map(([equ,d],i) => `
+                    <div class="flex items-center gap-3 bg-black/20 rounded-xl p-3">
+                        <span class="text-emerald-400 font-black text-sm w-5 text-center">${i+1}</span>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-[11px] font-black text-white truncate">${escapeHtml(equ)}</p>
+                            <div class="flex items-center gap-2 mt-1">
+                                <div class="bar-track" style="max-width:100px;">
+                                    <div class="bar-fill bg-gradient-to-r from-emerald-600 to-emerald-400" style="width:${Math.round(d.valor/maxVal2*100)}%"></div>
+                                </div>
+                                <span class="text-[10px] text-emerald-400 font-bold">${cur}${d.valor.toLocaleString()}</span>
+                            </div>
+                        </div>
+                        <span class="text-[10px] text-slate-500 flex-shrink-0">${d.total} órd.</span>
+                    </div>`).join('')
+                : '<p class="text-center text-slate-500 text-sm py-10">Sin datos aún.</p>';
+            }
+        }
+
+        // ==================== BLOQUE 3: AUTO-TEMA POR HORARIO ====================
+        let _autoThemeInterval = null;
+
+        function saveAutoThemeConfig() {
+            const enabled = document.getElementById('auto-theme-toggle')?.checked;
+            const dayH    = parseInt(document.getElementById('auto-theme-day')?.value)  || 7;
+            const nightH  = parseInt(document.getElementById('auto-theme-night')?.value) || 19;
+            localStorage.setItem('autoTheme', JSON.stringify({ enabled, dayH, nightH }));
+            const hoursEl = document.getElementById('auto-theme-hours');
+            if (hoursEl) hoursEl.classList.toggle('hidden', !enabled);
+            if (enabled) applyAutoTheme();
+        }
+
+        function loadAutoThemeConfig() {
+            const cfg = JSON.parse(localStorage.getItem('autoTheme') || '{}');
+            const toggle = document.getElementById('auto-theme-toggle');
+            const dayI   = document.getElementById('auto-theme-day');
+            const nightI = document.getElementById('auto-theme-night');
+            const hoursEl= document.getElementById('auto-theme-hours');
+            if (toggle)  toggle.checked = !!cfg.enabled;
+            if (dayI)    dayI.value     = cfg.dayH   ?? 7;
+            if (nightI)  nightI.value   = cfg.nightH ?? 19;
+            if (hoursEl) hoursEl.classList.toggle('hidden', !cfg.enabled);
+        }
+
+        function applyAutoTheme() {
+            const cfg = JSON.parse(localStorage.getItem('autoTheme') || '{}');
+            if (!cfg.enabled) return;
+            const h      = new Date().getHours();
+            const isDay  = h >= (cfg.dayH ?? 7) && h < (cfg.nightH ?? 19);
+            const body   = document.body;
+            const wasLight = body.classList.contains('light-mode');
+            if (isDay && !wasLight) {
+                body.classList.add('light-mode');
+                body.classList.remove('dark-mode');
+                ['theme-btn','sidebar-theme-btn','desktop-theme-btn'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.innerText = id.includes('sidebar') ? '☀️ Tema' : '☀️';
+                });
+                localStorage.setItem('appTheme', 'light');
+            } else if (!isDay && wasLight) {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                ['theme-btn','sidebar-theme-btn','desktop-theme-btn'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.innerText = id.includes('sidebar') ? '🌙 Tema' : '🌙';
+                });
+                localStorage.setItem('appTheme', 'dark');
+            }
+        }
+
+        function startAutoThemeWatcher() {
+            if (_autoThemeInterval) clearInterval(_autoThemeInterval);
+            applyAutoTheme();
+            // Revisar cada minuto
+            _autoThemeInterval = setInterval(applyAutoTheme, 60000);
+        }
+
+        // ==================== BLOQUE 3: NOTIFICACIONES PUSH ====================
+        function requestPushPermission() {
+            if (!('Notification' in window)) return;
+            // Solo pedir permiso si ya no está concedido ni denegado
+            if (Notification.permission === 'default') {
+                // Pedir con delay para no interrumpir la carga
+                setTimeout(() => {
+                    Notification.requestPermission().then(p => {
+                        if (p === 'granted') showToast('🔔 Notificaciones activadas', 'success');
+                    });
+                }, 4000);
+            }
+        }
+
+        function sendPushNotification(title, body, tag = 'nelsonapp') {
+            if (!('Notification' in window) || Notification.permission !== 'granted') return;
+            try {
+                new Notification(title, {
+                    body,
+                    tag,
+                    icon: './icons/icon-192x192.png',
+                    badge: './icons/icon-192x192.png',
+                    silent: false
+                });
+            } catch(e) { console.warn('Push notification error:', e); }
+        }
+
+        // Notificaciones automáticas: órdenes vencidas + stock bajo
+        async function checkAndNotifyOverdue() {
+            if (Notification.permission !== 'granted') return;
+            const orders = await getAll('orders');
+            const now    = Date.now();
+            const vencidas = orders.filter(o =>
+                o.sta !== 'entregado' && o.fechaEstimada &&
+                new Date(o.fechaEstimada + 'T23:59:59').getTime() < now
+            );
+            if (vencidas.length > 0) {
+                sendPushNotification(
+                    '⚠️ Órdenes vencidas — NelsonApp',
+                    `${vencidas.length} orden${vencidas.length > 1 ? 'es' : ''} superó su fecha de entrega`,
+                    'overdue'
+                );
+            }
+        }
+
+        async function checkAndNotifyLowStock() {
+            if (Notification.permission !== 'granted') return;
+            const stock     = await getAll('stock');
+            const threshold = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
+            const bajos     = stock.filter(s => (s.qty || 0) <= threshold && s.minStock !== undefined);
+            if (bajos.length > 0) {
+                sendPushNotification(
+                    '📦 Stock bajo — NelsonApp',
+                    `${bajos.length} repuesto${bajos.length > 1 ? 's' : ''} con stock crítico`,
+                    'lowstock'
+                );
+            }
+        }
+
+        // Agendar notificaciones diarias al abrir la app
+        (function scheduleNotifications() {
+            setTimeout(async () => {
+                await checkAndNotifyOverdue();
+                await checkAndNotifyLowStock();
+            }, 6000);
+        })();
+
+        // ==================== BLOQUE 3: MÓDULO PROVEEDORES ====================
+        async function openProveedoresModal() {
+            await renderProveedoresList();
+            document.getElementById('modal-proveedores').classList.remove('hidden');
+        }
+
+        function closeProveedoresModal() {
+            document.getElementById('modal-proveedores').classList.add('hidden');
+        }
+
+        async function renderProveedoresList() {
+            const provs = await getAll('proveedores');
+            const list  = document.getElementById('proveedores-list');
+            const stars = n => '⭐'.repeat(Number(n) || 5);
+            if (!provs.length) {
+                list.innerHTML = '<p class="text-center text-slate-500 text-sm py-10">Sin proveedores registrados aún.<br>Toca "+ AGREGAR" para empezar.</p>';
+                return;
+            }
+            list.innerHTML = provs.sort((a,b) => (b.rating||5)-(a.rating||5)).map(p => `
+                <div class="bg-black/30 rounded-2xl p-4 border border-white/5">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex-1 min-w-0">
+                            <p class="font-black text-white text-sm truncate">${escapeHtml(p.nombre)}</p>
+                            <p class="text-[10px] text-teal-400 font-bold">${stars(p.rating)}</p>
+                        </div>
+                        <div class="flex gap-1 flex-shrink-0 ml-2">
+                            ${p.tel ? `<button onclick="window.open('https://wa.me/57${p.tel.replace(/\\D/g,'')}','_blank')" class="bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 w-8 h-8 rounded-xl text-sm active:scale-95 transition" title="WhatsApp">💬</button>` : ''}
+                            <button onclick="openProveedorForm(${p.id})" class="bg-blue-600/20 border border-blue-500/30 text-blue-400 w-8 h-8 rounded-xl text-sm active:scale-95 transition">✏️</button>
+                            <button onclick="deleteProveedor(${p.id})" class="bg-rose-600/20 border border-rose-500/30 text-rose-400 w-8 h-8 rounded-xl text-sm active:scale-95 transition">🗑️</button>
+                        </div>
+                    </div>
+                    ${p.ciudad ? `<p class="text-[10px] text-slate-500">📍 ${escapeHtml(p.ciudad)}</p>` : ''}
+                    ${p.catalogo ? `<p class="text-[10px] text-slate-400 mt-1">📦 ${escapeHtml(p.catalogo)}</p>` : ''}
+                    ${p.tiempo ? `<p class="text-[10px] text-amber-400 font-bold mt-1">⏱ Entrega: ${p.tiempo} día${p.tiempo>1?'s':''}</p>` : ''}
+                    ${p.notas ? `<p class="text-[10px] text-slate-500 mt-1 italic">${escapeHtml(p.notas)}</p>` : ''}
+                </div>`).join('');
+        }
+
+        async function openProveedorForm(id) {
+            const fields = ['prov-id','prov-nombre','prov-tel','prov-ciudad','prov-catalogo','prov-tiempo','prov-notas'];
+            fields.forEach(f => { const el = document.getElementById(f); if (el) el.value = ''; });
+            document.getElementById('prov-rating').value = '5';
+            document.getElementById('prov-form-title').innerText = id ? 'EDITAR PROVEEDOR' : 'NUEVO PROVEEDOR';
+            if (id) {
+                const p = await getOne('proveedores', id);
+                if (p) {
+                    document.getElementById('prov-id').value       = p.id;
+                    document.getElementById('prov-nombre').value   = p.nombre || '';
+                    document.getElementById('prov-tel').value      = p.tel    || '';
+                    document.getElementById('prov-ciudad').value   = p.ciudad || '';
+                    document.getElementById('prov-catalogo').value = p.catalogo || '';
+                    document.getElementById('prov-tiempo').value   = p.tiempo || '';
+                    document.getElementById('prov-rating').value   = p.rating || 5;
+                    document.getElementById('prov-notas').value    = p.notas  || '';
+                }
+            }
+            document.getElementById('modal-proveedor-form').classList.remove('hidden');
+        }
+
+        function closeProveedorForm() {
+            document.getElementById('modal-proveedor-form').classList.add('hidden');
+        }
+
+        async function saveProveedor() {
+            const nombre = document.getElementById('prov-nombre').value.trim().toUpperCase();
+            if (!nombre) return showAlert('El nombre del proveedor es obligatorio.', 'warning');
+            const idVal = document.getElementById('prov-id').value;
+            const prov = {
+                id:       idVal ? Number(idVal) : Date.now(),
+                nombre,
+                tel:      document.getElementById('prov-tel').value.trim(),
+                ciudad:   document.getElementById('prov-ciudad').value.trim(),
+                catalogo: document.getElementById('prov-catalogo').value.trim(),
+                tiempo:   parseInt(document.getElementById('prov-tiempo').value) || 0,
+                rating:   parseInt(document.getElementById('prov-rating').value) || 5,
+                notas:    document.getElementById('prov-notas').value.trim(),
+                updatedAt: Date.now()
+            };
+            await put('proveedores', prov);
+            closeProveedorForm();
+            await renderProveedoresList();
+            showToast(idVal ? 'Proveedor actualizado ✅' : 'Proveedor guardado ✅', 'success');
+        }
+
+        async function deleteProveedor(id) {
+            showConfirm('¿Eliminar este proveedor?', async () => {
+                await del('proveedores', id);
+                await renderProveedoresList();
+                showToast('Proveedor eliminado', 'info');
+            });
+        }
+
+        // ==================== BLOQUE 3: ESCÁNER QR / CÓDIGO DE BARRAS ====================
+        let _qrStream    = null;
+        let _qrMode      = 'stock';
+        let _qrAnimFrame = null;
+
+        async function openQRScanner(mode = 'stock') {
+            _qrMode = mode;
+            document.getElementById('qr-scan-hint').innerText =
+                mode === 'stock' ? 'Apunta al código del repuesto' : 'Apunta al código QR de la orden';
+            document.getElementById('modal-qr-scanner').classList.remove('hidden');
+            document.getElementById('qr-manual-input').value = '';
+            try {
+                _qrStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+                });
+                const video = document.getElementById('qr-video');
+                video.srcObject = _qrStream;
+                await video.play();
+                _startQRDetection(video);
+            } catch(e) {
+                showToast('Sin acceso a cámara — usa el campo manual', 'warning');
+            }
+        }
+
+        function _startQRDetection(video) {
+            // Usar BarcodeDetector si el navegador lo soporta (Chrome Android ≥ 83)
+            if (!('BarcodeDetector' in window)) return;
+            const detector = new BarcodeDetector({ formats: ['qr_code','code_128','code_39','ean_13','ean_8','upc_a','upc_e','data_matrix'] });
+            function detect() {
+                if (!_qrStream) return;
+                detector.detect(video).then(codes => {
+                    if (codes.length > 0) {
+                        const code = codes[0].rawValue;
+                        applyQRCode(code);
+                    } else {
+                        _qrAnimFrame = requestAnimationFrame(detect);
+                    }
+                }).catch(() => {
+                    _qrAnimFrame = requestAnimationFrame(detect);
+                });
+            }
+            _qrAnimFrame = requestAnimationFrame(detect);
+        }
+
+        function closeQRScanner() {
+            if (_qrAnimFrame) cancelAnimationFrame(_qrAnimFrame);
+            if (_qrStream) { _qrStream.getTracks().forEach(t => t.stop()); _qrStream = null; }
+            const video = document.getElementById('qr-video');
+            video.srcObject = null;
+            document.getElementById('modal-qr-scanner').classList.add('hidden');
+        }
+
+        async function applyQRCode(code) {
+            if (!code || !code.trim()) return;
+            closeQRScanner();
+            const q = code.trim().toUpperCase();
+            if (_qrMode === 'stock') {
+                // Buscar en inventario por código o nombre
+                const stock = await getAll('stock');
+                const match = stock.find(s =>
+                    (s.code || '').toUpperCase() === q ||
+                    (s.name || '').toUpperCase().includes(q)
+                );
+                if (match) {
+                    // Rellenar el buscador de stock y filtrar
+                    const searchEl = document.getElementById('stock-search');
+                    if (searchEl) { searchEl.value = match.name; renderStock(); }
+                    tab('ventas');
+                    showToast(`🔩 Encontrado: ${match.name}`, 'success');
+                } else {
+                    // Si no encuentra, rellenar el campo código en el modal de nuevo repuesto
+                    addStockItem();
+                    setTimeout(() => {
+                        const codeEl = document.getElementById('stock-modal-code');
+                        if (codeEl) codeEl.value = q;
+                        showToast(`Código ${q} no encontrado — completa los datos`, 'info');
+                    }, 300);
+                }
+            }
+        }
+
+        // ==================== QR ETIQUETAS DE ARTÍCULOS ====================
+        let _qrCurrentItem = null;
+        let _qrSize = 110;
+
+        async function openQRItemModal(id) {
+            const stock = await getAll('stock');
+            const item  = stock.find(s => s.id === id);
+            if (!item) return;
+            _qrCurrentItem = item;
+            _qrSize = 110;
+
+            const biz   = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+            const cur   = getCurrency();
+
+            // Subtítulo modal
+            document.getElementById('qr-item-subtitle').innerText = item.n;
+
+            // Logo del negocio
+            const logo    = localStorage.getItem('businessLogo');
+            const logoEl  = document.getElementById('qr-label-logo');
+            const logoImg = document.getElementById('qr-label-logo-img');
+            if (logo) { logoImg.src = logo; logoEl.style.display = 'block'; }
+            else       { logoEl.style.display = 'none'; }
+
+            // Nombre del negocio
+            document.getElementById('qr-label-biz').innerText = biz.shortName || biz.name || '';
+
+            // Imagen del producto
+            const prodImgBox = document.getElementById('qr-label-product-img');
+            const prodImgEl  = document.getElementById('qr-label-product-img-el');
+            if (item.img) { prodImgEl.src = item.img; prodImgBox.style.display = 'block'; }
+            else           { prodImgBox.style.display = 'none'; }
+
+            // Nombre, código, precio, categoría
+            document.getElementById('qr-label-name').innerText  = item.n;
+            document.getElementById('qr-label-code').innerText  = item.code ? `Cód: ${item.code}` : '';
+            document.getElementById('qr-label-price').innerText = cur + item.p.toLocaleString('es-CO');
+            document.getElementById('qr-label-cat').innerText   = item.cat || '';
+
+            // Generar QR
+            _buildQR(item, _qrSize);
+
+            // Actualizar botones de tamaño
+            _updateQRSizeBtns(_qrSize);
+
+            document.getElementById('modal-qr-item').classList.remove('hidden');
+        }
+
+        function _buildQR(item, size) {
+            const canvas = document.getElementById('qr-code-canvas');
+            canvas.innerHTML = '';
+            // Contenido del QR: datos del producto en formato legible
+            const content = [
+                item.n,
+                item.code ? `COD:${item.code}` : '',
+                `PRECIO:${getCurrency()}${item.p.toLocaleString('es-CO')}`,
+                item.cat ? `CAT:${item.cat}` : ''
+            ].filter(Boolean).join(' | ');
+
+            new QRCode(canvas, {
+                text: content,
+                width:  size,
+                height: size,
+                colorDark:  '#111827',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.M
+            });
+        }
+
+        function regenerateQR(size) {
+            if (!_qrCurrentItem) return;
+            _qrSize = size;
+            _buildQR(_qrCurrentItem, size);
+            _updateQRSizeBtns(size);
+        }
+
+        function _updateQRSizeBtns(activeSize) {
+            const sizes = [80, 110, 140];
+            document.querySelectorAll('.qr-size-btn').forEach((btn, i) => {
+                btn.className = `qr-size-btn flex-1 py-2 rounded-xl text-xs font-bold transition active:scale-95 ${sizes[i] === activeSize ? 'bg-violet-600 text-white' : 'bg-slate-700 text-slate-300 hover:bg-violet-700'}`;
+            });
+        }
+
+        function closeQRItemModal() {
+            document.getElementById('modal-qr-item').classList.add('hidden');
+            _qrCurrentItem = null;
+        }
+
+        async function downloadQRLabel() {
+            const card = document.getElementById('qr-label-card');
+            try {
+                const canvas = await html2canvas(card, { scale: 3, backgroundColor: '#ffffff', useCORS: true });
+                const name   = (_qrCurrentItem?.n || 'etiqueta').replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+                await downloadImageCompat(canvas, `QR_${name}.png`);
+                showToast('Etiqueta descargada ✅', 'success');
+            } catch(e) {
+                showAlert('Error al generar la imagen. Inténtalo de nuevo.', 'error');
+            }
+        }
+
+        function printQRLabel() {
+            const card = document.getElementById('qr-label-card');
+            const iframe = document.createElement('iframe');
+            iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:100mm;';
+            document.body.appendChild(iframe);
+            const doc = iframe.contentWindow.document;
+            doc.open();
+            doc.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+                <style>
+                    @page { size: 80mm auto; margin: 4mm; }
+                    body  { margin:0; display:flex; justify-content:center; font-family:sans-serif; }
+                    @media print { body { margin:0; } }
+                </style>
+            </head><body>
+                ${card.outerHTML}
+                <script>window.onload=()=>{window.print();setTimeout(()=>document.body.parentElement?.remove?.(),1200);}<\/script>
+            </body></html>`);
+            doc.close();
+            showToast('Abriendo impresora…', 'info');
+        }
+
+        // ── QR EN LOTE ──
+        async function openQRBulk() {
+            const stock = await getAll('stock');
+            const list  = document.getElementById('qr-bulk-list');
+            const cur   = getCurrency();
+            if (!stock.length) return showAlert('No hay artículos en el inventario.', 'info');
+
+            list.innerHTML = stock
+                .sort((a,b) => a.n.localeCompare(b.n))
+                .map(s => `
+                <label class="flex items-center gap-3 p-3 rounded-xl bg-black/20 cursor-pointer hover:bg-violet-500/10 transition">
+                    <input type="checkbox" class="qr-bulk-check w-4 h-4 rounded accent-violet-500" data-id="${s.id}" checked>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-bold text-white truncate">${escapeHtml(s.n)}</p>
+                        <p class="text-[10px] text-slate-400">${s.code ? `${s.code} · ` : ''}${cur}${s.p.toLocaleString()}</p>
+                    </div>
+                    <span class="text-[10px] text-slate-500">${s.q} uds</span>
+                </label>`).join('');
+
+            document.getElementById('modal-qr-bulk').classList.remove('hidden');
+        }
+
+        function closeQRBulk() {
+            document.getElementById('modal-qr-bulk').classList.add('hidden');
+        }
+
+        function selectAllQRItems(val) {
+            document.querySelectorAll('.qr-bulk-check').forEach(cb => cb.checked = val);
+        }
+
+        async function printQRBulk() {
+            const checked = [...document.querySelectorAll('.qr-bulk-check:checked')];
+            if (!checked.length) return showAlert('Selecciona al menos un artículo.', 'warning');
+
+            const stock   = await getAll('stock');
+            const biz     = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+            const cur     = getCurrency();
+            const logo    = localStorage.getItem('businessLogo');
+            const bizName = biz.shortName || biz.name || '';
+
+            // Generar QR en base64 para cada artículo seleccionado
+            const ids   = checked.map(cb => parseInt(cb.dataset.id));
+            const items = ids.map(id => stock.find(s => s.id === id)).filter(Boolean);
+
+            // Construir HTML de impresión con múltiples etiquetas
+            let labelsHTML = '';
+            for (const item of items) {
+                const content = [
+                    item.n,
+                    item.code ? `COD:${item.code}` : '',
+                    `PRECIO:${cur}${item.p.toLocaleString('es-CO')}`,
+                    item.cat ? `CAT:${item.cat}` : ''
+                ].filter(Boolean).join(' | ');
+
+                // Generar QR en canvas oculto
+                const tmpDiv = document.createElement('div');
+                tmpDiv.style.cssText = 'position:absolute;left:-9999px;top:0;';
+                document.body.appendChild(tmpDiv);
+                new QRCode(tmpDiv, { text: content, width: 100, height: 100,
+                    colorDark: '#111827', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+                await new Promise(r => setTimeout(r, 80));
+                const qrImg = tmpDiv.querySelector('img')?.src || tmpDiv.querySelector('canvas')?.toDataURL() || '';
+                tmpDiv.remove();
+
+                const logoHtml = logo ? `<img src="${logo}" style="width:32px;height:32px;object-fit:contain;border-radius:6px;display:block;margin:0 auto 4px;">` : '';
+                const prodImgHtml = item.img ? `<img src="${item.img}" style="width:50px;height:50px;object-fit:cover;border-radius:8px;border:1px solid #e5e7eb;margin:0 auto 4px;display:block;">` : '';
+
+                labelsHTML += `
+                <div style="background:white;border:1px solid #e5e7eb;border-radius:12px;padding:14px 12px;width:72mm;display:inline-flex;flex-direction:column;align-items:center;gap:6px;margin:3mm;vertical-align:top;box-sizing:border-box;">
+                    ${logoHtml}
+                    ${bizName ? `<p style="font-size:7px;font-weight:800;color:#f97316;letter-spacing:2px;text-transform:uppercase;margin:0;font-family:sans-serif;">${escapeHtml(bizName)}</p>` : ''}
+                    ${prodImgHtml}
+                    <p style="font-size:11px;font-weight:900;color:#111;text-align:center;margin:0;font-family:sans-serif;line-height:1.3;">${escapeHtml(item.n)}</p>
+                    ${item.code ? `<p style="font-size:9px;color:#6b7280;font-family:monospace;margin:0;">${item.code}</p>` : ''}
+                    ${qrImg ? `<img src="${qrImg}" style="width:90px;height:90px;border:1px solid #e5e7eb;border-radius:6px;padding:4px;background:white;">` : ''}
+                    <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:4px 14px;text-align:center;width:100%;box-sizing:border-box;">
+                        <p style="font-size:7px;color:#16a34a;font-weight:700;margin:0;letter-spacing:1px;font-family:sans-serif;">PRECIO VENTA</p>
+                        <p style="font-size:17px;font-weight:900;color:#15803d;margin:0;font-family:sans-serif;">${cur}${item.p.toLocaleString('es-CO')}</p>
+                    </div>
+                    ${item.cat ? `<p style="font-size:8px;color:#9ca3af;margin:0;font-family:sans-serif;">${escapeHtml(item.cat)}</p>` : ''}
+                </div>`;
+            }
+
+            const iframe = document.createElement('iframe');
+            iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:210mm;';
+            document.body.appendChild(iframe);
+            const doc = iframe.contentWindow.document;
+            doc.open();
+            doc.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+                <style>
+                    @page { size: A4; margin: 8mm; }
+                    body  { margin:0; font-family:sans-serif; }
+                    .labels { display:flex; flex-wrap:wrap; justify-content:flex-start; }
+                    @media print { body { margin:0; } }
+                </style>
+            </head><body>
+                <div class="labels">${labelsHTML}</div>
+                <script>window.onload=()=>{window.print();setTimeout(()=>document.body.parentElement?.remove?.(),1500);}<\/script>
+            </body></html>`);
+            doc.close();
+            closeQRBulk();
+            showToast(`Imprimiendo ${items.length} etiqueta${items.length>1?'s':''}…`, 'info');
+        }
 
         // ==================== REGISTRO DEL SERVICE WORKER (PWA) ====================
         if ('serviceWorker' in navigator) {
