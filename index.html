@@ -199,6 +199,25 @@
         .presupuesto-badge { padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 800; }
         .order-num { font-size: 10px; color: var(--accent); font-weight: 900; letter-spacing: 1px; }
 
+        /* ===== MEJORAS TALLER v3.2 ===== */
+        .deadline-badge { display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:800; }
+        .deadline-ok   { background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.3); }
+        .deadline-warn { background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3); }
+        .deadline-late { background:rgba(244,63,94,0.15);color:#f87171;border:1px solid rgba(244,63,94,0.3);animation:pulse-dead 1.4s ease infinite; }
+        .deadline-today{ background:rgba(249,115,22,0.22);color:#fb923c;border:1px solid rgba(249,115,22,0.5); }
+        @keyframes pulse-dead { 0%,100%{opacity:1} 50%{opacity:0.55} }
+        .ai-btn { display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:12px;font-size:11px;font-weight:800;cursor:pointer;transition:all 0.2s;border:1px solid rgba(159,122,234,0.4);background:rgba(159,122,234,0.12);color:#c4b5fd;-webkit-tap-highlight-color:transparent; }
+        .ai-btn:active { transform:scale(0.95); }
+        .ai-btn:disabled { opacity:0.45;cursor:not-allowed; }
+        .ai-result-box { background:rgba(159,122,234,0.07);border:1px solid rgba(159,122,234,0.22);border-radius:14px;padding:12px 14px;font-size:11px;line-height:1.65;color:#dde1f0;display:none;margin-top:4px; }
+        .ai-result-box.visible { display:block;animation:slideUp 0.3s ease; }
+        .ai-apply-btn { margin-top:8px;padding:6px 14px;border-radius:10px;font-size:11px;font-weight:800;background:rgba(159,122,234,0.2);border:1px solid rgba(159,122,234,0.4);color:#c4b5fd;cursor:pointer;transition:all 0.2s; }
+        .ai-apply-btn:active { transform:scale(0.95); }
+        .photo-compare-grid { display:grid;grid-template-columns:1fr 1fr;gap:8px; }
+        .photo-compare-label { font-size:9px;font-weight:800;letter-spacing:2px;text-align:center;padding:3px 0;border-radius:8px;margin-bottom:5px; }
+        .compare-entrada .photo-compare-label { background:rgba(249,115,22,0.15);color:#fb923c; }
+        .compare-salida  .photo-compare-label { background:rgba(16,185,129,0.15);color:#34d399; }
+
         /* ===== SECCIONES COLAPSABLES EN CONFIG ===== */
         .cfg-section { border-bottom: 1px solid rgba(255,255,255,0.07); }
         .cfg-header {
@@ -568,6 +587,10 @@
             </div>
             <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);">
                 <div style="font-size:9px;font-weight:800;color:#475569;letter-spacing:2px;text-transform:uppercase;padding:0 4px 8px;">Acciones rápidas</div>
+                <div class="sidebar-nav-item" onclick="window.location.href='./dashboard.html'" style="padding:10px 16px;">
+                    <span class="sidebar-nav-icon">📊</span>
+                    <span class="sidebar-nav-label" style="font-size:12px;">Command Center</span>
+                </div>
                 <div class="sidebar-nav-item" onclick="notifyAllReady()" style="padding:10px 16px;">
                     <span class="sidebar-nav-icon">💬</span>
                     <span class="sidebar-nav-label" style="font-size:12px;">Avisar listos</span>
@@ -595,6 +618,7 @@
             <div id="desktop-topbar-title" style="font-size:20px;font-weight:900;font-style:italic;">NELSON</div>
         </div>
         <div id="desktop-topbar-right">
+            <button onclick="window.location.href='./dashboard.html'" style="background:rgba(159,122,234,0.15);border:1px solid rgba(159,122,234,0.3);color:#c4b5fd;padding:8px 16px;border-radius:12px;font-size:11px;font-weight:800;cursor:pointer;">📊 DASHBOARD</button>
             <button onclick="notifyAllReady()" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:8px 16px;border-radius:12px;font-size:11px;font-weight:800;cursor:pointer;">💬 AVISAR LISTOS</button>
             <button onclick="exportMonthlyReport()" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:8px 16px;border-radius:12px;font-size:11px;font-weight:800;cursor:pointer;">📄 REPORTE MES</button>
             <button onclick="toggleTheme()" id="desktop-theme-btn" style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);font-size:1.1rem;cursor:pointer;">🌙</button>
@@ -612,7 +636,7 @@
             <div class="splash-sub">Taller & Repuestos</div>
         </div>
         <div class="splash-bar-track"><div class="splash-bar-fill"></div></div>
-        <p style="font-size:0.6rem;color:rgba(255,255,255,0.2);letter-spacing:2px;">v2.1.0</p>
+        <p style="font-size:0.6rem;color:rgba(255,255,255,0.2);letter-spacing:2px;">v3.2.0</p>
     </div>
 
     <!-- PIN MODAL MEJORADO -->
@@ -698,6 +722,11 @@
             <datalist id="equipos-list"></datalist>
             <textarea id="c-fal" placeholder="FALLA INICIAL Y ESTADO FÍSICO..." class="h-24 text-xs uppercase w-full" oninput="suggestDiagnosis()"></textarea>
             <div id="diagnosis-suggestions" class="suggestion-box"></div>
+            <div class="flex items-center gap-2 flex-wrap">
+                <button type="button" class="ai-btn" id="ai-diag-btn" onclick="aiDiagnosis()">✨ Sugerir con IA</button>
+                <span class="text-[10px] text-slate-500">Describe el equipo y la falla primero</span>
+            </div>
+            <div id="ai-result-box" class="ai-result-box"></div>
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label class="text-[10px] text-slate-400 block mb-1 ml-1">GARANTÍA (días)</label>
@@ -1063,6 +1092,13 @@
             <button id="btn-retomar-fotos" onclick="retomarFotos()" class="flex-1 bg-orange-600/20 border border-orange-500/40 text-orange-400 py-3 rounded-2xl font-black text-xs uppercase active:scale-95 transition">📸 RETOMAR FOTOS</button>
             <button id="btn-borrar-fotos" onclick="borrarTodasFotos()" class="flex-1 bg-rose-600/20 border border-rose-500/40 text-rose-400 py-3 rounded-2xl font-black text-xs uppercase active:scale-95 transition">🗑️ BORRAR TODAS</button>
         </div>
+    </div>
+
+    <!-- ===== MODAL COMPARACIÓN ANTES / DESPUÉS ===== -->
+    <div id="modal-compare" class="hidden fixed inset-0 z-[1500] photo-modal flex flex-col items-center justify-center p-4">
+        <button onclick="closeCompareModal()" class="absolute top-5 right-5 bg-white/10 w-11 h-11 rounded-full text-xl backdrop-blur z-10">✕</button>
+        <h3 id="modal-compare-title" class="text-violet-300 font-black mb-3 text-center text-base tracking-wider">🔀 ANTES / DESPUÉS</h3>
+        <div id="modal-compare-container" class="w-full max-w-lg overflow-y-auto no-scrollbar max-h-[78vh] space-y-4 pb-2"></div>
     </div>
 
     <div id="modal-delivery-photos" class="hidden fixed inset-0 z-[2000] photo-modal flex flex-col items-center justify-center p-6">
@@ -1883,8 +1919,30 @@
                     document.getElementById('pin-modal').classList.add('hidden');
                     document.getElementById('app-header').classList.remove('hidden');
                     document.querySelectorAll('.app-view').forEach(v => v.classList.remove('hidden'));
-                    tab('taller');
-                    initApp();
+                    initApp().then(() => {
+                        // Manejar navegación/acción venida desde dashboard.html
+                        const dashTab    = sessionStorage.getItem('dashGoTab');
+                        const dashAction = sessionStorage.getItem('dashAction');
+                        sessionStorage.removeItem('dashGoTab');
+                        sessionStorage.removeItem('dashAction');
+                        // Ir a la pestaña correcta
+                        if (dashTab) {
+                            tab(dashTab);
+                        } else if (dashAction === 'caja' || dashAction === 'report' || dashAction === 'stats') {
+                            tab('ventas');
+                        } else {
+                            tab('taller');
+                        }
+                        // Ejecutar acción específica con pequeño delay para que la vista esté lista
+                        if (dashAction) {
+                            setTimeout(() => {
+                                if (dashAction === 'notify') notifyAllReady();
+                                if (dashAction === 'report') exportMonthlyReport();
+                                if (dashAction === 'stats')  openStatsModal();
+                                if (dashAction === 'caja')   openCajaModal();
+                            }, 350);
+                        }
+                    });
                     if (!localStorage.getItem('tutorialShown')) {
                         setTimeout(() => showAlert("👋 ¡Bienvenido a Nelson App Pro!\n\nDesliza entre pestañas, toca el nombre de un cliente para ver su historial, y usa el escáner 📷 en inventario.", "info"), 600);
                         localStorage.setItem('tutorialShown', 'true');
@@ -2499,8 +2557,16 @@
                 const fechaEstado = o.fechaEstado || o.fecha;
                 const daysInStatus = getBusinessDaysDiff(new Date(fechaEstado), today);
                 const staColors = { recibido:'text-slate-400', 'revisión':'text-yellow-400', reparado:'text-emerald-400', entregado:'text-blue-400' };
-                const fechaEstBadge = o.fechaEstimada && o.sta !== 'entregado'
-                    ? `<span class="text-[9px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-bold">📅 Entrega est: ${new Date(o.fechaEstimada+'T00:00:00').toLocaleDateString('es-ES',{day:'2-digit',month:'short'})}</span>` : '';
+                const fechaEstBadge = (() => {
+                    if (!o.fechaEstimada || o.sta === 'entregado') return '';
+                    const deadlineTs = new Date(o.fechaEstimada + 'T23:59:59').getTime();
+                    const diffDays   = Math.ceil((deadlineTs - Date.now()) / 86400000);
+                    const fmtDate    = new Date(o.fechaEstimada + 'T00:00:00').toLocaleDateString('es-ES', {day:'2-digit', month:'short'});
+                    if (diffDays < 0)   return `<span class="deadline-badge deadline-late">⚠️ VENCIDA hace ${Math.abs(diffDays)}d · ${fmtDate}</span>`;
+                    if (diffDays === 0) return `<span class="deadline-badge deadline-today">🔴 ¡ENTREGA HOY! · ${fmtDate}</span>`;
+                    if (diffDays <= 2)  return `<span class="deadline-badge deadline-warn">🟡 ${diffDays}d para entrega · ${fmtDate}</span>`;
+                    return                      `<span class="deadline-badge deadline-ok">🟢 ${diffDays}d para entrega · ${fmtDate}</span>`;
+                })();
                 const notasBadge = o.notas
                     ? `<div class="text-[10px] bg-yellow-500/10 border border-yellow-500/20 rounded-lg px-2 py-1 mt-1 text-yellow-300 font-bold">🔒 ${escapeHtml(o.notas)}</div>` : '';
                 const origenLabels = {recomendacion:'🗣️ Recomendación',redes:'📱 Redes',cliente_frecuente:'⭐ Frecuente',google:'🔍 Google',local:'🏠 Local',whatsapp:'💬 WhatsApp',otro:'📌 Otro'};
@@ -2541,6 +2607,7 @@
                         <button onclick="openPhotoModal(${o.id})" class="bg-slate-800/60 py-2 rounded-xl text-xs font-bold">📸 RECEP. (${o.fotos?.length||0})</button>
                         <button onclick="${deliveryPhotoCount > 0 ? `openPhotoModal(${o.id},'entrega')` : `openDeliveryPhotosModal(${o.id})`}" class="bg-emerald-900/30 py-2 rounded-xl text-xs font-bold text-emerald-400">📷 ENTREGA (${deliveryPhotoCount})</button>
                     </div>
+                    ${(o.fotos?.length > 0 && deliveryPhotoCount > 0) ? `<button onclick="openCompareModal(${o.id})" class="w-full bg-violet-900/30 border border-violet-500/30 py-2 rounded-xl text-xs font-bold text-violet-300 mb-2 active:scale-95 transition">🔀 COMPARAR ANTES / DESPUÉS</button>` : ''}
                     <div class="text-xs bg-black/40 rounded-xl p-2 uppercase mb-2">${escapeHtml(o.det||'')}</div>
                     <div class="flex justify-between items-center mt-3">
                         <div>
@@ -3935,6 +4002,153 @@
             document.getElementById('diagnosis-suggestions').style.display = 'none';
         }
 
+        // ==================== IA DIAGNÓSTICO ASISTIDO ====================
+        async function aiDiagnosis() {
+            const equ  = (document.getElementById('c-equ').value || '').trim();
+            const fal  = (document.getElementById('c-fal').value || '').trim();
+            if (!equ && !fal) return showAlert('Escribe el equipo y/o la falla primero.', 'warning');
+
+            const btn     = document.getElementById('ai-diag-btn');
+            const resultBox = document.getElementById('ai-result-box');
+
+            btn.disabled   = true;
+            btn.innerHTML  = '<span style="display:inline-block;width:14px;height:14px;border:2px solid rgba(196,181,253,0.3);border-top-color:#c4b5fd;border-radius:50%;animation:spin 0.7s linear infinite;"></span> Analizando…';
+            resultBox.classList.remove('visible');
+            resultBox.innerHTML = '';
+
+            // Obtener historial del taller para contexto
+            const orders = await getAll('orders');
+            const related = orders
+                .filter(o => o.sta === 'entregado' && (
+                    (equ && (o.equ||'').toUpperCase().includes(equ.toUpperCase())) ||
+                    (fal  && (o.det||'').toUpperCase().includes(fal.toUpperCase().substring(0,10)))
+                ))
+                .slice(-8)
+                .map(o => `• ${o.equ}: "${o.det}" → reparado`)
+                .join('\n');
+
+            const prompt = `Eres un técnico experto en reparación de electrodomésticos y electrónica de consumo trabajando en un taller de reparaciones en Colombia.
+
+Equipo: ${equ || '(no especificado)'}
+Falla reportada: ${fal || '(no especificada)'}
+${related ? `\nHistorial del taller con equipos similares:\n${related}` : ''}
+
+Responde en español, de forma concisa y práctica (máximo 120 palabras). Incluye:
+1. **Causas más probables** (2-3 causas)
+2. **Repuestos a revisar** (lista corta)
+3. **Diagnóstico sugerido** (1 frase para registrar en la orden)
+
+Formato: usa negritas con ** para los títulos de sección. Al final incluye una línea que empiece con "📋 REGISTRAR:" seguida del diagnóstico sugerido en mayúsculas.`;
+
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 350,
+                        messages: [{ role: 'user', content: prompt }]
+                    })
+                });
+                const data = await res.json();
+                const text = data?.content?.[0]?.text || '';
+
+                if (!text) throw new Error('Sin respuesta');
+
+                // Extraer el diagnóstico sugerido para el botón "Aplicar"
+                const registrarMatch = text.match(/📋 REGISTRAR:\s*(.+)/i);
+                const diagText = registrarMatch ? registrarMatch[1].trim() : '';
+
+                // Formatear con HTML básico
+                const formatted = text
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\n/g, '<br>');
+
+                resultBox.innerHTML = formatted +
+                    (diagText ? `<br><button class="ai-apply-btn" onclick="applyAIDiagnosis('${diagText.replace(/'/g,"\\'")}')">✅ Usar este diagnóstico</button>` : '');
+                resultBox.classList.add('visible');
+
+            } catch(e) {
+                resultBox.innerHTML = '⚠️ No se pudo conectar con la IA. Revisa tu conexión e intenta de nuevo.';
+                resultBox.classList.add('visible');
+            }
+
+            btn.disabled  = false;
+            btn.innerHTML = '✨ Sugerir con IA';
+        }
+
+        function applyAIDiagnosis(text) {
+            document.getElementById('c-fal').value = text;
+            document.getElementById('ai-result-box').classList.remove('visible');
+            document.getElementById('ai-result-box').innerHTML = '';
+            showToast('Diagnóstico aplicado ✅', 'success');
+        }
+
+        // ==================== MODAL COMPARACIÓN ANTES / DESPUÉS ====================
+        async function openCompareModal(id) {
+            const orders = await getAll('orders');
+            const o = orders.find(x => x.id === id);
+            if (!o) return;
+
+            const fotosRecep   = o.fotos        || [];
+            const fotosEntrega = o.fotosEntrega  || [];
+
+            if (!fotosRecep.length && !fotosEntrega.length) {
+                return showAlert('Esta orden no tiene fotos registradas.', 'info');
+            }
+
+            document.getElementById('modal-compare-title').innerText =
+                `🔀 ${escapeHtml(o.equ)} — ANTES / DESPUÉS`;
+
+            const container = document.getElementById('modal-compare-container');
+            container.innerHTML = '';
+
+            // Emparejar fotos: mostramos pares lado a lado
+            const maxPairs = Math.max(fotosRecep.length, fotosEntrega.length);
+
+            for (let i = 0; i < maxPairs; i++) {
+                const row = document.createElement('div');
+                row.className = 'photo-compare-grid';
+
+                // Columna ANTES
+                const colA = document.createElement('div');
+                colA.className = 'compare-entrada';
+                colA.innerHTML = `<div class="photo-compare-label">📸 ANTES</div>`;
+                if (fotosRecep[i]) {
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(fotosRecep[i]);
+                    img.style.cssText = 'width:100%;border-radius:12px;border:1px solid rgba(249,115,22,0.3);';
+                    colA.appendChild(img);
+                } else {
+                    colA.innerHTML += `<div style="height:100px;display:flex;align-items:center;justify-content:center;border-radius:12px;border:1px dashed rgba(255,255,255,0.1);color:#475569;font-size:11px;">Sin foto</div>`;
+                }
+
+                // Columna DESPUÉS
+                const colB = document.createElement('div');
+                colB.className = 'compare-salida';
+                colB.innerHTML = `<div class="photo-compare-label">📷 DESPUÉS</div>`;
+                if (fotosEntrega[i]) {
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(fotosEntrega[i]);
+                    img.style.cssText = 'width:100%;border-radius:12px;border:1px solid rgba(52,211,153,0.3);';
+                    colB.appendChild(img);
+                } else {
+                    colB.innerHTML += `<div style="height:100px;display:flex;align-items:center;justify-content:center;border-radius:12px;border:1px dashed rgba(255,255,255,0.1);color:#475569;font-size:11px;">Sin foto</div>`;
+                }
+
+                row.appendChild(colA);
+                row.appendChild(colB);
+                container.appendChild(row);
+            }
+
+            document.getElementById('modal-compare').classList.remove('hidden');
+        }
+
+        function closeCompareModal() {
+            document.getElementById('modal-compare').classList.add('hidden');
+            document.getElementById('modal-compare-container').innerHTML = '';
+        }
+
         // ==================== NUEVAS FUNCIONES DE CONFIGURACIÓN (ya existentes) ====================
         function applyFontSize() {
             const size = localStorage.getItem('appFontSize') || 'normal';
@@ -4789,6 +5003,17 @@
                     .catch(err => console.warn('SW error:', err));
             });
         }
+
+        // ==================== PWA: MANEJAR SHORTCUTS DEL MANIFEST ====================
+        // Cuando la app se abre desde un shortcut del ícono, ir directo a la sección
+        window.addEventListener('load', () => {
+            const params = new URLSearchParams(window.location.search);
+            const shortcut = params.get('shortcut');
+            if (shortcut) {
+                // Guardar en sessionStorage para leerlo tras el PIN
+                sessionStorage.setItem('dashGoTab', shortcut);
+            }
+        });
     </script>
 </body>
 </html>
