@@ -206,13 +206,7 @@
         .deadline-late { background:rgba(244,63,94,0.15);color:#f87171;border:1px solid rgba(244,63,94,0.3);animation:pulse-dead 1.4s ease infinite; }
         .deadline-today{ background:rgba(249,115,22,0.22);color:#fb923c;border:1px solid rgba(249,115,22,0.5); }
         @keyframes pulse-dead { 0%,100%{opacity:1} 50%{opacity:0.55} }
-        .ai-btn { display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:12px;font-size:11px;font-weight:800;cursor:pointer;transition:all 0.2s;border:1px solid rgba(159,122,234,0.4);background:rgba(159,122,234,0.12);color:#c4b5fd;-webkit-tap-highlight-color:transparent; }
-        .ai-btn:active { transform:scale(0.95); }
-        .ai-btn:disabled { opacity:0.45;cursor:not-allowed; }
-        .ai-result-box { background:rgba(159,122,234,0.07);border:1px solid rgba(159,122,234,0.22);border-radius:14px;padding:12px 14px;font-size:11px;line-height:1.65;color:#dde1f0;display:none;margin-top:4px; }
-        .ai-result-box.visible { display:block;animation:slideUp 0.3s ease; }
-        .ai-apply-btn { margin-top:8px;padding:6px 14px;border-radius:10px;font-size:11px;font-weight:800;background:rgba(159,122,234,0.2);border:1px solid rgba(159,122,234,0.4);color:#c4b5fd;cursor:pointer;transition:all 0.2s; }
-        .ai-apply-btn:active { transform:scale(0.95); }
+
         .photo-compare-grid { display:grid;grid-template-columns:1fr 1fr;gap:8px; }
         .photo-compare-label { font-size:9px;font-weight:800;letter-spacing:2px;text-align:center;padding:3px 0;border-radius:8px;margin-bottom:5px; }
         .compare-entrada .photo-compare-label { background:rgba(249,115,22,0.15);color:#fb923c; }
@@ -722,11 +716,6 @@
             <datalist id="equipos-list"></datalist>
             <textarea id="c-fal" placeholder="FALLA INICIAL Y ESTADO FÍSICO..." class="h-24 text-xs uppercase w-full" oninput="suggestDiagnosis()"></textarea>
             <div id="diagnosis-suggestions" class="suggestion-box"></div>
-            <div class="flex items-center gap-2 flex-wrap">
-                <button type="button" class="ai-btn" id="ai-diag-btn" onclick="aiDiagnosis()">✨ Sugerir con IA</button>
-                <span class="text-[10px] text-slate-500">Describe el equipo y la falla primero</span>
-            </div>
-            <div id="ai-result-box" class="ai-result-box"></div>
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label class="text-[10px] text-slate-400 block mb-1 ml-1">GARANTÍA (días)</label>
@@ -4000,88 +3989,6 @@
         function applyDiagnosis(det) {
             document.getElementById('c-fal').value = det;
             document.getElementById('diagnosis-suggestions').style.display = 'none';
-        }
-
-        // ==================== IA DIAGNÓSTICO ASISTIDO ====================
-        async function aiDiagnosis() {
-            const equ  = (document.getElementById('c-equ').value || '').trim();
-            const fal  = (document.getElementById('c-fal').value || '').trim();
-            if (!equ && !fal) return showAlert('Escribe el equipo y/o la falla primero.', 'warning');
-
-            const btn     = document.getElementById('ai-diag-btn');
-            const resultBox = document.getElementById('ai-result-box');
-
-            btn.disabled   = true;
-            btn.innerHTML  = '<span style="display:inline-block;width:14px;height:14px;border:2px solid rgba(196,181,253,0.3);border-top-color:#c4b5fd;border-radius:50%;animation:spin 0.7s linear infinite;"></span> Analizando…';
-            resultBox.classList.remove('visible');
-            resultBox.innerHTML = '';
-
-            // Obtener historial del taller para contexto
-            const orders = await getAll('orders');
-            const related = orders
-                .filter(o => o.sta === 'entregado' && (
-                    (equ && (o.equ||'').toUpperCase().includes(equ.toUpperCase())) ||
-                    (fal  && (o.det||'').toUpperCase().includes(fal.toUpperCase().substring(0,10)))
-                ))
-                .slice(-8)
-                .map(o => `• ${o.equ}: "${o.det}" → reparado`)
-                .join('\n');
-
-            const prompt = `Eres un técnico experto en reparación de electrodomésticos y electrónica de consumo trabajando en un taller de reparaciones en Colombia.
-
-Equipo: ${equ || '(no especificado)'}
-Falla reportada: ${fal || '(no especificada)'}
-${related ? `\nHistorial del taller con equipos similares:\n${related}` : ''}
-
-Responde en español, de forma concisa y práctica (máximo 120 palabras). Incluye:
-1. **Causas más probables** (2-3 causas)
-2. **Repuestos a revisar** (lista corta)
-3. **Diagnóstico sugerido** (1 frase para registrar en la orden)
-
-Formato: usa negritas con ** para los títulos de sección. Al final incluye una línea que empiece con "📋 REGISTRAR:" seguida del diagnóstico sugerido en mayúsculas.`;
-
-            try {
-                const res = await fetch('https://api.anthropic.com/v1/messages', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        model: 'claude-sonnet-4-20250514',
-                        max_tokens: 350,
-                        messages: [{ role: 'user', content: prompt }]
-                    })
-                });
-                const data = await res.json();
-                const text = data?.content?.[0]?.text || '';
-
-                if (!text) throw new Error('Sin respuesta');
-
-                // Extraer el diagnóstico sugerido para el botón "Aplicar"
-                const registrarMatch = text.match(/📋 REGISTRAR:\s*(.+)/i);
-                const diagText = registrarMatch ? registrarMatch[1].trim() : '';
-
-                // Formatear con HTML básico
-                const formatted = text
-                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                    .replace(/\n/g, '<br>');
-
-                resultBox.innerHTML = formatted +
-                    (diagText ? `<br><button class="ai-apply-btn" onclick="applyAIDiagnosis('${diagText.replace(/'/g,"\\'")}')">✅ Usar este diagnóstico</button>` : '');
-                resultBox.classList.add('visible');
-
-            } catch(e) {
-                resultBox.innerHTML = '⚠️ No se pudo conectar con la IA. Revisa tu conexión e intenta de nuevo.';
-                resultBox.classList.add('visible');
-            }
-
-            btn.disabled  = false;
-            btn.innerHTML = '✨ Sugerir con IA';
-        }
-
-        function applyAIDiagnosis(text) {
-            document.getElementById('c-fal').value = text;
-            document.getElementById('ai-result-box').classList.remove('visible');
-            document.getElementById('ai-result-box').innerHTML = '';
-            showToast('Diagnóstico aplicado ✅', 'success');
         }
 
         // ==================== MODAL COMPARACIÓN ANTES / DESPUÉS ====================
