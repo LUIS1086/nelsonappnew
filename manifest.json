@@ -1,40 +1,45 @@
-{
-    "name": "Nelson App Pro | Taller & Ventas",
-    "short_name": "NelsonApp",
-    "description": "Gestión de taller de reparación y venta de repuestos",
-    "start_url": "/",
-    "scope": "/",
-    "display": "standalone",
-    "background_color": "#0d0f1a",
-    "theme_color": "#f97316",
-    "orientation": "portrait-primary",
-    "icons": [
-        {
-            "src": "/icons/icon-192x192.png",
-            "sizes": "192x192",
-            "type": "image/png",
-            "purpose": "any"
-        },
-        {
-            "src": "/icons/icon-192x192.png",
-            "sizes": "192x192",
-            "type": "image/png",
-            "purpose": "maskable"
-        },
-        {
-            "src": "/icons/icon-512x512.png",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "any"
-        },
-        {
-            "src": "/icons/icon-512x512.png",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "maskable"
-        }
-    ],
-    "categories": ["business", "productivity"],
-    "lang": "es",
-    "dir": "ltr"
+﻿{
+  "name": "Nelson App Pro",
+  "short_name": "NelsonApp",
+  "description": "Gestión de taller, ventas, inventario y caja",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#f97316",
+  "background_color": "#0d0f1a",
+  "icons": [
+    {
+      "src": "./icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "./icons/screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Pantalla principal de NelsonApp"
+    },
+    {
+      "src": "./icons/screenshot-mobile.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Vista de órdenes en móvil"
+    }
+  ],
+  "categories": ["business", "productivity", "utilities"],
+  "lang": "es-ES",
+  "dir": "ltr",
+  "prefer_related_applications": false
 }
