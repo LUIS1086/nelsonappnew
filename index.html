@@ -742,6 +742,11 @@
             <input type="tel" id="c-tel" placeholder="WHATSAPP" class="w-full">
             <input type="text" id="c-equ" placeholder="EQUIPO / MODELO" class="uppercase font-bold text-orange-400 w-full" list="equipos-list">
             <datalist id="equipos-list"></datalist>
+            <!-- Accesos rápidos: Plantilla + Checklist -->
+            <div class="flex gap-2">
+                <button type="button" onclick="openPlantillasModal()" class="flex-1 bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition">📋 Plantilla</button>
+                <button type="button" onclick="openChecklistModal()" class="flex-1 bg-teal-600/20 border border-teal-500/30 text-teal-300 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition">✅ Checklist</button>
+            </div>
             <textarea id="c-fal" placeholder="FALLA INICIAL Y ESTADO FÍSICO..." class="h-24 text-xs uppercase w-full" oninput="suggestDiagnosis()"></textarea>
             <div id="diagnosis-suggestions" class="suggestion-box"></div>
             <div class="grid grid-cols-2 gap-3">
@@ -825,6 +830,7 @@
             <div class="flex gap-2">
                 <button onclick="notifyAllReady()" class="flex-1 bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition">💬 AVISAR LISTOS</button>
                 <button onclick="exportMonthlyReport()" class="flex-1 bg-blue-600/20 border border-blue-500/30 text-blue-400 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition">📄 REPORTE MES</button>
+                <button onclick="openCalendarioEntregas()" class="flex-1 bg-violet-600/20 border border-violet-500/30 text-violet-400 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition">📆 AGENDA</button>
             </div>
             <input type="text" id="search-orders" placeholder="🔍 Buscar cliente o equipo..." class="w-full text-sm font-semibold uppercase tracking-wide" oninput="onSearchInput()" list="search-suggestions">
             <datalist id="search-suggestions"></datalist>
@@ -967,6 +973,14 @@
                     <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-amber-500/20 text-amber-400 text-xl flex items-center justify-center">🔧</div><div><p class="text-sm font-bold text-amber-400">Equipos más Reparados</p><p class="text-[10px] text-slate-400">Top equipos, marcas y fallas frecuentes</p></div></div><span class="text-slate-500">❯</span>
                 </button>
                 <hr class="border-white/5 my-1 mx-2">
+                <button onclick="openGraficaIngresos()" class="w-full flex items-center justify-between p-4 hover:bg-white/5 transition rounded-xl group">
+                    <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 text-xl flex items-center justify-center">📈</div><div><p class="text-sm font-bold text-emerald-400">Gráfica de Ingresos</p><p class="text-[10px] text-slate-400">Tendencia de los últimos 6 meses</p></div></div><span class="text-slate-500">❯</span>
+                </button>
+                <hr class="border-white/5 my-1 mx-2">
+                <button onclick="openOrdenesCompra()" class="w-full flex items-center justify-between p-4 hover:bg-white/5 transition rounded-xl group">
+                    <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-orange-500/20 text-orange-400 text-xl flex items-center justify-center">📦</div><div><p class="text-sm font-bold text-orange-400">Órdenes de Compra</p><p class="text-[10px] text-slate-400">Repuestos bajo mínimo · enviar a proveedor</p></div></div><span class="text-slate-500">❯</span>
+                </button>
+                <hr class="border-white/5 my-1 mx-2">
                 <button onclick="openCajaModal()" class="w-full flex items-center justify-between p-4 hover:bg-white/5 transition rounded-xl group">
                     <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-rose-500/20 text-rose-400 text-xl flex items-center justify-center">💵</div><div><p class="text-sm font-bold text-rose-400">Cierre de Caja</p><p class="text-[10px] text-slate-400">Panel de ingresos, egresos y reinicio a $0</p></div></div><span class="text-slate-500">❯</span>
                 </button>
@@ -977,6 +991,14 @@
                 <hr class="border-white/5 my-1 mx-2">
                 <button onclick="openProveedoresModal()" class="w-full flex items-center justify-between p-4 hover:bg-white/5 transition rounded-xl group">
                     <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-teal-500/20 text-teal-400 text-xl flex items-center justify-center">🏭</div><div><p class="text-sm font-bold text-teal-400">Proveedores</p><p class="text-[10px] text-slate-400">Gestión de proveedores y catálogos</p></div></div><span class="text-slate-500">❯</span>
+                </button>
+                <hr class="border-white/5 my-1 mx-2">
+                <button onclick="openCalculadoraRentabilidad()" class="w-full flex items-center justify-between p-4 hover:bg-white/5 transition rounded-xl group">
+                    <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-yellow-500/20 text-yellow-400 text-xl flex items-center justify-center">🧮</div><div><p class="text-sm font-bold text-yellow-400">Calculadora de Rentabilidad</p><p class="text-[10px] text-slate-400">Precio sugerido según costo y margen</p></div></div><span class="text-slate-500">❯</span>
+                </button>
+                <hr class="border-white/5 my-1 mx-2">
+                <button onclick="openCalificacionesModal()" class="w-full flex items-center justify-between p-4 hover:bg-white/5 transition rounded-xl group">
+                    <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-pink-500/20 text-pink-400 text-xl flex items-center justify-center">⭐</div><div><p class="text-sm font-bold text-pink-400">Calificaciones del Servicio</p><p class="text-[10px] text-slate-400">Reseñas y puntuaciones de clientes</p></div></div><span class="text-slate-500">❯</span>
                 </button>
                 <hr class="border-white/5 my-1 mx-2">
                 <button onclick="exportData()" class="w-full flex items-center justify-between p-4 hover:bg-white/5 transition rounded-xl group">
@@ -993,6 +1015,326 @@
             </div>
         </div>
     </main>
+
+    <!-- ===== MODAL CHAT INTERNO DE ORDEN ===== -->
+    <div id="modal-order-chat" class="hidden fixed inset-0 z-[3800] modal-custom flex flex-col items-center justify-center p-4">
+        <div class="bg-[#111827] border border-white/10 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl view-enter flex flex-col" style="max-height:88vh;">
+            <div class="bg-gradient-to-r from-cyan-700 to-cyan-500 p-4 flex justify-between items-center flex-shrink-0">
+                <div>
+                    <h3 class="text-white font-black text-base">💬 NOTAS DE SEGUIMIENTO</h3>
+                    <p id="chat-order-subtitle" class="text-cyan-200 text-[10px] font-bold mt-0.5"></p>
+                </div>
+                <button onclick="closeOrderChat()" class="text-white bg-black/30 w-9 h-9 rounded-full font-bold text-lg">✕</button>
+            </div>
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar" style="min-height:200px;"></div>
+            <div class="p-4 border-t border-white/10 flex-shrink-0">
+                <div class="flex gap-2">
+                    <input type="text" id="chat-input" placeholder="Escribe una nota…" class="flex-1 text-sm"
+                        onkeydown="if(event.key==='Enter')sendChatMsg()">
+                    <button onclick="sendChatMsg()" class="bg-cyan-600 px-4 py-2 rounded-xl font-black text-sm active:scale-95 transition">✉️</button>
+                </div>
+                <div class="flex gap-2 mt-2 flex-wrap">
+                    <button onclick="quickChat('📞 Cliente llamó')" class="text-[10px] bg-slate-700/60 px-2 py-1 rounded-lg font-bold text-slate-300 active:scale-95">📞 Llamó</button>
+                    <button onclick="quickChat('⏳ Esperando repuesto')" class="text-[10px] bg-slate-700/60 px-2 py-1 rounded-lg font-bold text-slate-300 active:scale-95">⏳ Sin repuesto</button>
+                    <button onclick="quickChat('✅ Repuesto llegó')" class="text-[10px] bg-slate-700/60 px-2 py-1 rounded-lg font-bold text-slate-300 active:scale-95">✅ Llegó repuesto</button>
+                    <button onclick="quickChat('🔧 En reparación')" class="text-[10px] bg-slate-700/60 px-2 py-1 rounded-lg font-bold text-slate-300 active:scale-95">🔧 Reparando</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL CALENDARIO DE ENTREGAS ===== -->
+    <div id="modal-calendario" class="hidden fixed inset-0 z-[3800] modal-custom flex flex-col items-center justify-center p-4">
+        <div class="bg-[#111827] border border-white/10 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl view-enter">
+            <div class="bg-gradient-to-r from-violet-700 to-violet-500 p-5 flex justify-between items-center">
+                <div>
+                    <h3 class="text-white font-black text-lg">📆 AGENDA DE ENTREGAS</h3>
+                    <p id="cal-period-label" class="text-violet-200 text-[10px] font-bold mt-0.5"></p>
+                </div>
+                <button onclick="closeCalendario()" class="text-white bg-black/30 w-9 h-9 rounded-full font-bold text-lg">✕</button>
+            </div>
+            <!-- Navegación de semanas -->
+            <div class="flex items-center justify-between px-5 pt-4 pb-2">
+                <button onclick="navCalendario(-1)" class="bg-slate-700/60 w-9 h-9 rounded-xl font-black text-slate-300 active:scale-95">‹</button>
+                <span id="cal-week-label" class="text-xs font-black text-white"></span>
+                <button onclick="navCalendario(1)" class="bg-slate-700/60 w-9 h-9 rounded-xl font-black text-slate-300 active:scale-95">›</button>
+            </div>
+            <!-- Grilla de días -->
+            <div id="cal-grid" class="px-4 pb-2 grid grid-cols-7 gap-1"></div>
+            <!-- Lista de órdenes del día seleccionado -->
+            <div class="px-4 pb-5">
+                <p id="cal-day-title" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2"></p>
+                <div id="cal-day-orders" class="space-y-2 max-h-48 overflow-y-auto no-scrollbar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL PLAN DE PAGOS ===== -->
+    <div id="modal-payment-plan" class="hidden fixed inset-0 z-[3800] modal-custom flex flex-col items-center justify-center p-4">
+        <div class="bg-[#111827] border border-white/10 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl view-enter">
+            <div class="bg-gradient-to-r from-blue-700 to-blue-500 p-5 flex justify-between items-center">
+                <div>
+                    <h3 class="text-white font-black text-lg">💳 PLAN DE PAGOS</h3>
+                    <p id="plan-order-subtitle" class="text-blue-200 text-[10px] font-bold mt-0.5"></p>
+                </div>
+                <button onclick="closePaymentPlan()" class="text-white bg-black/30 w-9 h-9 rounded-full font-bold text-lg">✕</button>
+            </div>
+            <div class="p-5 space-y-4 max-h-[70vh] overflow-y-auto no-scrollbar">
+                <!-- Resumen -->
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="bg-black/30 rounded-xl p-3 text-center">
+                        <p class="text-[9px] text-slate-400 font-bold">TOTAL</p>
+                        <p id="plan-total" class="text-sm font-black text-white">$0</p>
+                    </div>
+                    <div class="bg-black/30 rounded-xl p-3 text-center">
+                        <p class="text-[9px] text-slate-400 font-bold">PAGADO</p>
+                        <p id="plan-paid" class="text-sm font-black text-emerald-400">$0</p>
+                    </div>
+                    <div class="bg-black/30 rounded-xl p-3 text-center">
+                        <p class="text-[9px] text-slate-400 font-bold">PENDIENTE</p>
+                        <p id="plan-pending" class="text-sm font-black text-rose-400">$0</p>
+                    </div>
+                </div>
+                <!-- Crear plan nuevo -->
+                <div id="plan-creator" class="bg-slate-800/50 rounded-2xl p-4 space-y-3 border border-white/5">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Crear cuotas</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[9px] text-slate-500 font-bold block mb-1">N° DE CUOTAS</label>
+                            <input type="number" id="plan-ncuotas" value="3" min="1" max="24" class="w-full text-center font-black text-blue-400" oninput="previewCuotas()">
+                        </div>
+                        <div>
+                            <label class="text-[9px] text-slate-500 font-bold block mb-1">VALOR POR CUOTA</label>
+                            <p id="plan-cuota-preview" class="text-emerald-400 font-black text-lg text-center mt-1">$0</p>
+                        </div>
+                    </div>
+                    <button onclick="createPaymentPlan()" class="w-full bg-blue-600 py-2 rounded-xl font-black text-xs uppercase active:scale-95 transition">✅ CREAR PLAN</button>
+                </div>
+                <!-- Lista de cuotas -->
+                <div>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Cuotas</p>
+                    <div id="plan-cuotas-list" class="space-y-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL PLANTILLAS DE ÓRDENES ===== -->
+    <div id="modal-plantillas" class="hidden fixed inset-0 z-[3900] modal-custom flex flex-col items-center justify-center p-4">
+        <div class="bg-[#111827] border border-white/10 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl view-enter">
+            <div class="bg-gradient-to-r from-indigo-700 to-indigo-500 p-5 flex justify-between items-center">
+                <div>
+                    <h3 class="text-white font-black text-lg">📋 PLANTILLAS</h3>
+                    <p class="text-indigo-200 text-[10px] font-bold mt-0.5">Órdenes frecuentes guardadas</p>
+                </div>
+                <button onclick="closePlantillasModal()" class="text-white bg-black/30 w-9 h-9 rounded-full font-bold text-lg">✕</button>
+            </div>
+            <div class="p-4 space-y-3">
+                <button onclick="openGuardarPlantilla()" class="w-full bg-indigo-600/20 border border-indigo-500/40 text-indigo-300 py-3 rounded-xl font-black text-xs uppercase active:scale-95 transition">+ GUARDAR ORDEN ACTUAL COMO PLANTILLA</button>
+                <div id="plantillas-list" class="space-y-2 max-h-[55vh] overflow-y-auto no-scrollbar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL GUARDAR PLANTILLA ===== -->
+    <div id="modal-guardar-plantilla" class="hidden fixed inset-0 z-[4000] modal-custom flex flex-col items-center justify-center p-4">
+        <div class="bg-[#111827] border border-white/10 w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl view-enter">
+            <div class="bg-gradient-to-r from-indigo-700 to-indigo-500 p-4 flex justify-between items-center">
+                <h3 class="text-white font-black">💾 GUARDAR PLANTILLA</h3>
+                <button onclick="closeGuardarPlantilla()" class="text-white bg-black/30 w-8 h-8 rounded-full font-bold">✕</button>
+            </div>
+            <div class="p-4 space-y-3">
+                <input type="text" id="plantilla-nombre" placeholder="Nombre de la plantilla (ej: Licuadora Oster)" class="w-full font-bold text-sm">
+                <p class="text-[10px] text-slate-500">Se guardará el equipo, falla y valor actual del formulario.</p>
+                <button onclick="guardarPlantilla()" class="w-full bg-indigo-600 py-3 rounded-xl font-black uppercase text-xs active:scale-95 transition">💾 GUARDAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL CHECKLIST DE DIAGNÓSTICO ===== -->
+    <div id="modal-checklist" class="hidden fixed inset-0 z-[3900] modal-custom flex flex-col items-center justify-center p-4">
+        <div class="bg-[#111827] border border-white/10 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl view-enter">
+            <div class="bg-gradient-to-r from-teal-700 to-teal-500 p-5 flex justify-between items-center">
+                <div>
+                    <h3 class="text-white font-black text-lg">✅ CHECKLIST</h3>
+                    <p id="checklist-subtitle" class="text-teal-200 text-[10px] font-bold mt-0.5">Puntos de verificación</p>
+                </div>
+                <button onclick="closeChecklistModal()" class="text-white bg-black/30 w-9 h-9 rounded-full font-bold text-lg">✕</button>
+            </div>
+            <div class="p-4 space-y-3">
+                <select id="checklist-tipo" class="w-full font-bold text-sm" onchange="renderChecklist()">
+                    <option value="licuadora">🍹 Licuadora</option>
+                    <option value="ventilador">💨 Ventilador</option>
+                    <option value="olla">🍲 Olla a presión</option>
+                    <option value="plancha">👔 Plancha</option>
+                    <option value="lavadora">🫧 Lavadora</option>
+                    <option value="nevera">❄️ Nevera / Refrigerador</option>
+                    <option value="tv">📺 TV / Monitor</option>
+                    <option value="general">🔧 General</option>
+                </select>
+                <div id="checklist-items" class="space-y-2 max-h-[50vh] overflow-y-auto no-scrollbar"></div>
+                <button onclick="aplicarChecklist()" class="w-full bg-teal-600 py-3 rounded-xl font-black uppercase text-xs active:scale-95 transition">✅ APLICAR AL DIAGNÓSTICO</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL CALCULADORA DE RENTABILIDAD ===== -->
+    <div id="modal-calculadora" class="hidden fixed inset-0 z-[3900] modal-custom flex flex-col items-center justify-center p-4">
+        <div class="bg-[#111827] border border-white/10 w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl view-enter">
+            <div class="bg-gradient-to-r from-yellow-700 to-yellow-500 p-5 flex justify-between items-center">
+                <div>
+                    <h3 class="text-white font-black text-lg">🧮 RENTABILIDAD</h3>
+                    <p class="text-yellow-200 text-[10px] font-bold mt-0.5">Precio sugerido de cobro</p>
+                </div>
+                <button onclick="closeCalculadoraRentabilidad()" class="text-white bg-black/30 w-9 h-9 rounded-full font-bold text-lg">✕</button>
+            </div>
+            <div class="p-5 space-y-4">
+                <div>
+                    <label class="text-[10px] text-slate-400 font-bold block mb-1">💸 COSTO REPUESTO(S)</label>
+                    <input type="number" id="calc-costo" placeholder="$0" min="0" class="w-full text-center font-black text-rose-400 text-lg" oninput="calcRentabilidad()">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 font-bold block mb-1">⏱ TIEMPO DE TRABAJO (horas)</label>
+                    <input type="number" id="calc-horas" placeholder="1" min="0" step="0.5" value="1" class="w-full text-center font-black text-blue-400" oninput="calcRentabilidad()">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 font-bold block mb-1">💵 TARIFA POR HORA</label>
+                    <input type="number" id="calc-tarifa" placeholder="25000" min="0" class="w-full text-center font-black text-amber-400" oninput="calcRentabilidad()">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 font-bold block mb-1">📈 MARGEN DESEADO (%)</label>
+                    <div class="flex gap-2">
+                        <button onclick="setMargen(20)" class="flex-1 py-2 rounded-xl text-xs font-bold bg-slate-700 hover:bg-yellow-700 transition active:scale-95">20%</button>
+                        <button onclick="setMargen(30)" class="flex-1 py-2 rounded-xl text-xs font-bold bg-yellow-600 transition active:scale-95">30%</button>
+                        <button onclick="setMargen(50)" class="flex-1 py-2 rounded-xl text-xs font-bold bg-slate-700 hover:bg-yellow-700 transition active:scale-95">50%</button>
+                        <button onclick="setMargen(100)" class="flex-1 py-2 rounded-xl text-xs font-bold bg-slate-700 hover:bg-yellow-700 transition active:scale-95">100%</button>
+                    </div>
+                    <input type="number" id="calc-margen" value="30" min="0" max="500" class="w-full text-center font-black text-yellow-400 mt-2" oninput="calcRentabilidad()">
+                </div>
+                <!-- Resultado -->
+                <div id="calc-resultado" class="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 space-y-2 hidden">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center">Precio sugerido de cobro</p>
+                    <p id="calc-precio-final" class="text-3xl font-black text-emerald-400 text-center">$0</p>
+                    <div class="grid grid-cols-2 gap-2 text-center">
+                        <div class="bg-black/20 rounded-xl p-2">
+                            <p class="text-[9px] text-slate-500 font-bold">Costo total</p>
+                            <p id="calc-costo-total" class="text-sm font-black text-rose-400">$0</p>
+                        </div>
+                        <div class="bg-black/20 rounded-xl p-2">
+                            <p class="text-[9px] text-slate-500 font-bold">Ganancia neta</p>
+                            <p id="calc-ganancia" class="text-sm font-black text-emerald-400">$0</p>
+                        </div>
+                    </div>
+                    <button onclick="usarPrecioCalculado()" class="w-full bg-emerald-600 py-2 rounded-xl font-black text-xs uppercase active:scale-95 transition mt-1">✅ USAR ESTE PRECIO</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL CALIFICACIONES ===== -->
+    <div id="modal-calificaciones" class="hidden fixed inset-0 z-[3900] modal-custom flex flex-col items-center justify-center p-4">
+        <div class="bg-[#111827] border border-white/10 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl view-enter">
+            <div class="bg-gradient-to-r from-pink-700 to-pink-500 p-5 flex justify-between items-center">
+                <div>
+                    <h3 class="text-white font-black text-lg">⭐ CALIFICACIONES</h3>
+                    <p id="cal-avg-label" class="text-pink-200 text-[10px] font-bold mt-0.5">Reseñas de clientes</p>
+                </div>
+                <button onclick="closeCalificacionesModal()" class="text-white bg-black/30 w-9 h-9 rounded-full font-bold text-lg">✕</button>
+            </div>
+            <div id="calificaciones-content" class="p-4 space-y-3 max-h-[70vh] overflow-y-auto no-scrollbar"></div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL PEDIR CALIFICACIÓN (post-entrega) ===== -->
+    <div id="modal-pedir-calificacion" class="hidden fixed inset-0 z-[9500] modal-custom flex flex-col items-center justify-end p-4">
+        <div class="bg-[#111827] border border-white/10 w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl view-enter mb-4">
+            <div class="bg-gradient-to-r from-pink-700 to-pink-500 p-4 text-center">
+                <h3 class="text-white font-black text-base">⭐ ¿Cómo quedó el servicio?</h3>
+                <p id="pedir-cal-cliente" class="text-pink-200 text-[10px] font-bold mt-0.5"></p>
+            </div>
+            <div class="p-5 space-y-4">
+                <div class="flex justify-center gap-3" id="cal-stars-btns">
+                    <button onclick="selectStar(1)" class="cal-star text-3xl active:scale-90 transition" data-v="1">⭐</button>
+                    <button onclick="selectStar(2)" class="cal-star text-3xl active:scale-90 transition" data-v="2">⭐</button>
+                    <button onclick="selectStar(3)" class="cal-star text-3xl active:scale-90 transition" data-v="3">⭐</button>
+                    <button onclick="selectStar(4)" class="cal-star text-3xl active:scale-90 transition" data-v="4">⭐</button>
+                    <button onclick="selectStar(5)" class="cal-star text-3xl active:scale-90 transition" data-v="5">⭐</button>
+                </div>
+                <textarea id="cal-comentario" rows="2" placeholder="Comentario opcional…" class="w-full text-sm"></textarea>
+                <div class="flex gap-2">
+                    <button onclick="closePedirCalificacion()" class="flex-1 bg-slate-700 py-3 rounded-xl font-black text-xs uppercase active:scale-95">Omitir</button>
+                    <button onclick="guardarCalificacion()" class="flex-1 bg-pink-600 py-3 rounded-xl font-black text-xs uppercase active:scale-95">⭐ Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL GRÁFICA DE INGRESOS ===== -->
+    <div id="modal-grafica" class="hidden fixed inset-0 z-[3200] modal-custom flex flex-col items-center justify-center p-4">
+        <div class="bg-[#111827] border border-white/10 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl view-enter">
+            <div class="bg-gradient-to-r from-emerald-700 to-emerald-500 p-5 flex justify-between items-center">
+                <div>
+                    <h3 class="text-white font-black text-lg">📈 INGRESOS POR MES</h3>
+                    <p class="text-emerald-200 text-[10px] font-bold mt-0.5">Últimos 6 meses</p>
+                </div>
+                <button onclick="closeGraficaIngresos()" class="text-white bg-black/30 w-9 h-9 rounded-full font-bold text-lg">✕</button>
+            </div>
+            <div class="p-5 space-y-4">
+                <!-- Gráfica de barras SVG -->
+                <div id="grafica-container" class="w-full" style="height:200px;"></div>
+                <!-- Resumen -->
+                <div class="grid grid-cols-3 gap-2" id="grafica-resumen"></div>
+                <!-- Meta semanal card -->
+                <div id="meta-semanal-card" class="hidden bg-cyan-500/10 border border-cyan-500/20 rounded-2xl p-4">
+                    <p class="text-[10px] text-cyan-400 font-black uppercase tracking-widest mb-2">🎯 META SEMANAL</p>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs text-slate-300 font-bold" id="meta-sem-label">Esta semana</span>
+                        <span class="text-xs font-black text-cyan-400" id="meta-sem-pct">0%</span>
+                    </div>
+                    <div class="h-2 bg-white/10 rounded-full overflow-hidden">
+                        <div id="meta-sem-fill" class="h-full rounded-full transition-all duration-700" style="width:0%;background:linear-gradient(to right,#06b6d4,#22d3ee);"></div>
+                    </div>
+                    <div class="flex justify-between mt-1">
+                        <span class="text-[10px] text-slate-500" id="meta-sem-actual">$0</span>
+                        <span class="text-[10px] text-slate-500" id="meta-sem-goal">Meta: $0</span>
+                    </div>
+                    <p id="meta-sem-daily" class="text-[10px] text-amber-400 font-bold mt-1 text-center"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL ÓRDENES DE COMPRA ===== -->
+    <div id="modal-ordenes-compra" class="hidden fixed inset-0 z-[3200] modal-custom flex flex-col items-center justify-center p-4">
+        <div class="bg-[#111827] border border-white/10 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl view-enter">
+            <div class="bg-gradient-to-r from-orange-700 to-orange-500 p-5 flex justify-between items-center">
+                <div>
+                    <h3 class="text-white font-black text-lg">📦 ORDEN DE COMPRA</h3>
+                    <p id="oc-subtitle" class="text-orange-200 text-[10px] font-bold mt-0.5">Repuestos bajo mínimo</p>
+                </div>
+                <button onclick="closeOrdenesCompra()" class="text-white bg-black/30 w-9 h-9 rounded-full font-bold text-lg">✕</button>
+            </div>
+            <div class="p-4 space-y-3 max-h-[70vh] overflow-y-auto no-scrollbar">
+                <!-- Selector de proveedor -->
+                <div>
+                    <label class="text-[10px] text-slate-400 font-bold block mb-1">PROVEEDOR</label>
+                    <select id="oc-proveedor" class="w-full font-bold text-sm"></select>
+                </div>
+                <!-- Lista de artículos -->
+                <div>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2">Artículos a pedir</p>
+                    <div id="oc-items-list" class="space-y-2"></div>
+                </div>
+                <!-- Notas -->
+                <textarea id="oc-notas" rows="2" placeholder="Notas para el proveedor…" class="w-full text-xs"></textarea>
+                <!-- Botones -->
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="sendOCWhatsApp()" class="bg-emerald-600 py-3 rounded-xl font-black text-xs uppercase active:scale-95 transition">💬 WhatsApp</button>
+                    <button onclick="copyOCText()" class="bg-slate-700 py-3 rounded-xl font-black text-xs uppercase active:scale-95 transition">📋 Copiar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- MODAL PROVEEDORES -->
     <div id="modal-proveedores" class="hidden fixed inset-0 z-[3300] modal-custom flex flex-col items-center justify-center p-4">
@@ -1815,6 +2157,7 @@
                         <span class="cfg-arrow">▼</span>
                     </div>
                     <div id="cfg-meta" class="cfg-body pb-4 space-y-3">
+                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Meta mensual</p>
                         <div class="flex gap-2 items-center">
                             <span class="text-slate-400 text-sm font-bold">$</span>
                             <input type="number" id="config-meta" placeholder="Ej: 5000000" class="flex-1 text-sm font-black text-emerald-400 text-center" min="0">
@@ -1826,7 +2169,13 @@
                                 <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
                             </label>
                         </div>
-                        <button onclick="saveMetaConfig()" class="w-full bg-emerald-600 py-2 rounded-xl text-xs font-black uppercase hover:bg-emerald-500 transition">💾 GUARDAR META</button>
+                        <hr class="border-white/10">
+                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Meta semanal</p>
+                        <div class="flex gap-2 items-center">
+                            <span class="text-slate-400 text-sm font-bold">$</span>
+                            <input type="number" id="config-meta-semanal" placeholder="Ej: 1200000" class="flex-1 text-sm font-black text-cyan-400 text-center" min="0">
+                        </div>
+                        <button onclick="saveMetaConfig()" class="w-full bg-emerald-600 py-2 rounded-xl text-xs font-black uppercase hover:bg-emerald-500 transition">💾 GUARDAR METAS</button>
                     </div>
                 </div>
 
@@ -2056,7 +2405,23 @@
         let currentEditOrderId = null;
         let currentClientHistory = null;
 
-        let storedPin = localStorage.getItem('appPin') || '1234';
+        // ── PIN: almacenado con hash SHA-256 (nunca en texto plano) ──
+        async function _hashPin(pin) {
+            const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pin + '_nelsonapp_v1'));
+            return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+        }
+        let _pinHash = null; // hash SHA-256 del PIN activo
+
+        async function initPinSystem() {
+            const stored = localStorage.getItem('appPinHash');
+            if (stored) { _pinHash = stored; return; }
+            // Migrar PIN legacy (texto plano) → hash automáticamente
+            const legacy = localStorage.getItem('appPin');
+            const base   = legacy || '1234';
+            _pinHash = await _hashPin(base);
+            localStorage.setItem('appPinHash', _pinHash);
+            if (legacy) localStorage.removeItem('appPin'); // eliminar texto plano
+        }
         let pinBuffer = '';
         let currentDeliveryPhotos = [];
         let currentDeliveryOrderId = null;
@@ -2107,7 +2472,7 @@
         function openDB() {
             return new Promise((resolve, reject) => {
                 if (db && db.name === DB_NAME) return resolve(db);
-                const request = indexedDB.open(DB_NAME, 10);
+                const request = indexedDB.open(DB_NAME, 11);
                 request.onerror = () => reject(request.error);
                 request.onsuccess = () => { db = request.result; resolve(db); };
                 request.onupgradeneeded = (event) => {
@@ -2129,6 +2494,12 @@
                         cl.createIndex('ordenId', 'ordenId');
                     }
                     if (!idb.objectStoreNames.contains('proveedores'))  idb.createObjectStore('proveedores',  { keyPath: 'id' });
+                    // v11
+                    if (!idb.objectStoreNames.contains('orderChat')) {
+                        const oc = idb.createObjectStore('orderChat', { keyPath: 'id' });
+                        oc.createIndex('ordenId', 'ordenId');
+                    }
+                    if (!idb.objectStoreNames.contains('paymentPlans')) idb.createObjectStore('paymentPlans', { keyPath: 'id' });
                 };
             });
         }
@@ -2140,9 +2511,10 @@
         async function clearStore(store) { await openDB(); return new Promise((resolve) => { const tx = db.transaction(store, 'readwrite'); tx.objectStore(store).clear().onsuccess = resolve; }); }
 
         // ==================== PIN AUTH ====================
-        function verifyPin() {
+        async function verifyPin() {
             const input = document.getElementById('pin-input').value;
-            if (input === storedPin) {
+            const inputHash = await _hashPin(input);
+            if (inputHash === _pinHash) {
                 // Animación de éxito en dots
                 document.querySelectorAll('#pin-dots .pin-dot').forEach(d => {
                     d.style.background = '#10b981';
@@ -2201,15 +2573,16 @@
         }
 
         function openChangePinModal() { document.getElementById('modal-pin-change').classList.remove('hidden'); }
-        function changePin() {
-            const newPin = document.getElementById('new-pin').value;
+        async function changePin() {
+            const newPin     = document.getElementById('new-pin').value;
             const confirmPin = document.getElementById('confirm-pin').value;
-            if (!/^\d{4,6}$/.test(newPin)) return showAlert("El PIN debe tener entre 4 y 6 dígitos numéricos.", "warning");
-            if (newPin !== confirmPin) return showAlert("Los PIN no coinciden. Inténtalo de nuevo.", "warning");
-            storedPin = newPin;
-            localStorage.setItem('appPin', storedPin);
+            if (!/^\d{4,6}$/.test(newPin))    return showAlert("El PIN debe tener entre 4 y 6 dígitos numéricos.", "warning");
+            if (newPin !== confirmPin)          return showAlert("Los PIN no coinciden. Inténtalo de nuevo.", "warning");
+            _pinHash = await _hashPin(newPin);
+            localStorage.setItem('appPinHash', _pinHash);
+            localStorage.removeItem('appPin'); // asegurar que no quede texto plano
             closePinChangeModal();
-            showAlert("PIN actualizado correctamente.", "success");
+            showAlert("PIN actualizado correctamente. ✅", "success");
         }
         function closePinChangeModal() { document.getElementById('modal-pin-change').classList.add('hidden'); }
 
@@ -2404,7 +2777,7 @@
 
         function _refreshTecnicosSelects() {
             const tecnicos = getTecnicos();
-            const opts = '<option value="">Sin asignar</option>' + tecnicos.map(t => `<option value="${t}">${t}</option>`).join('');
+            const opts = '<option value="">Sin asignar</option>' + tecnicos.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('');
             ['c-tecnico','edit-tecnico'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) { const prev = el.value; el.innerHTML = opts; el.value = prev; }
@@ -2413,7 +2786,7 @@
             const ft = document.getElementById('filter-tecnico');
             if (ft) {
                 const prev = ft.value;
-                ft.innerHTML = '<option value="">Todos los técnicos</option>' + tecnicos.map(t => `<option value="${t}">${t}</option>`).join('');
+                ft.innerHTML = '<option value="">Todos los técnicos</option>' + tecnicos.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('');
                 ft.value = prev;
             }
         }
@@ -2666,6 +3039,7 @@
             document.getElementById('c-tecnico').value = '';
             document.getElementById('c-origen').value = '';
             document.getElementById('client-alert').innerText = '';
+            document.getElementById('val-error').innerText = '';
             document.getElementById('saldo-preview').classList.add('hidden');
             playBeep(); closeCamera(); await updateTotal(); await updateSuggestions(); tab('ordenes');
             showToast(adelanto > 0 ? `✅ Orden registrada · Adelanto $${adelanto.toLocaleString()} guardado` : '✅ Orden registrada', 'success');
@@ -2687,7 +3061,7 @@
             // Cargar técnicos en el select
             const tecnicos = getTecnicos();
             const sel = document.getElementById('edit-tecnico');
-            sel.innerHTML = '<option value="">Sin asignar</option>' + tecnicos.map(t => `<option value="${t}" ${order.tecnico===t?'selected':''}>${t}</option>`).join('');
+            sel.innerHTML = '<option value="">Sin asignar</option>' + tecnicos.map(t => `<option value="${escapeHtml(t)}" ${order.tecnico===t?'selected':''}>${escapeHtml(t)}</option>`).join('');
             // Mostrar saldo
             const saldo = (order.val||0) - (order.adelanto||0);
             const saldoBox = document.getElementById('edit-saldo-info');
@@ -2851,6 +3225,8 @@
                             ${canEditValue ? `<button onclick="editOrderValue(${o.id})" class="text-emerald-400 font-black ml-2 underline">$${o.val.toLocaleString()} ✏️</button>` : `<span class="text-emerald-400 font-black ml-2">$${o.val.toLocaleString()}</span>`}
                         </div>
                         <div class="flex gap-2">
+                            <button onclick="openOrderChat(${o.id})" class="bg-cyan-500/20 p-2 rounded-xl text-cyan-400" title="Chat interno">💬</button>
+                            <button onclick="openPaymentPlan(${o.id})" class="bg-blue-500/20 p-2 rounded-xl text-blue-400" title="Plan de pagos">💳</button>
                             <button onclick="printInvoice(${o.id})" class="bg-amber-500/20 p-2 rounded-xl text-amber-400">🧾</button>
                             <button onclick="sendWA(${o.id})" class="bg-emerald-500/20 p-2 rounded-xl text-emerald-400">💬</button>
                             <button onclick="delOrder(${o.id})" class="bg-rose-500/20 p-2 rounded-xl text-rose-400">🗑️</button>
@@ -2876,7 +3252,7 @@
                 ? `<img src="${localStorage.getItem('businessLogo')}" style="width:60px;height:60px;object-fit:contain;margin:0 auto 8px;display:block;border-radius:8px;">`
                 : '';
             document.getElementById('invoice-modal-content').innerHTML = `
-                <div id="invoice-printable" style="font-family:monospace;max-width:340px;margin:0 auto;background:white;color:black;padding:20px;">
+                <div id="invoice-printable" data-order-id="${o.id}" style="font-family:monospace;max-width:340px;margin:0 auto;background:white;color:black;padding:20px;">
                     <div style="text-align:center;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:15px;">
                         ${logoHtml}
                         <h2 style="margin:0;font-size:16px;">${business.name || 'TODO REPUESTOS NELSON'}</h2>
@@ -3039,6 +3415,8 @@
             showToast(cobro > 0 ? `✅ Entregado · Cobrado $${cobro.toLocaleString()}${o.saldo > 0 ? ` · Saldo $${o.saldo.toLocaleString()}` : ''}` : '✅ Equipo entregado', 'success');
             // Ofrecer WhatsApp si tiene tel
             if (o.tel) setTimeout(() => _mostrarAvisoReparado({ ...o, sta: 'entregado' }), 400);
+            // Pedir calificación del servicio
+            setTimeout(() => promptCalificacion(o), 1200);
         }
         async function editOrderValue(id) {
             editOrder(id);
@@ -4014,7 +4392,10 @@
         }
         setInterval(syncSidebarCash, 2000);
 
-        window.onload = () => { document.getElementById('pin-modal').classList.remove('hidden'); };
+        window.onload = async () => {
+            await initPinSystem(); // cargar/migrar hash del PIN antes de mostrar el modal
+            document.getElementById('pin-modal').classList.remove('hidden');
+        };
 
         // ==================== FOTOS DE ENTREGA ====================
         async function openDeliveryPhotosModal(orderId) {
@@ -4410,6 +4791,7 @@
             loadReminderConfig();
             loadDocumentConfig();
             loadOrderNumConfig();
+            loadAutoThemeConfig();
             const currency = localStorage.getItem('appCurrency') || '$';
             const dateFormat = localStorage.getItem('appDateFormat') || 'DD/MM/YYYY';
             document.getElementById('config-currency').value = currency;
@@ -4607,7 +4989,7 @@
         document.addEventListener('click', resetLockTimer);
 
         // Extender verifyPin con bloqueo por intentos (sin sobreescribir)
-        function verifyPinConBloqueo() {
+        async function verifyPinConBloqueo() {
             const maxAttempts = parseInt(localStorage.getItem('maxPinAttempts')) || 0;
             if (maxAttempts > 0 && Date.now() < _lockUntil) {
                 const secs = Math.ceil((_lockUntil - Date.now()) / 1000);
@@ -4616,8 +4998,9 @@
                 document.querySelectorAll('#pin-dots .pin-dot').forEach(d => d.classList.remove('filled'));
                 return;
             }
-            const input = document.getElementById('pin-input').value;
-            if (input !== storedPin) {
+            const input     = document.getElementById('pin-input').value;
+            const inputHash = await _hashPin(input);
+            if (inputHash !== _pinHash) {
                 _pinAttempts++;
                 if (maxAttempts > 0 && _pinAttempts >= maxAttempts) {
                     _lockUntil = Date.now() + 30000;
@@ -4631,7 +5014,7 @@
                 _pinAttempts = 0;
                 resetLockTimer();
             }
-            verifyPin();
+            await verifyPin();
         }
 
         function fmtMoney(val) {
@@ -4796,7 +5179,7 @@
                 callback: async (resp) => {
                     if (resp.error) { showAlert('Error al conectar con Google: ' + resp.error, 'error'); return; }
                     driveToken = resp.access_token;
-                    localStorage.setItem('driveToken', driveToken);
+                    sessionStorage.setItem('driveToken', driveToken);
                     try {
                         const info = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
                             headers: { Authorization: 'Bearer ' + driveToken }
@@ -4813,7 +5196,7 @@
 
         function driveSignOut() {
             driveToken = null; driveFolderId = null;
-            localStorage.removeItem('driveToken');
+            sessionStorage.removeItem('driveToken');
             localStorage.removeItem('driveEmail');
             localStorage.removeItem('driveFolderId');
             updateDriveUI(false);
@@ -5004,20 +5387,24 @@
                 : '<p class="text-xs text-slate-500 text-center py-2">Sin técnicos registrados</p>';
         }
 
-        // ==================== META MENSUAL ====================
+        // ==================== META MENSUAL + SEMANAL ====================
         function saveMetaConfig() {
-            const meta    = parseFloat(document.getElementById('config-meta').value) || 0;
-            const visible = document.getElementById('config-meta-visible').checked;
-            localStorage.setItem('metaMensual', meta);
-            localStorage.setItem('metaVisible', visible);
+            const meta        = parseFloat(document.getElementById('config-meta').value) || 0;
+            const visible     = document.getElementById('config-meta-visible').checked;
+            const metaSemanal = parseFloat(document.getElementById('config-meta-semanal')?.value) || 0;
+            localStorage.setItem('metaMensual',  meta);
+            localStorage.setItem('metaVisible',  visible);
+            localStorage.setItem('metaSemanal',  metaSemanal);
             updateMetaBar();
-            showToast('Meta guardada', 'success');
+            showToast('Metas guardadas ✅', 'success');
         }
         function loadMetaConfig() {
-            const meta    = localStorage.getItem('metaMensual') || '';
-            const visible = localStorage.getItem('metaVisible') === 'true';
-            const mEl = document.getElementById('config-meta');         if (mEl) mEl.value = meta;
-            const vEl = document.getElementById('config-meta-visible'); if (vEl) vEl.checked = visible;
+            const meta        = localStorage.getItem('metaMensual')  || '';
+            const visible     = localStorage.getItem('metaVisible')  === 'true';
+            const metaSemanal = localStorage.getItem('metaSemanal')  || '';
+            const mEl  = document.getElementById('config-meta');         if (mEl)  mEl.value  = meta;
+            const vEl  = document.getElementById('config-meta-visible'); if (vEl)  vEl.checked = visible;
+            const msEl = document.getElementById('config-meta-semanal'); if (msEl) msEl.value = metaSemanal;
         }
         async function updateMetaBar() {
             const meta    = parseFloat(localStorage.getItem('metaMensual')) || 0;
@@ -5039,7 +5426,224 @@
             fill.style.background = pct >= 100 ? 'linear-gradient(to right,#10b981,#34d399)'
                                   : pct >= 60  ? 'linear-gradient(to right,#f59e0b,#fbbf24)'
                                   : 'linear-gradient(to right,#ef4444,#f87171)';
+            const amtEl = document.getElementById('meta-bar-amount');
+            if (amtEl) amtEl.innerText = getCurrency() + total.toLocaleString('es-CO') + ' / ' + getCurrency() + meta.toLocaleString('es-CO');
             if (pct >= 100) showToast('🎉 ¡Meta del mes alcanzada!', 'success');
+        }
+
+        // ==================== BLOQUE B: GRÁFICA DE INGRESOS ====================
+        async function openGraficaIngresos() {
+            document.getElementById('modal-grafica').classList.remove('hidden');
+            await renderGraficaIngresos();
+        }
+        function closeGraficaIngresos() {
+            document.getElementById('modal-grafica').classList.add('hidden');
+        }
+
+        async function renderGraficaIngresos() {
+            const orders = await getAll('orders');
+            const sales  = await getAll('sales');
+            const cur    = getCurrency();
+            const now    = new Date();
+
+            // Construir datos de los últimos 6 meses
+            const meses = [];
+            for (let i = 5; i >= 0; i--) {
+                const d     = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const start = d.getTime();
+                const end   = new Date(d.getFullYear(), d.getMonth() + 1, 1).getTime();
+                const label = d.toLocaleDateString('es-ES', {month:'short'}).replace('.','');
+                const reps  = orders.filter(o => o.sta === 'entregado' && (o.fechaEntrega||o.fecha) >= start && (o.fechaEntrega||o.fecha) < end)
+                                    .reduce((a,b) => a+(b.val||0), 0);
+                const vtas  = sales.filter(s => s.fecha >= start && s.fecha < end && s.tipo !== 'adelanto' && s.tipo !== 'cobro_entrega')
+                                   .reduce((a,b) => a+(b.val||0), 0);
+                meses.push({ label, reps, vtas, total: reps + vtas });
+            }
+
+            const maxVal  = Math.max(...meses.map(m => m.total), 1);
+            const H       = 160; // altura en px de la gráfica
+            const barW    = 30;
+            const gap     = 14;
+            const totalW  = meses.length * (barW + gap) + gap;
+            const mesActual = meses[meses.length - 1];
+
+            // SVG de barras agrupadas (reparaciones + ventas)
+            let bars = '';
+            meses.forEach((m, i) => {
+                const x     = gap + i * (barW + gap);
+                const hRep  = Math.round((m.reps / maxVal) * H);
+                const hVta  = Math.round((m.vtas / maxVal) * H);
+                const hTot  = Math.round((m.total / maxVal) * H);
+                const isLast = i === meses.length - 1;
+                // Barra total (fondo)
+                bars += `<rect x="${x}" y="${H - hTot}" width="${barW}" height="${hTot}"
+                    rx="6" fill="${isLast ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.07)'}"/>`;
+                // Barra reparaciones
+                bars += `<rect x="${x}" y="${H - hRep}" width="${barW/2 - 1}" height="${hRep}"
+                    rx="4" fill="${isLast ? '#10b981' : '#34d399'}" opacity="${isLast?1:0.6}"/>`;
+                // Barra ventas
+                bars += `<rect x="${x + barW/2 + 1}" y="${H - hVta}" width="${barW/2 - 1}" height="${hVta}"
+                    rx="4" fill="${isLast ? '#3b82f6' : '#60a5fa'}" opacity="${isLast?1:0.6}"/>`;
+                // Etiqueta mes
+                bars += `<text x="${x + barW/2}" y="${H + 16}" text-anchor="middle"
+                    font-size="10" fill="${isLast ? '#e8eaf6' : '#64748b'}" font-weight="${isLast?'900':'400'}">${m.label}</text>`;
+                // Valor encima si hay algo
+                if (m.total > 0) {
+                    const shortVal = m.total >= 1000000 ? (m.total/1000000).toFixed(1)+'M' : m.total >= 1000 ? Math.round(m.total/1000)+'K' : m.total;
+                    bars += `<text x="${x + barW/2}" y="${H - hTot - 4}" text-anchor="middle"
+                        font-size="9" fill="${isLast ? '#10b981' : '#475569'}" font-weight="700">${shortVal}</text>`;
+                }
+            });
+
+            // Línea de meta mensual si existe
+            const metaMes = parseFloat(localStorage.getItem('metaMensual')) || 0;
+            let metaLine = '';
+            if (metaMes > 0 && metaMes <= maxVal * 1.5) {
+                const yMeta = H - Math.round((metaMes / maxVal) * H);
+                metaLine = `<line x1="${gap}" y1="${yMeta}" x2="${totalW - gap}" y2="${yMeta}"
+                    stroke="#f97316" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7"/>
+                    <text x="${totalW - gap - 2}" y="${yMeta - 3}" text-anchor="end" font-size="8" fill="#f97316" font-weight="700">META</text>`;
+            }
+
+            const svgHTML = `<svg width="100%" viewBox="0 0 ${totalW} ${H + 24}" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;">
+                ${bars}${metaLine}
+            </svg>`;
+
+            document.getElementById('grafica-container').innerHTML = svgHTML;
+
+            // Leyenda
+            const resumen = document.getElementById('grafica-resumen');
+            const promedio = Math.round(meses.reduce((a,m) => a+m.total,0) / meses.filter(m=>m.total>0).length || 1);
+            const tendencia = meses.length >= 2 ? meses[meses.length-1].total - meses[meses.length-2].total : 0;
+            resumen.innerHTML = `
+                <div class="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3 text-center">
+                    <p class="text-[9px] text-slate-400 font-bold uppercase">Este mes</p>
+                    <p class="text-sm font-black text-emerald-400">${cur}${mesActual.total.toLocaleString('es-CO')}</p>
+                </div>
+                <div class="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 text-center">
+                    <p class="text-[9px] text-slate-400 font-bold uppercase">Promedio</p>
+                    <p class="text-sm font-black text-blue-400">${cur}${promedio.toLocaleString('es-CO')}</p>
+                </div>
+                <div class="${tendencia >= 0 ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-rose-500/10 border-rose-500/20'} border rounded-xl p-3 text-center">
+                    <p class="text-[9px] text-slate-400 font-bold uppercase">Tendencia</p>
+                    <p class="text-sm font-black ${tendencia >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${tendencia >= 0 ? '▲' : '▼'} ${cur}${Math.abs(tendencia).toLocaleString('es-CO')}</p>
+                </div>`;
+
+            // Meta semanal
+            const metaSem = parseFloat(localStorage.getItem('metaSemanal')) || 0;
+            const cardSem = document.getElementById('meta-semanal-card');
+            if (metaSem > 0) {
+                cardSem.classList.remove('hidden');
+                // Calcular inicio de semana (lunes)
+                const hoy = new Date(); hoy.setHours(0,0,0,0);
+                const lunes = new Date(hoy); lunes.setDate(hoy.getDate() - ((hoy.getDay()||7)-1));
+                const semStart = lunes.getTime();
+                const semTotal = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= semStart).reduce((a,b) => a+(b.val||0), 0)
+                               + sales.filter(s => s.fecha >= semStart && s.tipo !== 'adelanto' && s.tipo !== 'cobro_entrega').reduce((a,b) => a+(b.val||0), 0);
+                const pct = Math.min(100, Math.round((semTotal / metaSem) * 100));
+                const diasRestantes = 7 - ((hoy.getDay()||7) - 1);
+                const faltante      = Math.max(0, metaSem - semTotal);
+                const porDia        = diasRestantes > 0 ? Math.ceil(faltante / diasRestantes) : 0;
+                document.getElementById('meta-sem-pct').innerText   = pct + '%';
+                document.getElementById('meta-sem-fill').style.width = pct + '%';
+                document.getElementById('meta-sem-actual').innerText = cur + semTotal.toLocaleString('es-CO');
+                document.getElementById('meta-sem-goal').innerText   = 'Meta: ' + cur + metaSem.toLocaleString('es-CO');
+                document.getElementById('meta-sem-label').innerText  = `Semana del ${lunes.toLocaleDateString('es-ES',{day:'2-digit',month:'short'})}`;
+                document.getElementById('meta-sem-daily').innerText  = pct >= 100 ? '🎉 ¡Meta semanal alcanzada!' : `Necesitas ${cur}${porDia.toLocaleString('es-CO')}/día para llegar`;
+            } else {
+                cardSem.classList.add('hidden');
+            }
+        }
+
+        // ==================== BLOQUE B: ÓRDENES DE COMPRA ====================
+        async function openOrdenesCompra() {
+            // Cargar proveedores
+            const provs  = await getAll('proveedores');
+            const stock  = await getAll('stock');
+            const threshold = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
+
+            const sel = document.getElementById('oc-proveedor');
+            sel.innerHTML = '<option value="">— Sin proveedor específico —</option>' +
+                provs.map(p => `<option value="${p.id}">${escapeHtml(p.nombre)}</option>`).join('');
+
+            // Items bajo mínimo
+            const bajos = stock.filter(s => s.q <= (s.minStock || threshold));
+            document.getElementById('oc-subtitle').innerText =
+                `${bajos.length} repuesto${bajos.length!==1?'s':''} bajo mínimo`;
+
+            const cur = getCurrency();
+            const list = document.getElementById('oc-items-list');
+
+            if (!bajos.length) {
+                list.innerHTML = '<p class="text-center text-slate-500 text-sm py-6">✅ Todo el stock está sobre el mínimo</p>';
+            } else {
+                list.innerHTML = bajos.map(s => `
+                    <div class="flex items-center gap-3 bg-black/20 rounded-xl p-3 border border-amber-500/20">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-black text-white truncate">${escapeHtml(s.n)}</p>
+                            <p class="text-[10px] text-slate-400">
+                                Stock: <span class="text-rose-400 font-bold">${s.q}</span>
+                                · Mín: ${s.minStock || threshold}
+                                ${s.code ? `· ${s.code}` : ''}
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-1 flex-shrink-0">
+                            <input type="number" value="${Math.max(1,(s.minStock||threshold)*2 - s.q)}"
+                                min="1" class="w-12 text-center text-xs font-black text-amber-400"
+                                id="oc-qty-${s.id}">
+                            <span class="text-[10px] text-slate-500">uds</span>
+                        </div>
+                    </div>`).join('');
+            }
+
+            document.getElementById('oc-notas').value = '';
+            document.getElementById('modal-ordenes-compra').classList.remove('hidden');
+        }
+
+        function closeOrdenesCompra() {
+            document.getElementById('modal-ordenes-compra').classList.add('hidden');
+        }
+
+        async function _buildOCText() {
+            const stock  = await getAll('stock');
+            const threshold = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
+            const bajos  = stock.filter(s => s.q <= (s.minStock || threshold));
+            const biz    = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+            const notas  = document.getElementById('oc-notas').value.trim();
+            const provId = document.getElementById('oc-proveedor').value;
+            const provs  = await getAll('proveedores');
+            const prov   = provs.find(p => p.id === Number(provId));
+            const fecha  = new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'});
+
+            let txt = `📦 *ORDEN DE COMPRA*\n`;
+            txt += `🏢 ${biz.name || 'TODO REPUESTOS NELSON'}\n`;
+            txt += `📅 ${fecha}\n`;
+            if (prov) txt += `👤 Proveedor: *${prov.nombre}*\n`;
+            txt += `\n*ARTÍCULOS REQUERIDOS:*\n`;
+            bajos.forEach(s => {
+                const qty = parseInt(document.getElementById(`oc-qty-${s.id}`)?.value) || 1;
+                txt += `• ${s.n}${s.code ? ` (${s.code})` : ''} — *${qty} uds*\n`;
+            });
+            if (notas) txt += `\n📝 Notas: ${notas}`;
+            return { txt, prov };
+        }
+
+        async function sendOCWhatsApp() {
+            const { txt, prov } = await _buildOCText();
+            if (!prov?.tel) return showAlert('Selecciona un proveedor con teléfono registrado para enviar por WhatsApp.', 'warning');
+            const num = prov.tel.replace(/\D/g,'');
+            const prefix = num.startsWith('57') ? '' : '57';
+            window.open(`https://wa.me/${prefix}${num}?text=${encodeURIComponent(txt)}`, '_blank');
+        }
+
+        async function copyOCText() {
+            const { txt } = await _buildOCText();
+            try {
+                await navigator.clipboard.writeText(txt);
+                showToast('Orden copiada al portapapeles ✅', 'success');
+            } catch(e) {
+                showAlert('No se pudo copiar automáticamente. Selecciona el texto manualmente.', 'info');
+            }
         }
 
         // ==================== RECORDATORIOS ====================
@@ -5954,6 +6558,656 @@
             doc.close();
             closeQRBulk();
             showToast(`Imprimiendo ${items.length} etiqueta${items.length>1?'s':''}…`, 'info');
+        }
+
+        // ==================== BLOQUE A: CHAT INTERNO DE ORDEN ====================
+        let _chatOrderId = null;
+
+        async function openOrderChat(orderId) {
+            _chatOrderId = orderId;
+            const orders = await getAll('orders');
+            const o = orders.find(x => x.id === orderId);
+            if (!o) return;
+            document.getElementById('chat-order-subtitle').innerText =
+                `${formatOrderNum(o.orderNum||0)} · ${o.nom} · ${o.equ}`;
+            await renderChatMessages();
+            document.getElementById('modal-order-chat').classList.remove('hidden');
+            document.getElementById('chat-input').focus();
+        }
+
+        function closeOrderChat() {
+            document.getElementById('modal-order-chat').classList.add('hidden');
+            _chatOrderId = null;
+        }
+
+        async function renderChatMessages() {
+            if (!_chatOrderId) return;
+            const msgs = await getAll('orderChat');
+            const ordenMsgs = msgs
+                .filter(m => m.ordenId === _chatOrderId)
+                .sort((a,b) => a.fecha - b.fecha);
+
+            const container = document.getElementById('chat-messages');
+            if (!ordenMsgs.length) {
+                container.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">
+                    <p class="text-2xl mb-2">💬</p>
+                    <p>Sin notas aún. Usa el chat para registrar<br>el seguimiento de esta orden.</p>
+                </div>`;
+                return;
+            }
+
+            const autorColors = { 'Taller':'cyan', 'Sistema':'slate' };
+            container.innerHTML = ordenMsgs.map(m => {
+                const fecha = new Date(m.fecha).toLocaleString('es-ES',
+                    {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+                const color = autorColors[m.autor] || 'orange';
+                return `<div class="flex flex-col gap-0.5">
+                    <div class="flex items-center gap-2">
+                        <span class="text-[9px] font-black text-${color}-400">${escapeHtml(m.autor)}</span>
+                        <span class="text-[9px] text-slate-600">${fecha}</span>
+                    </div>
+                    <div class="bg-${color === 'cyan' ? 'cyan' : 'slate'}-900/40 border border-${color === 'cyan' ? 'cyan' : 'slate'}-500/20 rounded-2xl rounded-tl-sm px-3 py-2 text-xs text-slate-200 max-w-[90%]">
+                        ${escapeHtml(m.texto)}
+                    </div>
+                </div>`;
+            }).join('');
+            // Scroll al final
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function sendChatMsg() {
+            const input = document.getElementById('chat-input');
+            const texto = input.value.trim();
+            if (!texto || !_chatOrderId) return;
+            await put('orderChat', {
+                id: Date.now(), ordenId: _chatOrderId,
+                texto, autor: 'Taller', fecha: Date.now()
+            });
+            input.value = '';
+            await renderChatMessages();
+        }
+
+        async function quickChat(texto) {
+            if (!_chatOrderId) return;
+            await put('orderChat', {
+                id: Date.now(), ordenId: _chatOrderId,
+                texto, autor: 'Taller', fecha: Date.now()
+            });
+            await renderChatMessages();
+        }
+
+        // Auto-registrar mensajes del sistema al cambiar estado
+        async function logChatSistema(ordenId, texto) {
+            await put('orderChat', {
+                id: Date.now(), ordenId,
+                texto, autor: 'Sistema', fecha: Date.now()
+            });
+        }
+
+        // ==================== BLOQUE A: CALENDARIO DE ENTREGAS ====================
+        let _calOffset = 0; // semanas desde hoy
+        let _calSelectedDay = null;
+
+        async function openCalendarioEntregas() {
+            _calOffset = 0;
+            _calSelectedDay = null;
+            document.getElementById('modal-calendario').classList.remove('hidden');
+            await renderCalendario();
+        }
+
+        function closeCalendario() {
+            document.getElementById('modal-calendario').classList.add('hidden');
+        }
+
+        async function navCalendario(dir) {
+            _calOffset += dir;
+            await renderCalendario();
+        }
+
+        async function renderCalendario() {
+            const orders = await getAll('orders');
+            const hoy    = new Date();
+            // Inicio de la semana actual + offset
+            const startOfWeek = new Date(hoy);
+            startOfWeek.setDate(hoy.getDate() - hoy.getDay() + 1 + (_calOffset * 7)); // lunes
+            startOfWeek.setHours(0,0,0,0);
+
+            const weekDays = Array.from({length:7}, (_,i) => {
+                const d = new Date(startOfWeek);
+                d.setDate(startOfWeek.getDate() + i);
+                return d;
+            });
+
+            // Label de la semana
+            const opts = {day:'2-digit',month:'short'};
+            document.getElementById('cal-week-label').innerText =
+                `${weekDays[0].toLocaleDateString('es-ES',opts)} – ${weekDays[6].toLocaleDateString('es-ES',opts)}`;
+            document.getElementById('cal-period-label').innerText =
+                weekDays[0].toLocaleDateString('es-ES',{month:'long',year:'numeric'});
+
+            // Órdenes con fecha estimada activas
+            const activas = orders.filter(o => o.sta !== 'entregado' && o.fechaEstimada);
+
+            const dayNames = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+            const grid = document.getElementById('cal-grid');
+            grid.innerHTML = weekDays.map((d, i) => {
+                const dStr    = d.toISOString().slice(0,10);
+                const todayStr= hoy.toISOString().slice(0,10);
+                const isToday = dStr === todayStr;
+                const isSel   = _calSelectedDay === dStr;
+                const dayOrds = activas.filter(o => o.fechaEstimada === dStr);
+                const nowTs   = Date.now();
+                const hasLate = dayOrds.some(o => new Date(o.fechaEstimada+'T23:59:59').getTime() < nowTs);
+                const hasToday= dayOrds.some(o => o.fechaEstimada === todayStr);
+
+                let dotColor = 'bg-emerald-400';
+                if (hasLate)  dotColor = 'bg-rose-400';
+                else if (hasToday) dotColor = 'bg-amber-400';
+
+                return `<button onclick="selectCalDay('${dStr}')"
+                    class="flex flex-col items-center py-2 rounded-xl transition active:scale-95
+                    ${isSel ? 'bg-violet-600 text-white' : isToday ? 'bg-violet-600/20 border border-violet-500/40 text-violet-300' : 'bg-slate-800/40 text-slate-400 hover:bg-slate-700/60'}">
+                    <span class="text-[9px] font-bold">${dayNames[i]}</span>
+                    <span class="text-base font-black">${d.getDate()}</span>
+                    ${dayOrds.length ? `<span class="${dotColor} w-1.5 h-1.5 rounded-full mt-0.5"></span>` : '<span class="w-1.5 h-1.5 mt-0.5"></span>'}
+                </button>`;
+            }).join('');
+
+            if (_calSelectedDay) await renderCalDayOrders(activas);
+            else {
+                document.getElementById('cal-day-title').innerText = 'Toca un día para ver las órdenes';
+                document.getElementById('cal-day-orders').innerHTML = '';
+            }
+        }
+
+        async function selectCalDay(dStr) {
+            _calSelectedDay = dStr;
+            const orders  = await getAll('orders');
+            const activas = orders.filter(o => o.sta !== 'entregado' && o.fechaEstimada);
+            await renderCalDayOrders(activas);
+            // Redibujar grid para marcar selección
+            await renderCalendario();
+        }
+
+        async function renderCalDayOrders(activas) {
+            const dStr  = _calSelectedDay;
+            const cur   = getCurrency();
+            const nowTs = Date.now();
+            const dayOrds = activas.filter(o => o.fechaEstimada === dStr);
+
+            const dateLabel = new Date(dStr + 'T12:00:00').toLocaleDateString('es-ES',
+                {weekday:'long',day:'numeric',month:'long'});
+            document.getElementById('cal-day-title').innerText =
+                dayOrds.length ? `${dateLabel} — ${dayOrds.length} entrega${dayOrds.length>1?'s':''}` : `${dateLabel} — Sin entregas`;
+
+            const container = document.getElementById('cal-day-orders');
+            if (!dayOrds.length) {
+                container.innerHTML = '<p class="text-center text-slate-500 text-xs py-4">Sin órdenes programadas para este día</p>';
+                return;
+            }
+
+            container.innerHTML = dayOrds.map(o => {
+                const isLate   = new Date(o.fechaEstimada+'T23:59:59').getTime() < nowTs;
+                const staEmoji = {recibido:'📥',revisión:'🔍',reparado:'✅',entregado:'📦'}[o.sta]||'📋';
+                const color    = isLate ? 'border-rose-500/40 bg-rose-500/5' : 'border-white/10 bg-black/20';
+                return `<div class="rounded-xl p-3 border ${color} flex justify-between items-center">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-black text-white truncate">${staEmoji} ${escapeHtml(o.nom)}</p>
+                        <p class="text-[10px] text-slate-400 truncate">${escapeHtml(o.equ)}</p>
+                        ${o.tecnico ? `<p class="text-[9px] text-slate-500">👷 ${escapeHtml(o.tecnico)}</p>` : ''}
+                    </div>
+                    <div class="text-right flex-shrink-0 ml-2">
+                        <p class="text-xs font-black text-emerald-400">${cur}${(o.val||0).toLocaleString()}</p>
+                        ${isLate ? `<p class="text-[9px] text-rose-400 font-bold">⚠️ Vencida</p>` : ''}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // ==================== BLOQUE A: PLANES DE PAGO ====================
+        let _planOrderId  = null;
+        let _planOrderVal = 0;
+
+        async function openPaymentPlan(orderId) {
+            _planOrderId = orderId;
+            const orders = await getAll('orders');
+            const o = orders.find(x => x.id === orderId);
+            if (!o) return;
+            _planOrderVal = o.val || 0;
+            const cur = getCurrency();
+            document.getElementById('plan-order-subtitle').innerText =
+                `${formatOrderNum(o.orderNum||0)} · ${o.nom} · ${escapeHtml(o.equ)}`;
+            document.getElementById('plan-total').innerText   = cur + _planOrderVal.toLocaleString('es-CO');
+            document.getElementById('plan-ncuotas').value     = 3;
+            previewCuotas();
+            await renderPlanCuotas();
+            document.getElementById('modal-payment-plan').classList.remove('hidden');
+        }
+
+        function closePaymentPlan() {
+            document.getElementById('modal-payment-plan').classList.add('hidden');
+            _planOrderId = null;
+        }
+
+        function previewCuotas() {
+            const n   = parseInt(document.getElementById('plan-ncuotas')?.value) || 1;
+            const cur = getCurrency();
+            const val = Math.ceil(_planOrderVal / n);
+            const el  = document.getElementById('plan-cuota-preview');
+            if (el) el.innerText = cur + val.toLocaleString('es-CO');
+        }
+
+        async function createPaymentPlan() {
+            if (!_planOrderId) return;
+            const n   = parseInt(document.getElementById('plan-ncuotas').value) || 1;
+            const cur = getCurrency();
+            // Eliminar plan anterior de esta orden si existe
+            const existing = await getAll('paymentPlans');
+            for (const p of existing.filter(p => p.ordenId === _planOrderId)) {
+                await del('paymentPlans', p.id);
+            }
+            // Crear cuotas nuevas
+            const valCuota = Math.ceil(_planOrderVal / n);
+            for (let i = 0; i < n; i++) {
+                await put('paymentPlans', {
+                    id: Date.now() + i,
+                    ordenId: _planOrderId,
+                    numero: i + 1,
+                    total: n,
+                    monto: i === n-1 ? _planOrderVal - valCuota*(n-1) : valCuota, // última cuota ajustada
+                    pagado: false,
+                    fechaPago: null,
+                    createdAt: Date.now()
+                });
+            }
+            await renderPlanCuotas();
+            showToast(`Plan de ${n} cuota${n>1?'s':''} creado ✅`, 'success');
+        }
+
+        async function renderPlanCuotas() {
+            if (!_planOrderId) return;
+            const plans = await getAll('paymentPlans');
+            const cuotas = plans
+                .filter(p => p.ordenId === _planOrderId)
+                .sort((a,b) => a.numero - b.numero);
+            const cur = getCurrency();
+
+            const totalPagado  = cuotas.filter(p => p.pagado).reduce((s,p) => s + p.monto, 0);
+            const totalPend    = cuotas.filter(p => !p.pagado).reduce((s,p) => s + p.monto, 0);
+            document.getElementById('plan-paid').innerText    = cur + totalPagado.toLocaleString('es-CO');
+            document.getElementById('plan-pending').innerText = cur + totalPend.toLocaleString('es-CO');
+
+            const container = document.getElementById('plan-cuotas-list');
+            if (!cuotas.length) {
+                container.innerHTML = '<p class="text-center text-slate-500 text-xs py-4">Sin plan creado. Define las cuotas arriba.</p>';
+                return;
+            }
+
+            container.innerHTML = cuotas.map(c => {
+                const fechaStr = c.fechaPago
+                    ? new Date(c.fechaPago).toLocaleDateString('es-ES',{day:'2-digit',month:'short'})
+                    : '—';
+                return `<div class="flex items-center gap-3 p-3 rounded-xl ${c.pagado ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-black/20 border border-white/5'}">
+                    <div class="flex-1">
+                        <p class="text-xs font-black ${c.pagado ? 'text-emerald-400' : 'text-white'}">
+                            Cuota ${c.numero} de ${c.total}
+                        </p>
+                        <p class="text-[10px] text-slate-400">
+                            ${cur}${c.monto.toLocaleString('es-CO')}
+                            ${c.pagado ? `· Pagado el ${fechaStr}` : ''}
+                        </p>
+                    </div>
+                    ${!c.pagado
+                        ? `<button onclick="markCuotaPagada(${c.id})"
+                            class="bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 px-3 py-1.5 rounded-xl text-[10px] font-black active:scale-95 transition">
+                            ✅ Pagar
+                          </button>`
+                        : `<span class="text-emerald-400 text-lg">✅</span>`
+                    }
+                </div>`;
+            }).join('');
+        }
+
+        async function markCuotaPagada(cuotaId) {
+            const plans = await getAll('paymentPlans');
+            const cuota = plans.find(p => p.id === cuotaId);
+            if (!cuota) return;
+            cuota.pagado    = true;
+            cuota.fechaPago = Date.now();
+            await put('paymentPlans', cuota);
+            // Registrar en caja como pago parcial
+            await put('sales', {
+                id: Date.now(), item: `Cuota ${cuota.numero}/${cuota.total} — Plan de pago`,
+                val: cuota.monto, qty: 1, stockId: null,
+                fecha: Date.now(), tipo: 'cuota', ordenId: _planOrderId
+            });
+            await updateTotal();
+            await renderPlanCuotas();
+            showToast(`Cuota ${cuota.numero} marcada como pagada ✅`, 'success');
+        }
+
+        // ==================== BLOQUE C: PLANTILLAS DE ÓRDENES ====================
+        async function openPlantillasModal() {
+            await renderPlantillasList();
+            document.getElementById('modal-plantillas').classList.remove('hidden');
+        }
+        function closePlantillasModal() { document.getElementById('modal-plantillas').classList.add('hidden'); }
+
+        async function renderPlantillasList() {
+            const plantillas = JSON.parse(localStorage.getItem('ordenPlantillas') || '[]');
+            const list = document.getElementById('plantillas-list');
+            if (!plantillas.length) {
+                list.innerHTML = `<p class="text-center text-slate-500 text-sm py-8">Sin plantillas guardadas aún.<br>
+                    Rellena el formulario de nueva orden y toca "+ Guardar como plantilla".</p>`;
+                return;
+            }
+            const cur = getCurrency();
+            list.innerHTML = plantillas.map((p, i) => `
+                <div class="flex items-center gap-3 bg-black/20 rounded-xl p-3 border border-indigo-500/20">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-black text-white truncate">📋 ${escapeHtml(p.nombre)}</p>
+                        <p class="text-[10px] text-indigo-300 truncate">${escapeHtml(p.equ)} · ${escapeHtml(p.det||'').substring(0,40)}</p>
+                        ${p.val ? `<p class="text-[10px] text-emerald-400 font-bold">${cur}${p.val.toLocaleString()}</p>` : ''}
+                    </div>
+                    <div class="flex gap-1 flex-shrink-0">
+                        <button onclick="aplicarPlantilla(${i})"
+                            class="bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 px-3 py-1.5 rounded-xl text-[10px] font-black active:scale-95 transition">
+                            Usar
+                        </button>
+                        <button onclick="eliminarPlantilla(${i})"
+                            class="bg-rose-500/10 text-rose-400 w-7 h-7 rounded-lg text-xs flex items-center justify-center active:scale-95">
+                            🗑️
+                        </button>
+                    </div>
+                </div>`).join('');
+        }
+
+        function openGuardarPlantilla() {
+            document.getElementById('plantilla-nombre').value = '';
+            document.getElementById('modal-guardar-plantilla').classList.remove('hidden');
+        }
+        function closeGuardarPlantilla() { document.getElementById('modal-guardar-plantilla').classList.add('hidden'); }
+
+        function guardarPlantilla() {
+            const nombre = document.getElementById('plantilla-nombre').value.trim();
+            if (!nombre) return showAlert('Ingresa un nombre para la plantilla.', 'warning');
+            const equ  = document.getElementById('c-equ')?.value.trim().toUpperCase() || '';
+            const det  = document.getElementById('c-fal')?.value.trim().toUpperCase() || '';
+            const val  = parseFloat(document.getElementById('c-val')?.value) || 0;
+            const gar  = parseInt(document.getElementById('c-garantia')?.value) || 30;
+            const tec  = document.getElementById('c-tecnico')?.value || '';
+            if (!equ && !det) return showAlert('El formulario está vacío. Rellena al menos el equipo o la falla.', 'warning');
+            const plantillas = JSON.parse(localStorage.getItem('ordenPlantillas') || '[]');
+            plantillas.push({ nombre, equ, det, val, gar, tec, createdAt: Date.now() });
+            localStorage.setItem('ordenPlantillas', JSON.stringify(plantillas));
+            closeGuardarPlantilla();
+            renderPlantillasList();
+            showToast(`Plantilla "${nombre}" guardada ✅`, 'success');
+        }
+
+        function aplicarPlantilla(i) {
+            const plantillas = JSON.parse(localStorage.getItem('ordenPlantillas') || '[]');
+            const p = plantillas[i];
+            if (!p) return;
+            if (p.equ)  document.getElementById('c-equ').value  = p.equ;
+            if (p.det)  document.getElementById('c-fal').value  = p.det;
+            if (p.val)  document.getElementById('c-val').value  = p.val;
+            if (p.gar)  document.getElementById('c-garantia').value = p.gar;
+            if (p.tec)  document.getElementById('c-tecnico').value  = p.tec;
+            closePlantillasModal();
+            showToast(`Plantilla "${p.nombre}" aplicada ✅`, 'success');
+        }
+
+        function eliminarPlantilla(i) {
+            showConfirm('¿Eliminar esta plantilla?', () => {
+                const plantillas = JSON.parse(localStorage.getItem('ordenPlantillas') || '[]');
+                plantillas.splice(i, 1);
+                localStorage.setItem('ordenPlantillas', JSON.stringify(plantillas));
+                renderPlantillasList();
+                showToast('Plantilla eliminada', 'info');
+            });
+        }
+
+        // ==================== BLOQUE C: CHECKLIST DE DIAGNÓSTICO ====================
+        const _checklists = {
+            licuadora: [
+                'Motor enciende al conectar','Ruido anormal en el motor','Cuchillas en buen estado',
+                'Acople/samurai en buen estado','Empaque de jarra sin grietas','Vaso/jarra sin fisuras',
+                'Botones/suiche funcionan','Cable de poder sin daños','Base sin golpes visibles'
+            ],
+            ventilador: [
+                'Motor gira al encender','Ruido o vibración excesiva','Todas las velocidades funcionan',
+                'Condensador en buen estado','Cableado interno sin quemaduras','Aspas/élices completas y rectas',
+                'Rejilla sin deformaciones','Base o pie estable','Oscilación funciona (si aplica)'
+            ],
+            olla: [
+                'Empaque principal en buen estado','Válvula de presión limpia y libre','Tapón de seguridad OK',
+                'Manija sin fisuras','Cuerpo sin deformaciones','Cierre hermético verificado',
+                'Sin óxido interno visible','Sello de goma sin desgaste'
+            ],
+            plancha: [
+                'Suela sin rayones profundos','Cable sin pelados ni dobleces','Vapor funciona (si aplica)',
+                'Termostato responde','Luz indicadora enciende','Tapa superior sin grietas',
+                'Botón de vapor sin atasco'
+            ],
+            lavadora: [
+                'Tablero de control responde','Agitador/tambor gira correctamente','Sin ruidos metálicos al girar',
+                'Mangueras sin grietas','Bomba de desagüe funciona','Programa completo sin interrupción',
+                'Puerta/tapa cierra bien','Nivel de agua correcto','Sin fugas visibles'
+            ],
+            nevera: [
+                'Compresor enciende','Temperatura alcanza nivel mínimo','Ventilador interno funciona',
+                'Termostato responde','Puerta sella herméticamente','Sin escarchas excesivas',
+                'Bandeja de agua bien ubicada','Sin ruidos anormales','Luz interior funciona'
+            ],
+            tv: [
+                'Enciende y apaga correctamente','Imagen sin líneas o manchas','Audio sin distorsión',
+                'Control remoto funciona','Entradas HDMI/USB OK','Sin parpadeos al calentar',
+                'Bordes de pantalla sin oscuridad','Menú y configuración accesibles'
+            ],
+            general: [
+                'Verificación visual de daños externos','Cable de alimentación en buen estado',
+                'Componentes internos sin quemaduras','Tornillos y carcasa completos',
+                'Prueba de encendido/apagado','Función principal verificada','Sin olores a quemado'
+            ]
+        };
+
+        let _checklistMarcados = {};
+
+        function openChecklistModal() {
+            _checklistMarcados = {};
+            renderChecklist();
+            document.getElementById('modal-checklist').classList.remove('hidden');
+        }
+        function closeChecklistModal() { document.getElementById('modal-checklist').classList.add('hidden'); }
+
+        function renderChecklist() {
+            const tipo  = document.getElementById('checklist-tipo').value;
+            const items = _checklists[tipo] || [];
+            _checklistMarcados = {};
+            document.getElementById('checklist-subtitle').innerText =
+                `${items.length} puntos · ${document.getElementById('checklist-tipo').options[document.getElementById('checklist-tipo').selectedIndex].text}`;
+
+            document.getElementById('checklist-items').innerHTML = items.map((item, i) => `
+                <label class="flex items-center gap-3 p-3 rounded-xl bg-black/20 cursor-pointer hover:bg-teal-500/10 transition">
+                    <input type="checkbox" class="checklist-cb w-4 h-4 rounded accent-teal-500" data-i="${i}" data-txt="${escapeHtml(item)}"
+                        onchange="_checklistMarcados[${i}]=this.checked">
+                    <span class="text-xs text-slate-200 font-bold">${escapeHtml(item)}</span>
+                </label>`).join('');
+        }
+
+        function aplicarChecklist() {
+            const tipo  = document.getElementById('checklist-tipo').value;
+            const items = _checklists[tipo] || [];
+            const marcados = items.filter((_, i) => _checklistMarcados[i]);
+            const noMarcados = items.filter((_, i) => !_checklistMarcados[i]);
+
+            let resumen = '';
+            if (marcados.length)   resumen += 'OK: ' + marcados.join(', ') + '. ';
+            if (noMarcados.length) resumen += 'REVISAR: ' + noMarcados.join(', ') + '.';
+
+            const falEl = document.getElementById('c-fal');
+            if (falEl) {
+                const actual = falEl.value.trim();
+                falEl.value = actual ? actual + '\n' + resumen.toUpperCase() : resumen.toUpperCase();
+            }
+            closeChecklistModal();
+            showToast('Checklist aplicado al diagnóstico ✅', 'success');
+        }
+
+        // ==================== BLOQUE C: CALCULADORA DE RENTABILIDAD ====================
+        let _calcMargenVal = 30;
+
+        function openCalculadoraRentabilidad() {
+            document.getElementById('calc-costo').value   = '';
+            document.getElementById('calc-horas').value   = '1';
+            document.getElementById('calc-margen').value  = '30';
+            document.getElementById('calc-tarifa').value  = localStorage.getItem('calcTarifa') || '';
+            document.getElementById('calc-resultado').classList.add('hidden');
+            _calcMargenVal = 30;
+            document.getElementById('modal-calculadora').classList.remove('hidden');
+        }
+        function closeCalculadoraRentabilidad() { document.getElementById('modal-calculadora').classList.add('hidden'); }
+
+        function setMargen(val) {
+            _calcMargenVal = val;
+            document.getElementById('calc-margen').value = val;
+            // Actualizar botones de margen
+            [20,30,50,100].forEach(m => {
+                const btns = [...document.querySelectorAll('#modal-calculadora button')].filter(b => b.innerText === m+'%');
+                btns.forEach(b => b.className = `flex-1 py-2 rounded-xl text-xs font-bold transition active:scale-95 ${m===val?'bg-yellow-600':'bg-slate-700 hover:bg-yellow-700'}`);
+            });
+            calcRentabilidad();
+        }
+
+        function calcRentabilidad() {
+            const costo  = parseFloat(document.getElementById('calc-costo')?.value)  || 0;
+            const horas  = parseFloat(document.getElementById('calc-horas')?.value)  || 0;
+            const tarifa = parseFloat(document.getElementById('calc-tarifa')?.value) || 0;
+            const margen = parseFloat(document.getElementById('calc-margen')?.value) || 30;
+            if (tarifa) localStorage.setItem('calcTarifa', tarifa);
+
+            const costoMO   = horas * tarifa;
+            const costoTotal= costo + costoMO;
+            if (costoTotal <= 0) { document.getElementById('calc-resultado').classList.add('hidden'); return; }
+
+            const precio    = Math.ceil(costoTotal * (1 + margen/100));
+            const ganancia  = precio - costoTotal;
+            const cur       = getCurrency();
+
+            document.getElementById('calc-precio-final').innerText = cur + precio.toLocaleString('es-CO');
+            document.getElementById('calc-costo-total').innerText  = cur + costoTotal.toLocaleString('es-CO');
+            document.getElementById('calc-ganancia').innerText     = cur + ganancia.toLocaleString('es-CO');
+            document.getElementById('calc-resultado').classList.remove('hidden');
+        }
+
+        function usarPrecioCalculado() {
+            const precio = parseFloat(document.getElementById('calc-precio-final')?.innerText.replace(/[^0-9]/g,''));
+            if (precio > 0) {
+                const valEl = document.getElementById('c-val') || document.getElementById('edit-val');
+                if (valEl) { valEl.value = precio; valEl.dispatchEvent(new Event('input')); }
+                closeCalculadoraRentabilidad();
+                showToast('Precio aplicado al formulario ✅', 'success');
+            }
+        }
+
+        // ==================== BLOQUE C: CALIFICACIONES DEL SERVICIO ====================
+        let _calOrderId   = null;
+        let _calStarSel   = 0;
+
+        function promptCalificacion(o) {
+            _calOrderId = o.id;
+            _calStarSel = 0;
+            document.getElementById('pedir-cal-cliente').innerText = `${o.nom} · ${o.equ}`;
+            document.getElementById('cal-comentario').value = '';
+            // Reset estrellas
+            document.querySelectorAll('.cal-star').forEach(s => s.style.opacity = '0.35');
+            document.getElementById('modal-pedir-calificacion').classList.remove('hidden');
+        }
+
+        function closePedirCalificacion() {
+            document.getElementById('modal-pedir-calificacion').classList.add('hidden');
+            _calOrderId = null;
+        }
+
+        function selectStar(val) {
+            _calStarSel = val;
+            document.querySelectorAll('.cal-star').forEach((s, i) => {
+                s.style.opacity = i < val ? '1' : '0.3';
+                s.style.transform = i < val ? 'scale(1.15)' : 'scale(1)';
+            });
+        }
+
+        async function guardarCalificacion() {
+            if (!_calStarSel) return showAlert('Selecciona al menos 1 estrella.', 'warning');
+            const orders   = await getAll('orders');
+            const o        = orders.find(x => x.id === _calOrderId);
+            const cal = {
+                id:          Date.now(),
+                ordenId:     _calOrderId,
+                cliente:     o?.nom    || '',
+                equipo:      o?.equ    || '',
+                estrellas:   _calStarSel,
+                comentario:  document.getElementById('cal-comentario').value.trim(),
+                fecha:       Date.now()
+            };
+            // Guardar en localStorage (simple, no ocupa espacio de IndexedDB)
+            const cals = JSON.parse(localStorage.getItem('calificaciones') || '[]');
+            cals.push(cal);
+            localStorage.setItem('calificaciones', JSON.stringify(cals));
+            closePedirCalificacion();
+            showToast(`⭐ Calificación de ${_calStarSel} estrella${_calStarSel!==1?'s':''} guardada`, 'success');
+        }
+
+        async function openCalificacionesModal() {
+            const cals = JSON.parse(localStorage.getItem('calificaciones') || '[]')
+                .sort((a,b) => b.fecha - a.fecha);
+            const cur  = getCurrency();
+            const promedio = cals.length ? (cals.reduce((s,c) => s+c.estrellas,0) / cals.length).toFixed(1) : '—';
+            const dist = [5,4,3,2,1].map(n => ({ n, count: cals.filter(c=>c.estrellas===n).length }));
+
+            document.getElementById('cal-avg-label').innerText =
+                cals.length ? `⭐ ${promedio} · ${cals.length} reseña${cals.length!==1?'s':''}` : 'Sin reseñas aún';
+
+            const stars  = n => '⭐'.repeat(n) + '☆'.repeat(5-n);
+            const maxDist = Math.max(...dist.map(d => d.count), 1);
+
+            document.getElementById('calificaciones-content').innerHTML = `
+                <!-- Distribución -->
+                <div class="bg-black/30 rounded-2xl p-4 space-y-2">
+                    <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest">Distribución</p>
+                    ${dist.map(d => `
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold text-slate-300 w-4">${d.n}</span>
+                            <div class="flex-1 h-2 bg-white/08 rounded-full overflow-hidden bg-white/5">
+                                <div class="h-full bg-yellow-400 rounded-full transition-all duration-700"
+                                    style="width:${Math.round((d.count/maxDist)*100)}%"></div>
+                            </div>
+                            <span class="text-[10px] text-slate-400 w-4 text-right">${d.count}</span>
+                        </div>`).join('')}
+                </div>
+                <!-- Lista reseñas -->
+                ${cals.length ? cals.slice(0,20).map(c => `
+                    <div class="bg-black/20 rounded-xl p-3 border border-white/5">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs font-black text-white truncate">${escapeHtml(c.cliente)}</p>
+                                <p class="text-[10px] text-slate-400 truncate">${escapeHtml(c.equipo)}</p>
+                            </div>
+                            <div class="text-right flex-shrink-0 ml-2">
+                                <p class="text-sm">${'⭐'.repeat(c.estrellas)}</p>
+                                <p class="text-[9px] text-slate-500">${new Date(c.fecha).toLocaleDateString('es-ES',{day:'2-digit',month:'short'})}</p>
+                            </div>
+                        </div>
+                        ${c.comentario ? `<p class="text-[10px] text-slate-300 mt-1 italic">"${escapeHtml(c.comentario)}"</p>` : ''}
+                    </div>`).join('')
+                : '<p class="text-center text-slate-500 text-sm py-8">Sin calificaciones aún.<br>Aparecerán aquí después de cada entrega.</p>'}`;
+
+            document.getElementById('modal-calificaciones').classList.remove('hidden');
+        }
+
+        function closeCalificacionesModal() {
+            document.getElementById('modal-calificaciones').classList.add('hidden');
         }
 
         // ==================== REGISTRO DEL SERVICE WORKER (PWA) ====================
