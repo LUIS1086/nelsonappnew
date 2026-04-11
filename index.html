@@ -137,6 +137,10 @@
         body.light-mode .filter-toggle { background:rgba(255,255,255,0.8); border-color:var(--border-light); }
         body.light-mode nav { background:rgba(255,255,255,0.94) !important; border-color:rgba(0,0,0,0.07) !important; box-shadow:0 -8px 32px rgba(0,0,0,0.08) !important; }
         body.light-mode header { background:rgba(244,246,255,0.97) !important; border-color:var(--border-light) !important; }
+        body.light-mode header #business-name-display { color:#0d1030 !important; }
+        body.light-mode header #total-cash { color:#00a05a !important; }
+        body.light-mode header #theme-btn { background:#eaedf7 !important; border-color:#ccd0e8 !important; }
+        body.light-mode header [style*="background:#071a10"] { background:#e8fdf3 !important; border-color:rgba(0,180,100,0.3) !important; }
         body.light-mode .text-slate-400,.light-mode .text-slate-500 { color:var(--text-muted-l) !important; }
         body.light-mode .text-white { color:var(--text-light) !important; }
         body.light-mode .bg-black\/40,body.light-mode .bg-black\/30 { background:rgba(0,0,0,0.04) !important; }
@@ -558,28 +562,34 @@
         </div>
     </div>
 
-    <header id="app-header" class="sticky top-0 z-50 hidden" style="padding:10px 16px;">
-        <div class="max-container flex justify-between items-center gap-3">
-            <!-- Logo + nombre -->
-            <div class="flex items-center gap-3 flex-1 min-w-0">
-                <div style="width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,rgba(255,107,26,0.2),rgba(255,107,26,0.06));border:1px solid rgba(255,107,26,0.25);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">🔧</div>
-                <div class="min-w-0">
-                    <p style="font-size:8px;font-weight:900;letter-spacing:5px;text-transform:uppercase;color:var(--accent);line-height:1;" id="business-short-name">TODO REPUESTOS</p>
-                    <h1 class="font-black italic truncate leading-tight" id="business-name-display"
-                        style="font-size:clamp(1.3rem,4.5vw,1.7rem);color:#f0f4ff;letter-spacing:-0.5px;">NELSON</h1>
+    <header id="app-header" class="sticky top-0 z-50 hidden" style="padding:0;border-bottom:1px solid rgba(255,107,26,0.08);">
+        <div class="max-container" style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;gap:10px;">
+
+            <!-- Izquierda: ícono + nombre en dos líneas compactas -->
+            <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
+                <!-- Ícono SVG wrench sin emoji -->
+                <div style="width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#ff6b1a,#c2410c);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(255,107,26,0.4);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                    </svg>
+                </div>
+                <!-- Texto: subtítulo arriba, nombre principal abajo -->
+                <div style="min-width:0;flex:1;">
+                    <p id="business-short-name" style="font-size:9px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:#ff6b1a;line-height:1;margin:0 0 2px;">TODO REPUESTOS</p>
+                    <p id="business-name-display" style="font-size:15px;font-weight:900;color:#f0f4ff;line-height:1.1;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;">NELSON</p>
                 </div>
             </div>
-            <!-- Meta + acciones -->
-            <div class="flex items-center gap-2 flex-shrink-0">
-                <!-- meta-bar ocultada -->
+
+            <!-- Derecha: botón tema + caja -->
+            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
                 <button onclick="toggleTheme()" id="theme-btn"
-                    style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all .2s;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.09);"
-                    class="active:scale-90">🌙</button>
-                <div style="background:rgba(0,217,126,0.08);border:1px solid rgba(0,217,126,0.15);border-radius:14px;padding:6px 12px;text-align:right;">
-                    <p id="total-cash" style="color:var(--green);font-weight:900;font-size:1.1rem;line-height:1.1;">$0</p>
-                    <p style="font-size:6.5px;font-weight:800;letter-spacing:3px;color:rgba(0,217,126,0.4);text-transform:uppercase;">CAJA</p>
+                    style="width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1rem;background:#1a1f2e;border:1px solid #2a3248;cursor:pointer;">🌙</button>
+                <div style="background:#071a10;border:1px solid rgba(0,217,126,0.25);border-radius:12px;padding:6px 14px;text-align:center;min-width:64px;">
+                    <p id="total-cash" style="color:#00d97e;font-weight:900;font-size:1rem;line-height:1.1;margin:0;">$0</p>
+                    <p style="font-size:7px;font-weight:800;letter-spacing:2px;color:rgba(0,217,126,0.45);text-transform:uppercase;margin:1px 0 0;">CAJA</p>
                 </div>
             </div>
+
         </div>
     </header>
 
