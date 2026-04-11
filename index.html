@@ -2683,6 +2683,7 @@
             await updateClientDebt(currentClientHistory, amount, true);
             await put('payments', { id: Date.now(), cliente: currentClientHistory, monto: amount, fecha: Date.now(), tipo: 'pago' });
             await renderCartera();
+            await renderMovimientos();
             closeClientHistory();
             showAlert(`Pago de $${amount.toLocaleString()} registrado correctamente.`, "success");
         }
@@ -3619,6 +3620,7 @@
             await put('gastos', { id: Date.now(), det, val, fecha: Date.now() });
             document.getElementById('g-det').value = ''; document.getElementById('g-val').value = '';
             await updateTotal();
+            await renderMovimientos();
             showToast(`Gasto $${val.toLocaleString()} registrado`, 'success');
         }
 
