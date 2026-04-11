@@ -735,11 +735,6 @@
             <input type="tel" id="c-tel" placeholder="WHATSAPP" class="w-full">
             <input type="text" id="c-equ" placeholder="EQUIPO / MODELO" class="uppercase font-bold text-orange-400 w-full" list="equipos-list">
             <datalist id="equipos-list"></datalist>
-            <!-- Accesos rápidos: Plantilla + Checklist -->
-            <div class="flex gap-2">
-                <button type="button" onclick="openPlantillasModal()" class="flex-1 bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition">📋 Plantilla</button>
-                <button type="button" onclick="openChecklistModal()" class="flex-1 bg-teal-600/20 border border-teal-500/30 text-teal-300 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition">✅ Checklist</button>
-            </div>
             <textarea id="c-fal" placeholder="FALLA INICIAL Y ESTADO FÍSICO..." class="h-24 text-xs uppercase w-full" oninput="suggestDiagnosis()"></textarea>
             <div id="diagnosis-suggestions" class="suggestion-box"></div>
             <div class="grid grid-cols-2 gap-3">
