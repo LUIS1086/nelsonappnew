@@ -296,43 +296,89 @@
         /* ===== SPLASH SCREEN ===== */
         #splash-screen {
             position: fixed; inset: 0; z-index: 99999;
-            background: linear-gradient(135deg, #0a0c15 0%, #111827 50%, #0a0c15 100%);
+            background: #08090f;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 20px; transition: opacity 0.6s ease, transform 0.6s ease;
+            gap: 0; transition: opacity 0.7s ease, transform 0.7s ease;
+            overflow: hidden;
         }
-        #splash-screen.fade-out { opacity: 0; transform: scale(1.04); pointer-events: none; }
+        #splash-screen::before {
+            content: ''; position: absolute; inset: 0;
+            background:
+                radial-gradient(ellipse 70% 50% at 50% 20%, rgba(249,115,22,0.12) 0%, transparent 70%),
+                radial-gradient(ellipse 40% 30% at 80% 80%, rgba(234,88,12,0.06) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        #splash-screen.fade-out { opacity: 0; transform: scale(1.05); pointer-events: none; }
         .splash-logo-ring {
-            width: 110px; height: 110px; border-radius: 50%;
-            background: linear-gradient(135deg, #f97316, #ea580c);
+            width: 96px; height: 96px; border-radius: 28px;
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            border: 1.5px solid rgba(249,115,22,0.35);
             display: flex; align-items: center; justify-content: center;
-            font-size: 3rem;
-            box-shadow: 0 0 0 0 rgba(249,115,22,0.5);
-            animation: splashPulse 1.6s ease-in-out infinite;
+            font-size: 2.8rem;
+            position: relative; z-index: 1; margin-bottom: 32px;
+            box-shadow: 0 0 0 8px rgba(249,115,22,0.05), 0 0 0 20px rgba(249,115,22,0.03), 0 20px 60px rgba(249,115,22,0.2);
+            animation: splashFloat 3s ease-in-out infinite;
         }
-        @keyframes splashPulse {
-            0%   { box-shadow: 0 0 0 0 rgba(249,115,22,0.5); }
-            70%  { box-shadow: 0 0 0 22px rgba(249,115,22,0); }
-            100% { box-shadow: 0 0 0 0 rgba(249,115,22,0); }
+        @keyframes splashFloat {
+            0%,100% { transform: translateY(0px); }
+            50%      { transform: translateY(-6px); box-shadow: 0 0 0 10px rgba(249,115,22,0.07), 0 0 0 26px rgba(249,115,22,0.02), 0 28px 80px rgba(249,115,22,0.28); }
         }
-        .splash-title { font-size: 2rem; font-weight: 900; color: #fff; letter-spacing: 2px; text-align: center; }
-        .splash-sub { font-size: 0.7rem; font-weight: 700; color: #f97316; letter-spacing: 6px; text-transform: uppercase; }
-        .splash-bar-track { width: 160px; height: 4px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden; }
-        .splash-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #f97316, #fbbf24); border-radius: 99px; animation: splashBar 1.6s ease forwards; }
+        .splash-title {
+            font-size: 2.6rem; font-weight: 900; color: #fff; letter-spacing: -1px;
+            text-align: center; line-height: 1; margin-bottom: 8px;
+        }
+        .splash-sub {
+            font-size: 0.6rem; font-weight: 800; color: rgba(249,115,22,0.7);
+            letter-spacing: 8px; text-transform: uppercase; text-align: center; margin-bottom: 40px;
+        }
+        .splash-bar-track {
+            width: 120px; height: 2px; background: rgba(255,255,255,0.06);
+            border-radius: 99px; overflow: hidden;
+        }
+        .splash-bar-fill {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, #f97316, #fbbf24);
+            border-radius: 99px;
+            animation: splashBar 2s cubic-bezier(0.16,1,0.3,1) forwards;
+        }
         @keyframes splashBar { from { width: 0%; } to { width: 100%; } }
 
         /* ===== PIN MEJORADO ===== */
-        .pin-dot { width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.2); transition: all 0.2s; }
-        .pin-dot.filled { background: #f97316; border-color: #f97316; box-shadow: 0 0 8px rgba(249,115,22,0.5); }
-        .numpad-btn {
-            aspect-ratio: 1; border-radius: 50%; background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.1); font-size: 1.3rem; font-weight: 700;
-            color: #fff; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: all 0.1s; user-select: none; -webkit-tap-highlight-color: transparent;
+        .pin-dot {
+            width: 13px; height: 13px; border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            border: 2px solid rgba(255,255,255,0.15);
+            transition: all 0.18s cubic-bezier(0.34,1.56,0.64,1);
         }
-        .numpad-btn:active { background: rgba(249,115,22,0.3); border-color: #f97316; transform: scale(0.92); }
+        .pin-dot.filled {
+            background: #f97316; border-color: #f97316;
+            box-shadow: 0 0 12px rgba(249,115,22,0.6);
+            transform: scale(1.15);
+        }
+        .numpad-btn {
+            aspect-ratio: 1; border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            font-size: 1.4rem; font-weight: 600;
+            color: #f1f5f9; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.12s ease;
+            user-select: none; -webkit-tap-highlight-color: transparent;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.06) inset;
+        }
+        .numpad-btn:active {
+            background: rgba(249,115,22,0.25);
+            border-color: rgba(249,115,22,0.5);
+            transform: scale(0.88);
+            box-shadow: 0 0 16px rgba(249,115,22,0.3);
+        }
         .numpad-btn.delete { font-size: 1rem; color: #f87171; }
-        .numpad-btn.enter { background: linear-gradient(135deg, #f97316, #ea580c); border-color: transparent; font-size: 0.7rem; font-weight: 900; letter-spacing: 1px; }
-        .numpad-btn.enter:active { opacity: 0.8; }
+        .numpad-btn.enter {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            border-color: transparent;
+            font-size: 0.65rem; font-weight: 900; letter-spacing: 1.5px;
+            box-shadow: 0 4px 20px rgba(249,115,22,0.45), 0 1px 0 rgba(255,255,255,0.15) inset;
+        }
+        .numpad-btn.enter:active { opacity: 0.85; transform: scale(0.88); }
 
         /* ===== RESPONSIVE LAYOUT — TABLET & DESKTOP ===== */
         @media (min-width: 768px) {
@@ -646,49 +692,51 @@
     <!-- SPLASH SCREEN -->
     <div id="splash-screen">
         <div class="splash-logo-ring">🔧</div>
-        <div>
-            <div class="splash-title" id="splash-biz-name">NELSON</div>
-            <div class="splash-sub">Taller & Repuestos</div>
-        </div>
+        <div class="splash-title" id="splash-biz-name">NELSON</div>
+        <div class="splash-sub">Taller &amp; Repuestos</div>
         <div class="splash-bar-track"><div class="splash-bar-fill"></div></div>
-        <p style="font-size:0.6rem;color:rgba(255,255,255,0.2);letter-spacing:2px;">v3.2.0</p>
+        <p style="font-size:0.5rem;color:rgba(255,255,255,0.12);letter-spacing:4px;margin-top:20px;font-weight:700;">v3.2.0</p>
     </div>
 
-    <!-- PIN MODAL MEJORADO -->
-    <div id="pin-modal" class="hidden fixed inset-0 z-[5000] modal-custom flex items-center justify-center p-4">
-        <div class="bg-[#111827] border border-white/10 w-full max-w-xs rounded-3xl overflow-hidden shadow-2xl">
-            <div class="bg-gradient-to-r from-orange-600 to-orange-500 p-6 text-center">
-                <div class="text-4xl mb-1">🔐</div>
-                <h3 class="text-white font-black text-lg tracking-widest uppercase">Acceso</h3>
-                <p id="splash-pin-bizname" class="text-orange-200 text-xs font-bold mt-1 opacity-80">TODO REPUESTOS</p>
+    <!-- PIN MODAL -->
+    <div id="pin-modal" class="hidden fixed inset-0 z-[5000] flex items-center justify-center p-5"
+         style="background:radial-gradient(ellipse 80% 60% at 50% 30%, rgba(249,115,22,0.08) 0%, transparent 70%), #08090f;">
+        <div style="width:100%;max-width:300px;">
+
+            <!-- Logo + nombre -->
+            <div style="text-align:center;margin-bottom:32px;">
+                <div style="width:72px;height:72px;border-radius:22px;background:linear-gradient(145deg,#1e1e2e,#16213e);border:1.5px solid rgba(249,115,22,0.3);display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 16px;box-shadow:0 0 0 6px rgba(249,115,22,0.06),0 16px 40px rgba(249,115,22,0.18);">🔧</div>
+                <p style="font-size:9px;font-weight:900;letter-spacing:5px;color:rgba(249,115,22,0.6);text-transform:uppercase;margin:0 0 4px;" id="splash-pin-bizname">TODO REPUESTOS</p>
+                <h3 style="font-size:22px;font-weight:900;color:#f1f5f9;margin:0;letter-spacing:-0.5px;">Bienvenido</h3>
+                <p style="font-size:11px;color:rgba(255,255,255,0.25);margin:4px 0 0;font-weight:500;">Ingresa tu PIN para continuar</p>
             </div>
-            <div class="p-6 space-y-5">
-                <!-- Dots indicadores -->
-                <div class="flex justify-center gap-3" id="pin-dots">
-                    <div class="pin-dot"></div>
-                    <div class="pin-dot"></div>
-                    <div class="pin-dot"></div>
-                    <div class="pin-dot"></div>
-                </div>
-                <div id="pin-error" class="text-rose-400 text-xs text-center min-h-[16px]"></div>
-                <!-- Teclado numérico -->
-                <div class="grid grid-cols-3 gap-3 px-2">
-                    <button class="numpad-btn" onclick="pinPad(1)">1</button>
-                    <button class="numpad-btn" onclick="pinPad(2)">2</button>
-                    <button class="numpad-btn" onclick="pinPad(3)">3</button>
-                    <button class="numpad-btn" onclick="pinPad(4)">4</button>
-                    <button class="numpad-btn" onclick="pinPad(5)">5</button>
-                    <button class="numpad-btn" onclick="pinPad(6)">6</button>
-                    <button class="numpad-btn" onclick="pinPad(7)">7</button>
-                    <button class="numpad-btn" onclick="pinPad(8)">8</button>
-                    <button class="numpad-btn" onclick="pinPad(9)">9</button>
-                    <button class="numpad-btn delete" onclick="pinPad('del')">⌫</button>
-                    <button class="numpad-btn" onclick="pinPad(0)">0</button>
-                    <button class="numpad-btn enter" onclick="pinPad('ok')">OK</button>
-                </div>
-                <!-- Input oculto para compatibilidad -->
-                <input type="password" id="pin-input" class="hidden" maxlength="6">
+
+            <!-- Dots -->
+            <div style="display:flex;justify-content:center;gap:14px;margin-bottom:10px;" id="pin-dots">
+                <div class="pin-dot"></div>
+                <div class="pin-dot"></div>
+                <div class="pin-dot"></div>
+                <div class="pin-dot"></div>
             </div>
+            <div id="pin-error" style="color:#f87171;font-size:11px;font-weight:700;text-align:center;min-height:20px;margin-bottom:22px;"></div>
+
+            <!-- Numpad -->
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 4px;">
+                <button class="numpad-btn" onclick="pinPad(1)">1</button>
+                <button class="numpad-btn" onclick="pinPad(2)">2</button>
+                <button class="numpad-btn" onclick="pinPad(3)">3</button>
+                <button class="numpad-btn" onclick="pinPad(4)">4</button>
+                <button class="numpad-btn" onclick="pinPad(5)">5</button>
+                <button class="numpad-btn" onclick="pinPad(6)">6</button>
+                <button class="numpad-btn" onclick="pinPad(7)">7</button>
+                <button class="numpad-btn" onclick="pinPad(8)">8</button>
+                <button class="numpad-btn" onclick="pinPad(9)">9</button>
+                <button class="numpad-btn delete" onclick="pinPad('del')">⌫</button>
+                <button class="numpad-btn" onclick="pinPad(0)">0</button>
+                <button class="numpad-btn enter" onclick="pinPad('ok')">OK</button>
+            </div>
+
+            <input type="password" id="pin-input" class="hidden" maxlength="6">
         </div>
     </div>
 
