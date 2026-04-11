@@ -726,84 +726,185 @@
 
     <main id="view-admin" class="app-view hidden p-4 max-container space-y-4">
 
-        <!-- Estado Google Drive -->
-        <div id="drive-status-card" class="card p-4 border border-white/5">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-xl">☁️</div>
+        <!-- ══ GOOGLE DRIVE ══ -->
+        <div id="drive-status-card" style="border-radius:20px;overflow:hidden;background:linear-gradient(135deg,#0a1628,#0d1f35);border:1px solid #1a2a3a;">
+            <div style="padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+                <div style="display:flex;align-items:center;gap:14px;">
+                    <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#1e3a5f,#1d4ed8);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(29,78,216,0.4);">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+                    </div>
                     <div>
-                        <p class="text-sm font-black text-blue-400">Google Drive</p>
-                        <p id="drive-status-text" class="text-[10px] text-slate-400">No conectado</p>
+                        <p style="font-size:14px;font-weight:800;color:#60a5fa;margin:0;">Google Drive</p>
+                        <p id="drive-status-text" style="font-size:11px;color:#4a5a7a;margin:2px 0 0;">No conectado</p>
                     </div>
                 </div>
-                <button id="drive-connect-btn" onclick="driveSignIn()" class="text-[10px] bg-blue-600 text-white px-4 py-2 rounded-xl font-black uppercase active:scale-95 transition">CONECTAR</button>
+                <button id="drive-connect-btn" onclick="driveSignIn()" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:white;padding:10px 18px;border-radius:12px;font-size:11px;font-weight:900;letter-spacing:1px;text-transform:uppercase;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(59,130,246,0.4);white-space:nowrap;">CONECTAR</button>
             </div>
-            <div id="drive-actions" class="hidden mt-3 pt-3 border-t border-white/10 grid grid-cols-2 gap-2">
-                <button onclick="driveBackupNow()" class="bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition">⬆️ SUBIR AHORA</button>
-                <button onclick="driveRestore()" class="bg-blue-600/20 text-blue-400 border border-blue-500/30 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition">⬇️ RESTAURAR</button>
+            <div id="drive-actions" class="hidden" style="border-top:1px solid #1a2a3a;padding:12px 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <button onclick="driveBackupNow()" style="background:#0d2218;border:1px solid #16a34a;color:#4ade80;padding:10px;border-radius:12px;font-size:11px;font-weight:800;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/><path d="M3 19h18"/></svg>SUBIR
+                </button>
+                <button onclick="driveRestore()" style="background:#0d1a2e;border:1px solid #1d4ed8;color:#60a5fa;padding:10px;border-radius:12px;font-size:11px;font-weight:800;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="7 16 12 21 17 16"/><line x1="12" y1="21" x2="12" y2="9"/><path d="M3 5h18"/></svg>RESTAURAR
+                </button>
             </div>
         </div>
 
-        <div class="card overflow-hidden border border-white/5">
-            <div class="bg-gradient-to-r from-slate-800 to-slate-900 p-5 text-center border-b border-white/5">
-                <div class="text-4xl mb-1">⚙️</div>
-                <h3 class="text-lg font-black uppercase tracking-tight text-white">Menú de Datos</h3>
-                <p class="text-[10px] text-slate-400 mt-0.5 uppercase tracking-widest">Gestión de sistema y caja</p>
+        <!-- ══ MENÚ iOS PREMIUM ══ -->
+        <div style="border-radius:24px;overflow:hidden;background:#0d1117;border:1px solid #1a2235;">
+
+            <!-- Header -->
+            <div style="background:linear-gradient(135deg,#0f172a,#1e293b);padding:22px 20px 18px;text-align:center;border-bottom:1px solid #1a2235;">
+                <div style="width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,rgba(255,107,26,0.25),rgba(255,107,26,0.08));border:1.5px solid rgba(255,107,26,0.35);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ff6b1a" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>
+                </div>
+                <p style="font-size:10px;font-weight:900;letter-spacing:3px;color:#ff6b1a;text-transform:uppercase;margin:0 0 3px;">Gestión</p>
+                <h3 style="font-size:20px;font-weight:900;color:#f0f4ff;margin:0;">Menú de Datos</h3>
             </div>
-            <div class="p-2 space-y-1 bg-[#111827]">
-                <button onclick="openChangePinModal()" class="w-full flex items-center justify-between p-4 hover:bg-white/5 transition rounded-xl group">
-                    <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-yellow-500/20 text-yellow-400 text-xl flex items-center justify-center">🔑</div><div><p class="text-sm font-bold text-yellow-400">Cambiar PIN</p><p class="text-[10px] text-slate-400">Actualizar contraseña de acceso</p></div></div><span class="text-slate-500">❯</span>
+
+            <div style="padding:10px 12px;">
+
+                <!-- ANÁLISIS -->
+                <p style="font-size:9px;font-weight:900;letter-spacing:3px;color:#2a3a55;text-transform:uppercase;padding:10px 4px 6px;margin:0;">ANÁLISIS</p>
+
+                <button onclick="openStatsModal()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
+                    <div style="display:flex;align-items:center;gap:14px;">
+                        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#6d28d9,#7c3aed);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(109,40,217,0.4);">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                        </div>
+                        <div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#a78bfa;margin:0;">Estadísticas</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Resumen mensual y top repuestos</p></div>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
-                <hr class="border-white/5 my-1 mx-2">
-                <button onclick="openStatsModal()" class="w-full flex items-center justify-between p-4 hover:bg-white/5 transition rounded-xl group">
-                    <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-purple-500/20 text-purple-400 text-xl flex items-center justify-center">📊</div><div><p class="text-sm font-bold text-purple-400">Estadísticas</p><p class="text-[10px] text-slate-400">Resumen mensual y top repuestos</p></div></div><span class="text-slate-500">❯</span>
+
+                <button onclick="openTecnicosReport()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
+                    <div style="display:flex;align-items:center;gap:14px;">
+                        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#1d4ed8,#3b82f6);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(59,130,246,0.4);">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        </div>
+                        <div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#60a5fa;margin:0;">Reporte por Técnico</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Productividad, tiempos y órdenes</p></div>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
-                <hr class="border-white/5 my-1 mx-2">
-                <button onclick="openTecnicosReport()" class="w-full flex items-center justify-between p-4 hover:bg-white/5 transition rounded-xl group">
-                    <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 text-xl flex items-center justify-center">👷</div><div><p class="text-sm font-bold text-blue-400">Reporte por Técnico</p><p class="text-[10px] text-slate-400">Productividad, tiempos y órdenes por técnico</p></div></div><span class="text-slate-500">❯</span>
+
+                <button onclick="openEquiposReport()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
+                    <div style="display:flex;align-items:center;gap:14px;">
+                        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#b45309,#f59e0b);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(245,158,11,0.4);">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                        </div>
+                        <div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#fbbf24;margin:0;">Equipos más Reparados</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Top equipos y fallas frecuentes</p></div>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
-                <hr class="border-white/5 my-1 mx-2">
-                <button onclick="openEquiposReport()" class="w-full flex items-center justify-between p-4 hover:bg-white/5 transition rounded-xl group">
-                    <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-amber-500/20 text-amber-400 text-xl flex items-center justify-center">🔧</div><div><p class="text-sm font-bold text-amber-400">Equipos más Reparados</p><p class="text-[10px] text-slate-400">Top equipos, marcas y fallas frecuentes</p></div></div><span class="text-slate-500">❯</span>
+
+                <button onclick="openGraficaIngresos()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
+                    <div style="display:flex;align-items:center;gap:14px;">
+                        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#065f46,#10b981);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(16,185,129,0.4);">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                        </div>
+                        <div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#34d399;margin:0;">Gráfica de Ingresos</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Tendencia de los últimos 6 meses</p></div>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
-                <hr class="border-white/5 my-1 mx-2">
-                <button onclick="openGraficaIngresos()" class="w-full flex items-center justify-between p-4 hover:bg-white/5 transition rounded-xl group">
-                    <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 text-xl flex items-center justify-center">📈</div><div><p class="text-sm font-bold text-emerald-400">Gráfica de Ingresos</p><p class="text-[10px] text-slate-400">Tendencia de los últimos 6 meses</p></div></div><span class="text-slate-500">❯</span>
+
+                <button onclick="openCalificacionesModal()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
+                    <div style="display:flex;align-items:center;gap:14px;">
+                        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#9d174d,#ec4899);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(236,72,153,0.4);">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        </div>
+                        <div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#f472b6;margin:0;">Calificaciones</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Reseñas y puntuaciones de clientes</p></div>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
-                <hr class="border-white/5 my-1 mx-2">
-                <button onclick="openOrdenesCompra()" class="w-full flex items-center justify-between p-4 hover:bg-white/5 transition rounded-xl group">
-                    <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-orange-500/20 text-orange-400 text-xl flex items-center justify-center">📦</div><div><p class="text-sm font-bold text-orange-400">Órdenes de Compra</p><p class="text-[10px] text-slate-400">Repuestos bajo mínimo · enviar a proveedor</p></div></div><span class="text-slate-500">❯</span>
+
+                <!-- OPERACIONES -->
+                <div style="height:1px;background:#1a2235;margin:8px 0;"></div>
+                <p style="font-size:9px;font-weight:900;letter-spacing:3px;color:#2a3a55;text-transform:uppercase;padding:6px 4px;margin:0;">OPERACIONES</p>
+
+                <button onclick="openOrdenesCompra()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
+                    <div style="display:flex;align-items:center;gap:14px;">
+                        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#c2410c,#f97316);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(249,115,22,0.4);">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                        </div>
+                        <div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#fb923c;margin:0;">Órdenes de Compra</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Repuestos bajo mínimo · proveedor</p></div>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
-                <hr class="border-white/5 my-1 mx-2">
-                <button onclick="openCajaModal()" class="w-full flex items-center justify-between p-4 hover:bg-white/5 transition rounded-xl group">
-                    <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-rose-500/20 text-rose-400 text-xl flex items-center justify-center">💵</div><div><p class="text-sm font-bold text-rose-400">Cierre de Caja</p><p class="text-[10px] text-slate-400">Panel de ingresos, egresos y reinicio a $0</p></div></div><span class="text-slate-500">❯</span>
+
+                <button onclick="openCajaModal()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
+                    <div style="display:flex;align-items:center;gap:14px;">
+                        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#9f1239,#f43f5e);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(244,63,94,0.4);">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                        </div>
+                        <div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#fb7185;margin:0;">Cierre de Caja</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Ingresos, egresos y reinicio</p></div>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
-                <hr class="border-white/5 my-1 mx-2">
-                <button onclick="openAdvancedConfig()" class="w-full flex items-center justify-between p-4 hover:bg-white/5 transition rounded-xl group">
-                    <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-cyan-500/20 text-cyan-400 text-xl flex items-center justify-center">⚙️</div><div><p class="text-sm font-bold text-cyan-400">Configuración avanzada</p><p class="text-[10px] text-slate-400">Apariencia, plantillas, técnicos, metas</p></div></div><span class="text-slate-500">❯</span>
+
+                <button onclick="openProveedoresModal()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
+                    <div style="display:flex;align-items:center;gap:14px;">
+                        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#0f766e,#14b8a6);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(20,184,166,0.4);">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        </div>
+                        <div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#2dd4bf;margin:0;">Proveedores</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Gestión de proveedores y catálogos</p></div>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
-                <hr class="border-white/5 my-1 mx-2">
-                <button onclick="openProveedoresModal()" class="w-full flex items-center justify-between p-4 hover:bg-white/5 transition rounded-xl group">
-                    <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-teal-500/20 text-teal-400 text-xl flex items-center justify-center">🏭</div><div><p class="text-sm font-bold text-teal-400">Proveedores</p><p class="text-[10px] text-slate-400">Gestión de proveedores y catálogos</p></div></div><span class="text-slate-500">❯</span>
+
+                <!-- SISTEMA -->
+                <div style="height:1px;background:#1a2235;margin:8px 0;"></div>
+                <p style="font-size:9px;font-weight:900;letter-spacing:3px;color:#2a3a55;text-transform:uppercase;padding:6px 4px;margin:0;">SISTEMA</p>
+
+                <button onclick="openChangePinModal()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
+                    <div style="display:flex;align-items:center;gap:14px;">
+                        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#92400e,#f59e0b);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(245,158,11,0.35);">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        </div>
+                        <div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#fcd34d;margin:0;">Cambiar PIN</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Actualizar contraseña de acceso</p></div>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
-                <hr class="border-white/5 my-1 mx-2">
-                <button onclick="openCalificacionesModal()" class="w-full flex items-center justify-between p-4 hover:bg-white/5 transition rounded-xl group">
-                    <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-pink-500/20 text-pink-400 text-xl flex items-center justify-center">⭐</div><div><p class="text-sm font-bold text-pink-400">Calificaciones del Servicio</p><p class="text-[10px] text-slate-400">Reseñas y puntuaciones de clientes</p></div></div><span class="text-slate-500">❯</span>
+
+                <button onclick="openAdvancedConfig()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
+                    <div style="display:flex;align-items:center;gap:14px;">
+                        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#0e7490,#06b6d4);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(6,182,212,0.4);">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>
+                        </div>
+                        <div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#22d3ee;margin:0;">Configuración avanzada</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Apariencia, plantillas, técnicos</p></div>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
-                <hr class="border-white/5 my-1 mx-2">
-                <button onclick="exportData()" class="w-full flex items-center justify-between p-4 hover:bg-white/5 transition rounded-xl group">
-                    <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 text-xl flex items-center justify-center">📤</div><div><p class="text-sm font-bold text-blue-400">Exportar Respaldo</p><p class="text-[10px] text-slate-400">Guarda la base de datos en tu dispositivo</p></div></div><span class="text-slate-500">❯</span>
+
+                <button onclick="exportData()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
+                    <div style="display:flex;align-items:center;gap:14px;">
+                        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#1d4ed8,#6366f1);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(99,102,241,0.4);">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        </div>
+                        <div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#818cf8;margin:0;">Exportar Respaldo</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Guarda la base de datos</p></div>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
-                <label for="import-file" class="w-full flex items-center justify-between p-4 hover:bg-white/5 transition rounded-xl group cursor-pointer">
-                    <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-orange-500/20 text-orange-400 text-xl flex items-center justify-center">📥</div><div><p class="text-sm font-bold text-orange-400">Importar Datos</p><p class="text-[10px] text-slate-400">Restaura una copia de seguridad (.json)</p></div></div><span class="text-slate-500">❯</span>
+
+                <label for="import-file" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
+                    <div style="display:flex;align-items:center;gap:14px;">
+                        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#7c3aed,#a855f7);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(168,85,247,0.4);">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        </div>
+                        <div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#c084fc;margin:0;">Importar Datos</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Restaura una copia de seguridad</p></div>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </label>
                 <input type="file" id="import-file" class="hidden" accept=".json" onchange="importData(event)">
+
             </div>
-            <div class="bg-black/30 p-3 text-center border-t border-white/5">
-                <p class="text-[10px] text-slate-500">IndexedDB local + Google Drive ☁️</p>
-                <p class="text-[10px] text-slate-600 mt-1">✦ Diseñado por <span class="text-orange-500/70 font-bold">Luis Eduardo Gaviria Piamba</span> ✦</p>
+
+            <!-- Footer -->
+            <div style="background:#080c14;padding:14px;text-align:center;border-top:1px solid #1a2235;">
+                <p style="font-size:10px;color:#1e2a3a;font-weight:600;margin:0;">IndexedDB local + Google Drive</p>
+                <p style="font-size:10px;color:#151e2a;margin:4px 0 0;">Diseñado por <span style="color:rgba(255,107,26,0.45);font-weight:800;">Luis Eduardo Gaviria Piamba</span></p>
             </div>
         </div>
+
     </main>
 
     <!-- ===== MODAL CHAT INTERNO DE ORDEN ===== -->
