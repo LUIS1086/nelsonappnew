@@ -137,10 +137,6 @@
         body.light-mode .filter-toggle { background:rgba(255,255,255,0.8); border-color:var(--border-light); }
         body.light-mode nav { background:rgba(255,255,255,0.94) !important; border-color:rgba(0,0,0,0.07) !important; box-shadow:0 -8px 32px rgba(0,0,0,0.08) !important; }
         body.light-mode header { background:rgba(244,246,255,0.97) !important; border-color:var(--border-light) !important; }
-        body.light-mode header #business-name-display { color:#0d1030 !important; }
-        body.light-mode header #total-cash { color:#00a05a !important; }
-        body.light-mode header #theme-btn { background:#eaedf7 !important; border-color:#ccd0e8 !important; }
-        body.light-mode header [style*="background:#071a10"] { background:#e8fdf3 !important; border-color:rgba(0,180,100,0.3) !important; }
         body.light-mode .text-slate-400,.light-mode .text-slate-500 { color:var(--text-muted-l) !important; }
         body.light-mode .text-white { color:var(--text-light) !important; }
         body.light-mode .bg-black\/40,body.light-mode .bg-black\/30 { background:rgba(0,0,0,0.04) !important; }
@@ -323,26 +319,32 @@
            HEADER MÓVIL
         ════════════════════════════════════════════════ */
         #app-header {
-            background:rgba(6,8,15,0.9) !important;
-            backdrop-filter:blur(28px) saturate(180%) !important;
-            border-bottom:1px solid rgba(255,255,255,0.05) !important;
-            box-shadow:0 1px 0 rgba(255,107,26,0.08),0 8px 32px rgba(0,0,0,0.5) !important;
+            background:#06080f !important;
+            border-bottom:1px solid rgba(255,107,26,0.1) !important;
+            box-shadow:0 2px 16px rgba(0,0,0,0.4) !important;
         }
-        body.light-mode #app-header { background:rgba(244,246,255,0.97) !important; }
+        body.light-mode #app-header { background:rgba(244,246,255,0.99) !important; }
+        body.light-mode #app-header #business-name-display { color:#0d1030 !important; }
+        body.light-mode #app-header #total-cash { color:#00a05a !important; }
+        body.light-mode #app-header [style*="background:#071a10"] { background:#e8fdf3 !important; }
+        body.light-mode #app-header #theme-btn { background:#eaedf7 !important; border-color:#ccd0e8 !important; }
+
+        /* Filter pills activos */
+        .filter-pill-active {
+            background:rgba(255,107,26,0.15) !important;
+            border-color:rgba(255,107,26,0.5) !important;
+            color:#ff8c42 !important;
+        }
 
         /* ════════════════════════════════════════════════
            NAV BOTTOM — FLOATING PILL
         ════════════════════════════════════════════════ */
         .bottom-nav-mobile {
-            background:rgba(6,8,15,0.92) !important;
-            backdrop-filter:blur(28px) saturate(180%) !important;
-            border:1px solid rgba(255,255,255,0.06) !important;
-            box-shadow:
-                0 0 0 1px rgba(255,255,255,0.03) inset,
-                0 -4px 32px rgba(0,0,0,0.5),
-                0 8px 0 transparent !important;
+            background:#06080f !important;
+            border:1px solid rgba(255,255,255,0.07) !important;
+            box-shadow:0 -4px 24px rgba(0,0,0,0.5) !important;
         }
-        body.light-mode .bottom-nav-mobile { background:rgba(255,255,255,0.95) !important; border-color:rgba(0,0,0,0.07) !important; }
+        body.light-mode .bottom-nav-mobile { background:rgba(255,255,255,0.98) !important; border-color:rgba(0,0,0,0.07) !important; }
 
         /* ════════════════════════════════════════════════
            SIDEBAR DESKTOP
@@ -562,34 +564,29 @@
         </div>
     </div>
 
-    <header id="app-header" class="sticky top-0 z-50 hidden" style="padding:0;border-bottom:1px solid rgba(255,107,26,0.08);">
-        <div class="max-container" style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;gap:10px;">
+    <header id="app-header" class="sticky top-0 z-50 hidden">
+        <div class="max-container" style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;gap:8px;">
 
-            <!-- Izquierda: ícono + nombre en dos líneas compactas -->
-            <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
-                <!-- Ícono SVG wrench sin emoji -->
-                <div style="width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#ff6b1a,#c2410c);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(255,107,26,0.4);">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
-                    </svg>
+            <!-- Izquierda: ícono + nombre -->
+            <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">
+                <div style="width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#ff6b1a,#c2410c);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 10px rgba(255,107,26,0.4);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
                 </div>
-                <!-- Texto: subtítulo arriba, nombre principal abajo -->
-                <div style="min-width:0;flex:1;">
-                    <p id="business-short-name" style="font-size:9px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:#ff6b1a;line-height:1;margin:0 0 2px;">TODO REPUESTOS</p>
-                    <p id="business-name-display" style="font-size:15px;font-weight:900;color:#f0f4ff;line-height:1.1;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;">NELSON</p>
+                <div style="min-width:0;">
+                    <p id="business-short-name" style="font-size:8px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:#ff6b1a;line-height:1;margin:0 0 1px;">TODO REPUESTOS</p>
+                    <p id="business-name-display" style="font-size:16px;font-weight:900;color:#f0f4ff;line-height:1;margin:0;white-space:nowrap;">NELSON</p>
                 </div>
             </div>
 
-            <!-- Derecha: botón tema + caja -->
+            <!-- Derecha: tema + caja -->
             <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
                 <button onclick="toggleTheme()" id="theme-btn"
-                    style="width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1rem;background:#1a1f2e;border:1px solid #2a3248;cursor:pointer;">🌙</button>
-                <div style="background:#071a10;border:1px solid rgba(0,217,126,0.25);border-radius:12px;padding:6px 14px;text-align:center;min-width:64px;">
-                    <p id="total-cash" style="color:#00d97e;font-weight:900;font-size:1rem;line-height:1.1;margin:0;">$0</p>
+                    style="width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:.95rem;background:#1a1f2e;border:1px solid #2a3248;cursor:pointer;flex-shrink:0;">🌙</button>
+                <div style="background:#071a10;border:1px solid rgba(0,217,126,0.3);border-radius:12px;padding:5px 12px;text-align:center;flex-shrink:0;">
+                    <p id="total-cash" style="color:#00d97e;font-weight:900;font-size:.95rem;line-height:1.1;margin:0;white-space:nowrap;">$0</p>
                     <p style="font-size:7px;font-weight:800;letter-spacing:2px;color:rgba(0,217,126,0.45);text-transform:uppercase;margin:1px 0 0;">CAJA</p>
                 </div>
             </div>
-
         </div>
     </header>
 
@@ -691,50 +688,110 @@
         </div>
     </main>
 
-    <main id="view-ordenes" class="app-view hidden p-4 space-y-4 max-container">
-        <div class="space-y-3">
-            <div class="flex gap-2">
-                <button onclick="notifyAllReady()"
-                    style="flex:1;padding:10px 6px;border-radius:14px;font-size:10px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;background:rgba(0,217,126,0.08);border:1.5px solid rgba(0,217,126,0.2);color:var(--green);cursor:pointer;transition:all .15s;"
-                    class="active:scale-95">💬 AVISAR</button>
-                <button onclick="exportMonthlyReport()"
-                    style="flex:1;padding:10px 6px;border-radius:14px;font-size:10px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;background:rgba(59,139,255,0.08);border:1.5px solid rgba(59,139,255,0.2);color:var(--blue);cursor:pointer;transition:all .15s;"
-                    class="active:scale-95">📄 REPORTE</button>
-                <button onclick="openCalendarioEntregas()"
-                    style="flex:1;padding:10px 6px;border-radius:14px;font-size:10px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;background:rgba(167,139,250,0.08);border:1.5px solid rgba(167,139,250,0.2);color:var(--purple);cursor:pointer;transition:all .15s;"
-                    class="active:scale-95">📆 AGENDA</button>
-            </div>
-            <input type="text" id="search-orders" placeholder="🔍 Buscar cliente o equipo..." class="w-full text-sm font-semibold uppercase tracking-wide" oninput="onSearchInput()" list="search-suggestions">
-            <datalist id="search-suggestions"></datalist>
-            <button onclick="toggleFilters()" id="filterToggleBtn" class="filter-toggle w-full py-3 rounded-xl text-xs font-bold uppercase flex items-center justify-between px-4">
-                <span class="flex items-center gap-2">⚙️ FILTROS AVANZADOS</span>
-                <span class="arrow text-lg">▼</span>
+    <main id="view-ordenes" class="app-view hidden p-4 space-y-3 max-container">
+
+        <!-- Botones de acción rápida -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+            <button onclick="notifyAllReady()" style="padding:11px 4px;border-radius:14px;background:#071a10;border:1.5px solid rgba(0,217,126,0.3);color:#00d97e;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;" ontouchstart="this.style.background='#0d2a1a'" ontouchend="this.style.background='#071a10'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <span style="font-size:9px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;">Avisar</span>
             </button>
-            <div id="filter-panel" class="filter-panel card p-5 space-y-4">
-                <div class="grid grid-cols-2 gap-3">
-                    <div><label class="text-[10px] text-slate-400 block mb-1">Desde</label><input type="date" id="filter-date-from" class="text-xs w-full" onchange="applyFilters()"></div>
-                    <div><label class="text-[10px] text-slate-400 block mb-1">Hasta</label><input type="date" id="filter-date-to" class="text-xs w-full" onchange="applyFilters()"></div>
-                </div>
-                <div>
-                    <label class="text-[10px] text-slate-400 block mb-2">Estado</label>
-                    <div class="flex flex-wrap gap-3 text-xs">
-                        <label class="flex items-center gap-1"><input type="checkbox" value="recibido" class="status-filter" onchange="applyFilters()"> Recibido</label>
-                        <label class="flex items-center gap-1"><input type="checkbox" value="revisión" class="status-filter" onchange="applyFilters()"> Revisión</label>
-                        <label class="flex items-center gap-1"><input type="checkbox" value="reparado" class="status-filter" onchange="applyFilters()"> Reparado</label>
-                        <label class="flex items-center gap-1"><input type="checkbox" value="entregado" class="status-filter" onchange="applyFilters()"> Entregado</label>
+            <button onclick="exportMonthlyReport()" style="padding:11px 4px;border-radius:14px;background:#0a0d1f;border:1.5px solid rgba(59,130,246,0.3);color:#60a5fa;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;" ontouchstart="this.style.background='#10163a'" ontouchend="this.style.background='#0a0d1f'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                <span style="font-size:9px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;">Reporte</span>
+            </button>
+            <button onclick="openCalendarioEntregas()" style="padding:11px 4px;border-radius:14px;background:#100a1f;border:1.5px solid rgba(167,139,250,0.3);color:#a78bfa;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;" ontouchstart="this.style.background='#1a1030'" ontouchend="this.style.background='#100a1f'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span style="font-size:9px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;">Agenda</span>
+            </button>
+        </div>
+
+        <!-- Buscador -->
+        <div id="global-search-bar" style="position:relative;">
+            <span id="global-search-icon" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4a5a7a" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </span>
+            <input type="text" id="search-orders"
+                placeholder="Buscar cliente o equipo..."
+                style="width:100%;padding:12px 16px 12px 40px;border-radius:14px;font-size:13px;font-weight:600;background:#1e2436;border:1.5px solid #3a4560;color:#dde4f5;"
+                oninput="onSearchInput()" list="search-suggestions">
+            <datalist id="search-suggestions"></datalist>
+        </div>
+
+        <!-- Filtros avanzados toggle -->
+        <button onclick="toggleFilters()" id="filterToggleBtn"
+            style="width:100%;padding:12px 16px;border-radius:14px;background:#0f1420;border:1.5px solid #1e2a3a;color:#8899bb;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
+            <span style="display:flex;align-items:center;gap:8px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+                Filtros avanzados
+            </span>
+            <svg class="arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="transition:transform .3s;"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+
+        <!-- Panel de filtros -->
+        <div id="filter-panel" class="filter-panel" style="border-radius:16px;overflow:hidden;border:1.5px solid #1e2a3a;background:#0d1117;">
+            <div style="padding:16px;display:flex;flex-direction:column;gap:14px;">
+
+                <!-- Fechas -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                    <div>
+                        <label style="font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#3a4a6a;display:block;margin-bottom:6px;">Desde</label>
+                        <input type="date" id="filter-date-from" style="width:100%;font-size:12px;" onchange="applyFilters()">
+                    </div>
+                    <div>
+                        <label style="font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#3a4a6a;display:block;margin-bottom:6px;">Hasta</label>
+                        <input type="date" id="filter-date-to" style="width:100%;font-size:12px;" onchange="applyFilters()">
                     </div>
                 </div>
+
+                <!-- Estado como botones pill -->
                 <div>
-                    <label class="text-[10px] text-slate-400 block mb-2">👷 Técnico</label>
-                    <select id="filter-tecnico" class="w-full text-xs" onchange="applyFilters()">
+                    <label style="font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#3a4a6a;display:block;margin-bottom:8px;">Estado</label>
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                        <label style="cursor:pointer;">
+                            <input type="checkbox" value="recibido" class="status-filter" onchange="applyFilters()" style="display:none;">
+                            <span class="filter-pill" data-val="recibido" style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:99px;font-size:10px;font-weight:700;background:#0a0d1f;border:1.5px solid #1e2a3a;color:#8899bb;cursor:pointer;transition:all .15s;">
+                                <span style="width:7px;height:7px;border-radius:50%;background:#3b8bff;display:inline-block;flex-shrink:0;"></span>Recibido
+                            </span>
+                        </label>
+                        <label style="cursor:pointer;">
+                            <input type="checkbox" value="revisión" class="status-filter" onchange="applyFilters()" style="display:none;">
+                            <span class="filter-pill" data-val="revision" style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:99px;font-size:10px;font-weight:700;background:#0a0d1f;border:1.5px solid #1e2a3a;color:#8899bb;cursor:pointer;transition:all .15s;">
+                                <span style="width:7px;height:7px;border-radius:50%;background:#ffbe0b;display:inline-block;flex-shrink:0;"></span>Revisión
+                            </span>
+                        </label>
+                        <label style="cursor:pointer;">
+                            <input type="checkbox" value="reparado" class="status-filter" onchange="applyFilters()" style="display:none;">
+                            <span class="filter-pill" data-val="reparado" style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:99px;font-size:10px;font-weight:700;background:#0a0d1f;border:1.5px solid #1e2a3a;color:#8899bb;cursor:pointer;transition:all .15s;">
+                                <span style="width:7px;height:7px;border-radius:50%;background:#00d97e;display:inline-block;flex-shrink:0;"></span>Reparado
+                            </span>
+                        </label>
+                        <label style="cursor:pointer;">
+                            <input type="checkbox" value="entregado" class="status-filter" onchange="applyFilters()" style="display:none;">
+                            <span class="filter-pill" data-val="entregado" style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:99px;font-size:10px;font-weight:700;background:#0a0d1f;border:1.5px solid #1e2a3a;color:#8899bb;cursor:pointer;transition:all .15s;">
+                                <span style="width:7px;height:7px;border-radius:50%;background:#a78bfa;display:inline-block;flex-shrink:0;"></span>Entregado
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Técnico -->
+                <div>
+                    <label style="font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#3a4a6a;display:block;margin-bottom:6px;">Técnico</label>
+                    <select id="filter-tecnico" style="width:100%;font-size:12px;" onchange="applyFilters()">
                         <option value="">Todos los técnicos</option>
                     </select>
                 </div>
-                <div class="flex gap-3 pt-2">
-                    <button onclick="clearFilters()" class="flex-1 bg-slate-700 py-2 rounded-xl text-xs font-bold hover:bg-slate-600 transition">LIMPIAR</button>
-                </div>
+
+                <!-- Botón limpiar -->
+                <button onclick="clearFilters()" style="width:100%;padding:11px;border-radius:12px;background:#1a1f2e;border:1px solid #2a3248;color:#8899bb;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.01"/></svg>
+                    Limpiar filtros
+                </button>
+
             </div>
         </div>
+
         <div id="orders-list" class="space-y-4 pb-4"></div>
     </main>
 
@@ -4114,7 +4171,11 @@
             document.getElementById('search-orders').value='';
             document.getElementById('filter-date-from').value='';
             document.getElementById('filter-date-to').value='';
-            document.querySelectorAll('.status-filter').forEach(cb=>cb.checked=false);
+            document.querySelectorAll('.status-filter').forEach(cb => {
+                cb.checked = false;
+                const pill = cb.parentElement.querySelector('.filter-pill');
+                if (pill) pill.classList.remove('filter-pill-active');
+            });
             const ft = document.getElementById('filter-tecnico'); if(ft) ft.value='';
             applyFilters();
         }
@@ -7140,6 +7201,16 @@
         function closeCalificacionesModal() {
             document.getElementById('modal-calificaciones').classList.add('hidden');
         }
+
+        // ==================== FILTER PILLS — TOGGLE VISUAL ====================
+        document.addEventListener('change', e => {
+            if (e.target.classList.contains('status-filter')) {
+                const pill = e.target.parentElement.querySelector('.filter-pill');
+                if (pill) {
+                    pill.classList.toggle('filter-pill-active', e.target.checked);
+                }
+            }
+        });
 
         // ==================== REGISTRO DEL SERVICE WORKER (PWA) ====================
         if ('serviceWorker' in navigator) {
