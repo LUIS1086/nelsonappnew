@@ -96,21 +96,23 @@
 
         /* ── INPUTS ─────────────────────────────────────── */
         input,textarea,select {
-            background:#1a1f2e !important; /* sólido: WebView no compone bien rgba sobre negro */
-            border:1.5px solid #2a3248 !important;
+            background:#1e2436 !important; /* sólido visible en WebView Android */
+            border:1.5px solid #3a4560 !important;
             border-radius:14px !important;
             padding:.75rem 1rem !important;
-            color:var(--text) !important;
+            color:#dde4f5 !important;
             font-size:.95rem;font-weight:500;
-            transition:all .2s;
+            transition:border-color .2s;
+            -webkit-appearance:none;
+            appearance:none;
         }
         input:focus,textarea:focus,select:focus {
             border-color:var(--accent) !important;
             outline:none;
-            background:#1f1810 !important; /* tinte naranja sólido para focus */
+            background:#231b10 !important;
             box-shadow:0 0 0 3px rgba(255,107,26,0.15),0 0 20px rgba(255,107,26,0.08);
         }
-        input::placeholder,textarea::placeholder { color:var(--muted); }
+        input::placeholder,textarea::placeholder { color:#4a5a7a; }
 
         /* ── UTIL ───────────────────────────────────────── */
         .filter-toggle {
@@ -569,16 +571,7 @@
             </div>
             <!-- Meta + acciones -->
             <div class="flex items-center gap-2 flex-shrink-0">
-                <div id="meta-bar-wrap" class="hidden" style="text-align:right;">
-                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
-                        <span style="font-size:7px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted);">META</span>
-                        <span id="meta-bar-pct" style="font-size:9px;font-weight:900;color:var(--green);">0%</span>
-                    </div>
-                    <div style="width:64px;height:3px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;">
-                        <div id="meta-bar-fill" style="height:100%;width:0%;border-radius:99px;transition:width .7s ease;background:linear-gradient(to right,var(--green),#00ffaa);"></div>
-                    </div>
-                    <span id="meta-bar-amount" style="font-size:7px;color:var(--muted);"></span>
-                </div>
+                <!-- meta-bar ocultada -->
                 <button onclick="toggleTheme()" id="theme-btn"
                     style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all .2s;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.09);"
                     class="active:scale-90">🌙</button>
@@ -4241,21 +4234,6 @@
             if (bizShort && sideShort)    sideShort.innerText   = bizShort.innerText;
             if (bizFull  && sideFull)     sideFull.innerText    = bizFull.innerText;
             if (bizShort && dtSubtitle)   dtSubtitle.innerText  = bizShort.innerText;
-            // Sync meta bar
-            const metaFill = document.getElementById('meta-bar-fill');
-            const metaPct  = document.getElementById('meta-bar-pct');
-            const metaWrap = document.getElementById('meta-bar-wrap');
-            const sideFill = document.getElementById('sidebar-meta-fill');
-            const sidePct  = document.getElementById('sidebar-meta-pct');
-            const sideMetaWrap = document.getElementById('sidebar-meta-wrap-desktop');
-            if (metaFill && sideFill) {
-                sideFill.style.width = metaFill.style.width;
-                sideFill.style.background = metaFill.style.background;
-            }
-            if (metaPct  && sidePct)  sidePct.innerText = metaPct.innerText;
-            if (sideMetaWrap && metaWrap) {
-                sideMetaWrap.style.display = metaWrap.classList.contains('hidden') ? 'none' : 'block';
-            }
         }
         setInterval(syncSidebarCash, 2000);
 
@@ -5274,28 +5252,7 @@
             const msEl = document.getElementById('config-meta-semanal'); if (msEl) msEl.value = metaSemanal;
         }
         async function updateMetaBar() {
-            const meta    = parseFloat(localStorage.getItem('metaMensual')) || 0;
-            const visible = localStorage.getItem('metaVisible') === 'true';
-            const wrap    = document.getElementById('meta-bar-wrap');
-            if (!wrap) return;
-            if (!visible || !meta) { wrap.classList.add('hidden'); return; }
-            wrap.classList.remove('hidden');
-            const now   = new Date();
-            const start = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-            const orders = await getAll('orders');
-            const sales  = await getAll('sales');
-            const total  = orders.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha) >= start).reduce((a,b) => a+(b.val||0), 0)
-                         + sales.filter(s => s.fecha >= start && s.tipo !== 'adelanto' && s.tipo !== 'cobro_entrega').reduce((a,b) => a+(b.val||0), 0);
-            const pct = Math.min(100, Math.round((total / meta) * 100));
-            document.getElementById('meta-bar-fill').style.width = pct + '%';
-            document.getElementById('meta-bar-pct').innerText    = pct + '%';
-            const fill = document.getElementById('meta-bar-fill');
-            fill.style.background = pct >= 100 ? 'linear-gradient(to right,#10b981,#34d399)'
-                                  : pct >= 60  ? 'linear-gradient(to right,#f59e0b,#fbbf24)'
-                                  : 'linear-gradient(to right,#ef4444,#f87171)';
-            const amtEl = document.getElementById('meta-bar-amount');
-            if (amtEl) amtEl.innerText = getCurrency() + total.toLocaleString('es-CO') + ' / ' + getCurrency() + meta.toLocaleString('es-CO');
-            if (pct >= 100) showToast('🎉 ¡Meta del mes alcanzada!', 'success');
+            // Meta del header desactivada — se gestiona solo desde Configuración
         }
 
         // ==================== BLOQUE B: GRÁFICA DE INGRESOS ====================
