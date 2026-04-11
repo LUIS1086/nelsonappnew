@@ -96,23 +96,23 @@
 
         /* ── INPUTS ─────────────────────────────────────── */
         input,textarea,select {
-            background:#1e2436 !important; /* sólido visible en WebView Android */
-            border:1.5px solid #3a4560 !important;
+            background:#252d42 !important;
+            border:1.5px solid #3d4f6e !important;
             border-radius:14px !important;
             padding:.75rem 1rem !important;
-            color:#dde4f5 !important;
+            color:#e8eeff !important;
             font-size:.95rem;font-weight:500;
             transition:border-color .2s;
             -webkit-appearance:none;
             appearance:none;
         }
         input:focus,textarea:focus,select:focus {
-            border-color:var(--accent) !important;
+            border-color:#ff6b1a !important;
             outline:none;
-            background:#231b10 !important;
-            box-shadow:0 0 0 3px rgba(255,107,26,0.15),0 0 20px rgba(255,107,26,0.08);
+            background:#2a1f10 !important;
+            box-shadow:0 0 0 3px rgba(255,107,26,0.18);
         }
-        input::placeholder,textarea::placeholder { color:#4a5a7a; }
+        input::placeholder,textarea::placeholder { color:#5a6a8a; }
 
         /* ── UTIL ───────────────────────────────────────── */
         .filter-toggle {
@@ -164,7 +164,8 @@
 
         /* ── TAB ACTIVO ─────────────────────────────────── */
         .tab-active { color:var(--accent) !important; }
-        .tab-active .nav-icon { filter:drop-shadow(0 0 6px rgba(255,107,26,0.7)); transform:scale(1.1); }
+        .tab-active .nav-icon svg { filter:drop-shadow(0 0 5px rgba(255,107,26,0.6)); }
+        .tab-active { background:rgba(255,107,26,0.08) !important; }
 
         /* ── ANIMACIONES ────────────────────────────────── */
         .view-enter { animation:slideUp .38s cubic-bezier(0.16,1,0.3,1); }
@@ -455,44 +456,46 @@
         </div>
         <nav id="sidebar-nav">
             <div class="sidebar-nav-item active" id="sidebar-btn-taller" onclick="tab('taller')">
-                <span class="sidebar-nav-icon">🛠️</span>
+                <span class="sidebar-nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
                 <span class="sidebar-nav-label">Nueva Recepción</span>
             </div>
             <div class="sidebar-nav-item" id="sidebar-btn-ordenes" onclick="tab('ordenes')">
-                <span class="sidebar-nav-icon">📋</span>
+                <span class="sidebar-nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
                 <span class="sidebar-nav-label">Órdenes</span>
             </div>
             <div class="sidebar-nav-item" id="sidebar-btn-ventas" onclick="tab('ventas')">
-                <span class="sidebar-nav-icon">💰</span>
+                <span class="sidebar-nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span>
                 <span class="sidebar-nav-label">Caja &amp; Inventario</span>
             </div>
             <div class="sidebar-nav-item" id="sidebar-btn-admin" onclick="tab('admin')">
-                <span class="sidebar-nav-icon">⚙️</span>
+                <span class="sidebar-nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg></span>
                 <span class="sidebar-nav-label">Datos &amp; Config</span>
             </div>
             <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);">
                 <div style="font-size:9px;font-weight:800;color:#475569;letter-spacing:2px;text-transform:uppercase;padding:0 4px 8px;">Acciones rápidas</div>
-                <div class="sidebar-nav-item" onclick="window.location.href='./dashboard.html'" style="padding:10px 16px;">
-                    <span class="sidebar-nav-icon">📊</span>
-                    <span class="sidebar-nav-label" style="font-size:12px;">Command Center</span>
-                </div>
                 <div class="sidebar-nav-item" onclick="notifyAllReady()" style="padding:10px 16px;">
-                    <span class="sidebar-nav-icon">💬</span>
+                    <span class="sidebar-nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
                     <span class="sidebar-nav-label" style="font-size:12px;">Avisar listos</span>
                 </div>
                 <div class="sidebar-nav-item" onclick="exportMonthlyReport()" style="padding:10px 16px;">
-                    <span class="sidebar-nav-icon">📄</span>
+                    <span class="sidebar-nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg></span>
                     <span class="sidebar-nav-label" style="font-size:12px;">Reporte del mes</span>
                 </div>
                 <div class="sidebar-nav-item" onclick="openStatsModal()" style="padding:10px 16px;">
-                    <span class="sidebar-nav-icon">📊</span>
+                    <span class="sidebar-nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
                     <span class="sidebar-nav-label" style="font-size:12px;">Estadísticas</span>
                 </div>
             </div>
         </nav>
         <div id="sidebar-footer">
-            <button onclick="toggleTheme()" id="sidebar-theme-btn">🌙 Tema</button>
-            <button onclick="openAdvancedConfig()">⚙️ Config</button>
+            <button onclick="toggleTheme()" id="sidebar-theme-btn" style="display:flex;align-items:center;justify-content:center;gap:5px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
+                Tema
+            </button>
+            <button onclick="openAdvancedConfig()" style="display:flex;align-items:center;justify-content:center;gap:5px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+                Config
+            </button>
         </div>
     </aside>
 
@@ -591,99 +594,147 @@
     </header>
 
     <main id="view-taller" class="app-view hidden p-4 space-y-4 max-container">
-        <div class="card p-6 space-y-5">
-            <h2 style="text-align:center;font-size:10px;font-weight:900;letter-spacing:4px;text-transform:uppercase;color:var(--muted);">✦ Nueva Recepción</h2>
+        <div class="card p-5 space-y-4">
+            <h2 style="text-align:center;font-size:9px;font-weight:900;letter-spacing:4px;text-transform:uppercase;color:#3a4a6a;">NUEVA RECEPCIÓN</h2>
+
+            <!-- Cliente -->
             <div>
-                <input type="text" id="c-nom" placeholder="CLIENTE" class="uppercase font-semibold w-full" list="clientes-list" onkeyup="checkClient()">
-                <div id="client-alert" class="text-[10px] text-emerald-400 font-bold mt-1 min-h-[15px] ml-2"></div>
+                <input type="text" id="c-nom" placeholder="Nombre del cliente" class="uppercase font-semibold w-full" list="clientes-list" onkeyup="checkClient()">
+                <div id="client-alert" style="font-size:10px;color:#00d97e;font-weight:700;margin-top:4px;min-height:14px;margin-left:4px;"></div>
             </div>
             <datalist id="clientes-list"></datalist>
-            <input type="tel" id="c-tel" placeholder="WHATSAPP" class="w-full">
-            <input type="text" id="c-equ" placeholder="EQUIPO / MODELO" class="uppercase font-bold text-orange-400 w-full" list="equipos-list">
+
+            <!-- WhatsApp -->
+            <input type="tel" id="c-tel" placeholder="WhatsApp" class="w-full">
+
+            <!-- Equipo -->
+            <input type="text" id="c-equ" placeholder="Equipo / Modelo" class="uppercase font-bold w-full" list="equipos-list" style="color:#ff8c42;">
             <datalist id="equipos-list"></datalist>
-            <!-- Accesos rápidos: Plantilla + Checklist -->
-            <div class="flex gap-2">
-                <button type="button" onclick="openPlantillasModal()" class="flex-1 bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition">📋 Plantilla</button>
-                <button type="button" onclick="openChecklistModal()" class="flex-1 bg-teal-600/20 border border-teal-500/30 text-teal-300 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition">✅ Checklist</button>
+
+            <!-- Plantilla + Checklist -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <button type="button" onclick="openPlantillasModal()"
+                    style="padding:10px;border-radius:12px;background:#0f1640;border:1.5px solid #3730a3;color:#a5b4fc;font-size:10px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;"
+                    ontouchstart="this.style.background='#1e1b6a'" ontouchend="this.style.background='#0f1640'">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    Plantilla
+                </button>
+                <button type="button" onclick="openChecklistModal()"
+                    style="padding:10px;border-radius:12px;background:#0a1f18;border:1.5px solid #0f766e;color:#2dd4bf;font-size:10px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;"
+                    ontouchstart="this.style.background='#0d2e24'" ontouchend="this.style.background='#0a1f18'">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                    Checklist
+                </button>
             </div>
-            <textarea id="c-fal" placeholder="FALLA INICIAL Y ESTADO FÍSICO..." class="h-24 text-xs uppercase w-full" oninput="suggestDiagnosis()"></textarea>
+
+            <!-- Falla / Diagnóstico -->
+            <textarea id="c-fal" placeholder="Falla inicial y estado físico del equipo..." class="h-24 text-xs uppercase w-full" oninput="suggestDiagnosis()"></textarea>
             <div id="diagnosis-suggestions" class="suggestion-box"></div>
-            <div class="grid grid-cols-2 gap-3">
+
+            <!-- Garantía + Presupuesto -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                 <div>
-                    <label class="text-[10px] text-slate-400 block mb-1 ml-1">GARANTÍA (días)</label>
-                    <input type="number" id="c-garantia" placeholder="Ej: 30" class="w-full text-center font-bold" min="0" value="30">
+                    <label style="font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#3a4a6a;display:block;margin-bottom:5px;">Garantía (días)</label>
+                    <input type="number" id="c-garantia" placeholder="30" class="w-full text-center font-bold" min="0" value="30">
                 </div>
                 <div>
-                    <label class="text-[10px] text-slate-400 block mb-1 ml-1">PRESUPUESTO</label>
+                    <label style="font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#3a4a6a;display:block;margin-bottom:5px;">Presupuesto</label>
                     <select id="c-presupuesto" class="w-full font-bold text-xs">
-                        <option value="pendiente">⏳ Pendiente</option>
-                        <option value="enviado">📤 Enviado</option>
-                        <option value="aprobado">✅ Aprobado</option>
-                        <option value="rechazado">❌ Rechazado</option>
+                        <option value="pendiente">Pendiente</option>
+                        <option value="enviado">Enviado</option>
+                        <option value="aprobado">Aprobado</option>
+                        <option value="rechazado">Rechazado</option>
                     </select>
                 </div>
             </div>
-            <!-- Técnico asignado -->
+
+            <!-- Técnico -->
             <div>
-                <label class="text-[10px] text-slate-400 block mb-1 ml-1">👷 TÉCNICO ASIGNADO</label>
+                <label style="font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#3a4a6a;display:flex;align-items:center;gap:5px;margin-bottom:5px;">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#3a4a6a" stroke-width="2.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    Técnico asignado
+                </label>
                 <select id="c-tecnico" class="w-full font-bold text-sm">
                     <option value="">Sin asignar</option>
                 </select>
             </div>
-            <!-- Fecha estimada de entrega -->
+
+            <!-- Fecha estimada -->
             <div>
-                <label class="text-[10px] text-slate-400 block mb-1 ml-1">📅 FECHA ESTIMADA DE ENTREGA</label>
-                <input type="date" id="c-fecha-estimada" class="w-full text-sm font-bold text-blue-400">
+                <label style="font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#3a4a6a;display:flex;align-items:center;gap:5px;margin-bottom:5px;">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#3a4a6a" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    Fecha estimada de entrega
+                </label>
+                <input type="date" id="c-fecha-estimada" class="w-full text-sm font-bold" style="color:#60a5fa;">
             </div>
+
             <!-- Cómo nos conoció -->
             <div>
-                <label class="text-[10px] text-slate-400 block mb-1 ml-1">📣 ¿CÓMO NOS CONOCIÓ?</label>
+                <label style="font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#3a4a6a;display:flex;align-items:center;gap:5px;margin-bottom:5px;">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#3a4a6a" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    ¿Cómo nos conoció?
+                </label>
                 <select id="c-origen" class="w-full font-bold text-xs">
                     <option value="">Sin especificar</option>
-                    <option value="recomendacion">🗣️ Recomendación</option>
-                    <option value="redes">📱 Redes sociales</option>
-                    <option value="cliente_frecuente">⭐ Cliente frecuente</option>
-                    <option value="google">🔍 Google</option>
-                    <option value="local">🏠 Pasó por el local</option>
-                    <option value="whatsapp">💬 WhatsApp</option>
-                    <option value="otro">📌 Otro</option>
+                    <option value="recomendacion">Recomendación</option>
+                    <option value="redes">Redes sociales</option>
+                    <option value="cliente_frecuente">Cliente frecuente</option>
+                    <option value="google">Google</option>
+                    <option value="local">Pasó por el local</option>
+                    <option value="whatsapp">WhatsApp</option>
+                    <option value="otro">Otro</option>
                 </select>
             </div>
-            <!-- Valor y adelanto -->
-            <div class="grid grid-cols-2 gap-3">
+
+            <!-- Valor + Adelanto -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                 <div>
-                    <label class="text-[10px] text-slate-400 block mb-1 ml-1">💰 VALOR ESTIMADO</label>
-                    <input type="number" id="c-val" placeholder="$0" class="text-emerald-400 font-black text-center text-lg w-full" min="0" step="1000" oninput="calcSaldoPreview()">
+                    <label style="font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#3a4a6a;display:flex;align-items:center;gap:5px;margin-bottom:5px;">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#3a4a6a" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        Valor estimado
+                    </label>
+                    <input type="number" id="c-val" placeholder="0" class="text-center font-black text-lg w-full" style="color:#34d399;" min="0" step="1000" oninput="calcSaldoPreview()">
                 </div>
                 <div>
-                    <label class="text-[10px] text-slate-400 block mb-1 ml-1">💵 ADELANTO</label>
-                    <input type="number" id="c-adelanto" placeholder="$0" class="text-blue-400 font-black text-center text-lg w-full" min="0" step="1000" oninput="calcSaldoPreview()">
+                    <label style="font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#3a4a6a;display:flex;align-items:center;gap:5px;margin-bottom:5px;">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#3a4a6a" stroke-width="2.5" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                        Adelanto
+                    </label>
+                    <input type="number" id="c-adelanto" placeholder="0" class="text-center font-black text-lg w-full" style="color:#60a5fa;" min="0" step="1000" oninput="calcSaldoPreview()">
                 </div>
             </div>
-            <div id="val-error" class="text-[10px] text-rose-400 font-bold min-h-[15px]"></div>
-            <!-- Saldo calculado -->
-            <div id="saldo-preview" class="hidden bg-slate-800/60 rounded-xl px-4 py-2 flex justify-between items-center text-xs font-bold">
-                <span class="text-slate-400">Saldo pendiente:</span>
-                <span id="saldo-preview-val" class="text-rose-400 font-black text-base"></span>
+            <div id="val-error" style="font-size:10px;color:#ff4466;font-weight:700;min-height:14px;"></div>
+
+            <!-- Saldo preview -->
+            <div id="saldo-preview" class="hidden" style="background:#1a0a10;border:1px solid rgba(255,68,102,0.2);border-radius:12px;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:11px;color:#8899bb;font-weight:600;">Saldo pendiente:</span>
+                <span id="saldo-preview-val" style="color:#ff4466;font-weight:900;font-size:1rem;"></span>
             </div>
-            <div class="flex flex-col items-center gap-2">
-                <div class="flex gap-4">
-                    <div class="flex flex-col items-center gap-1">
-                        <button onclick="openCamera('recepcion')" class="camera-btn">📸</button>
-                        <span class="text-[9px] text-slate-400 font-bold">RECEPCIÓN</span>
-                    </div>
-                </div>
+
+            <!-- Botón cámara -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+                <button onclick="openCamera('recepcion')" class="camera-btn" style="display:flex;align-items:center;justify-content:center;gap:8px;width:auto;padding:14px 28px;border-radius:20px;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    <span style="font-size:11px;font-weight:900;letter-spacing:1px;">FOTO RECEPCIÓN</span>
+                </button>
             </div>
-            <div id="previews" class="flex gap-2 overflow-x-auto py-2 no-scrollbar"></div>
-            <!-- Notas internas (solo para el taller, no aparece en recibo) -->
+            <div id="previews" class="flex gap-2 overflow-x-auto py-1 no-scrollbar"></div>
+
+            <!-- Notas internas -->
             <div>
-                <label class="text-[10px] text-slate-400 block mb-1 ml-1">🔒 NOTAS INTERNAS <span class="text-slate-600">(no aparece en recibo)</span></label>
-                <textarea id="c-notas" placeholder="Observaciones del técnico, contraseña del equipo, accesorios entregados..." class="h-16 text-xs w-full"></textarea>
+                <label style="font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#3a4a6a;display:flex;align-items:center;gap:5px;margin-bottom:5px;">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#3a4a6a" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    Notas internas <span style="color:#1e2a3a;font-size:8px;font-weight:600;">(no aparece en recibo)</span>
+                </label>
+                <textarea id="c-notas" placeholder="Contraseña del equipo, accesorios entregados, observaciones..." class="h-16 text-xs w-full"></textarea>
             </div>
+
+            <!-- Botón guardar -->
             <button onclick="saveOrder()"
-                class="w-full py-4 rounded-2xl font-black uppercase text-white text-sm tracking-widest active:scale-95 transition-all"
-                style="background:linear-gradient(135deg,#f97316,#ea580c);box-shadow:0 6px 24px rgba(249,115,22,0.4),0 1px 0 rgba(255,255,255,0.15) inset;">
-                ⚡ REGISTRAR ENTRADA
+                style="width:100%;padding:16px;border-radius:16px;font-weight:900;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:white;border:none;cursor:pointer;background:linear-gradient(135deg,#f97316,#ea580c);box-shadow:0 6px 20px rgba(249,115,22,0.4);display:flex;align-items:center;justify-content:center;gap:8px;"
+                ontouchstart="this.style.opacity='.85'" ontouchend="this.style.opacity='1'">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Registrar Entrada
             </button>
         </div>
     </main>
@@ -2407,32 +2458,49 @@
         </div>
     </div>
 
-    <nav class="bottom-nav-mobile fixed bottom-3 left-3 right-3 max-container z-50 flex justify-around items-center px-2"
-         style="height:62px;border-radius:24px;">
+    <nav class="bottom-nav-mobile fixed bottom-3 left-3 right-3 max-container z-50 flex justify-around items-center px-1"
+         style="height:64px;border-radius:24px;">
+
         <button onclick="tab('taller')" id="btn-taller"
-            class="flex flex-col items-center gap-1 transition-all text-slate-500"
-            style="padding:8px 18px;border-radius:18px;min-width:60px;">
-            <span class="nav-icon text-xl leading-none">🛠️</span>
+            style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;border-radius:18px;border:none;background:transparent;cursor:pointer;color:#4a5a7a;transition:color .15s;">
+            <span class="nav-icon" style="display:flex;align-items:center;justify-content:center;width:24px;height:24px;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                </svg>
+            </span>
             <span style="font-size:9px;font-weight:800;letter-spacing:0.5px;">Taller</span>
         </button>
+
         <button onclick="tab('ordenes')" id="btn-ordenes"
-            class="flex flex-col items-center gap-1 transition-all text-slate-500"
-            style="padding:8px 18px;border-radius:18px;min-width:60px;">
-            <span class="nav-icon text-xl leading-none">📋</span>
+            style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;border-radius:18px;border:none;background:transparent;cursor:pointer;color:#4a5a7a;transition:color .15s;">
+            <span class="nav-icon" style="display:flex;align-items:center;justify-content:center;width:24px;height:24px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                </svg>
+            </span>
             <span style="font-size:9px;font-weight:800;letter-spacing:0.5px;">Órdenes</span>
         </button>
+
         <button onclick="tab('ventas')" id="btn-ventas"
-            class="flex flex-col items-center gap-1 transition-all text-slate-500"
-            style="padding:8px 18px;border-radius:18px;min-width:60px;">
-            <span class="nav-icon text-xl leading-none">💰</span>
+            style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;border-radius:18px;border:none;background:transparent;cursor:pointer;color:#4a5a7a;transition:color .15s;">
+            <span class="nav-icon" style="display:flex;align-items:center;justify-content:center;width:24px;height:24px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+                </svg>
+            </span>
             <span style="font-size:9px;font-weight:800;letter-spacing:0.5px;">Caja</span>
         </button>
+
         <button onclick="tab('admin')" id="btn-admin"
-            class="flex flex-col items-center gap-1 transition-all text-slate-500"
-            style="padding:8px 18px;border-radius:18px;min-width:60px;">
-            <span class="nav-icon text-xl leading-none">⚙️</span>
+            style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;border-radius:18px;border:none;background:transparent;cursor:pointer;color:#4a5a7a;transition:color .15s;">
+            <span class="nav-icon" style="display:flex;align-items:center;justify-content:center;width:24px;height:24px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/>
+                </svg>
+            </span>
             <span style="font-size:9px;font-weight:800;letter-spacing:0.5px;">Datos</span>
         </button>
+
     </nav>
 
     </div><!-- /main-content-area -->
