@@ -2450,7 +2450,7 @@
         function openDB() {
             return new Promise((resolve, reject) => {
                 if (db && db.name === DB_NAME) return resolve(db);
-                const request = indexedDB.open(DB_NAME, 13);
+                const request = indexedDB.open(DB_NAME, 14);
                 request.onerror = () => reject(request.error);
                 request.onsuccess = () => { db = request.result; resolve(db); };
                 request.onupgradeneeded = (event) => {
@@ -2478,6 +2478,7 @@
                         oc.createIndex('ordenId', 'ordenId');
                     }
                     if (!idb.objectStoreNames.contains('paymentPlans')) idb.createObjectStore('paymentPlans', { keyPath: 'id' });
+                    if (!idb.objectStoreNames.contains('calificaciones')) idb.createObjectStore('calificaciones', { keyPath: 'id' });
                 };
             });
         }
@@ -2802,13 +2803,14 @@
                 const gastos   = await getAll('gastos');
                 const clientes = await getAll('clientes');
                 const payments = await getAll('payments');
+                const calificaciones = await getAll('calificaciones');
 
                 const exportOrders = [];
                 for (let o of orders) {
                     exportOrders.push({ ...o, fotos: await blobsToB64(o.fotos || []), fotosEntrega: await blobsToB64(o.fotosEntrega || []) });
                 }
 
-                const jsonStr  = JSON.stringify({ orders: exportOrders, stock, sales, gastos, clientes, payments, date: new Date().toISOString() });
+                const jsonStr  = JSON.stringify({ orders: exportOrders, stock, sales, gastos, clientes, payments, calificaciones, date: new Date().toISOString() });
                 const fileName = `nelson_backup_${new Date().toISOString().slice(0,10)}.json`;
                 const folderId = await ensureDriveFolder();
 
@@ -3203,10 +3205,10 @@
                             ${canEditValue ? `<button onclick="editOrderValue(${o.id})" class="text-emerald-400 font-black ml-2 underline">$${o.val.toLocaleString()} ✏️</button>` : `<span class="text-emerald-400 font-black ml-2">$${o.val.toLocaleString()}</span>`}
                         </div>
                         <div class="flex gap-2">
-                            <button onclick="openOrderChat(${o.id})" class="bg-cyan-500/20 p-2 rounded-xl text-cyan-400" title="Chat interno">💬</button>
+                            <button onclick="openOrderChat(${o.id})" class="bg-cyan-500/20 p-2 rounded-xl text-cyan-400" title="Notas internas">📝</button>
                             <button onclick="openPaymentPlan(${o.id})" class="bg-blue-500/20 p-2 rounded-xl text-blue-400" title="Plan de pagos">💳</button>
                             <button onclick="printInvoice(${o.id})" class="bg-amber-500/20 p-2 rounded-xl text-amber-400">🧾</button>
-                            <button onclick="sendWA(${o.id})" class="bg-emerald-500/20 p-2 rounded-xl text-emerald-400">💬</button>
+                            <button onclick="sendWA(${o.id})" class="bg-emerald-500/20 p-2 rounded-xl text-emerald-400" title="WhatsApp">💬</button>
                             <button onclick="delOrder(${o.id})" class="bg-rose-500/20 p-2 rounded-xl text-rose-400">🗑️</button>
                         </div>
                     </div>
@@ -3436,7 +3438,7 @@
             const msg = buildWhatsappMsg(type, o);
             const num = o.tel.replace(/\D/g, '');
             const prefix = num.startsWith('57') ? '' : '57';
-            window.location.href = `https://wa.me/${prefix}${num}?text=${encodeURIComponent(msg)}`;
+            window.open(`https://wa.me/${prefix}${num}?text=${encodeURIComponent(msg)}`, '_blank');
         }
         let _fotoModalOrderId = null;
         let _fotoModalTipo = 'recepcion';
@@ -3569,6 +3571,7 @@
             await put('gastos', { id: Date.now(), det, val, fecha: Date.now() });
             document.getElementById('g-det').value = ''; document.getElementById('g-val').value = '';
             await updateTotal();
+            showToast(`Gasto $${val.toLocaleString()} registrado`, 'success');
         }
 
         async function renderMovimientos() {
@@ -4115,7 +4118,7 @@
         async function exportData() {
             try {
                 const loading = document.createElement('div'); loading.innerHTML = '<div class="fixed inset-0 bg-black/70 flex items-center justify-center z-[4000]"><div class="bg-slate-800 p-6 rounded-2xl text-center"><div class="loading-spinner mx-auto"></div><p class="mt-2 text-sm">Exportando...</p></div></div>'; document.body.appendChild(loading);
-                const orders = await getAll('orders'); const stock = await getAll('stock'); const sales = await getAll('sales'); const gastos = await getAll('gastos'); const clientes = await getAll('clientes'); const payments = await getAll('payments');
+                const orders = await getAll('orders'); const stock = await getAll('stock'); const sales = await getAll('sales'); const gastos = await getAll('gastos'); const clientes = await getAll('clientes'); const payments = await getAll('payments'); const calificaciones = await getAll('calificaciones');
 
                 const exportOrders = [];
                 for(let o of orders) {
@@ -4124,7 +4127,7 @@
                     exportOrders.push({...o, fotos, fotosEntrega});
                 }
 
-                const jsonStr = JSON.stringify({orders:exportOrders, stock, sales, gastos, clientes, payments});
+                const jsonStr = JSON.stringify({orders:exportOrders, stock, sales, gastos, clientes, payments, calificaciones});
                 const fileName = `nelson_backup_${new Date().toISOString().slice(0,10)}.json`;
                 loading.remove();
 
@@ -4254,6 +4257,7 @@
                     for(let g of data.gastos || []) await put('gastos', g);
                     for(let c of data.clientes || []) await put('clientes', c);
                     for(let p of data.payments || []) await put('payments', p);
+                    for(let c of data.calificaciones || []) await put('calificaciones', c);
                     await updateTotal(); await updateSuggestions(); await renderCartera();
                     showAlert("✅ Importación exitosa. La app se recargará.", "success", () => location.reload());
                 } catch(err) { showAlert("Error al importar: " + err.message, "error"); }
@@ -5644,10 +5648,12 @@
             const d = document.getElementById('config-sin-mov');     if (d) d.value = localStorage.getItem('reminderSinMovDias') || '';
             const sr = document.getElementById('config-sin-recoger'); if (sr) sr.value = localStorage.getItem('diasSinRecoger') || '7';
         }
+        let _reminderIntervalId = null;
         function setupReminderChecks() {
+            if (_reminderIntervalId) { clearInterval(_reminderIntervalId); _reminderIntervalId = null; }
             const cierreHora = localStorage.getItem('reminderCierreHora');
             if (cierreHora) {
-                setInterval(() => {
+                _reminderIntervalId = setInterval(() => {
                     const now  = new Date();
                     const hhmm = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
                     if (hhmm === cierreHora) showToast('⏰ Recordatorio: Hacer cierre de caja', 'warning');
@@ -7079,17 +7085,24 @@
                 comentario:  document.getElementById('cal-comentario').value.trim(),
                 fecha:       Date.now()
             };
-            // Guardar en localStorage (simple, no ocupa espacio de IndexedDB)
-            const cals = JSON.parse(localStorage.getItem('calificaciones') || '[]');
-            cals.push(cal);
-            localStorage.setItem('calificaciones', JSON.stringify(cals));
+            // Guardar en IndexedDB (incluido en backups)
+            await put('calificaciones', cal);
             closePedirCalificacion();
             showToast(`⭐ Calificación de ${_calStarSel} estrella${_calStarSel!==1?'s':''} guardada`, 'success');
         }
 
         async function openCalificacionesModal() {
-            const cals = JSON.parse(localStorage.getItem('calificaciones') || '[]')
-                .sort((a,b) => b.fecha - a.fecha);
+            // Migración automática: mover calificaciones viejas de localStorage a IndexedDB
+            const legacy = localStorage.getItem('calificaciones');
+            if (legacy) {
+                try {
+                    const viejas = JSON.parse(legacy);
+                    for (const c of viejas) await put('calificaciones', c);
+                    localStorage.removeItem('calificaciones');
+                } catch(e) { /* ignorar error de migración */ }
+            }
+
+            const cals = (await getAll('calificaciones')).sort((a,b) => b.fecha - a.fecha);
             const cur  = getCurrency();
             const promedio = cals.length ? (cals.reduce((s,c) => s+c.estrellas,0) / cals.length).toFixed(1) : '—';
             const dist = [5,4,3,2,1].map(n => ({ n, count: cals.filter(c=>c.estrellas===n).length }));
