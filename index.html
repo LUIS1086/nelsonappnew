@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#080b14">
+    <meta name="theme-color" content="#f97316">
     <title>Nelson App Pro | Taller & Ventas</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -16,336 +16,538 @@
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,800&display=swap" rel="stylesheet">
     <style>
-        * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
+        * { font-family: 'Inter', sans-serif; }
 
+        /* ===== VARIABLES DE COLOR ===== */
         :root {
-            --bg:           #080b14;
-            --bg2:          #0d1120;
-            --card:         #111827;
-            --border:       rgba(255,255,255,0.07);
-            --text:         #e2e8f5;
-            --muted:        #4a5a7a;
+            --bg-dark:      #0d0f1a;
+            --bg-dark2:     #131520;
+            --card-dark:    #181b28;
+            --border-dark:  rgba(255,255,255,0.06);
+            --text-dark:    #e8eaf6;
+            --text-muted:   #6b7a99;
             --accent:       #f97316;
             --accent-dark:  #ea580c;
             --success:      #10b981;
             --danger:       #f43f5e;
-            --warn:         #fbbf24;
-            /* legacy aliases */
-            --bg-dark:      #080b14;
-            --bg-dark2:     #0d1120;
-            --card-dark:    #111827;
-            --border-dark:  rgba(255,255,255,0.07);
-            --text-dark:    #e2e8f5;
-            --text-muted:   #4a5a7a;
-            --accent-dark:  #ea580c;
-            --bg-light:     #f0f4ff;
-            --bg-light2:    #e4eaf7;
-            --card-light:   #ffffff;
-            --border-light: #d1d9ee;
-            --text-light:   #0f172a;
-            --text-muted-l: #64748b;
+            --info:         #38bdf8;
+
+            /* Light mode — crema/papel */
+            --bg-light:     #f5f3ee;
+            --bg-light2:    #ede9e0;
+            --card-light:   #fdfcf9;
+            --border-light: #ddd8ce;
+            --text-light:   #1c1917;
+            --text-muted-l: #78716c;
         }
 
-        html { scroll-behavior:smooth; }
+        /* ===== DARK MODE (default) ===== */
         body {
-            background: var(--bg);
-            color: var(--text);
-            padding-bottom: calc(90px + env(safe-area-inset-bottom,0px));
+            background: var(--bg-dark);
+            color: var(--text-dark);
+            padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
             -webkit-tap-highlight-color: transparent;
-            transition: background 0.4s, color 0.4s;
-            overflow-x: hidden;
+            transition: background 0.35s ease, color 0.35s ease;
         }
-        body::after {
-            content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
-            opacity:0.018;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-            background-size:160px;
-        }
-
         .card {
-            background: var(--card);
-            border-radius: 1.75rem;
-            border: 1px solid var(--border);
-            box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 8px 32px rgba(0,0,0,0.45);
-            transition: background 0.4s, transform 0.15s, box-shadow 0.2s;
-            position:relative; overflow:hidden;
+            background: var(--card-dark);
+            border-radius: 1.5rem;
+            border: 1px solid var(--border-dark);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.04) inset;
+            transition: background 0.35s ease;
         }
-        .card:active { transform:scale(0.997); }
-
         input, textarea, select {
-            background: rgba(255,255,255,0.045) !important;
-            border: 1.5px solid rgba(255,255,255,0.09) !important;
+            background: #1e2235 !important;
+            border: 1px solid rgba(255,255,255,0.08) !important;
             border-radius: 1rem !important;
             padding: 0.75rem 1rem !important;
-            color: var(--text) !important;
+            color: #e8eaf6 !important;
             font-size: 1rem;
             transition: all 0.2s;
         }
         input:focus, textarea:focus, select:focus {
             border-color: var(--accent) !important;
             outline: none;
-            background: rgba(249,115,22,0.05) !important;
-            box-shadow: 0 0 0 3px rgba(249,115,22,0.14);
+            box-shadow: 0 0 0 3px rgba(249,115,22,0.18);
         }
         .filter-toggle {
-            background:rgba(255,255,255,0.04); backdrop-filter:blur(8px);
-            border:1.5px solid rgba(255,255,255,0.08); transition:all 0.2s; border-radius:1rem;
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: all 0.2s;
         }
-        .filter-toggle:hover { background:rgba(249,115,22,0.1); border-color:rgba(249,115,22,0.28); }
-        .modal-custom { background:rgba(3,5,15,0.93); backdrop-filter:blur(22px); }
-        .suggestion-box { background:#111827; border:1.5px solid rgba(255,255,255,0.08); border-radius:.875rem; padding:.5rem; margin-top:4px; max-height:120px; overflow-y:auto; display:none; }
-        .suggestion-item { padding:7px 12px; border-radius:.5rem; cursor:pointer; font-size:12px; font-weight:700; color:var(--accent); }
-        .suggestion-item:hover { background:rgba(249,115,22,0.15); }
+        .filter-toggle:hover { background: rgba(249,115,22,0.15); border-color: rgba(249,115,22,0.35); }
+        .modal-custom { background: rgba(5,6,15,0.88); backdrop-filter: blur(16px); }
+        .suggestion-box { background: #1e2235; border: 1px solid rgba(255,255,255,0.08); border-radius: 0.75rem; padding: 0.5rem; margin-top: 4px; max-height: 120px; overflow-y: auto; display: none; }
+        .suggestion-item { padding: 6px 10px; border-radius: 0.5rem; cursor: pointer; font-size: 12px; font-weight: 700; color: var(--accent); }
+        .suggestion-item:hover { background: rgba(249,115,22,0.15); }
 
-        /* LIGHT MODE */
-        body.light-mode { background:var(--bg-light); color:var(--text-light); }
-        body.light-mode .card { background:var(--card-light); border-color:var(--border-light); box-shadow:0 4px 20px rgba(0,0,0,0.08),0 1px 0 rgba(255,255,255,0.9) inset; }
-        body.light-mode input,body.light-mode textarea,body.light-mode select { background:#f1f5ff !important; border:1.5px solid #c7d2ed !important; color:var(--text-light) !important; }
-        body.light-mode input:focus,body.light-mode textarea:focus,body.light-mode select:focus { border-color:var(--accent) !important; box-shadow:0 0 0 3px rgba(249,115,22,0.14) !important; background:rgba(249,115,22,0.04) !important; }
-        body.light-mode .filter-toggle { background:rgba(255,255,255,0.8); border-color:var(--border-light); }
-        body.light-mode nav { background:rgba(255,255,255,0.93) !important; border-color:rgba(0,0,0,0.08) !important; box-shadow:0 -8px 32px rgba(0,0,0,0.08) !important; }
-        body.light-mode header { background:rgba(240,244,255,0.96) !important; border-color:var(--border-light) !important; }
-        body.light-mode .text-slate-400 { color:var(--text-muted-l) !important; }
-        body.light-mode .text-slate-500 { color:var(--text-muted-l) !important; }
-        body.light-mode .text-white { color:var(--text-light) !important; }
-        body.light-mode .bg-black\/40,body.light-mode .bg-black\/30 { background:rgba(0,0,0,0.04) !important; }
-        body.light-mode .bg-slate-800\/40,body.light-mode .bg-slate-800\/60 { background:rgba(0,0,0,0.04) !important; }
-        body.light-mode .bg-\[#111827\] { background:var(--card-light) !important; }
-        body.light-mode .suggestion-box { background:#f1f5ff; border-color:var(--border-light); }
-        body.light-mode .modal-custom { background:rgba(175,185,215,0.82); backdrop-filter:blur(22px); }
-        body.light-mode .cfg-section { border-color:var(--border-light); }
-        body.light-mode .order-num { color:var(--accent); }
-        body.light-mode .text-emerald-400 { color:#059669 !important; }
-        body.light-mode .text-rose-400 { color:#e11d48 !important; }
-        body.light-mode .text-blue-400 { color:#2563eb !important; }
-        body.light-mode .text-orange-400,body.light-mode .text-orange-500 { color:#c2410c !important; }
+        /* ===== LIGHT MODE — crema/papel ===== */
+        body.light-mode {
+            background: var(--bg-light);
+            color: var(--text-light);
+        }
+        body.light-mode .card {
+            background: var(--card-light);
+            border-color: var(--border-light);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07), 0 1px 0 rgba(255,255,255,0.9) inset;
+        }
+        body.light-mode input,
+        body.light-mode textarea,
+        body.light-mode select {
+            background: #f0ece3 !important;
+            border: 1px solid #cdc8bc !important;
+            color: var(--text-light) !important;
+        }
+        body.light-mode input:focus,
+        body.light-mode textarea:focus,
+        body.light-mode select:focus {
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 0 3px rgba(249,115,22,0.15) !important;
+        }
+        body.light-mode .filter-toggle {
+            background: rgba(255,255,255,0.7);
+            border-color: var(--border-light);
+        }
+        body.light-mode nav {
+            background: rgba(253,252,249,0.92) !important;
+            border-color: var(--border-light) !important;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.06) !important;
+        }
+        body.light-mode header {
+            background: rgba(245,243,238,0.92) !important;
+            border-color: var(--border-light) !important;
+        }
+        body.light-mode .text-slate-400 { color: var(--text-muted-l) !important; }
+        body.light-mode .text-slate-500 { color: var(--text-muted-l) !important; }
+        body.light-mode .text-white      { color: var(--text-light) !important; }
+        body.light-mode .bg-black\/40,
+        body.light-mode .bg-black\/30    { background: rgba(0,0,0,0.04) !important; }
+        body.light-mode .bg-slate-800\/40,
+        body.light-mode .bg-slate-800\/60 { background: rgba(0,0,0,0.04) !important; }
+        body.light-mode .bg-\[#111827\]  { background: var(--card-light) !important; }
+        body.light-mode .bg-\[#111827\] *,
+        body.light-mode .bg-slate-800 *  { color: var(--text-light); }
+        body.light-mode .suggestion-box  { background: #f0ece3; border-color: var(--border-light); }
+        body.light-mode .modal-custom    { background: rgba(200,195,185,0.75); backdrop-filter: blur(16px); }
+        body.light-mode .cfg-section     { border-color: var(--border-light); }
+        body.light-mode .order-num       { color: var(--accent); }
+        /* Textos de saldo/montos en light mode */
+        body.light-mode .text-emerald-400 { color: #059669 !important; }
+        body.light-mode .text-rose-400    { color: #e11d48 !important; }
+        body.light-mode .text-blue-400    { color: #2563eb !important; }
+        body.light-mode .text-orange-400,
+        body.light-mode .text-orange-500  { color: #c2410c !important; }
+        /* Cards con gradiente en light */
+        body.light-mode .bg-gradient-to-br { background: var(--card-light) !important; }
 
-        /* HIGH CONTRAST */
-        body.high-contrast { background:#000 !important; color:#fff !important; }
-        body.high-contrast .card { background:#0a0a0a !important; border:2px solid rgba(255,255,255,0.4) !important; }
-        body.high-contrast input,body.high-contrast textarea,body.high-contrast select { background:#000 !important; color:#fff !important; border:1px solid rgba(255,255,255,0.5) !important; }
+        @media (prefers-color-scheme: light) {
+            body:not(.dark-mode) {
+                background: var(--bg-light);
+                color: var(--text-light);
+            }
+        }
 
-        html.font-small  { font-size:14px; }
-        html.font-normal { font-size:16px; }
-        html.font-large  { font-size:18px; }
+        /* ===== ALTO CONTRASTE ===== */
+        body.high-contrast { background: #000 !important; color: #fff !important; }
+        body.high-contrast .card { background: #0a0a0a !important; border: 2px solid rgba(255,255,255,0.4) !important; }
+        body.high-contrast input,
+        body.high-contrast textarea,
+        body.high-contrast select { background: #000 !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.5) !important; }
+        body.high-contrast button { border: 1px solid rgba(255,255,255,0.3); }
 
-        .max-container { max-width:600px; margin:0 auto; }
+        /* ===== TAMAÑOS DE LETRA ===== */
+        html.font-small  { font-size: 14px; }
+        html.font-normal { font-size: 16px; }
+        html.font-large  { font-size: 18px; }
 
-        /* TAB ACTIVO */
-        .tab-active { color:var(--accent) !important; font-weight:800 !important; }
-        .tab-active span:first-child { filter:drop-shadow(0 0 5px rgba(249,115,22,0.55)); }
-
-        /* ANIMACIONES */
-        .view-enter { animation:slideUp 0.35s cubic-bezier(0.16,1,0.3,1); }
-        @keyframes slideUp { from{opacity:0;transform:translateY(14px) scale(0.99);} to{opacity:1;transform:translateY(0) scale(1);} }
-        .fade-in { animation:fadeIn 0.3s ease; }
-        @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
-
-        .filter-panel { transition:max-height 0.45s cubic-bezier(0.4,0,0.2,1),opacity 0.3s; overflow:hidden; max-height:0; opacity:0; }
-        .filter-panel.open { max-height:500px; opacity:1; }
-        .filter-toggle .arrow { transition:transform 0.3s; }
-        .filter-toggle.open .arrow { transform:rotate(180deg); }
-
-        .photo-modal { background:rgba(0,0,0,0.97); backdrop-filter:blur(20px); }
-        .no-scrollbar::-webkit-scrollbar { display:none; }
-        .btn-icon { transition:transform 0.12s,opacity 0.12s; }
-        .btn-icon:active { transform:scale(0.87); opacity:0.7; }
-
+        .tab-active { color: var(--accent); font-weight: 700; transform: translateY(-2px); }
+        .max-container { max-width: 600px; margin: 0 auto; }
+        .view-enter { animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .filter-panel { transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease; overflow: hidden; max-height: 0; opacity: 0; }
+        .filter-panel.open { max-height: 450px; opacity: 1; }
+        .photo-modal { background: rgba(0,0,0,0.96); backdrop-filter: blur(16px); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .btn-icon { transition: transform 0.1s ease; }
+        .btn-icon:active { transform: scale(0.92); }
         .camera-btn {
-            background:linear-gradient(135deg,var(--accent),var(--accent-dark));
-            width:72px; height:72px; border-radius:36px;
-            display:flex; align-items:center; justify-content:center; font-size:2rem;
-            box-shadow:0 8px 28px rgba(249,115,22,0.45),0 0 0 1px rgba(249,115,22,0.2);
-            transition:transform 0.12s,box-shadow 0.2s;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            width: 70px; height: 70px; border-radius: 35px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 8px 24px rgba(249,115,22,0.35);
+            transition: transform 0.1s ease;
         }
-        .camera-btn:active { transform:scale(0.92); box-shadow:0 4px 14px rgba(249,115,22,0.3); }
+        .camera-btn:active { transform: scale(0.95); }
+        .order-card.overdue { border-left-color: var(--danger) !important; background: rgba(244,63,94,0.05); }
+        .filter-toggle .arrow { transition: transform 0.3s ease; }
+        .filter-toggle.open .arrow { transform: rotate(180deg); }
+        input[list]::-webkit-calendar-picker-indicator { opacity: 0; width: 0; padding: 0; position: absolute; right: 0; pointer-events: none; }
+        input[list]::-moz-calendar-picker-indicator { display: none; }
+        #search-orders::-webkit-calendar-picker-indicator { opacity: 0.4; width: 14px; position: static; pointer-events: auto; }
+        .loading-spinner {
+            display: inline-block; width: 20px; height: 20px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 50%; border-top-color: var(--accent);
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        canvas { max-height: 250px; width: 100% !important; }
+        .swipe-area { touch-action: pan-y; }
+        .garantia-badge { background: linear-gradient(135deg, #10b981, #059669); padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 800; color: white; }
+        .garantia-vencida { background: linear-gradient(135deg, #f43f5e, #e11d48); }
+        .presupuesto-badge { padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 800; }
+        .order-num { font-size: 10px; color: var(--accent); font-weight: 900; letter-spacing: 1px; }
 
-        .order-card.overdue { border-left-color:var(--danger) !important; background:rgba(244,63,94,0.04); }
-        input[list]::-webkit-calendar-picker-indicator { opacity:0; width:0; padding:0; position:absolute; right:0; pointer-events:none; }
-        input[list]::-moz-calendar-picker-indicator { display:none; }
-        #search-orders::-webkit-calendar-picker-indicator { opacity:0.4; width:14px; position:static; pointer-events:auto; }
-
-        .loading-spinner { display:inline-block; width:20px; height:20px; border:2px solid rgba(255,255,255,0.15); border-radius:50%; border-top-color:var(--accent); animation:spin 0.75s linear infinite; }
-        @keyframes spin { to{transform:rotate(360deg);} }
-        canvas { max-height:250px; width:100% !important; }
-        .swipe-area { touch-action:pan-y; }
-
-        .garantia-badge { background:linear-gradient(135deg,#10b981,#059669); padding:3px 9px; border-radius:999px; font-size:10px; font-weight:800; color:white; box-shadow:0 2px 8px rgba(16,185,129,0.28); }
-        .garantia-vencida { background:linear-gradient(135deg,#f43f5e,#e11d48); box-shadow:0 2px 8px rgba(244,63,94,0.28); }
-        .presupuesto-badge { padding:3px 9px; border-radius:999px; font-size:10px; font-weight:800; }
-        .order-num { font-size:10px; color:var(--accent); font-weight:900; letter-spacing:1.5px; }
-
+        /* ===== MEJORAS TALLER v3.2 ===== */
         .deadline-badge { display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:800; }
-        .deadline-ok   { background:rgba(16,185,129,0.12);color:#34d399;border:1px solid rgba(16,185,129,0.24); }
-        .deadline-warn { background:rgba(251,191,36,0.12);color:#fbbf24;border:1px solid rgba(251,191,36,0.24); }
-        .deadline-late { background:rgba(244,63,94,0.12);color:#f87171;border:1px solid rgba(244,63,94,0.24);animation:pulse-dead 1.4s ease infinite; }
-        .deadline-today{ background:rgba(249,115,22,0.2);color:#fb923c;border:1px solid rgba(249,115,22,0.44); }
-        @keyframes pulse-dead { 0%,100%{opacity:1} 50%{opacity:0.5} }
 
-        .photo-compare-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
+        /* ===== BLOQUE 2: BÚSQUEDA GLOBAL + REPORTES ===== */
+        #global-search-bar { position:relative; }
+        #global-search-input { width:100%;padding:9px 14px 9px 36px;border-radius:14px;font-size:13px;font-weight:600;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#e8eaf6;transition:all 0.2s; }
+        #global-search-input:focus { border-color:var(--accent);box-shadow:0 0 0 3px rgba(249,115,22,0.15); }
+        #global-search-icon { position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none; }
+        #global-search-results { position:absolute;top:calc(100% + 6px);left:0;right:0;background:#1a1d2e;border:1px solid rgba(255,255,255,0.1);border-radius:16px;z-index:200;max-height:320px;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.5);display:none; }
+        #global-search-results.open { display:block;animation:slideUp 0.2s ease; }
+        .gsr-item { padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.05);transition:background 0.15s; }
+        .gsr-item:last-child { border-bottom:none; }
+        .gsr-item:hover { background:rgba(249,115,22,0.1); }
+        .gsr-tag { display:inline-block;padding:1px 6px;border-radius:6px;font-size:9px;font-weight:800;margin-right:4px; }
+        .gsr-tag.orden  { background:rgba(249,115,22,0.2);color:#fb923c; }
+        .gsr-tag.stock  { background:rgba(16,185,129,0.2);color:#34d399; }
+        .gsr-tag.cliente{ background:rgba(59,130,246,0.2);color:#60a5fa; }
+        /* Pestaña activa en el modal de reportes */
+        .report-tab { padding:8px 14px;border-radius:10px;font-size:11px;font-weight:800;cursor:pointer;transition:all 0.2s;border:1px solid transparent;color:#64748b; }
+        .report-tab.active { background:rgba(249,115,22,0.15);border-color:rgba(249,115,22,0.3);color:#fb923c; }
+        .bar-track { height:8px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;flex:1; }
+        .bar-fill  { height:100%;border-radius:99px;transition:width 0.7s ease; }
+        .deadline-ok   { background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.3); }
+        .deadline-warn { background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3); }
+        .deadline-late { background:rgba(244,63,94,0.15);color:#f87171;border:1px solid rgba(244,63,94,0.3);animation:pulse-dead 1.4s ease infinite; }
+        .deadline-today{ background:rgba(249,115,22,0.22);color:#fb923c;border:1px solid rgba(249,115,22,0.5); }
+        @keyframes pulse-dead { 0%,100%{opacity:1} 50%{opacity:0.55} }
+
+        .photo-compare-grid { display:grid;grid-template-columns:1fr 1fr;gap:8px; }
         .photo-compare-label { font-size:9px;font-weight:800;letter-spacing:2px;text-align:center;padding:3px 0;border-radius:8px;margin-bottom:5px; }
         .compare-entrada .photo-compare-label { background:rgba(249,115,22,0.15);color:#fb923c; }
         .compare-salida  .photo-compare-label { background:rgba(16,185,129,0.15);color:#34d399; }
 
-        .cfg-section { border-bottom:1px solid rgba(255,255,255,0.06); }
-        .cfg-header { display:flex;justify-content:space-between;align-items:center;padding:16px 0;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;transition:opacity 0.15s; }
-        .cfg-header:active { opacity:0.65; }
-        .cfg-arrow { font-size:11px;color:#475569;transition:transform 0.3s;flex-shrink:0; }
-        .cfg-body { overflow:hidden;max-height:0;opacity:0;transition:max-height 0.4s cubic-bezier(0.4,0,0.2,1),opacity 0.3s; }
-        .cfg-body.open { max-height:1000px;opacity:1; }
-        .cfg-header.open .cfg-arrow { transform:rotate(180deg); }
-
-        #net-badge { position:fixed;top:72px;left:50%;transform:translateX(-50%) translateY(-8px);z-index:9990;padding:6px 18px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:1px;opacity:0;pointer-events:none;transition:opacity 0.4s,transform 0.4s;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.4); }
-        #net-badge.show { opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto; }
-        #net-badge.offline { background:#dc2626;color:#fff; }
-        #net-badge.online  { background:#059669;color:#fff; }
-
-        /* BÚSQUEDA GLOBAL */
-        #global-search-bar { position:relative; }
-        #global-search-input { width:100%;padding:10px 16px 10px 38px;border-radius:14px;font-size:13px;font-weight:600;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.09);color:#e2e8f5;transition:all 0.2s; }
-        #global-search-input:focus { border-color:var(--accent);box-shadow:0 0 0 3px rgba(249,115,22,0.12);background:rgba(249,115,22,0.04); }
-        #global-search-icon { position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none; }
-        #global-search-results { position:absolute;top:calc(100% + 8px);left:0;right:0;background:#0d1120;border:1.5px solid rgba(255,255,255,0.09);border-radius:18px;z-index:200;max-height:320px;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,0.6);display:none; }
-        #global-search-results.open { display:block;animation:slideUp 0.2s ease; }
-        .gsr-item { padding:11px 16px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.05);transition:background 0.15s; }
-        .gsr-item:last-child { border-bottom:none; }
-        .gsr-item:hover { background:rgba(249,115,22,0.08); }
-        .gsr-tag { display:inline-block;padding:2px 7px;border-radius:6px;font-size:9px;font-weight:800;margin-right:5px; }
-        .gsr-tag.orden   { background:rgba(249,115,22,0.2);color:#fb923c; }
-        .gsr-tag.stock   { background:rgba(16,185,129,0.2);color:#34d399; }
-        .gsr-tag.cliente { background:rgba(59,130,246,0.2);color:#60a5fa; }
-        .report-tab { padding:8px 16px;border-radius:12px;font-size:11px;font-weight:800;cursor:pointer;transition:all 0.2s;border:1.5px solid transparent;color:#475569; }
-        .report-tab.active { background:rgba(249,115,22,0.12);border-color:rgba(249,115,22,0.3);color:#fb923c; }
-        .bar-track { height:8px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;flex:1; }
-        .bar-fill  { height:100%;border-radius:99px;transition:width 0.8s cubic-bezier(0.16,1,0.3,1); }
-
-        /* ===== SPLASH ===== */
-        #splash-screen {
-            position:fixed;inset:0;z-index:9999;
-            background:radial-gradient(ellipse at 50% 40%,#1a1030 0%,#080b14 70%);
-            display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;
-            transition:opacity 0.6s,transform 0.6s;
+        /* ===== SECCIONES COLAPSABLES EN CONFIG ===== */
+        .cfg-section { border-bottom: 1px solid rgba(255,255,255,0.07); }
+        .cfg-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 0; cursor: pointer; user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
-        #splash-screen.fade-out { opacity:0;transform:scale(1.04);pointer-events:none; }
+        .cfg-header:active { opacity: 0.7; }
+        .cfg-arrow { font-size: 11px; color: #64748b; transition: transform 0.3s ease; flex-shrink: 0; }
+        .cfg-body { overflow: hidden; max-height: 0; opacity: 0; transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease; }
+        .cfg-body.open { max-height: 900px; opacity: 1; }
+        .cfg-header.open .cfg-arrow { transform: rotate(180deg); }
+
+        /* ===== BADGE OFFLINE / ONLINE ===== */
+        #net-badge {
+            position: fixed; top: 72px; left: 50%; transform: translateX(-50%) translateY(-8px);
+            z-index: 9990; padding: 6px 16px; border-radius: 999px;
+            font-size: 11px; font-weight: 800; letter-spacing: 1px;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            white-space: nowrap; box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+        }
+        #net-badge.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+        #net-badge.offline { background: #dc2626; color: #fff; }
+        #net-badge.online  { background: #059669; color: #fff; }
+
+        /* ===== FONDO DECORATIVO DESKTOP ===== */
+        @media (min-width: 640px) {
+            body { background: var(--bg-dark) !important; }
+            body.light-mode { background: var(--bg-light) !important; }
+            body::before {
+                content: '';
+                position: fixed; inset: 0; z-index: -1;
+                background:
+                    radial-gradient(ellipse 600px 400px at 15% 20%, rgba(249,115,22,0.06) 0%, transparent 70%),
+                    radial-gradient(ellipse 500px 350px at 85% 75%, rgba(56,189,248,0.05) 0%, transparent 70%),
+                    radial-gradient(ellipse 400px 300px at 50% 50%, rgba(16,185,129,0.03) 0%, transparent 70%);
+            }
+            body::after {
+                content: '';
+                position: fixed; inset: 0; z-index: -1;
+                background-image:
+                    linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px);
+                background-size: 48px 48px;
+            }
+            body.light-mode::before {
+                background:
+                    radial-gradient(ellipse 600px 400px at 15% 20%, rgba(249,115,22,0.05) 0%, transparent 70%),
+                    radial-gradient(ellipse 500px 350px at 85% 75%, rgba(56,189,248,0.04) 0%, transparent 70%);
+            }
+            body.light-mode::after {
+                background-image:
+                    linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px);
+                background-size: 48px 48px;
+            }
+            .max-container { filter: drop-shadow(0 0 40px rgba(249,115,22,0.03)); }
+        }
+
+        /* ===== SPLASH SCREEN ===== */
+        #splash-screen {
+            position: fixed; inset: 0; z-index: 99999;
+            background: linear-gradient(135deg, #0a0c15 0%, #111827 50%, #0a0c15 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 20px; transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        #splash-screen.fade-out { opacity: 0; transform: scale(1.04); pointer-events: none; }
         .splash-logo-ring {
-            width:88px;height:88px;border-radius:26px;
-            background:linear-gradient(135deg,rgba(249,115,22,0.18),rgba(249,115,22,0.04));
-            border:1.5px solid rgba(249,115,22,0.3);
-            display:flex;align-items:center;justify-content:center;font-size:2.6rem;
-            box-shadow:0 0 40px rgba(249,115,22,0.2),0 0 80px rgba(249,115,22,0.07);
-            animation:splashPulse 2s ease-in-out infinite;
+            width: 110px; height: 110px; border-radius: 50%;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 3rem;
+            box-shadow: 0 0 0 0 rgba(249,115,22,0.5);
+            animation: splashPulse 1.6s ease-in-out infinite;
         }
         @keyframes splashPulse {
-            0%,100%{box-shadow:0 0 40px rgba(249,115,22,0.2),0 0 80px rgba(249,115,22,0.07);}
-            50%    {box-shadow:0 0 60px rgba(249,115,22,0.38),0 0 120px rgba(249,115,22,0.14);}
+            0%   { box-shadow: 0 0 0 0 rgba(249,115,22,0.5); }
+            70%  { box-shadow: 0 0 0 22px rgba(249,115,22,0); }
+            100% { box-shadow: 0 0 0 0 rgba(249,115,22,0); }
         }
-        .splash-title { font-size:2rem;font-weight:900;color:#fff;letter-spacing:3px;text-align:center; }
-        .splash-sub { font-size:0.62rem;font-weight:800;color:var(--accent);letter-spacing:8px;text-transform:uppercase; }
-        .splash-bar-track { width:160px;height:3px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden; }
-        .splash-bar-fill { height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#fbbf24);border-radius:99px;animation:splashBar 1.8s cubic-bezier(0.16,1,0.3,1) forwards; }
-        @keyframes splashBar { from{width:0%;} to{width:100%;} }
+        .splash-title { font-size: 2rem; font-weight: 900; color: #fff; letter-spacing: 2px; text-align: center; }
+        .splash-sub { font-size: 0.7rem; font-weight: 700; color: #f97316; letter-spacing: 6px; text-transform: uppercase; }
+        .splash-bar-track { width: 160px; height: 4px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden; }
+        .splash-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #f97316, #fbbf24); border-radius: 99px; animation: splashBar 1.6s ease forwards; }
+        @keyframes splashBar { from { width: 0%; } to { width: 100%; } }
 
-        /* ===== PIN ===== */
-        .pin-dot { width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,0.22);transition:all 0.15s; }
-        .pin-dot.filled { background:var(--accent);border-color:var(--accent);box-shadow:0 0 10px rgba(249,115,22,0.5); }
+        /* ===== PIN MEJORADO ===== */
+        .pin-dot { width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.2); transition: all 0.2s; }
+        .pin-dot.filled { background: #f97316; border-color: #f97316; box-shadow: 0 0 8px rgba(249,115,22,0.5); }
         .numpad-btn {
-            width:100%;aspect-ratio:1;background:rgba(255,255,255,0.05);
-            border:1.5px solid rgba(255,255,255,0.08);border-radius:1.25rem;
-            font-size:1.4rem;font-weight:700;color:var(--text);cursor:pointer;
-            transition:all 0.12s;display:flex;align-items:center;justify-content:center;
+            aspect-ratio: 1; border-radius: 50%; background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1); font-size: 1.3rem; font-weight: 700;
+            color: #fff; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.1s; user-select: none; -webkit-tap-highlight-color: transparent;
         }
-        .numpad-btn:active { background:rgba(249,115,22,0.2);border-color:var(--accent);transform:scale(0.9); }
-        .numpad-btn.delete { font-size:1rem;color:#f87171; }
-        .numpad-btn.enter { background:linear-gradient(135deg,var(--accent),var(--accent-dark));border-color:transparent;font-size:0.7rem;font-weight:900;letter-spacing:1.5px;box-shadow:0 4px 16px rgba(249,115,22,0.35); }
-        .numpad-btn.enter:active { opacity:0.8;transform:scale(0.9); }
+        .numpad-btn:active { background: rgba(249,115,22,0.3); border-color: #f97316; transform: scale(0.92); }
+        .numpad-btn.delete { font-size: 1rem; color: #f87171; }
+        .numpad-btn.enter { background: linear-gradient(135deg, #f97316, #ea580c); border-color: transparent; font-size: 0.7rem; font-weight: 900; letter-spacing: 1px; }
+        .numpad-btn.enter:active { opacity: 0.8; }
 
-        /* ===== HEADER ===== */
-        #app-header {
-            background:rgba(8,11,20,0.88) !important;
-            backdrop-filter:blur(24px) saturate(160%) !important;
-            border-bottom:1px solid rgba(255,255,255,0.06) !important;
-            box-shadow:0 1px 0 rgba(249,115,22,0.1),0 8px 32px rgba(0,0,0,0.4) !important;
+        /* ===== RESPONSIVE LAYOUT — TABLET & DESKTOP ===== */
+        @media (min-width: 768px) {
+            body { padding-bottom: 0; }
+
+            /* Ocultar nav bottom en desktop/tablet */
+            nav.bottom-nav-mobile { display: none !important; }
+
+            /* Layout principal: sidebar + contenido */
+            #app-layout {
+                display: flex;
+                min-height: 100vh;
+            }
+
+            /* SIDEBAR */
+            #sidebar {
+                display: flex;
+                flex-direction: column;
+                width: 240px;
+                min-height: 100vh;
+                position: fixed;
+                left: 0; top: 0; bottom: 0;
+                background: rgba(13,15,26,0.97);
+                border-right: 1px solid rgba(249,115,22,0.12);
+                backdrop-filter: blur(20px);
+                z-index: 100;
+                padding: 0;
+                box-shadow: 4px 0 40px rgba(0,0,0,0.4);
+            }
+            body.light-mode #sidebar {
+                background: rgba(253,252,249,0.97);
+                border-right-color: #ddd8ce;
+            }
+
+            #sidebar-header {
+                padding: 24px 20px 16px;
+                border-bottom: 1px solid rgba(255,255,255,0.06);
+            }
+            body.light-mode #sidebar-header { border-bottom-color: #ddd8ce; }
+
+            #sidebar-logo {
+                display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+            }
+            #sidebar-logo-icon {
+                width: 40px; height: 40px; border-radius: 12px;
+                background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+                display: flex; align-items: center; justify-content: center;
+                font-size: 1.2rem;
+                box-shadow: 0 4px 12px rgba(249,115,22,0.35);
+                flex-shrink: 0;
+            }
+            #sidebar-biz { flex: 1; min-width: 0; }
+            #sidebar-biz-short {
+                font-size: 8px; font-weight: 900;
+                color: var(--accent); letter-spacing: 3px; text-transform: uppercase;
+            }
+            #sidebar-biz-name {
+                font-size: 16px; font-weight: 900; font-style: italic;
+                white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            }
+            #sidebar-cash {
+                background: rgba(16,185,129,0.1);
+                border: 1px solid rgba(16,185,129,0.2);
+                border-radius: 12px; padding: 10px 14px;
+                display: flex; justify-content: space-between; align-items: center;
+                margin-top: 8px;
+            }
+            #sidebar-cash-label { font-size: 8px; font-weight: 800; color: #64748b; letter-spacing: 2px; text-transform: uppercase; }
+            #sidebar-cash-value { font-size: 18px; font-weight: 900; color: #10b981; }
+
+            #sidebar-meta-wrap { margin-top: 10px; }
+            #sidebar-meta-label { display: flex; justify-content: space-between; font-size: 8px; font-weight: 700; color: #64748b; margin-bottom: 4px; }
+
+            /* NAV ITEMS en sidebar */
+            #sidebar-nav {
+                padding: 12px 12px; flex: 1;
+                display: flex; flex-direction: column; gap: 4px;
+            }
+            .sidebar-nav-item {
+                display: flex; align-items: center; gap: 14px;
+                padding: 13px 16px; border-radius: 14px;
+                cursor: pointer; transition: all 0.2s;
+                color: #64748b; font-weight: 700; font-size: 13px;
+                border: 1px solid transparent;
+                -webkit-tap-highlight-color: transparent;
+            }
+            .sidebar-nav-item:hover {
+                background: rgba(249,115,22,0.08);
+                color: var(--accent);
+                border-color: rgba(249,115,22,0.15);
+            }
+            .sidebar-nav-item.active {
+                background: linear-gradient(135deg, rgba(249,115,22,0.18), rgba(249,115,22,0.08));
+                color: var(--accent);
+                border-color: rgba(249,115,22,0.3);
+                box-shadow: 0 2px 12px rgba(249,115,22,0.12);
+            }
+            body.light-mode .sidebar-nav-item:hover { background: rgba(249,115,22,0.06); }
+            body.light-mode .sidebar-nav-item.active { background: rgba(249,115,22,0.1); }
+            .sidebar-nav-icon { font-size: 1.3rem; width: 28px; text-align: center; flex-shrink: 0; }
+            .sidebar-nav-label { font-size: 13px; font-weight: 700; }
+
+            /* Botones rápidos en sidebar footer */
+            #sidebar-footer {
+                padding: 12px; border-top: 1px solid rgba(255,255,255,0.06);
+                display: flex; gap: 8px;
+            }
+            body.light-mode #sidebar-footer { border-top-color: #ddd8ce; }
+            #sidebar-footer button {
+                flex: 1; padding: 10px; border-radius: 12px;
+                font-size: 11px; font-weight: 800; text-transform: uppercase;
+                letter-spacing: 0.5px; cursor: pointer; transition: all 0.2s;
+                border: 1px solid rgba(255,255,255,0.08);
+                background: rgba(255,255,255,0.04);
+                color: #94a3b8;
+            }
+            #sidebar-footer button:hover { background: rgba(249,115,22,0.15); color: var(--accent); border-color: rgba(249,115,22,0.3); }
+
+            /* CONTENIDO PRINCIPAL desplazado por sidebar */
+            #main-content-area {
+                margin-left: 240px;
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                min-height: 100vh;
+            }
+
+            /* TOPBAR en desktop (reemplaza el header sticky) */
+            #desktop-topbar {
+                display: flex !important;
+                align-items: center; justify-content: space-between;
+                padding: 16px 32px;
+                background: rgba(13,15,26,0.85);
+                backdrop-filter: blur(20px);
+                border-bottom: 1px solid rgba(249,115,22,0.1);
+                position: sticky; top: 0; z-index: 50;
+                box-shadow: 0 1px 0 rgba(249,115,22,0.08), 0 4px 20px rgba(0,0,0,0.3);
+            }
+            body.light-mode #desktop-topbar {
+                background: rgba(245,243,238,0.92);
+                border-bottom-color: #ddd8ce;
+            }
+            #desktop-topbar-title { font-size: 20px; font-weight: 900; font-style: italic; }
+            #desktop-topbar-subtitle { font-size: 9px; color: var(--accent); font-weight: 800; letter-spacing: 3px; text-transform: uppercase; }
+            #desktop-topbar-right { display: flex; gap: 10px; align-items: center; }
+
+            /* Ocultar header mobile en desktop */
+            #app-header { display: none !important; }
+
+            /* Contenedores de vistas — más anchos en desktop */
+            .max-container {
+                max-width: 100%;
+                padding: 0 32px;
+            }
+            .app-view {
+                padding-top: 8px;
+                padding-bottom: 24px;
+            }
+
+            /* GRID de 2 columnas en vistas amplias */
+            #view-ventas {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                align-items: start;
+                padding: 24px 32px;
+            }
+            #view-ventas > .card:last-child {
+                grid-column: 1 / -1;
+            }
+
+            /* Vista taller en desktop: más espaciosa */
+            #view-taller {
+                padding: 24px 32px;
+            }
+            #view-taller .card {
+                max-width: 700px;
+                margin: 0 auto;
+            }
+
+            /* Vista órdenes */
+            #view-ordenes {
+                padding: 24px 32px;
+            }
+
+            /* Vista admin en 2 cols */
+            #view-admin {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                padding: 24px 32px;
+                align-items: start;
+            }
+            #view-admin > div:first-child { grid-column: 1 / -1; }
+
+            /* Modales más grandes en desktop */
+            .modal-custom > div {
+                max-width: 520px !important;
+            }
         }
-        body.light-mode #app-header { background:rgba(240,244,255,0.96) !important; }
 
-        /* ===== NAV BOTTOM ===== */
-        .bottom-nav-mobile {
-            background:rgba(8,11,20,0.88) !important;
-            backdrop-filter:blur(24px) saturate(160%) !important;
-            border:1px solid rgba(255,255,255,0.07) !important;
+        @media (min-width: 1200px) {
+            #sidebar { width: 260px; }
+            #main-content-area { margin-left: 260px; }
+            #view-ventas { grid-template-columns: 1fr 1fr 1fr; }
+            #view-ventas > .card:last-child { grid-column: 1 / -1; }
+            #view-admin { grid-template-columns: 1fr 1fr 1fr; }
+            #view-admin > div:first-child { grid-column: 1 / 2; }
         }
-        body.light-mode .bottom-nav-mobile { background:rgba(255,255,255,0.93) !important; border-color:rgba(0,0,0,0.08) !important; }
 
-        /* ===== SIDEBAR — oculto en móvil ===== */
-        #sidebar {
-            display: none;
-            position: fixed; left:0; top:0; bottom:0; width:240px; z-index:100;
-            background: var(--card);
-            border-right: 1px solid var(--border);
-            flex-direction: column;
-            box-shadow: 4px 0 24px rgba(0,0,0,0.4);
-        }
-        body.light-mode #sidebar { background:var(--card-light); border-color:var(--border-light); }
-        #sidebar-header { padding:20px 16px 14px; border-bottom:1px solid var(--border); flex-shrink:0; }
-        body.light-mode #sidebar-header { border-color:var(--border-light); }
-        #sidebar-logo { display:flex;align-items:center;gap:10px;margin-bottom:14px; }
-        #sidebar-logo-icon { font-size:1.5rem;width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(249,115,22,0.12);flex-shrink:0; }
-        #sidebar-biz-short { font-size:8px;font-weight:800;color:var(--accent);letter-spacing:3px;text-transform:uppercase; }
-        #sidebar-biz-name  { font-size:17px;font-weight:900;font-style:italic;color:var(--text); }
-        #sidebar-cash { display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.04);border-radius:12px;padding:8px 12px; }
-        #sidebar-cash-label { font-size:9px;font-weight:700;color:var(--muted);letter-spacing:2px;text-transform:uppercase; }
-        #sidebar-cash-value { font-size:15px;font-weight:900;color:#34d399; }
-        #sidebar-nav { flex:1;padding:12px 10px;overflow-y:auto;display:flex;flex-direction:column;gap:2px; }
-        .sidebar-nav-item { display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;color:var(--muted);font-size:13px;font-weight:700;border-radius:14px;transition:all 0.2s; }
-        .sidebar-nav-item:hover  { background:rgba(249,115,22,0.08);color:var(--text); }
-        .sidebar-nav-item.active { background:rgba(249,115,22,0.12);color:var(--accent); }
-        body.light-mode .sidebar-nav-item:hover  { background:rgba(249,115,22,0.06); }
-        body.light-mode .sidebar-nav-item.active { background:rgba(249,115,22,0.1); }
-        .sidebar-nav-icon  { font-size:1.1rem;width:24px;text-align:center;flex-shrink:0; }
-        .sidebar-nav-label { font-size:13px;font-weight:700; }
-        #sidebar-footer { padding:12px 10px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0; }
-        #sidebar-footer button { flex:1;padding:8px 4px;border-radius:10px;font-size:11px;font-weight:800;background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text);cursor:pointer;transition:all 0.2s; }
-        #sidebar-footer button:hover { background:rgba(249,115,22,0.1);border-color:rgba(249,115,22,0.3); }
-        body.light-mode #sidebar-footer { border-color:var(--border-light); }
-        body.light-mode #sidebar-footer button { border-color:var(--border-light);color:var(--text-light); }
-
-        /* ===== DESKTOP TOPBAR — oculto en móvil ===== */
-        #desktop-topbar {
-            display: none;
-            position:fixed;top:0;left:240px;right:0;height:60px;z-index:99;
-            align-items:center;justify-content:space-between;padding:0 24px;
-            background:rgba(8,11,20,0.9);
-            border-bottom:1px solid var(--border);
-            backdrop-filter:blur(20px);
-        }
-        body.light-mode #desktop-topbar { background:rgba(240,244,255,0.95); border-color:var(--border-light); }
-
-        /* ===== MOBILE BASE — sin márgenes de desktop ===== */
-        #main-content-area { margin-left:0; padding-top:0; }
-
-        /* ===== DESKTOP ===== */
-        @media (min-width:768px) {
-            nav.bottom-nav-mobile { display:none !important; }
-            #app-header { display:none !important; }
-            #sidebar { display:flex !important; }
-            #desktop-topbar { display:flex !important; }
-            #main-content-area { margin-left:240px; padding-top:60px; }
-            .app-view { padding:24px !important; }
-            #view-taller { display:grid;grid-template-columns:1fr 1fr;gap:24px; }
-            #view-taller .card { margin:0 !important; }
-            #view-taller .card:last-child { grid-column:1/-1; }
-            #view-ordenes { display:block; }
-            #view-admin { display:grid;grid-template-columns:1fr 1fr;gap:24px; }
-            #view-admin > div:first-child { grid-column:1/-1; }
-            .modal-custom > div { max-width:520px; }
-            #view-ventas { display:grid;grid-template-columns:1fr 1fr 1fr; }
-            #view-ventas > .card:last-child { grid-column:1/-1; }
-            #view-admin { grid-template-columns:1fr 1fr 1fr; }
-            #view-admin > div:first-child { grid-column:1/2; }
-        }
-        @media (min-width:1100px) and (max-width:1400px) {
-            #view-ventas { grid-template-columns:1fr 1fr; }
-            #view-admin  { grid-template-columns:1fr 1fr; }
+        /* Mobile — mostrar sidebar oculto */
+        @media (max-width: 767px) {
+            #sidebar { display: none !important; }
+            #desktop-topbar { display: none !important; }
+            #main-content-area { margin-left: 0 !important; }
         }
     </style>
 </head>
@@ -425,7 +627,7 @@
     </aside>
 
     <!-- TOPBAR DESKTOP -->
-    <div id="desktop-topbar">
+    <div id="desktop-topbar" style="display:none;">
         <div>
             <div id="desktop-topbar-subtitle" style="font-size:9px;color:var(--accent);font-weight:800;letter-spacing:3px;text-transform:uppercase;">TODO REPUESTOS</div>
             <div id="desktop-topbar-title" style="font-size:20px;font-weight:900;font-style:italic;">NELSON</div>
@@ -444,12 +646,12 @@
     <!-- SPLASH SCREEN -->
     <div id="splash-screen">
         <div class="splash-logo-ring">🔧</div>
-        <div style="text-align:center;">
+        <div>
             <div class="splash-title" id="splash-biz-name">NELSON</div>
             <div class="splash-sub">Taller & Repuestos</div>
         </div>
         <div class="splash-bar-track"><div class="splash-bar-fill"></div></div>
-        <p style="font-size:0.55rem;color:rgba(255,255,255,0.14);letter-spacing:4px;font-weight:700;">v3.2.0</p>
+        <p style="font-size:0.6rem;color:rgba(255,255,255,0.2);letter-spacing:2px;">v3.2.0</p>
     </div>
 
     <!-- PIN MODAL MEJORADO -->
@@ -490,32 +692,33 @@
         </div>
     </div>
 
-    <header id="app-header" class="sticky top-0 z-50 hidden" style="padding:12px 16px;">
-        <div class="max-container flex justify-between items-center gap-3">
-            <div class="flex-1 min-w-0">
-                <p class="text-[9px] font-black tracking-[5px] uppercase leading-none" id="business-short-name" style="color:var(--accent);">TODO REPUESTOS</p>
-                <h1 class="font-black italic leading-tight truncate" id="business-name-display"
-                    style="font-size:clamp(1.5rem,5vw,1.9rem);color:#f1f5f9;letter-spacing:-0.5px;">NELSON</h1>
-                <div id="meta-bar-wrap" class="hidden mt-1.5">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="text-[8px] font-bold tracking-widest" style="color:var(--muted);">META MES</span>
+    <header id="app-header" class="sticky top-0 z-50 bg-black/70 backdrop-blur-lg border-b border-orange-500/20 p-4 hidden" style="box-shadow:0 1px 0 rgba(249,115,22,0.12),0 4px 20px rgba(0,0,0,0.4);">
+        <div class="max-container flex justify-between items-center">
+            <div>
+                <h1 class="text-[10px] font-black text-orange-500 tracking-[4px]" id="business-short-name">TODO REPUESTOS</h1>
+                <p class="text-3xl font-black italic tracking-tight" id="business-name-display">NELSON</p>
+                <!-- Barra de meta mensual -->
+                <div id="meta-bar-wrap" class="hidden mt-1">
+                    <div class="flex justify-between items-center mb-0.5">
+                        <span class="text-[8px] text-slate-500 font-bold">META MES</span>
                         <div class="flex items-center gap-2">
-                            <span id="meta-bar-amount" class="text-[8px] font-bold" style="color:var(--muted);"></span>
-                            <span id="meta-bar-pct" class="text-[9px] text-emerald-400 font-black">0%</span>
+                            <span id="meta-bar-amount" class="text-[8px] text-slate-400 font-bold"></span>
+                            <span id="meta-bar-pct" class="text-[8px] text-emerald-400 font-black">0%</span>
                         </div>
                     </div>
-                    <div class="w-28 h-1.5 rounded-full overflow-hidden" style="background:rgba(255,255,255,0.08);">
-                        <div id="meta-bar-fill" class="h-full rounded-full transition-all duration-700" style="width:0%;background:linear-gradient(to right,#10b981,#34d399);"></div>
+                    <div class="w-32 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                        <div id="meta-bar-fill" class="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all duration-700" style="width:0%"></div>
                     </div>
                 </div>
             </div>
-            <div class="flex items-center gap-2 flex-shrink-0">
-                <button onclick="toggleTheme()" id="theme-btn" title="Tema"
-                    class="w-9 h-9 rounded-2xl flex items-center justify-center text-lg transition-all active:scale-90"
-                    style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);">🌙</button>
-                <div class="rounded-2xl px-3 py-1.5 text-right" style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.18);">
-                    <p id="total-cash" class="text-emerald-400 font-black text-lg leading-tight">$0</p>
-                    <p class="text-[7px] font-black tracking-widest" style="color:rgba(52,211,153,0.5);">CAJA</p>
+            <div class="flex items-center gap-3">
+                <button onclick="toggleTheme()" id="theme-btn" title="Cambiar tema"
+                    class="w-10 h-10 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center text-xl hover:bg-orange-500/20 hover:border-orange-500/40 active:scale-90 transition-all">
+                    🌙
+                </button>
+                <div class="bg-emerald-500/10 px-4 py-2 rounded-2xl border border-emerald-500/20">
+                    <p id="total-cash" class="text-emerald-400 font-black text-xl">$0</p>
+                    <p class="text-[8px] font-bold opacity-60 text-right">CAJA NETA</p>
                 </div>
             </div>
         </div>
@@ -523,7 +726,7 @@
 
     <main id="view-taller" class="app-view hidden p-4 space-y-4 max-container">
         <div class="card p-6 space-y-5">
-            <h2 class="text-center text-[10px] font-black uppercase tracking-[4px]" style="color:var(--muted);">📝 Nueva Recepción</h2>
+            <h2 class="text-center text-[11px] font-black text-slate-400 uppercase tracking-[3px]">📝 NUEVA RECEPCIÓN</h2>
             <div>
                 <input type="text" id="c-nom" placeholder="CLIENTE" class="uppercase font-semibold w-full" list="clientes-list" onkeyup="checkClient()">
                 <div id="client-alert" class="text-[10px] text-emerald-400 font-bold mt-1 min-h-[15px] ml-2"></div>
@@ -611,11 +814,7 @@
                 <label class="text-[10px] text-slate-400 block mb-1 ml-1">🔒 NOTAS INTERNAS <span class="text-slate-600">(no aparece en recibo)</span></label>
                 <textarea id="c-notas" placeholder="Observaciones del técnico, contraseña del equipo, accesorios entregados..." class="h-16 text-xs w-full"></textarea>
             </div>
-            <button onclick="saveOrder()"
-                class="w-full py-4 rounded-2xl font-black uppercase text-white text-sm tracking-widest active:scale-95 transition-all"
-                style="background:linear-gradient(135deg,#f97316,#ea580c);box-shadow:0 6px 24px rgba(249,115,22,0.4),0 1px 0 rgba(255,255,255,0.15) inset;">
-                ⚡ REGISTRAR ENTRADA
-            </button>
+            <button onclick="saveOrder()" class="w-full bg-gradient-to-r from-orange-600 to-orange-500 py-4 rounded-2xl font-black uppercase shadow-lg active:scale-95 transition-all">REGISTRAR ENTRADA</button>
         </div>
     </main>
 
@@ -726,7 +925,7 @@
 
     <main id="view-admin" class="app-view hidden p-4 max-container space-y-4">
 
-        <!-- ══ GOOGLE DRIVE ══ -->
+        <!-- Google Drive -->
         <div id="drive-status-card" style="border-radius:20px;overflow:hidden;background:linear-gradient(135deg,#0a1628,#0d1f35);border:1px solid #1a2a3a;">
             <div style="padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
                 <div style="display:flex;align-items:center;gap:14px;">
@@ -750,10 +949,9 @@
             </div>
         </div>
 
-        <!-- ══ MENÚ iOS PREMIUM ══ -->
+        <!-- Menú iOS Premium -->
         <div style="border-radius:24px;overflow:hidden;background:#0d1117;border:1px solid #1a2235;">
 
-            <!-- Header -->
             <div style="background:linear-gradient(135deg,#0f172a,#1e293b);padding:22px 20px 18px;text-align:center;border-bottom:1px solid #1a2235;">
                 <div style="width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,rgba(255,107,26,0.25),rgba(255,107,26,0.08));border:1.5px solid rgba(255,107,26,0.35);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;">
                     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ff6b1a" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>
@@ -764,141 +962,77 @@
 
             <div style="padding:10px 12px;">
 
-                <!-- ANÁLISIS -->
                 <p style="font-size:9px;font-weight:900;letter-spacing:3px;color:#2a3a55;text-transform:uppercase;padding:10px 4px 6px;margin:0;">ANÁLISIS</p>
 
                 <button onclick="openStatsModal()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
-                    <div style="display:flex;align-items:center;gap:14px;">
-                        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#6d28d9,#7c3aed);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(109,40,217,0.4);">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                        </div>
-                        <div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#a78bfa;margin:0;">Estadísticas</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Resumen mensual y top repuestos</p></div>
-                    </div>
+                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#6d28d9,#7c3aed);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(109,40,217,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#a78bfa;margin:0;">Estadísticas</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Resumen mensual y top repuestos</p></div></div>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
 
                 <button onclick="openTecnicosReport()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
-                    <div style="display:flex;align-items:center;gap:14px;">
-                        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#1d4ed8,#3b82f6);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(59,130,246,0.4);">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                        </div>
-                        <div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#60a5fa;margin:0;">Reporte por Técnico</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Productividad, tiempos y órdenes</p></div>
-                    </div>
+                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#1d4ed8,#3b82f6);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(59,130,246,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#60a5fa;margin:0;">Reporte por Técnico</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Productividad, tiempos y órdenes</p></div></div>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
 
                 <button onclick="openEquiposReport()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
-                    <div style="display:flex;align-items:center;gap:14px;">
-                        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#b45309,#f59e0b);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(245,158,11,0.4);">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-                        </div>
-                        <div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#fbbf24;margin:0;">Equipos más Reparados</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Top equipos y fallas frecuentes</p></div>
-                    </div>
+                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#b45309,#f59e0b);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(245,158,11,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#fbbf24;margin:0;">Equipos más Reparados</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Top equipos y fallas frecuentes</p></div></div>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
 
                 <button onclick="openGraficaIngresos()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
-                    <div style="display:flex;align-items:center;gap:14px;">
-                        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#065f46,#10b981);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(16,185,129,0.4);">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-                        </div>
-                        <div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#34d399;margin:0;">Gráfica de Ingresos</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Tendencia de los últimos 6 meses</p></div>
-                    </div>
+                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#065f46,#10b981);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(16,185,129,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#34d399;margin:0;">Gráfica de Ingresos</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Tendencia de los últimos 6 meses</p></div></div>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
 
                 <button onclick="openCalificacionesModal()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
-                    <div style="display:flex;align-items:center;gap:14px;">
-                        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#9d174d,#ec4899);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(236,72,153,0.4);">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                        </div>
-                        <div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#f472b6;margin:0;">Calificaciones</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Reseñas y puntuaciones de clientes</p></div>
-                    </div>
+                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#9d174d,#ec4899);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(236,72,153,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#f472b6;margin:0;">Calificaciones</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Reseñas y puntuaciones de clientes</p></div></div>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
 
-                <!-- OPERACIONES -->
                 <div style="height:1px;background:#1a2235;margin:8px 0;"></div>
                 <p style="font-size:9px;font-weight:900;letter-spacing:3px;color:#2a3a55;text-transform:uppercase;padding:6px 4px;margin:0;">OPERACIONES</p>
 
                 <button onclick="openOrdenesCompra()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
-                    <div style="display:flex;align-items:center;gap:14px;">
-                        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#c2410c,#f97316);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(249,115,22,0.4);">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-                        </div>
-                        <div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#fb923c;margin:0;">Órdenes de Compra</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Repuestos bajo mínimo · proveedor</p></div>
-                    </div>
+                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#c2410c,#f97316);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(249,115,22,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#fb923c;margin:0;">Órdenes de Compra</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Repuestos bajo mínimo · proveedor</p></div></div>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
 
                 <button onclick="openCajaModal()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
-                    <div style="display:flex;align-items:center;gap:14px;">
-                        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#9f1239,#f43f5e);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(244,63,94,0.4);">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-                        </div>
-                        <div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#fb7185;margin:0;">Cierre de Caja</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Ingresos, egresos y reinicio</p></div>
-                    </div>
+                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#9f1239,#f43f5e);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(244,63,94,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#fb7185;margin:0;">Cierre de Caja</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Ingresos, egresos y reinicio</p></div></div>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
 
                 <button onclick="openProveedoresModal()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
-                    <div style="display:flex;align-items:center;gap:14px;">
-                        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#0f766e,#14b8a6);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(20,184,166,0.4);">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                        </div>
-                        <div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#2dd4bf;margin:0;">Proveedores</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Gestión de proveedores y catálogos</p></div>
-                    </div>
+                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#0f766e,#14b8a6);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(20,184,166,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#2dd4bf;margin:0;">Proveedores</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Gestión de proveedores y catálogos</p></div></div>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
 
-                <!-- SISTEMA -->
                 <div style="height:1px;background:#1a2235;margin:8px 0;"></div>
                 <p style="font-size:9px;font-weight:900;letter-spacing:3px;color:#2a3a55;text-transform:uppercase;padding:6px 4px;margin:0;">SISTEMA</p>
 
                 <button onclick="openChangePinModal()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
-                    <div style="display:flex;align-items:center;gap:14px;">
-                        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#92400e,#f59e0b);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(245,158,11,0.35);">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                        </div>
-                        <div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#fcd34d;margin:0;">Cambiar PIN</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Actualizar contraseña de acceso</p></div>
-                    </div>
+                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#92400e,#f59e0b);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(245,158,11,0.35);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#fcd34d;margin:0;">Cambiar PIN</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Actualizar contraseña de acceso</p></div></div>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
 
                 <button onclick="openAdvancedConfig()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
-                    <div style="display:flex;align-items:center;gap:14px;">
-                        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#0e7490,#06b6d4);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(6,182,212,0.4);">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>
-                        </div>
-                        <div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#22d3ee;margin:0;">Configuración avanzada</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Apariencia, plantillas, técnicos</p></div>
-                    </div>
+                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#0e7490,#06b6d4);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(6,182,212,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#22d3ee;margin:0;">Configuración avanzada</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Apariencia, plantillas, técnicos</p></div></div>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
 
                 <button onclick="exportData()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
-                    <div style="display:flex;align-items:center;gap:14px;">
-                        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#1d4ed8,#6366f1);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(99,102,241,0.4);">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                        </div>
-                        <div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#818cf8;margin:0;">Exportar Respaldo</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Guarda la base de datos</p></div>
-                    </div>
+                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#1d4ed8,#6366f1);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(99,102,241,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#818cf8;margin:0;">Exportar Respaldo</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Guarda la base de datos</p></div></div>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
 
                 <label for="import-file" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
-                    <div style="display:flex;align-items:center;gap:14px;">
-                        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#7c3aed,#a855f7);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(168,85,247,0.4);">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                        </div>
-                        <div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#c084fc;margin:0;">Importar Datos</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Restaura una copia de seguridad</p></div>
-                    </div>
+                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#7c3aed,#a855f7);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(168,85,247,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#c084fc;margin:0;">Importar Datos</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Restaura una copia de seguridad</p></div></div>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </label>
                 <input type="file" id="import-file" class="hidden" accept=".json" onchange="importData(event)">
 
             </div>
 
-            <!-- Footer -->
             <div style="background:#080c14;padding:14px;text-align:center;border-top:1px solid #1a2235;">
                 <p style="font-size:10px;color:#1e2a3a;font-weight:600;margin:0;">IndexedDB local + Google Drive</p>
                 <p style="font-size:10px;color:#151e2a;margin:4px 0 0;">Diseñado por <span style="color:rgba(255,107,26,0.45);font-weight:800;">Luis Eduardo Gaviria Piamba</span></p>
@@ -2234,28 +2368,11 @@
         </div>
     </div>
 
-    <nav class="bottom-nav-mobile fixed bottom-3 left-3 right-3 max-container z-50 flex justify-around items-center h-[60px] px-1"
-         style="border-radius:22px;box-shadow:0 8px 40px rgba(0,0,0,0.5),0 2px 0 rgba(255,255,255,0.04) inset;">
-        <button onclick="tab('taller')" id="btn-taller"
-            class="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl transition-all text-slate-500">
-            <span class="text-xl leading-none">🛠️</span>
-            <span class="text-[9px] font-black tracking-wide">Taller</span>
-        </button>
-        <button onclick="tab('ordenes')" id="btn-ordenes"
-            class="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl transition-all text-slate-500">
-            <span class="text-xl leading-none">📋</span>
-            <span class="text-[9px] font-black tracking-wide">Órdenes</span>
-        </button>
-        <button onclick="tab('ventas')" id="btn-ventas"
-            class="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl transition-all text-slate-500">
-            <span class="text-xl leading-none">💰</span>
-            <span class="text-[9px] font-black tracking-wide">Caja</span>
-        </button>
-        <button onclick="tab('admin')" id="btn-admin"
-            class="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl transition-all text-slate-500">
-            <span class="text-xl leading-none">⚙️</span>
-            <span class="text-[9px] font-black tracking-wide">Datos</span>
-        </button>
+    <nav class="bottom-nav-mobile fixed bottom-4 left-4 right-4 max-container bg-black/70 backdrop-blur-xl border border-white/10 rounded-3xl flex justify-around items-center h-16 z-50 shadow-2xl">
+        <button onclick="tab('taller')" id="btn-taller" class="flex flex-col items-center text-slate-400"><span class="text-2xl">🛠️</span><span class="text-[10px] font-bold">Taller</span></button>
+        <button onclick="tab('ordenes')" id="btn-ordenes" class="flex flex-col items-center text-slate-400"><span class="text-2xl">📋</span><span class="text-[10px] font-bold">Órdenes</span></button>
+        <button onclick="tab('ventas')" id="btn-ventas" class="flex flex-col items-center text-slate-400"><span class="text-2xl">💰</span><span class="text-[10px] font-bold">Caja/Stock</span></button>
+        <button onclick="tab('admin')" id="btn-admin" class="flex flex-col items-center text-slate-400"><span class="text-2xl">⚙️</span><span class="text-[10px] font-bold">Datos</span></button>
     </nav>
 
     </div><!-- /main-content-area -->
@@ -4207,30 +4324,18 @@
             if (cameraMode !== 'entrega') closeCamera();
             document.querySelectorAll('.app-view').forEach(v => v.classList.add('hidden'));
             document.getElementById(`view-${t}`).classList.remove('hidden');
-            // Reset all nav buttons
-            document.querySelectorAll('nav.bottom-nav-mobile button').forEach(b => {
-                b.classList.remove('tab-active');
-                b.classList.add('text-slate-500');
-                b.style.background = '';
-                b.style.color = '';
-                b.style.boxShadow = '';
-            });
-            // Activate current
+            document.querySelectorAll('nav button').forEach(b => { b.classList.remove('tab-active','text-orange-500'); b.classList.add('text-slate-400'); });
             const mobileBtn = document.getElementById(`btn-${t}`);
-            if (mobileBtn) {
-                mobileBtn.classList.remove('text-slate-500');
-                mobileBtn.classList.add('tab-active');
-                mobileBtn.style.background = 'rgba(249,115,22,0.14)';
-                mobileBtn.style.color = '#f97316';
-                mobileBtn.style.boxShadow = '0 0 0 1px rgba(249,115,22,0.2)';
-            }
+            if (mobileBtn) mobileBtn.classList.add('tab-active','text-orange-500');
             if(t === 'ordenes') await renderOrders();
             if(t === 'ventas') { await renderStock(); await renderMovimientos(); await updateVentaSelect(); await renderCartera(); }
-            window.scrollTo({top:0, behavior:'smooth'});
+            window.scrollTo(0,0);
+            // Sync sidebar
             ['taller','ordenes','ventas','admin'].forEach(name => {
                 const sEl = document.getElementById(`sidebar-btn-${name}`);
                 if (sEl) sEl.classList.toggle('active', name === t);
             });
+            // Sync desktop topbar title
             const tabTitles = { taller:'Nueva Recepción', ordenes:'Órdenes', ventas:'Caja & Inventario', admin:'Datos & Config' };
             const dtTitle = document.getElementById('desktop-topbar-title');
             if (dtTitle) dtTitle.innerText = tabTitles[t] || 'NELSON';
