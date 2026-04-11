@@ -193,6 +193,13 @@
             animation: spin 0.8s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes shakeField {
+            0%,100% { transform: translateX(0); }
+            20%      { transform: translateX(-6px); }
+            40%      { transform: translateX(6px); }
+            60%      { transform: translateX(-4px); }
+            80%      { transform: translateX(4px); }
+        }
         canvas { max-height: 250px; width: 100% !important; }
         .swipe-area { touch-action: pan-y; }
         .garantia-badge { background: linear-gradient(135deg, #10b981, #059669); padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 800; color: white; }
@@ -722,17 +729,17 @@
 
             <!-- Numpad -->
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 4px;">
-                <button class="numpad-btn" onclick="pinPad(1)">1</button>
-                <button class="numpad-btn" onclick="pinPad(2)">2</button>
-                <button class="numpad-btn" onclick="pinPad(3)">3</button>
-                <button class="numpad-btn" onclick="pinPad(4)">4</button>
-                <button class="numpad-btn" onclick="pinPad(5)">5</button>
-                <button class="numpad-btn" onclick="pinPad(6)">6</button>
-                <button class="numpad-btn" onclick="pinPad(7)">7</button>
-                <button class="numpad-btn" onclick="pinPad(8)">8</button>
-                <button class="numpad-btn" onclick="pinPad(9)">9</button>
-                <button class="numpad-btn delete" onclick="pinPad('del')">⌫</button>
-                <button class="numpad-btn" onclick="pinPad(0)">0</button>
+                <button class="numpad-btn" onclick="pinPad(1)" aria-label="1">1</button>
+                <button class="numpad-btn" onclick="pinPad(2)" aria-label="2">2</button>
+                <button class="numpad-btn" onclick="pinPad(3)" aria-label="3">3</button>
+                <button class="numpad-btn" onclick="pinPad(4)" aria-label="4">4</button>
+                <button class="numpad-btn" onclick="pinPad(5)" aria-label="5">5</button>
+                <button class="numpad-btn" onclick="pinPad(6)" aria-label="6">6</button>
+                <button class="numpad-btn" onclick="pinPad(7)" aria-label="7">7</button>
+                <button class="numpad-btn" onclick="pinPad(8)" aria-label="8">8</button>
+                <button class="numpad-btn" onclick="pinPad(9)" aria-label="9">9</button>
+                <button class="numpad-btn delete" onclick="pinPad('del')" aria-label="Borrar">⌫</button>
+                <button class="numpad-btn" onclick="pinPad(0)" aria-label="0">0</button>
                 <button class="numpad-btn enter" onclick="pinPad('ok')">OK</button>
             </div>
 
@@ -1307,7 +1314,7 @@
                     </div>
                 </div>
                 <!-- Gráfica SVG -->
-                <div id="grafica-container" class="w-full px-3 pt-2" style="height:240px;"></div>
+                <div id="grafica-container" class="w-full px-3 pt-2" style="min-height:200px;height:clamp(200px,30vw,260px);"></div>
                 <!-- Cards resumen -->
                 <div class="grid grid-cols-3 gap-3 px-5 pt-4 pb-4" id="grafica-resumen"></div>
                 <!-- Meta semanal -->
@@ -3031,12 +3038,25 @@
             }
         }
 
+        function _shakeField(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const orig = el.style.borderColor;
+            el.style.transition = "border-color 0s";
+            el.style.borderColor = "#f43f5e";
+            el.style.animation = "shakeField 0.35s ease";
+            setTimeout(() => { el.style.borderColor = orig; el.style.animation = ""; el.style.transition = ""; }, 600);
+        }
         async function saveOrder() {
-            const nom = document.getElementById('c-nom').value.trim().toUpperCase();
-            if (!nom) return showAlert("Nombre del cliente requerido", "warning");
-            const rawVal = document.getElementById('c-val').value;
-            const valor = rawVal === '' ? 0 : Number(rawVal);
-            if (isNaN(valor) || valor < 0) { document.getElementById('val-error').innerText = "⚠️ El valor no puede ser negativo"; return; }
+            const nom = document.getElementById("c-nom").value.trim().toUpperCase();
+            const equ = document.getElementById("c-equ").value.trim();
+            let hasError = false;
+            if (!nom) { _shakeField("c-nom"); hasError = true; }
+            if (!equ) { _shakeField("c-equ"); hasError = true; }
+            if (hasError) return showAlert("Cliente y equipo son obligatorios.", "warning");
+            const rawVal = document.getElementById("c-val").value;
+            const valor = rawVal === "" ? 0 : Number(rawVal);
+            if (isNaN(valor) || valor < 0) { document.getElementById("val-error").innerText = "⚠️ El valor no puede ser negativo"; return; }
             document.getElementById('val-error').innerText = "";
             const adelanto = Number(document.getElementById('c-adelanto').value) || 0;
             if (adelanto > valor && valor > 0) return showAlert("El adelanto no puede superar el valor total.", "warning");
@@ -3374,7 +3394,7 @@
                 </div>
                 <div style="padding:16px;display:flex;flex-direction:column;gap:10px;">
                     <p style="color:#94a3b8;font-size:12px;text-align:center;">¿Avisar al cliente que su equipo está listo?</p>
-                    <button onclick="location.href='${waLink}';document.getElementById('modal-aviso-reparado').remove();" style="background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.4);color:#6ee7b7;padding:14px;border-radius:14px;font-weight:900;font-size:13px;">
+                    <button onclick="sessionStorage.setItem('_waJump','1');window.open('${waLink}','_blank');document.getElementById('modal-aviso-reparado').remove();" style="background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.4);color:#6ee7b7;padding:14px;border-radius:14px;font-weight:900;font-size:13px;">
                         💬 SÍ, AVISAR POR WHATSAPP
                     </button>
                     <button onclick="document.getElementById('modal-aviso-reparado').remove()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#64748b;padding:12px;border-radius:14px;font-weight:700;font-size:12px;">
@@ -3487,8 +3507,31 @@
             const msg = buildWhatsappMsg(type, o);
             const num = o.tel.replace(/\D/g, '');
             const prefix = num.startsWith('57') ? '' : '57';
+            // Marcar que salimos hacia WhatsApp para forzar repaint al volver
+            sessionStorage.setItem('_waJump', '1');
             window.open(`https://wa.me/${prefix}${num}?text=${encodeURIComponent(msg)}`, '_blank');
         }
+
+        // ===== FIX PANTALLA NEGRA AL VOLVER DE WHATSAPP =====
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && sessionStorage.getItem('_waJump')) {
+                sessionStorage.removeItem('_waJump');
+                // Forzar repaint: ocultar/mostrar body brevemente
+                document.body.style.display = 'none';
+                // eslint-disable-next-line no-unused-expressions
+                document.body.offsetHeight; // trigger reflow
+                document.body.style.display = '';
+            }
+        });
+        // También aplicar al volver con el botón Atrás / pageshow
+        window.addEventListener('pageshow', (e) => {
+            if (e.persisted || sessionStorage.getItem('_waJump')) {
+                sessionStorage.removeItem('_waJump');
+                document.body.style.display = 'none';
+                document.body.offsetHeight;
+                document.body.style.display = '';
+            }
+        });
         let _fotoModalOrderId = null;
         let _fotoModalTipo = 'recepcion';
 
@@ -4497,7 +4540,7 @@
             if (o.presupuesto === 'enviado' && o.tel) {
                 showConfirm(`¿Enviar presupuesto por WhatsApp a ${o.nom}?`, () => {
                     const msg = `*TODO REPUESTOS NELSON*\nHola ${o.nom}, te enviamos el presupuesto para tu ${o.equ}.\n💰 Valor: $${o.val.toLocaleString()}\n✅ Por favor confírmanos si apruebas la reparación.`;
-                    location.href = `https://wa.me/57${o.tel}?text=${encodeURIComponent(msg)}`;
+                    sessionStorage.setItem('_waJump','1'); window.open(`https://wa.me/57${o.tel}?text=${encodeURIComponent(msg)}`, '_blank');
                 }, "info");
             }
         }
@@ -4522,7 +4565,7 @@
                                 <p class="text-[10px] text-slate-500 mt-1">Valor: $${o.val.toLocaleString()}</p>
                             </div>
                             <div class="flex gap-2">
-                                <button onclick="location.href='${waLink}'" class="bg-green-600/20 text-green-400 px-3 py-2 rounded-xl text-xs font-black">💬 ENVIAR</button>
+                                <button onclick="sessionStorage.setItem('_waJump','1'); window.open('${waLink}','_blank')" class="bg-green-600/20 text-green-400 px-3 py-2 rounded-xl text-xs font-black">💬 ENVIAR</button>
                             </div>
                         </div>`;
             }).join('');
@@ -5671,7 +5714,7 @@
             if (!prov?.tel) return showAlert('Selecciona un proveedor con teléfono registrado para enviar por WhatsApp.', 'warning');
             const num = prov.tel.replace(/\D/g,'');
             const prefix = num.startsWith('57') ? '' : '57';
-            window.open(`https://wa.me/${prefix}${num}?text=${encodeURIComponent(txt)}`, '_blank');
+            sessionStorage.setItem('_waJump','1'); window.open(`https://wa.me/${prefix}${num}?text=${encodeURIComponent(txt)}`, '_blank');
         }
 
         async function copyOCText() {
@@ -7142,14 +7185,17 @@
         }
 
         async function openCalificacionesModal() {
-            // Migración automática: mover calificaciones viejas de localStorage a IndexedDB
-            const legacy = localStorage.getItem('calificaciones');
-            if (legacy) {
-                try {
-                    const viejas = JSON.parse(legacy);
-                    for (const c of viejas) await put('calificaciones', c);
-                    localStorage.removeItem('calificaciones');
-                } catch(e) { /* ignorar error de migración */ }
+            // Migración automática: mover calificaciones viejas de localStorage a IndexedDB (solo una vez)
+            if (!localStorage.getItem('_calMigrated')) {
+                const legacy = localStorage.getItem('calificaciones');
+                if (legacy) {
+                    try {
+                        const viejas = JSON.parse(legacy);
+                        for (const c of viejas) await put('calificaciones', c);
+                        localStorage.removeItem('calificaciones');
+                    } catch(e) { /* ignorar error de migración */ }
+                }
+                localStorage.setItem('_calMigrated', '1');
             }
 
             const cals = (await getAll('calificaciones')).sort((a,b) => b.fecha - a.fecha);
@@ -7201,12 +7247,35 @@
             document.getElementById('modal-calificaciones').classList.add('hidden');
         }
 
+        // ==================== VISIBILITYCHANGE: refrescar al volver de WhatsApp ====================
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                // Solo refrescar si la app ya está desbloqueada (no en pantalla de PIN)
+                const pinModal = document.getElementById('pin-modal');
+                if (pinModal && pinModal.classList.contains('hidden')) {
+                    updateTotal();
+                    // Forzar repintado del body en caso de pantalla negra en Android WebView
+                    document.body.style.display = 'none';
+                    // eslint-disable-next-line no-unused-expressions
+                    document.body.offsetHeight; // trigger reflow
+                    document.body.style.display = '';
+                }
+            }
+        });
+
         // ==================== REGISTRO DEL SERVICE WORKER (PWA) ====================
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./service-worker.js')
                     .then(reg => console.log('SW registrado:', reg.scope))
-                    .catch(err => console.warn('SW error:', err));
+                    .catch(err => {
+                        console.warn('SW error:', err);
+                        // Solo mostrar aviso si es la primera vez (no spamear)
+                        if (!sessionStorage.getItem('_swWarnShown')) {
+                            sessionStorage.setItem('_swWarnShown', '1');
+                            showToast('⚠️ Modo offline limitado — abre la app desde un servidor para activarlo completo', 'warning');
+                        }
+                    });
             });
         }
 
