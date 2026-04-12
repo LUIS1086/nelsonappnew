@@ -3214,6 +3214,24 @@
             updateMetaBar();
         }
 
+        function toggleStaMenu(id, e) {
+            e.stopPropagation();
+            // Cerrar otros menús abiertos
+            document.querySelectorAll('[id^="sta-menu-"]').forEach(m => {
+                if (m.id !== `sta-menu-${id}`) m.style.display = 'none';
+            });
+            const menu = document.getElementById(`sta-menu-${id}`);
+            if (menu) menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        }
+        function closeStaMenu(id) {
+            const menu = document.getElementById(`sta-menu-${id}`);
+            if (menu) menu.style.display = 'none';
+        }
+        // Cerrar menú al tocar fuera
+        document.addEventListener('click', () => {
+            document.querySelectorAll('[id^="sta-menu-"]').forEach(m => m.style.display = 'none');
+        });
+
         function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
         let cameraMode = 'recepcion';
@@ -3511,7 +3529,7 @@
 
                 return `<div class="card p-4 border-l-4 ${isOverdue ? 'border-red-500' : (o.sta === 'entregado' ? 'border-emerald-500' : 'border-orange-500')}">
                     <div class="flex justify-between items-start mb-1">
-                        <div class="flex-1">
+                        <div class="flex-1 min-w-0 pr-2">
                             <div class="flex items-center gap-2 mb-0.5 flex-wrap">
                                 <span class="order-num">${numLabel}</span>
                                 ${garantiaBadge}
@@ -3522,12 +3540,29 @@
                             <p class="text-xs text-orange-400">${escapeHtml(o.equ)}</p>
                             ${saldoBadge}
                         </div>
-                        <select onchange="updateSta(${o.id}, this.value)" style="font-size:10px;padding:4px 8px 4px 6px;border-radius:12px;font-weight:800;border:1px solid rgba(255,255,255,0.12);flex-shrink:0;cursor:pointer;appearance:auto;-webkit-appearance:auto;height:30px;min-width:90px;${{recibido:'background:#1e293b;color:#94a3b8;',revisión:'background:#422006;color:#fbbf24;',reparado:'background:#052e16;color:#4ade80;',entregado:'background:#0c1a2e;color:#60a5fa;'}[o.sta]||'background:#1e293b;color:#94a3b8;'}">
-                            <option value="recibido" ${o.sta==='recibido'?'selected':''}>📥 recibido</option>
-                            <option value="revisión" ${o.sta==='revisión'?'selected':''}>🔍 revisión</option>
-                            <option value="reparado" ${o.sta==='reparado'?'selected':''}>✅ reparado</option>
-                            <option value="entregado" ${o.sta==='entregado'?'selected':''}>📦 entregado</option>
-                        </select>
+                        <div class="relative flex-shrink-0" id="sta-wrap-${o.id}">
+                            ${(()=>{
+                                const cfg = {
+                                    recibido:  {bg:'#1e293b', color:'#94a3b8', icon:'📥'},
+                                    'revisión':{bg:'#3d1f00', color:'#fbbf24', icon:'🔍'},
+                                    reparado:  {bg:'#052e16', color:'#4ade80', icon:'✅'},
+                                    entregado: {bg:'#0c1a2e', color:'#60a5fa', icon:'📦'},
+                                };
+                                const c = cfg[o.sta] || cfg.recibido;
+                                return `<button onclick="toggleStaMenu(${o.id},event)"
+                                    style="background:${c.bg};color:${c.color};border:1px solid ${c.color}33;border-radius:10px;padding:5px 10px;font-size:10px;font-weight:900;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;min-width:100px;justify-content:space-between;">
+                                    <span>${c.icon} ${o.sta}</span><span style="font-size:8px;opacity:0.7;">▼</span>
+                                </button>
+                                <div id="sta-menu-${o.id}" style="display:none;position:absolute;right:0;top:36px;z-index:200;background:#1e293b;border:1px solid rgba(255,255,255,0.12);border-radius:12px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.6);min-width:130px;">
+                                    ${Object.entries(cfg).map(([k,v])=>`
+                                    <div onclick="closeStaMenu(${o.id});updateSta(${o.id},'${k}')"
+                                        style="padding:10px 14px;font-size:11px;font-weight:800;color:${v.color};cursor:pointer;background:${o.sta===k?v.bg+'99':'transparent'};border-bottom:1px solid rgba(255,255,255,0.06);"
+                                        onmouseenter="this.style.background='${v.bg}'" onmouseleave="this.style.background='${o.sta===k?v.bg+'99':'transparent'}'">
+                                        ${v.icon} ${k}
+                                    </div>`).join('')}
+                                </div>`;
+                            })()}
+                        </div>
                     </div>
                     <div class="flex justify-between text-xs text-slate-400 mb-1 mt-2">
                         <span>📅 ${new Date(o.fecha).toLocaleDateString()}</span>
