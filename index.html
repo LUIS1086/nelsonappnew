@@ -6717,10 +6717,8 @@
 
         // ==================== BLOQUE 3: NOTIFICACIONES PUSH ====================
         function requestPushPermission() {
-            if (!('Notification' in window)) return;
-            // Solo pedir permiso si ya no está concedido ni denegado
+            if (!_notifSupported) return;
             if (Notification.permission === 'default') {
-                // Pedir con delay para no interrumpir la carga
                 setTimeout(() => {
                     Notification.requestPermission().then(p => {
                         if (p === 'granted') showToast('🔔 Notificaciones activadas', 'success');
@@ -6730,7 +6728,7 @@
         }
 
         function sendPushNotification(title, body, tag = 'nelsonapp') {
-            if (!('Notification' in window) || Notification.permission !== 'granted') return;
+            if (!_notifSupported || Notification.permission !== 'granted') return;
             try {
                 new Notification(title, {
                     body,
@@ -6742,43 +6740,53 @@
             } catch(e) { console.warn('Push notification error:', e); }
         }
 
+        // ── Guard global: si el entorno (WebView) no soporta Notification, no hacer nada ──
+        const _notifSupported = typeof Notification !== 'undefined' && ('Notification' in window);
+
         // Notificaciones automáticas: órdenes vencidas + stock bajo
         async function checkAndNotifyOverdue() {
-            if (Notification.permission !== 'granted') return;
-            const orders = await getAll('orders');
-            const now    = Date.now();
-            const vencidas = orders.filter(o =>
-                o.sta !== 'entregado' && o.fechaEstimada &&
-                new Date(o.fechaEstimada + 'T23:59:59').getTime() < now
-            );
-            if (vencidas.length > 0) {
-                sendPushNotification(
-                    '⚠️ Órdenes vencidas — NelsonApp',
-                    `${vencidas.length} orden${vencidas.length > 1 ? 'es' : ''} superó su fecha de entrega`,
-                    'overdue'
+            if (!_notifSupported || Notification.permission !== 'granted') return;
+            try {
+                const orders = await getAll('orders');
+                const now    = Date.now();
+                const vencidas = orders.filter(o =>
+                    o.sta !== 'entregado' && o.fechaEstimada &&
+                    new Date(o.fechaEstimada + 'T23:59:59').getTime() < now
                 );
-            }
+                if (vencidas.length > 0) {
+                    sendPushNotification(
+                        '⚠️ Órdenes vencidas — NelsonApp',
+                        `${vencidas.length} orden${vencidas.length > 1 ? 'es' : ''} superó su fecha de entrega`,
+                        'overdue'
+                    );
+                }
+            } catch(e) { console.warn('[checkAndNotifyOverdue]', e); }
         }
 
         async function checkAndNotifyLowStock() {
-            if (Notification.permission !== 'granted') return;
-            const stock     = await getAll('stock');
-            const threshold = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
-            const bajos     = stock.filter(s => (s.qty || 0) <= threshold && s.minStock !== undefined);
-            if (bajos.length > 0) {
-                sendPushNotification(
-                    '📦 Stock bajo — NelsonApp',
-                    `${bajos.length} repuesto${bajos.length > 1 ? 's' : ''} con stock crítico`,
-                    'lowstock'
-                );
-            }
+            if (!_notifSupported || Notification.permission !== 'granted') return;
+            try {
+                const stock     = await getAll('stock');
+                const threshold = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
+                const bajos     = stock.filter(s => (s.qty || 0) <= threshold && s.minStock !== undefined);
+                if (bajos.length > 0) {
+                    sendPushNotification(
+                        '📦 Stock bajo — NelsonApp',
+                        `${bajos.length} repuesto${bajos.length > 1 ? 's' : ''} con stock crítico`,
+                        'lowstock'
+                    );
+                }
+            } catch(e) { console.warn('[checkAndNotifyLowStock]', e); }
         }
 
-        // Agendar notificaciones diarias al abrir la app
+        // Agendar notificaciones diarias al abrir la app (solo si el entorno lo soporta)
         (function scheduleNotifications() {
+            if (!_notifSupported) return;
             setTimeout(async () => {
-                await checkAndNotifyOverdue();
-                await checkAndNotifyLowStock();
+                try {
+                    await checkAndNotifyOverdue();
+                    await checkAndNotifyLowStock();
+                } catch(e) { console.warn('[scheduleNotifications]', e); }
             }, 6000);
         })();
 
@@ -8318,17 +8326,14 @@
 
         // ==================== 🔔 NOTIFICACIONES PUSH ====================
         function initPushNotifications() {
-            if (!('Notification' in window)) return;
-            // Mostrar modal de invitación si aún no se ha respondido
+            if (!_notifSupported) return;
             if (Notification.permission === 'default') {
-                // Solo mostrar después de que el usuario interactúe un poco
                 setTimeout(() => {
                     if (Notification.permission === 'default') {
                         document.getElementById('modal-push-setup')?.classList.remove('hidden');
                     }
                 }, 8000);
             }
-            // Si ya tiene permiso, programar verificación
             if (Notification.permission === 'granted') {
                 schedulePushChecks();
             }
@@ -8336,7 +8341,7 @@
 
         async function requestPushPermission() {
             document.getElementById('modal-push-setup')?.classList.add('hidden');
-            if (!('Notification' in window)) {
+            if (!_notifSupported) {
                 showToast('Tu navegador no soporta notificaciones', 'warning');
                 return;
             }
