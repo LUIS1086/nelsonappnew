@@ -3522,11 +3522,11 @@
                             <p class="text-xs text-orange-400">${escapeHtml(o.equ)}</p>
                             ${saldoBadge}
                         </div>
-                        <select onchange="updateSta(${o.id}, this.value)" style="font-size:10px;padding:4px 8px;border-radius:999px;font-weight:700;border:none;flex-shrink:0;background:rgb(30 41 59);color:#cbd5e1;height:28px;">
-                            <option ${o.sta==='recibido'?'selected':''}>recibido</option>
-                            <option ${o.sta==='revisión'?'selected':''}>revisión</option>
-                            <option ${o.sta==='reparado'?'selected':''}>reparado</option>
-                            <option ${o.sta==='entregado'?'selected':''}>entregado</option>
+                        <select onchange="updateSta(${o.id}, this.value)" style="font-size:10px;padding:4px 8px 4px 6px;border-radius:12px;font-weight:800;border:1px solid rgba(255,255,255,0.12);flex-shrink:0;cursor:pointer;appearance:auto;-webkit-appearance:auto;height:30px;min-width:90px;${{recibido:'background:#1e293b;color:#94a3b8;',revisión:'background:#422006;color:#fbbf24;',reparado:'background:#052e16;color:#4ade80;',entregado:'background:#0c1a2e;color:#60a5fa;'}[o.sta]||'background:#1e293b;color:#94a3b8;'}">
+                            <option value="recibido" ${o.sta==='recibido'?'selected':''}>📥 recibido</option>
+                            <option value="revisión" ${o.sta==='revisión'?'selected':''}>🔍 revisión</option>
+                            <option value="reparado" ${o.sta==='reparado'?'selected':''}>✅ reparado</option>
+                            <option value="entregado" ${o.sta==='entregado'?'selected':''}>📦 entregado</option>
                         </select>
                     </div>
                     <div class="flex justify-between text-xs text-slate-400 mb-1 mt-2">
