@@ -2816,22 +2816,6 @@
     </div><!-- /main-content-area -->
 
     <script>
-        // ==================== CAPTURADOR GLOBAL DE ERRORES ====================
-        // Evita que un error JS rompa toda la app en silencio
-        window.addEventListener('error', function(e) {
-            console.error('[NelsonApp] Error no manejado:', e.message, 'en', e.filename, 'línea', e.lineno);
-            // Solo mostrar toast si showToast ya está definido
-            if (typeof showToast === 'function') {
-                showToast('⚠️ Error interno: ' + (e.message || 'desconocido'), 'error');
-            }
-        });
-        window.addEventListener('unhandledrejection', function(e) {
-            console.error('[NelsonApp] Promesa rechazada:', e.reason);
-            if (typeof showToast === 'function') {
-                showToast('⚠️ Error async: ' + (e.reason?.message || 'desconocido'), 'error');
-            }
-        });
-
         // ==================== CONFIGURACIÓN INICIAL ====================
         const DB_NAME = 'NelsonAppPro';
         let db = null;
@@ -3186,28 +3170,32 @@
 
         // ==================== FUNCIONES PRINCIPALES ====================
         async function initApp() {
-            // Cada bloque tiene su propio try/catch para que un fallo
-            // en un módulo no detenga la inicialización de los demás.
-            try { applyStoredTheme(); applyAccentColor(); } catch(e) { console.error('[initApp:theme]', e); }
-            try { await openDB(); } catch(e) { console.error('[initApp:openDB]', e); showToast('❌ Error al abrir base de datos', 'error'); return; }
-            try { await updateTotal(); } catch(e) { console.error('[initApp:updateTotal]', e); }
-            try { await updateSuggestions(); } catch(e) { console.error('[initApp:suggestions]', e); }
-            try { await renderCartera(); } catch(e) { console.error('[initApp:cartera]', e); }
-            try { checkLowStock(); } catch(e) { console.error('[initApp:lowStock]', e); }
-            try { checkOverdueOrders(); } catch(e) { console.error('[initApp:overdue]', e); }
-            try { checkWarrantyAlerts(); } catch(e) { console.error('[initApp:warranty]', e); }
-            try { checkSinMovimiento(); } catch(e) { console.error('[initApp:sinMov]', e); }
-            try { applyFontSize(); applyHighContrast(); } catch(e) { console.error('[initApp:accessibility]', e); }
-            try { loadBusinessConfig(); } catch(e) { console.error('[initApp:businessConfig]', e); }
-            try { loadLowStockThreshold(); loadBackupInterval(); } catch(e) { console.error('[initApp:config]', e); }
-            try { resetLockTimer(); } catch(e) { console.error('[initApp:lockTimer]', e); }
-            try { tryDriveReconnect(); } catch(e) { console.error('[initApp:drive]', e); }
-            try { setupReminderChecks(); } catch(e) { console.error('[initApp:reminders]', e); }
-            try { updateMetaBar(); } catch(e) { console.error('[initApp:metaBar]', e); }
-            try { startAutoBackup(); } catch(e) { console.error('[initApp:autoBackup]', e); }
-            try { _refreshTecnicosSelects(); } catch(e) { console.error('[initApp:tecnicos]', e); }
-            try { loadAutoThemeConfig(); startAutoThemeWatcher(); } catch(e) { console.error('[initApp:autoTheme]', e); }
-            try { requestPushPermission(); } catch(e) { console.error('[initApp:push]', e); }
+            applyStoredTheme();
+            applyAccentColor();
+            await openDB();
+            await updateTotal();
+            await updateSuggestions();
+            await renderCartera();
+            requestNotificationPermission();
+            checkLowStock();
+            checkOverdueOrders();
+            checkWarrantyAlerts();
+            checkSinMovimiento();
+            applyFontSize();
+            applyHighContrast();
+            loadBusinessConfig();
+            loadLowStockThreshold();
+            loadBackupInterval();
+            resetLockTimer();
+            tryDriveReconnect();
+            setupReminderChecks();
+            updateMetaBar();
+            startAutoBackup();
+            _refreshTecnicosSelects();
+            // Bloque 3
+            loadAutoThemeConfig();
+            startAutoThemeWatcher();
+            requestPushPermission();
         }
 
         function _refreshTecnicosSelects() {
@@ -3324,23 +3312,17 @@
 
         // Modificar updateTotal, etc. (resto del código igual excepto funciones de mejora 6 y 7)
         async function updateTotal() {
-            try {
-                const lastCierre = Number(localStorage.getItem('lastCierreCaja')) || 0;
-                const orders = await getAll('orders');
-                const sales = await getAll('sales');
-                const gastos = await getAll('gastos');
-                const totalOrders = orders.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha) > lastCierre).reduce((a,b) => a + (b.val||0), 0);
-                const totalSales = sales.filter(v => v.fecha > lastCierre && v.tipo !== 'adelanto' && v.tipo !== 'cobro_entrega').reduce((a,b) => a + (b.val||0), 0);
-                const totalGastos = gastos.filter(g => g.fecha > lastCierre).reduce((a,b) => a + (b.val||0), 0);
-                const total = totalOrders + totalSales - totalGastos;
-                const cashEl = document.getElementById('total-cash');
-                if (cashEl) cashEl.innerText = '$' + total.toLocaleString();
-                const ventasView = document.getElementById('view-ventas');
-                if (ventasView && !ventasView.classList.contains('hidden')) renderMovimientos();
-                updateMetaBar();
-            } catch(e) {
-                console.error('[updateTotal]', e);
-            }
+            const lastCierre = Number(localStorage.getItem('lastCierreCaja')) || 0;
+            const orders = await getAll('orders');
+            const sales = await getAll('sales');
+            const gastos = await getAll('gastos');
+            const totalOrders = orders.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha) > lastCierre).reduce((a,b) => a + (b.val||0), 0);
+            const totalSales = sales.filter(v => v.fecha > lastCierre && v.tipo !== 'adelanto' && v.tipo !== 'cobro_entrega').reduce((a,b) => a + (b.val||0), 0);
+            const totalGastos = gastos.filter(g => g.fecha > lastCierre).reduce((a,b) => a + (b.val||0), 0);
+            const total = totalOrders + totalSales - totalGastos;
+            document.getElementById('total-cash').innerText = '$' + total.toLocaleString();
+            if (!document.getElementById('view-ventas').classList.contains('hidden')) renderMovimientos();
+            updateMetaBar();
         }
 
         function toggleStaMenu(id, e) {
@@ -3472,59 +3454,50 @@
             setTimeout(() => { el.style.borderColor = orig; el.style.animation = ""; el.style.transition = ""; }, 600);
         }
         async function saveOrder() {
-            try {
-                const nom = document.getElementById("c-nom").value.trim().toUpperCase();
-                const equ = document.getElementById("c-equ").value.trim();
-                let hasError = false;
-                if (!nom) { _shakeField("c-nom"); hasError = true; }
-                if (!equ) { _shakeField("c-equ"); hasError = true; }
-                if (hasError) return showAlert("Cliente y equipo son obligatorios.", "warning");
-                const rawVal = document.getElementById("c-val").value;
-                const valor = rawVal === "" ? 0 : Number(rawVal);
-                if (isNaN(valor) || valor < 0) { const ve = document.getElementById("val-error"); if(ve) ve.innerText = "⚠️ El valor no puede ser negativo"; return; }
-                const veOk = document.getElementById('val-error'); if(veOk) veOk.innerText = "";
-                const adelanto = Number(document.getElementById('c-adelanto').value) || 0;
-                if (adelanto > valor && valor > 0) return showAlert("El adelanto no puede superar el valor total.", "warning");
-                const orderNum = await getNextOrderNum();
-                const garantia = parseInt(document.getElementById('c-garantia').value) || 0;
-                const presupuesto = document.getElementById('c-presupuesto').value;
-                const tecnico = document.getElementById('c-tecnico').value || '';
-                const fechaEstimada = document.getElementById('c-fecha-estimada').value || '';
-                const notas = document.getElementById('c-notas').value.trim();
-                const origen = document.getElementById('c-origen').value || '';
-                const order = {
-                    id: Date.now(), orderNum, nom, tel: document.getElementById('c-tel').value,
-                    equ: document.getElementById('c-equ').value.toUpperCase(),
-                    val: valor, adelanto, saldo: valor - adelanto,
-                    fotos: currentPhotos, fotosEntrega: [], sta: 'recibido',
-                    det: document.getElementById('c-fal').value.toUpperCase(),
-                    fecha: Date.now(), alertSent: false, garantia, presupuesto, tecnico,
-                    fechaEstimada, notas, origen
-                };
-                await put('orders', order);
-                if (adelanto > 0) {
-                    await put('sales', { id: Date.now() + 1, item: `Adelanto ${nom} - ${order.equ.substring(0,20)}`, val: adelanto, qty: 1, stockId: null, fecha: Date.now(), tipo: 'adelanto', ordenId: order.id });
-                }
-                currentPhotos = [];
-                const previewsEl = document.getElementById('previews');
-                if (previewsEl) previewsEl.innerHTML = '';
-                ['c-nom','c-equ','c-tel','c-val','c-fal','c-adelanto','c-notas','c-fecha-estimada'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.value = '';
-                });
-                const garEl = document.getElementById('c-garantia'); if (garEl) garEl.value = '30';
-                const presEl = document.getElementById('c-presupuesto'); if (presEl) presEl.value = 'pendiente';
-                const tecEl = document.getElementById('c-tecnico'); if (tecEl) tecEl.value = '';
-                const origEl = document.getElementById('c-origen'); if (origEl) origEl.value = '';
-                const alertEl = document.getElementById('client-alert'); if (alertEl) alertEl.innerText = '';
-                const valErrEl = document.getElementById('val-error'); if (valErrEl) valErrEl.innerText = '';
-                const saldoPrevEl = document.getElementById('saldo-preview'); if (saldoPrevEl) saldoPrevEl.classList.add('hidden');
-                playBeep(); closeCamera(); await updateTotal(); await updateSuggestions(); tab('ordenes');
-                showToast(adelanto > 0 ? `✅ Orden registrada · Adelanto $${adelanto.toLocaleString()} guardado` : '✅ Orden registrada', 'success');
-            } catch(e) {
-                console.error('[saveOrder]', e);
-                showToast('❌ Error al guardar la orden', 'error');
+            const nom = document.getElementById("c-nom").value.trim().toUpperCase();
+            const equ = document.getElementById("c-equ").value.trim();
+            let hasError = false;
+            if (!nom) { _shakeField("c-nom"); hasError = true; }
+            if (!equ) { _shakeField("c-equ"); hasError = true; }
+            if (hasError) return showAlert("Cliente y equipo son obligatorios.", "warning");
+            const rawVal = document.getElementById("c-val").value;
+            const valor = rawVal === "" ? 0 : Number(rawVal);
+            if (isNaN(valor) || valor < 0) { document.getElementById("val-error").innerText = "⚠️ El valor no puede ser negativo"; return; }
+            document.getElementById('val-error').innerText = "";
+            const adelanto = Number(document.getElementById('c-adelanto').value) || 0;
+            if (adelanto > valor && valor > 0) return showAlert("El adelanto no puede superar el valor total.", "warning");
+            const orderNum = await getNextOrderNum();
+            const garantia = parseInt(document.getElementById('c-garantia').value) || 0;
+            const presupuesto = document.getElementById('c-presupuesto').value;
+            const tecnico = document.getElementById('c-tecnico').value || '';
+            const fechaEstimada = document.getElementById('c-fecha-estimada').value || '';
+            const notas = document.getElementById('c-notas').value.trim();
+            const origen = document.getElementById('c-origen').value || '';
+            const order = {
+                id: Date.now(), orderNum, nom, tel: document.getElementById('c-tel').value,
+                equ: document.getElementById('c-equ').value.toUpperCase(),
+                val: valor, adelanto, saldo: valor - adelanto,
+                fotos: currentPhotos, fotosEntrega: [], sta: 'recibido',
+                det: document.getElementById('c-fal').value.toUpperCase(),
+                fecha: Date.now(), alertSent: false, garantia, presupuesto, tecnico,
+                fechaEstimada, notas, origen
+            };
+            await put('orders', order);
+            // Si hay adelanto, registrarlo como ingreso en caja
+            if (adelanto > 0) {
+                await put('sales', { id: Date.now() + 1, item: `Adelanto ${nom} - ${order.equ.substring(0,20)}`, val: adelanto, qty: 1, stockId: null, fecha: Date.now(), tipo: 'adelanto', ordenId: order.id });
             }
+            currentPhotos = []; document.getElementById('previews').innerHTML = '';
+            ['c-nom','c-equ','c-tel','c-val','c-fal','c-adelanto','c-notas','c-fecha-estimada'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('c-garantia').value = '30';
+            document.getElementById('c-presupuesto').value = 'pendiente';
+            document.getElementById('c-tecnico').value = '';
+            document.getElementById('c-origen').value = '';
+            document.getElementById('client-alert').innerText = '';
+            document.getElementById('val-error').innerText = '';
+            document.getElementById('saldo-preview').classList.add('hidden');
+            playBeep(); closeCamera(); await updateTotal(); await updateSuggestions(); tab('ordenes');
+            showToast(adelanto > 0 ? `✅ Orden registrada · Adelanto $${adelanto.toLocaleString()} guardado` : '✅ Orden registrada', 'success');
         }
 
         async function editOrder(id) {
@@ -3593,7 +3566,6 @@
         }
 
         async function renderOrders() {
-          try {
             let orders = await getAll('orders');
             if (filters.text) {
                 const q = filters.text;
@@ -3734,11 +3706,6 @@
                     </div>
                 </div>`;
             }).join('');
-          } catch(e) {
-            console.error('[renderOrders]', e);
-            const container = document.getElementById('orders-list');
-            if (container) container.innerHTML = '<div class="text-center py-12 text-rose-400 text-xs">❌ Error al cargar órdenes. Recarga la app.</div>';
-          }
         }
 
         // printInvoice usando datos del negocio y config de documentos
@@ -3796,52 +3763,47 @@
         }
 
         async function updateSta(id, newSta) {
-            try {
-                const orders = await getAll('orders');
-                const o = orders.find(x=>x.id===id);
-                if(!o) return;
-                const oldSta = o.sta;
-                if (oldSta === newSta) return;
+            const orders = await getAll('orders');
+            const o = orders.find(x=>x.id===id);
+            if(!o) return;
+            const oldSta = o.sta;
+            if (oldSta === newSta) return;
 
-                const staOrder = ['recibido','revisión','reparado','entregado'];
-                const isDowngrade = staOrder.indexOf(newSta) < staOrder.indexOf(oldSta);
-                if (isDowngrade) {
-                    showConfirm(`¿Cambiar estado de "${oldSta}" a "${newSta}"? Esto puede afectar la caja.`, async () => {
-                        await _doUpdateSta(o, newSta, oldSta);
-                    }, 'warning');
-                    await renderOrders();
-                    return;
-                }
-                await _doUpdateSta(o, newSta, oldSta);
-            } catch(e) {
-                console.error('[updateSta]', e);
-                showToast('❌ Error al cambiar el estado', 'error');
+            // Confirmación si baja de estado (ej: entregado → recibido)
+            const staOrder = ['recibido','revisión','reparado','entregado'];
+            const isDowngrade = staOrder.indexOf(newSta) < staOrder.indexOf(oldSta);
+            if (isDowngrade) {
+                showConfirm(`¿Cambiar estado de "${oldSta}" a "${newSta}"? Esto puede afectar la caja.`, async () => {
+                    await _doUpdateSta(o, newSta, oldSta);
+                }, 'warning');
+                // Restaurar el select visualmente mientras confirma
+                await renderOrders();
+                return;
             }
+            await _doUpdateSta(o, newSta, oldSta);
         }
 
         async function _doUpdateSta(o, newSta, oldSta) {
-            try {
-                o.sta = newSta;
-                o.fechaEstado = Date.now();
+            o.sta = newSta;
+            o.fechaEstado = Date.now();
 
-                if (newSta === 'entregado' && oldSta !== 'entregado') {
-                    await _entregaRapida(o);
-                    return;
-                }
+            if (newSta === 'entregado' && oldSta !== 'entregado') {
+                // Modo entrega rápida con cobro
+                await _entregaRapida(o);
+                return;
+            }
 
-                await put('orders', o);
+            await put('orders', o);
 
-                const staEmojis = { recibido:'📥', 'revisión':'🔍', reparado:'✅', entregado:'📦' };
-                await logChatSistema(o.id, `Estado cambiado: ${staEmojis[oldSta]||'•'} ${oldSta} → ${staEmojis[newSta]||'•'} ${newSta}`);
+            // Registrar cambio de estado en el chat interno
+            const staEmojis = { recibido:'📥', 'revisión':'🔍', reparado:'✅', entregado:'📦' };
+            await logChatSistema(o.id, `Estado cambiado: ${staEmojis[oldSta]||'•'} ${oldSta} → ${staEmojis[newSta]||'•'} ${newSta}`);
 
-                await updateTotal(); await renderOrders(); await renderCartera();
+            await updateTotal(); await renderOrders(); await renderCartera();
 
-                if (newSta === 'reparado' && o.tel) {
-                    setTimeout(() => _mostrarAvisoReparado(o), 400);
-                }
-            } catch(e) {
-                console.error('[_doUpdateSta]', e);
-                showToast('❌ Error al actualizar la orden', 'error');
+            // Aviso automático WA al pasar a "reparado"
+            if (newSta === 'reparado' && o.tel) {
+                setTimeout(() => _mostrarAvisoReparado(o), 400);
             }
         }
 
@@ -3904,34 +3866,34 @@
         }
 
         async function _confirmarEntrega(orderId, saldoPendiente) {
-            try {
-                const orders = await getAll('orders');
-                const o = orders.find(x => x.id === orderId);
-                if (!o) return;
-                const cobro = saldoPendiente > 0 ? (Number(document.getElementById('entrega-cobro')?.value) || 0) : 0;
-                o.sta = 'entregado';
-                o.fechaEntrega = Date.now();
-                o.fechaEstado = Date.now();
-                o.saldo = Math.max(0, saldoPendiente - cobro);
-                if (cobro > 0) {
-                    await put('sales', { id: Date.now() + 2, item: `Cobro entrega ${o.nom} - ${o.equ.substring(0,20)}`, val: cobro, qty: 1, stockId: null, fecha: Date.now(), tipo: 'cobro_entrega', ordenId: orderId });
-                }
-                if (o.saldo > 0) {
-                    await updateClientDebt(o.nom, o.saldo);
-                } else {
-                    let client = await getOne('clientes', o.nom);
-                    if (client && client.deuda > 0) { client.deuda = 0; await put('clientes', client); }
-                }
-                await put('orders', o);
-                document.getElementById('modal-entrega-rapida')?.remove();
-                await updateTotal(); await renderOrders(); await renderCartera();
-                showToast(cobro > 0 ? `✅ Entregado · Cobrado $${cobro.toLocaleString()}${o.saldo > 0 ? ` · Saldo $${o.saldo.toLocaleString()}` : ''}` : '✅ Equipo entregado', 'success');
-                if (o.tel) setTimeout(() => _mostrarAvisoReparado({ ...o, sta: 'entregado' }), 400);
-                setTimeout(() => promptCalificacion(o), 1200);
-            } catch(e) {
-                console.error('[_confirmarEntrega]', e);
-                showToast('❌ Error al confirmar la entrega', 'error');
+            const orders = await getAll('orders');
+            const o = orders.find(x => x.id === orderId);
+            if (!o) return;
+            const cobro = saldoPendiente > 0 ? (Number(document.getElementById('entrega-cobro')?.value) || 0) : 0;
+            o.sta = 'entregado';
+            o.fechaEntrega = Date.now();
+            o.fechaEstado = Date.now();
+            o.saldo = Math.max(0, saldoPendiente - cobro);
+            // Registrar cobro en caja si cobró algo
+            if (cobro > 0) {
+                await put('sales', { id: Date.now() + 2, item: `Cobro entrega ${o.nom} - ${o.equ.substring(0,20)}`, val: cobro, qty: 1, stockId: null, fecha: Date.now(), tipo: 'cobro_entrega', ordenId: orderId });
             }
+            // Si queda saldo, registrar deuda; si pagó todo, limpiar deuda existente
+            if (o.saldo > 0) {
+                await updateClientDebt(o.nom, o.saldo);
+            } else {
+                // Pago completo — asegurarse que no quede deuda registrada
+                let client = await getOne('clientes', o.nom);
+                if (client && client.deuda > 0) { client.deuda = 0; await put('clientes', client); }
+            }
+            await put('orders', o);
+            document.getElementById('modal-entrega-rapida')?.remove();
+            await updateTotal(); await renderOrders(); await renderCartera();
+            showToast(cobro > 0 ? `✅ Entregado · Cobrado $${cobro.toLocaleString()}${o.saldo > 0 ? ` · Saldo $${o.saldo.toLocaleString()}` : ''}` : '✅ Equipo entregado', 'success');
+            // Ofrecer WhatsApp si tiene tel
+            if (o.tel) setTimeout(() => _mostrarAvisoReparado({ ...o, sta: 'entregado' }), 400);
+            // Pedir calificación del servicio
+            setTimeout(() => promptCalificacion(o), 1200);
         }
         async function editOrderValue(id) {
             editOrder(id);
@@ -4123,34 +4085,24 @@
         }
 
         async function saveGasto() {
-            try {
-                const det = document.getElementById('g-det').value.trim().toUpperCase();
-                const val = parseInt(document.getElementById('g-val').value);
-                if(!det || isNaN(val) || val <= 0) return showAlert("Ingresa un motivo y un valor válido.", "warning");
-                await put('gastos', { id: Date.now(), det, val, fecha: Date.now() });
-                document.getElementById('g-det').value = ''; document.getElementById('g-val').value = '';
-                await updateTotal();
-                await renderMovimientos();
-                showToast(`Gasto $${val.toLocaleString()} registrado`, 'success');
-            } catch(e) {
-                console.error('[saveGasto]', e);
-                showToast('❌ Error al guardar gasto', 'error');
-            }
+            const det = document.getElementById('g-det').value.trim().toUpperCase();
+            const val = parseInt(document.getElementById('g-val').value);
+            if(!det || isNaN(val) || val <= 0) return showAlert("Ingresa un motivo y un valor válido.", "warning");
+            await put('gastos', { id: Date.now(), det, val, fecha: Date.now() });
+            document.getElementById('g-det').value = ''; document.getElementById('g-val').value = '';
+            await updateTotal();
+            await renderMovimientos();
+            showToast(`Gasto $${val.toLocaleString()} registrado`, 'success');
         }
 
         async function renderMovimientos() {
-            try {
-                const lastCierre = Number(localStorage.getItem('lastCierreCaja')) || 0;
-                const sales = await getAll('sales');
-                const gastos = await getAll('gastos');
-                const movs = [...sales.filter(s=>s.fecha>lastCierre && s.tipo!=='adelanto' && s.tipo!=='cobro_entrega').map(s=>({...s,type:'sale'})), ...gastos.filter(g=>g.fecha>lastCierre).map(g=>({...g,type:'gasto'}))].sort((a,b)=>b.fecha-a.fecha);
-                const container = document.getElementById('movimientos-history');
-                if (!container) return;
-                if(!movs.length) { container.innerHTML = '<div class="text-center py-4 text-slate-500 text-xs">Sin movimientos en la caja actual</div>'; return; }
-                container.innerHTML = movs.map(m => m.type==='sale' ? `<div class="flex justify-between bg-emerald-500/10 p-2 rounded-xl"><div><p class="text-xs font-bold">+ ${escapeHtml(m.item)}</p><p class="text-[9px]">${m.qty} unid</p></div><div class="flex gap-2"><p class="text-xs font-black text-emerald-400">+$${m.val.toLocaleString()}</p><button onclick="annulSale(${m.id})" class="text-rose-400 text-[10px] bg-rose-500/20 px-2 py-1 rounded-lg">✕</button></div></div>` : `<div class="flex justify-between bg-rose-500/10 p-2 rounded-xl"><div><p class="text-xs font-bold">- ${escapeHtml(m.det)}</p><p class="text-[9px]">Gasto</p></div><div class="flex gap-2"><p class="text-xs font-black text-rose-400">-$${m.val.toLocaleString()}</p><button onclick="annulGasto(${m.id})" class="text-rose-400 text-[10px] bg-rose-500/20 px-2 py-1 rounded-lg">✕</button></div></div>`).join('');
-            } catch(e) {
-                console.error('[renderMovimientos]', e);
-            }
+            const lastCierre = Number(localStorage.getItem('lastCierreCaja')) || 0;
+            const sales = await getAll('sales');
+            const gastos = await getAll('gastos');
+            const movs = [...sales.filter(s=>s.fecha>lastCierre && s.tipo!=='adelanto' && s.tipo!=='cobro_entrega').map(s=>({...s,type:'sale'})), ...gastos.filter(g=>g.fecha>lastCierre).map(g=>({...g,type:'gasto'}))].sort((a,b)=>b.fecha-a.fecha);
+            const container = document.getElementById('movimientos-history');
+            if(!movs.length) { container.innerHTML = '<div class="text-center py-4 text-slate-500 text-xs">Sin movimientos en la caja actual</div>'; return; }
+            container.innerHTML = movs.map(m => m.type==='sale' ? `<div class="flex justify-between bg-emerald-500/10 p-2 rounded-xl"><div><p class="text-xs font-bold">+ ${escapeHtml(m.item)}</p><p class="text-[9px]">${m.qty} unid</p></div><div class="flex gap-2"><p class="text-xs font-black text-emerald-400">+$${m.val.toLocaleString()}</p><button onclick="annulSale(${m.id})" class="text-rose-400 text-[10px] bg-rose-500/20 px-2 py-1 rounded-lg">✕</button></div></div>` : `<div class="flex justify-between bg-rose-500/10 p-2 rounded-xl"><div><p class="text-xs font-bold">- ${escapeHtml(m.det)}</p><p class="text-[9px]">Gasto</p></div><div class="flex gap-2"><p class="text-xs font-black text-rose-400">-$${m.val.toLocaleString()}</p><button onclick="annulGasto(${m.id})" class="text-rose-400 text-[10px] bg-rose-500/20 px-2 py-1 rounded-lg">✕</button></div></div>`).join('');
         }
         async function annulGasto(id) { showConfirm("¿Eliminar este gasto?", async () => { await del('gastos', id); await updateTotal(); }); }
 
@@ -4158,7 +4110,6 @@
         let activeStockCategory = '';
 
         async function renderStock() {
-          try {
             let stock = await getAll('stock');
             const st   = (document.getElementById('stock-search')?.value || '').toLowerCase();
             const sort = document.getElementById('stock-sort')?.value || 'name';
@@ -4252,11 +4203,6 @@
                     </div>
                 </div>`;
             }).join('');
-          } catch(e) {
-            console.error('[renderStock]', e);
-            const c = document.getElementById('stock-list');
-            if (c) c.innerHTML = '<div class="text-center py-8 text-rose-400 text-xs">❌ Error al cargar inventario.</div>';
-          }
         }
 
         function renderCategoryChips(allStock) {
@@ -4350,44 +4296,39 @@
         function closeStockModal() { document.getElementById('modal-stock-form').classList.add('hidden'); }
 
         async function saveStockItem() {
-            try {
-                const id       = document.getElementById('stock-modal-id').value;
-                const n        = document.getElementById('stock-modal-name').value.trim().toUpperCase();
-                const p        = parseFloat(document.getElementById('stock-modal-price').value);
-                const q        = parseInt(document.getElementById('stock-modal-qty').value);
-                const cost     = parseFloat(document.getElementById('stock-modal-cost').value) || 0;
-                const code     = document.getElementById('stock-modal-code').value.trim().toUpperCase();
-                const cat      = document.getElementById('stock-modal-category').value;
-                const minStock = parseInt(document.getElementById('stock-modal-min').value) || 0;
-                const supplier = document.getElementById('stock-modal-supplier').value.trim();
-                const notes    = document.getElementById('stock-modal-notes').value.trim();
-                const imgInput = document.getElementById('stock-modal-img');
-                const img      = imgInput?._imgData || (id ? (await getAll('stock')).find(s=>s.id==id)?.img : null) || null;
+            const id       = document.getElementById('stock-modal-id').value;
+            const n        = document.getElementById('stock-modal-name').value.trim().toUpperCase();
+            const p        = parseFloat(document.getElementById('stock-modal-price').value);
+            const q        = parseInt(document.getElementById('stock-modal-qty').value);
+            const cost     = parseFloat(document.getElementById('stock-modal-cost').value) || 0;
+            const code     = document.getElementById('stock-modal-code').value.trim().toUpperCase();
+            const cat      = document.getElementById('stock-modal-category').value;
+            const minStock = parseInt(document.getElementById('stock-modal-min').value) || 0;
+            const supplier = document.getElementById('stock-modal-supplier').value.trim();
+            const notes    = document.getElementById('stock-modal-notes').value.trim();
+            const imgInput = document.getElementById('stock-modal-img');
+            const img      = imgInput?._imgData || (id ? (await getAll('stock')).find(s=>s.id==id)?.img : null) || null;
 
-                if (!n)              return showAlert('Ingresa el nombre del repuesto.', 'warning');
-                if (isNaN(p) || p<0) return showAlert('Precio de venta inválido.', 'warning');
-                if (isNaN(q) || q<0) return showAlert('Cantidad inválida.', 'warning');
+            if (!n)              return showAlert('Ingresa el nombre del repuesto.', 'warning');
+            if (isNaN(p) || p<0) return showAlert('Precio de venta inválido.', 'warning');
+            if (isNaN(q) || q<0) return showAlert('Cantidad inválida.', 'warning');
 
-                const isNew  = !id;
-                const prevQ  = isNew ? 0 : ((await getAll('stock')).find(s=>s.id==parseInt(id))?.q || 0);
-                const itemData = { id: id ? parseInt(id) : Date.now(), n, p, q, cost, code, cat, minStock, supplier, notes, img };
-                await put('stock', itemData);
+            const isNew  = !id;
+            const prevQ  = isNew ? 0 : ((await getAll('stock')).find(s=>s.id==parseInt(id))?.q || 0);
+            const itemData = { id: id ? parseInt(id) : Date.now(), n, p, q, cost, code, cat, minStock, supplier, notes, img };
+            await put('stock', itemData);
 
-                if (!isNew && q !== prevQ) {
-                    const diff = q - prevQ;
-                    await addStockMovementRecord(itemData.id, diff > 0 ? 'entrada' : 'salida', Math.abs(diff), 'Edición manual', prevQ);
-                } else if (isNew && q > 0) {
-                    await addStockMovementRecord(itemData.id, 'entrada', q, 'Stock inicial', 0);
-                }
-
-                closeStockModal();
-                await renderStock();
-                await updateVentaSelect();
-                showToast(isNew ? `✅ ${n} agregado al inventario` : `✅ ${n} actualizado`, 'success');
-            } catch(e) {
-                console.error('[saveStockItem]', e);
-                showToast('❌ Error al guardar el repuesto', 'error');
+            if (!isNew && q !== prevQ) {
+                const diff = q - prevQ;
+                await addStockMovementRecord(itemData.id, diff > 0 ? 'entrada' : 'salida', Math.abs(diff), 'Edición manual', prevQ);
+            } else if (isNew && q > 0) {
+                await addStockMovementRecord(itemData.id, 'entrada', q, 'Stock inicial', 0);
             }
+
+            closeStockModal();
+            await renderStock();
+            await updateVentaSelect();
+            showToast(isNew ? `✅ ${n} agregado al inventario` : `✅ ${n} actualizado`, 'success');
         }
 
         async function deleteStockItem(id) {
@@ -4546,27 +4487,20 @@
                      .join('');
         }
         async function processSale() {
-            try {
-                const id  = document.getElementById('v-select').value;
-                const qty = parseInt(document.getElementById('v-qty').value);
-                if (!id || isNaN(qty) || qty <= 0) return showAlert('Selecciona un producto e ingresa una cantidad válida.', 'warning');
-                const stock = await getAll('stock');
-                const item  = stock.find(x => x.id == id);
-                if (!item || qty > item.q) return showAlert('Stock insuficiente para esta cantidad.', 'error');
-                const prevQ = item.q;
-                item.q -= qty;
-                await put('stock', item);
-                await put('sales', { id: Date.now(), item: item.n, val: item.p * qty, qty, stockId: item.id, fecha: Date.now() });
-                await addStockMovementRecord(item.id, 'salida', qty, 'Venta', prevQ);
-                playBeep();
-                await renderStock(); await updateVentaSelect(); await updateTotal();
-                const qtyEl = document.getElementById('v-qty');
-                if (qtyEl) qtyEl.value = '';
-                showToast(`✅ Venta: ${item.n} × ${qty}`, 'success');
-            } catch(e) {
-                console.error('[processSale]', e);
-                showToast('❌ Error al procesar la venta', 'error');
-            }
+            const id  = document.getElementById('v-select').value;
+            const qty = parseInt(document.getElementById('v-qty').value);
+            if (!id || isNaN(qty) || qty <= 0) return showAlert('Selecciona un producto e ingresa una cantidad válida.', 'warning');
+            const stock = await getAll('stock');
+            const item  = stock.find(x => x.id == id);
+            if (!item || qty > item.q) return showAlert('Stock insuficiente para esta cantidad.', 'error');
+            const prevQ = item.q;
+            item.q -= qty;
+            await put('stock', item);
+            await put('sales', { id: Date.now(), item: item.n, val: item.p * qty, qty, stockId: item.id, fecha: Date.now() });
+            await addStockMovementRecord(item.id, 'salida', qty, 'Venta', prevQ);
+            playBeep();
+            await renderStock(); await updateVentaSelect(); await updateTotal();
+            document.getElementById('v-qty').value = '';
         }
         async function annulSale(id) {
             showConfirm('¿Anular esta venta y devolver al stock?', async () => {
@@ -4915,67 +4849,57 @@
         });
 
         async function tab(t) {
-            try {
-                if (cameraMode !== 'entrega') closeCamera();
-                document.querySelectorAll('.app-view').forEach(v => v.classList.add('hidden'));
-                const viewEl = document.getElementById(`view-${t}`);
-                if (viewEl) viewEl.classList.remove('hidden');
-                document.querySelectorAll('nav button').forEach(b => { b.classList.remove('tab-active','text-orange-500'); b.classList.add('text-slate-400'); });
-                const mobileBtn = document.getElementById(`btn-${t}`);
-                if (mobileBtn) mobileBtn.classList.add('tab-active','text-orange-500');
-                if(t === 'ordenes') { try { await renderOrders(); } catch(e) { console.error('[tab:renderOrders]', e); } }
-                if(t === 'ventas') {
-                    try { await renderStock(); } catch(e) { console.error('[tab:renderStock]', e); }
-                    try { await renderMovimientos(); } catch(e) { console.error('[tab:renderMovimientos]', e); }
-                    try { await updateVentaSelect(); } catch(e) { console.error('[tab:updateVentaSelect]', e); }
-                    try { await renderCartera(); } catch(e) { console.error('[tab:renderCartera]', e); }
-                }
-                window.scrollTo(0,0);
-                // Sync sidebar
-                ['taller','ordenes','ventas','admin'].forEach(name => {
-                    const sEl = document.getElementById(`sidebar-btn-${name}`);
-                    if (sEl) sEl.classList.toggle('active', name === t);
-                });
-                // Sync desktop topbar title
-                const tabTitles = { taller:'Nueva Recepción', ordenes:'Órdenes', ventas:'Caja & Inventario', admin:'Datos & Config' };
-                const dtTitle = document.getElementById('desktop-topbar-title');
-                if (dtTitle) dtTitle.innerText = tabTitles[t] || 'NELSON';
-                syncSidebarCash();
-            } catch(e) { console.error('[tab]', e); }
+            if (cameraMode !== 'entrega') closeCamera();
+            document.querySelectorAll('.app-view').forEach(v => v.classList.add('hidden'));
+            document.getElementById(`view-${t}`).classList.remove('hidden');
+            document.querySelectorAll('nav button').forEach(b => { b.classList.remove('tab-active','text-orange-500'); b.classList.add('text-slate-400'); });
+            const mobileBtn = document.getElementById(`btn-${t}`);
+            if (mobileBtn) mobileBtn.classList.add('tab-active','text-orange-500');
+            if(t === 'ordenes') await renderOrders();
+            if(t === 'ventas') { await renderStock(); await renderMovimientos(); await updateVentaSelect(); await renderCartera(); }
+            window.scrollTo(0,0);
+            // Sync sidebar
+            ['taller','ordenes','ventas','admin'].forEach(name => {
+                const sEl = document.getElementById(`sidebar-btn-${name}`);
+                if (sEl) sEl.classList.toggle('active', name === t);
+            });
+            // Sync desktop topbar title
+            const tabTitles = { taller:'Nueva Recepción', ordenes:'Órdenes', ventas:'Caja & Inventario', admin:'Datos & Config' };
+            const dtTitle = document.getElementById('desktop-topbar-title');
+            if (dtTitle) dtTitle.innerText = tabTitles[t] || 'NELSON';
+            syncSidebarCash();
         }
 
         function syncSidebarCash() {
-            try {
-                // Sync caja
-                const mainVal = document.getElementById('total-cash');
-                const sideVal = document.getElementById('sidebar-cash-value');
-                if (mainVal && sideVal) sideVal.innerText = mainVal.innerText;
-                // Sync biz names
-                const bizShort = document.getElementById('business-short-name');
-                const bizFull  = document.getElementById('business-name-display');
-                const sideShort   = document.getElementById('sidebar-biz-short');
-                const sideFull    = document.getElementById('sidebar-biz-name');
-                const dtSubtitle  = document.getElementById('desktop-topbar-subtitle');
-                const dtTitleMain = document.getElementById('desktop-topbar-title');
-                if (bizShort && sideShort)    sideShort.innerText   = bizShort.innerText;
-                if (bizFull  && sideFull)     sideFull.innerText    = bizFull.innerText;
-                if (bizShort && dtSubtitle)   dtSubtitle.innerText  = bizShort.innerText;
-                // Sync meta bar
-                const metaFill = document.getElementById('meta-bar-fill');
-                const metaPct  = document.getElementById('meta-bar-pct');
-                const metaWrap = document.getElementById('meta-bar-wrap');
-                const sideFill = document.getElementById('sidebar-meta-fill');
-                const sidePct  = document.getElementById('sidebar-meta-pct');
-                const sideMetaWrap = document.getElementById('sidebar-meta-wrap-desktop');
-                if (metaFill && sideFill) {
-                    sideFill.style.width = metaFill.style.width;
-                    sideFill.style.background = metaFill.style.background;
-                }
-                if (metaPct  && sidePct)  sidePct.innerText = metaPct.innerText;
-                if (sideMetaWrap && metaWrap) {
-                    sideMetaWrap.style.display = metaWrap.classList.contains('hidden') ? 'none' : 'block';
-                }
-            } catch(e) { console.warn('[syncSidebarCash]', e); }
+            // Sync caja
+            const mainVal = document.getElementById('total-cash');
+            const sideVal = document.getElementById('sidebar-cash-value');
+            if (mainVal && sideVal) sideVal.innerText = mainVal.innerText;
+            // Sync biz names
+            const bizShort = document.getElementById('business-short-name');
+            const bizFull  = document.getElementById('business-name-display');
+            const sideShort   = document.getElementById('sidebar-biz-short');
+            const sideFull    = document.getElementById('sidebar-biz-name');
+            const dtSubtitle  = document.getElementById('desktop-topbar-subtitle');
+            const dtTitleMain = document.getElementById('desktop-topbar-title');
+            if (bizShort && sideShort)    sideShort.innerText   = bizShort.innerText;
+            if (bizFull  && sideFull)     sideFull.innerText    = bizFull.innerText;
+            if (bizShort && dtSubtitle)   dtSubtitle.innerText  = bizShort.innerText;
+            // Sync meta bar
+            const metaFill = document.getElementById('meta-bar-fill');
+            const metaPct  = document.getElementById('meta-bar-pct');
+            const metaWrap = document.getElementById('meta-bar-wrap');
+            const sideFill = document.getElementById('sidebar-meta-fill');
+            const sidePct  = document.getElementById('sidebar-meta-pct');
+            const sideMetaWrap = document.getElementById('sidebar-meta-wrap-desktop');
+            if (metaFill && sideFill) {
+                sideFill.style.width = metaFill.style.width;
+                sideFill.style.background = metaFill.style.background;
+            }
+            if (metaPct  && sidePct)  sidePct.innerText = metaPct.innerText;
+            if (sideMetaWrap && metaWrap) {
+                sideMetaWrap.style.display = metaWrap.classList.contains('hidden') ? 'none' : 'block';
+            }
         }
         setInterval(syncSidebarCash, 2000);
 
@@ -6717,8 +6641,10 @@
 
         // ==================== BLOQUE 3: NOTIFICACIONES PUSH ====================
         function requestPushPermission() {
-            if (!_notifSupported) return;
+            if (!('Notification' in window)) return;
+            // Solo pedir permiso si ya no está concedido ni denegado
             if (Notification.permission === 'default') {
+                // Pedir con delay para no interrumpir la carga
                 setTimeout(() => {
                     Notification.requestPermission().then(p => {
                         if (p === 'granted') showToast('🔔 Notificaciones activadas', 'success');
@@ -6728,7 +6654,7 @@
         }
 
         function sendPushNotification(title, body, tag = 'nelsonapp') {
-            if (!_notifSupported || Notification.permission !== 'granted') return;
+            if (!('Notification' in window) || Notification.permission !== 'granted') return;
             try {
                 new Notification(title, {
                     body,
@@ -6740,53 +6666,43 @@
             } catch(e) { console.warn('Push notification error:', e); }
         }
 
-        // ── Guard global: si el entorno (WebView) no soporta Notification, no hacer nada ──
-        const _notifSupported = typeof Notification !== 'undefined' && ('Notification' in window);
-
         // Notificaciones automáticas: órdenes vencidas + stock bajo
         async function checkAndNotifyOverdue() {
-            if (!_notifSupported || Notification.permission !== 'granted') return;
-            try {
-                const orders = await getAll('orders');
-                const now    = Date.now();
-                const vencidas = orders.filter(o =>
-                    o.sta !== 'entregado' && o.fechaEstimada &&
-                    new Date(o.fechaEstimada + 'T23:59:59').getTime() < now
+            if (Notification.permission !== 'granted') return;
+            const orders = await getAll('orders');
+            const now    = Date.now();
+            const vencidas = orders.filter(o =>
+                o.sta !== 'entregado' && o.fechaEstimada &&
+                new Date(o.fechaEstimada + 'T23:59:59').getTime() < now
+            );
+            if (vencidas.length > 0) {
+                sendPushNotification(
+                    '⚠️ Órdenes vencidas — NelsonApp',
+                    `${vencidas.length} orden${vencidas.length > 1 ? 'es' : ''} superó su fecha de entrega`,
+                    'overdue'
                 );
-                if (vencidas.length > 0) {
-                    sendPushNotification(
-                        '⚠️ Órdenes vencidas — NelsonApp',
-                        `${vencidas.length} orden${vencidas.length > 1 ? 'es' : ''} superó su fecha de entrega`,
-                        'overdue'
-                    );
-                }
-            } catch(e) { console.warn('[checkAndNotifyOverdue]', e); }
+            }
         }
 
         async function checkAndNotifyLowStock() {
-            if (!_notifSupported || Notification.permission !== 'granted') return;
-            try {
-                const stock     = await getAll('stock');
-                const threshold = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
-                const bajos     = stock.filter(s => (s.qty || 0) <= threshold && s.minStock !== undefined);
-                if (bajos.length > 0) {
-                    sendPushNotification(
-                        '📦 Stock bajo — NelsonApp',
-                        `${bajos.length} repuesto${bajos.length > 1 ? 's' : ''} con stock crítico`,
-                        'lowstock'
-                    );
-                }
-            } catch(e) { console.warn('[checkAndNotifyLowStock]', e); }
+            if (Notification.permission !== 'granted') return;
+            const stock     = await getAll('stock');
+            const threshold = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
+            const bajos     = stock.filter(s => (s.qty || 0) <= threshold && s.minStock !== undefined);
+            if (bajos.length > 0) {
+                sendPushNotification(
+                    '📦 Stock bajo — NelsonApp',
+                    `${bajos.length} repuesto${bajos.length > 1 ? 's' : ''} con stock crítico`,
+                    'lowstock'
+                );
+            }
         }
 
-        // Agendar notificaciones diarias al abrir la app (solo si el entorno lo soporta)
+        // Agendar notificaciones diarias al abrir la app
         (function scheduleNotifications() {
-            if (!_notifSupported) return;
             setTimeout(async () => {
-                try {
-                    await checkAndNotifyOverdue();
-                    await checkAndNotifyLowStock();
-                } catch(e) { console.warn('[scheduleNotifications]', e); }
+                await checkAndNotifyOverdue();
+                await checkAndNotifyLowStock();
             }, 6000);
         })();
 
@@ -8326,14 +8242,17 @@
 
         // ==================== 🔔 NOTIFICACIONES PUSH ====================
         function initPushNotifications() {
-            if (!_notifSupported) return;
+            if (!('Notification' in window)) return;
+            // Mostrar modal de invitación si aún no se ha respondido
             if (Notification.permission === 'default') {
+                // Solo mostrar después de que el usuario interactúe un poco
                 setTimeout(() => {
                     if (Notification.permission === 'default') {
                         document.getElementById('modal-push-setup')?.classList.remove('hidden');
                     }
                 }, 8000);
             }
+            // Si ya tiene permiso, programar verificación
             if (Notification.permission === 'granted') {
                 schedulePushChecks();
             }
@@ -8341,7 +8260,7 @@
 
         async function requestPushPermission() {
             document.getElementById('modal-push-setup')?.classList.add('hidden');
-            if (!_notifSupported) {
+            if (!('Notification' in window)) {
                 showToast('Tu navegador no soporta notificaciones', 'warning');
                 return;
             }
@@ -8377,9 +8296,6 @@
                 const orders = await getAll('orders');
                 const stock = (await getAll('stock')) || [];
                 const now = new Date();
-                // Clave por fecha (día) para que las notificaciones se disparen
-                // máximo una vez por día, incluso si la página se recarga.
-                const today = now.toISOString().slice(0, 10);
 
                 // 1. Órdenes vencidas
                 const vencidas = orders.filter(o => {
@@ -8388,9 +8304,9 @@
                     return new Date(o.deadline) < now;
                 });
                 if (vencidas.length > 0) {
-                    const lastKey = '_notif_vencidas_' + today + '_' + vencidas.length;
-                    if (!localStorage.getItem(lastKey)) {
-                        localStorage.setItem(lastKey, '1');
+                    const lastKey = '_notif_vencidas_' + vencidas.length;
+                    if (!sessionStorage.getItem(lastKey)) {
+                        sessionStorage.setItem(lastKey, '1');
                         new Notification('⏰ Órdenes vencidas · NelsonApp', {
                             body: `${vencidas.length} orden(es) superaron la fecha de entrega.`,
                             icon: 'icons/icon-192x192.png',
@@ -8403,9 +8319,9 @@
                 // 2. Equipos listos para entregar (estado "reparado")
                 const listos = orders.filter(o => o.sta === 'reparado' && o.tel);
                 if (listos.length > 0) {
-                    const lastKey = '_notif_listos_' + today + '_' + listos.length;
-                    if (!localStorage.getItem(lastKey)) {
-                        localStorage.setItem(lastKey, '1');
+                    const lastKey = '_notif_listos_' + listos.length;
+                    if (!sessionStorage.getItem(lastKey)) {
+                        sessionStorage.setItem(lastKey, '1');
                         new Notification('✅ Equipos listos · NelsonApp', {
                             body: `${listos.length} equipo(s) están reparados y listos para entregar.`,
                             icon: 'icons/icon-192x192.png',
@@ -8417,9 +8333,9 @@
                 // 3. Repuestos bajo mínimo
                 const bajosMin = stock.filter(s => s.qty !== undefined && s.minimo !== undefined && Number(s.qty) <= Number(s.minimo));
                 if (bajosMin.length > 0) {
-                    const lastKey = '_notif_stock_' + today + '_' + bajosMin.length;
-                    if (!localStorage.getItem(lastKey)) {
-                        localStorage.setItem(lastKey, '1');
+                    const lastKey = '_notif_stock_' + bajosMin.length;
+                    if (!sessionStorage.getItem(lastKey)) {
+                        sessionStorage.setItem(lastKey, '1');
                         const names = bajosMin.slice(0,3).map(s => s.name).join(', ');
                         new Notification('📦 Stock bajo mínimo · NelsonApp', {
                             body: `${bajosMin.length} repuesto(s) con stock crítico: ${names}${bajosMin.length > 3 ? '...' : ''}`,
@@ -8428,7 +8344,7 @@
                         });
                     }
                 }
-            } catch(e) { console.warn('[checkAndNotify]', e); }
+            } catch(e) { console.warn('Push check error:', e); }
         }
 
         // Inicializar push al cargar
