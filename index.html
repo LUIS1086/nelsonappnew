@@ -157,9 +157,9 @@
         body.high-contrast button { border: 1px solid rgba(255,255,255,0.3); }
 
         /* ===== TAMAÑOS DE LETRA ===== */
-        html.font-small  { font-size: 14px; }
-        html.font-normal { font-size: 16px; }
-        html.font-large  { font-size: 18px; }
+        html.font-small  { font-size: 15px; }
+        html.font-normal { font-size: 18px; }
+        html.font-large  { font-size: 20px; }
 
         .tab-active { color: var(--accent); font-weight: 700; transform: translateY(-2px); }
         .max-container { max-width: 600px; margin: 0 auto; }
@@ -1014,6 +1014,73 @@
 
                 <p style="font-size:9px;font-weight:900;letter-spacing:3px;color:#2a3a55;text-transform:uppercase;padding:10px 4px 6px;margin:0;">ANÁLISIS</p>
 
+                <!-- BOTÓN DASHBOARD DESPLEGABLE -->
+                <button onclick="toggleDashboardInline()" id="btn-dashboard-toggle" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
+                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#0f4c81,#0ea5e9);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(14,165,233,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><polyline points="6 10 9 13 12 10 16 14"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#38bdf8;margin:0;">Dashboard</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">KPIs, ingresos, estados y alertas</p></div></div>
+                    <svg id="dash-toggle-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round" style="transition:transform 0.3s ease;"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+
+                <!-- PANEL INLINE DEL DASHBOARD -->
+                <div id="dashboard-inline-panel" style="display:none;overflow:hidden;border-radius:18px;background:#0d1117;border:1px solid rgba(14,165,233,0.15);margin:4px 0 8px;">
+
+                    <!-- Header mes -->
+                    <div style="padding:12px 14px 10px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.04);">
+                        <p id="dash-month-label" style="font-size:11px;font-weight:800;color:#38bdf8;margin:0;letter-spacing:1px;text-transform:uppercase;"></p>
+                        <button onclick="renderInlineDashboard()" style="background:rgba(14,165,233,0.12);border:1px solid rgba(14,165,233,0.25);color:#38bdf8;padding:4px 10px;border-radius:8px;font-size:10px;font-weight:800;cursor:pointer;">↻ Actualizar</button>
+                    </div>
+
+                    <!-- KPIs -->
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,0.04);">
+                        <div style="background:#0d1117;padding:14px 10px;text-align:center;">
+                            <p style="font-size:9px;font-weight:700;color:#64748b;margin:0 0 4px;letter-spacing:1px;">INGRESOS MES</p>
+                            <p id="dash-kpi-ingresos" style="font-size:15px;font-weight:900;color:#10b981;margin:0;">$0</p>
+                        </div>
+                        <div style="background:#0d1117;padding:14px 10px;text-align:center;">
+                            <p style="font-size:9px;font-weight:700;color:#64748b;margin:0 0 4px;letter-spacing:1px;">ÓRDENES MES</p>
+                            <p id="dash-kpi-ordenes" style="font-size:15px;font-weight:900;color:#38bdf8;margin:0;">0</p>
+                        </div>
+                        <div style="background:#0d1117;padding:14px 10px;text-align:center;">
+                            <p style="font-size:9px;font-weight:700;color:#64748b;margin:0 0 4px;letter-spacing:1px;">PENDIENTES</p>
+                            <p id="dash-kpi-pendientes" style="font-size:15px;font-weight:900;color:#f97316;margin:0;">0</p>
+                        </div>
+                    </div>
+
+                    <!-- Gráfica ingresos -->
+                    <div style="padding:16px 14px 8px;">
+                        <div style="margin-bottom:10px;">
+                            <p style="font-size:10px;font-weight:800;color:#475569;letter-spacing:2px;text-transform:uppercase;margin:0;">📈 Últimos 6 meses</p>
+                        </div>
+                        <div style="position:relative;height:130px;">
+                            <canvas id="dash-chart-ingresos"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Estados + Top repuestos -->
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,0.04);margin-top:4px;">
+                        <div style="background:#0d1117;padding:14px;">
+                            <p style="font-size:10px;font-weight:800;color:#475569;letter-spacing:2px;text-transform:uppercase;margin:0 0 10px;">📋 Por estado</p>
+                            <div id="dash-estados" style="display:flex;flex-direction:column;gap:7px;"></div>
+                        </div>
+                        <div style="background:#0d1117;padding:14px;">
+                            <p style="font-size:10px;font-weight:800;color:#475569;letter-spacing:2px;text-transform:uppercase;margin:0 0 10px;">🔥 Top repuestos</p>
+                            <div id="dash-top-repuestos" style="display:flex;flex-direction:column;gap:6px;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Alertas -->
+                    <div id="dash-alertas-wrap" style="padding:12px 14px 14px;display:none;">
+                        <p style="font-size:10px;font-weight:800;color:#f43f5e;letter-spacing:2px;text-transform:uppercase;margin:0 0 8px;">⚠️ Alertas</p>
+                        <div id="dash-alertas" style="display:flex;flex-direction:column;gap:6px;"></div>
+                    </div>
+
+                    <!-- Loader -->
+                    <div id="dash-loader" style="padding:28px;text-align:center;">
+                        <div class="loading-spinner" style="margin:0 auto 10px;"></div>
+                        <p style="font-size:12px;color:#475569;font-weight:600;">Cargando datos…</p>
+                    </div>
+
+                </div>
+
                 <button onclick="openStatsModal()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
                     <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#6d28d9,#7c3aed);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(109,40,217,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#a78bfa;margin:0;">Estadísticas</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Resumen mensual y top repuestos</p></div></div>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
@@ -1026,16 +1093,6 @@
 
                 <button onclick="openEquiposReport()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
                     <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#b45309,#f59e0b);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(245,158,11,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#fbbf24;margin:0;">Equipos más Reparados</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Top equipos y fallas frecuentes</p></div></div>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-                </button>
-
-                <button onclick="openGraficaIngresos()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
-                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#065f46,#10b981);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(16,185,129,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#34d399;margin:0;">Gráfica de Ingresos</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Tendencia de los últimos 6 meses</p></div></div>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-                </button>
-
-                <button onclick="openCalificacionesModal()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
-                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#9d174d,#ec4899);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(236,72,153,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#f472b6;margin:0;">Calificaciones</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Reseñas y puntuaciones de clientes</p></div></div>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
 
@@ -1303,6 +1360,7 @@
     </div>
 
     <!-- ===== MODAL CALIFICACIONES ===== -->
+    <!-- ===== MODAL DASHBOARD ===== -->
     <div id="modal-calificaciones" class="hidden fixed inset-0 z-[3900] modal-custom flex flex-col items-center justify-center p-4">
         <div class="bg-[#111827] border border-white/10 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl view-enter">
             <div class="bg-gradient-to-r from-pink-700 to-pink-500 p-5 flex justify-between items-center">
@@ -7329,14 +7387,242 @@
         }
 
         // ==================== PWA: MANEJAR SHORTCUTS DEL MANIFEST ====================
-        // Cuando la app se abre desde un shortcut del ícono, ir directo a la sección
         window.addEventListener('load', () => {
             const params = new URLSearchParams(window.location.search);
             const shortcut = params.get('shortcut');
             if (shortcut) {
-                // Guardar en sessionStorage para leerlo tras el PIN
                 sessionStorage.setItem('dashGoTab', shortcut);
             }
+        });
+
+        // ==================== DASHBOARD INLINE ====================
+        let _dashChartIngresos = null;
+
+        function loadChartJs(cb) {
+            if (window.Chart) { cb(); return; }
+            const s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+            s.onload = cb;
+            s.onerror = () => console.warn('No se pudo cargar Chart.js');
+            document.head.appendChild(s);
+        }
+
+        function toggleDashboardInline() {
+            const panel = document.getElementById('dashboard-inline-panel');
+            const arrow = document.getElementById('dash-toggle-arrow');
+            const isOpen = panel.style.display !== 'none';
+            if (isOpen) {
+                panel.style.display = 'none';
+                arrow.style.transform = 'rotate(0deg)';
+                if (_dashChartIngresos) { _dashChartIngresos.destroy(); _dashChartIngresos = null; }
+            } else {
+                panel.style.display = 'block';
+                arrow.style.transform = 'rotate(90deg)';
+                document.getElementById('dash-loader').style.display = 'block';
+                loadChartJs(() => setTimeout(renderInlineDashboard, 80));
+            }
+        }
+
+        function openDashboardModal() { toggleDashboardInline(); }
+        function closeDashboardModal() { toggleDashboardInline(); }
+
+        async function renderInlineDashboard() {
+            const loader = document.getElementById('dash-loader');
+            try {
+                const orders  = await getAll('orders');
+                const ventas  = await getAll('ventas');
+                const stock   = (await getAll('stock')) || [];
+                const cur     = (typeof getCurrency === 'function') ? getCurrency() : '$';
+
+                const now     = new Date();
+                const mesAct  = now.getMonth();
+                const anoAct  = now.getFullYear();
+
+                // Label mes
+                const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+                const mesNombre = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+                const labelEl = document.getElementById('dash-month-label');
+                if (labelEl) labelEl.textContent = mesNombre[mesAct] + ' ' + anoAct;
+
+                // ---- KPIs este mes ----
+                const ordensMes = orders.filter(o => {
+                    const d = new Date(o.fecha || o.id);
+                    return d.getMonth() === mesAct && d.getFullYear() === anoAct;
+                });
+                const ventasMes = ventas.filter(v => {
+                    const d = new Date(v.fecha || v.id);
+                    return d.getMonth() === mesAct && d.getFullYear() === anoAct;
+                });
+                const ingresosMes = ventasMes.reduce((s, v) => s + (Number(v.total) || 0), 0)
+                                  + ordensMes.filter(o => o.est === 'entregado').reduce((s, o) => s + (Number(o.val) || 0), 0);
+                const pendientes  = orders.filter(o => o.est !== 'entregado' && o.est !== 'cancelado').length;
+
+                const elIng = document.getElementById('dash-kpi-ingresos');
+                const elOrd = document.getElementById('dash-kpi-ordenes');
+                const elPen = document.getElementById('dash-kpi-pendientes');
+                if (elIng) elIng.textContent = cur + ingresosMes.toLocaleString('es-CO');
+                if (elOrd) elOrd.textContent = ordensMes.length;
+                if (elPen) elPen.textContent = pendientes;
+
+                // ---- Gráfica últimos 6 meses ----
+                const labels6 = [], data6 = [];
+                for (let i = 5; i >= 0; i--) {
+                    const d = new Date(anoAct, mesAct - i, 1);
+                    const m = d.getMonth(), a = d.getFullYear();
+                    labels6.push(meses[m]);
+                    const ing = ventas.filter(v => { const dd = new Date(v.fecha || v.id); return dd.getMonth()===m && dd.getFullYear()===a; })
+                                      .reduce((s,v) => s+(Number(v.total)||0), 0)
+                              + orders.filter(o => { const dd = new Date(o.fecha || o.id); return o.est==='entregado' && dd.getMonth()===m && dd.getFullYear()===a; })
+                                      .reduce((s,o) => s+(Number(o.val)||0), 0);
+                    data6.push(ing);
+                }
+
+                const ctx = document.getElementById('dash-chart-ingresos');
+                if (ctx && window.Chart) {
+                    if (_dashChartIngresos) { _dashChartIngresos.destroy(); _dashChartIngresos = null; }
+                    _dashChartIngresos = new window.Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels6,
+                            datasets: [{
+                                label: 'Ingresos',
+                                data: data6,
+                                backgroundColor: data6.map((_, i) => i === 5 ? 'rgba(249,115,22,0.85)' : 'rgba(249,115,22,0.25)'),
+                                borderRadius: 8,
+                                borderSkipped: false,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false }, tooltip: {
+                                callbacks: { label: c => cur + Number(c.raw).toLocaleString('es-CO') }
+                            }},
+                            scales: {
+                                x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 11, weight: '700' } } },
+                                y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#64748b', font: { size: 10 },
+                                     callback: v => cur + (v >= 1000 ? (v/1000).toFixed(0)+'k' : v) } }
+                            }
+                        }
+                    });
+                }
+
+                // ---- Estados de órdenes ----
+                const estadosConfig = [
+                    { key: 'recibido',  label: 'Recibido',    color: '#38bdf8' },
+                    { key: 'revision',  label: 'En revisión', color: '#f59e0b' },
+                    { key: 'reparando', label: 'Reparando',   color: '#f97316' },
+                    { key: 'listo',     label: 'Listo',       color: '#10b981' },
+                    { key: 'entregado', label: 'Entregado',   color: '#6b7280' },
+                ];
+                const totalOrd = orders.length || 1;
+                const elEstados = document.getElementById('dash-estados');
+                if (elEstados) elEstados.innerHTML = estadosConfig.map(e => {
+                    const cnt = orders.filter(o => (o.est||'').toLowerCase() === e.key).length;
+                    const pct = Math.round(cnt / totalOrd * 100);
+                    return `<div>
+                        <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+                            <span style="font-size:11px;font-weight:700;color:#94a3b8;">${e.label}</span>
+                            <span style="font-size:11px;font-weight:900;color:${e.color};">${cnt}</span>
+                        </div>
+                        <div style="height:5px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;">
+                            <div style="height:100%;width:${pct}%;background:${e.color};border-radius:99px;transition:width 0.7s ease;"></div>
+                        </div>
+                    </div>`;
+                }).join('');
+
+                // ---- Top 5 repuestos ----
+                const conteo = {};
+                ventas.forEach(v => {
+                    if (v.items && Array.isArray(v.items)) {
+                        v.items.forEach(it => {
+                            const n = it.nombre || it.name || '';
+                            if (n) conteo[n] = (conteo[n] || 0) + (Number(it.qty) || 1);
+                        });
+                    }
+                });
+                const topRep = Object.entries(conteo).sort((a,b) => b[1]-a[1]).slice(0,5);
+                const maxRep = topRep[0]?.[1] || 1;
+                const elTop = document.getElementById('dash-top-repuestos');
+                if (elTop) elTop.innerHTML = topRep.length
+                    ? topRep.map(([n, c]) => `
+                        <div>
+                            <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+                                <span style="font-size:11px;font-weight:700;color:#94a3b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:80px;">${escapeHtml(n)}</span>
+                                <span style="font-size:11px;font-weight:900;color:#f97316;">${c} uds</span>
+                            </div>
+                            <div style="height:5px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;">
+                                <div style="height:100%;width:${Math.round(c/maxRep*100)}%;background:linear-gradient(to right,#f97316,#fb923c);border-radius:99px;"></div>
+                            </div>
+                        </div>`).join('')
+                    : '<p style="font-size:11px;color:#475569;margin:0;">Sin datos de ventas aún</p>';
+
+                // ---- Alertas ----
+                const alertas = [];
+                const vencidas = orders.filter(o => {
+                    if (o.est === 'entregado' || o.est === 'cancelado') return false;
+                    if (!o.deadline) return false;
+                    return new Date(o.deadline) < new Date();
+                });
+                if (vencidas.length) alertas.push(`🕐 <strong>${vencidas.length}</strong> orden${vencidas.length>1?'es':''} vencida${vencidas.length>1?'s':''}`);
+
+                const bajosMin = stock.filter(s => s.qty !== undefined && s.minimo !== undefined && Number(s.qty) <= Number(s.minimo));
+                if (bajosMin.length) alertas.push(`📦 <strong>${bajosMin.length}</strong> repuesto${bajosMin.length>1?'s':''} bajo mínimo`);
+
+                const alertasWrap = document.getElementById('dash-alertas-wrap');
+                const alertasDiv  = document.getElementById('dash-alertas');
+                if (alertasWrap && alertasDiv) {
+                    if (alertas.length) {
+                        alertasWrap.style.display = 'block';
+                        alertasDiv.innerHTML = alertas.map(a =>
+                            `<div style="background:rgba(244,63,94,0.10);border:1px solid rgba(244,63,94,0.25);border-radius:10px;padding:8px 12px;font-size:12px;color:#fda4af;">${a}</div>`
+                        ).join('');
+                    } else {
+                        alertasWrap.style.display = 'none';
+                    }
+                }
+
+                // ---- Badge vencidas en nav ----
+                updateOverdueBadge(vencidas.length);
+
+            } catch(e) {
+                console.error('Dashboard error:', e);
+            } finally {
+                if (loader) loader.style.display = 'none';
+            }
+        }
+
+        // Badge rojo en el tab de Órdenes
+        function updateOverdueBadge(count) {
+            // Quitar badge anterior
+            document.querySelectorAll('.overdue-badge').forEach(el => el.remove());
+            if (!count) return;
+            // Agregar en el botón de tab móvil y en sidebar
+            ['nav-btn-ordenes','sidebar-btn-ordenes'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (!btn) return;
+                const badge = document.createElement('span');
+                badge.className = 'overdue-badge';
+                badge.textContent = count > 9 ? '9+' : count;
+                badge.style.cssText = 'position:absolute;top:2px;right:2px;background:#f43f5e;color:#fff;font-size:9px;font-weight:900;border-radius:999px;min-width:16px;height:16px;display:flex;align-items:center;justify-content:center;padding:0 3px;line-height:1;';
+                btn.style.position = 'relative';
+                btn.appendChild(badge);
+            });
+        }
+
+        // También actualizar badge al iniciar (después de cargar datos)
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(async () => {
+                try {
+                    const orders = await getAll('orders');
+                    const vencidas = orders.filter(o => {
+                        if (o.est === 'entregado' || o.est === 'cancelado') return false;
+                        if (!o.deadline) return false;
+                        return new Date(o.deadline) < new Date();
+                    });
+                    updateOverdueBadge(vencidas.length);
+                } catch(e) { /* ignorar */ }
+            }, 1500);
         });
     </script>
 </body>
