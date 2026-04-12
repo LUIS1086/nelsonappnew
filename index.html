@@ -934,13 +934,11 @@
                 <button onclick="processSale()" class="flex-1 bg-emerald-600 py-3 rounded-xl font-black uppercase text-xs shadow-md active:scale-95 transition">CONFIRMAR VENTA</button>
             </div>
         </div>
-        <div class="card p-5 space-y-4 bg-gradient-to-br from-rose-900/20 to-transparent border-rose-500/10">
+        <div class="card p-5 space-y-3 bg-gradient-to-br from-rose-900/20 to-transparent border-rose-500/10">
             <h3 class="text-center text-[11px] font-black text-rose-400 uppercase tracking-widest">💸 REGISTRAR GASTO</h3>
             <input type="text" id="g-det" placeholder="Motivo (Ej. Pago luz, Repuestos...)" class="w-full font-bold uppercase text-sm">
-            <div class="flex gap-3">
-                <input type="number" id="g-val" placeholder="VALOR $" class="flex-1 text-center font-black text-rose-400" min="1">
-                <button onclick="saveGasto()" class="flex-1 bg-rose-600 py-3 rounded-xl font-black uppercase text-xs shadow-md active:scale-95 transition">GUARDAR GASTO</button>
-            </div>
+            <input type="number" id="g-val" placeholder="VALOR $" class="w-full text-center font-black text-rose-400" min="1">
+            <button onclick="saveGasto()" class="w-full bg-rose-600 py-3 rounded-xl font-black uppercase text-xs shadow-md active:scale-95 transition">💾 GUARDAR GASTO</button>
         </div>
 
         <div class="card p-5">
@@ -1766,14 +1764,20 @@
 
     <div id="modal-pin-change" class="hidden fixed inset-0 z-[3000] modal-custom flex flex-col items-center justify-center p-4">
         <div class="bg-[#111827] border border-white/10 w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl">
-            <div class="bg-gradient-to-r from-yellow-600 to-yellow-500 p-4"><h3 class="text-white font-black text-center">🔑 CAMBIAR PIN</h3></div>
+            <div class="bg-gradient-to-r from-yellow-600 to-yellow-500 p-4 flex justify-between items-center">
+                <h3 class="text-white font-black">🔑 CAMBIAR PIN</h3>
+                <button onclick="closePinChangeModal()" class="text-white/80 hover:text-white text-xl leading-none active:scale-90 transition">✕</button>
+            </div>
             <div class="p-6 space-y-4">
                 <input type="password" id="new-pin" placeholder="Nuevo PIN (4-6 dígitos)" class="w-full text-center text-xl tracking-widest" maxlength="6">
                 <input type="password" id="confirm-pin" placeholder="Confirmar PIN" class="w-full text-center text-xl tracking-widest" maxlength="6">
                 <div id="pin-change-error" class="text-rose-400 text-xs text-center"></div>
-                <button onclick="changePin()" class="w-full bg-yellow-600 py-3 rounded-xl font-black uppercase">ACTUALIZAR</button>
-            </div>
-        </div>
+                <div class="flex gap-3">
+                    <button onclick="closePinChangeModal()" class="flex-1 bg-slate-700 py-3 rounded-xl font-black uppercase text-xs active:scale-95 transition">CANCELAR</button>
+                    <button onclick="changePin()" class="flex-1 bg-yellow-600 py-3 rounded-xl font-black uppercase text-xs active:scale-95 transition">ACTUALIZAR</button>
+                </div>
+            </div><!-- /ios-scroll-area -->
+        </div><!-- /ios-modal-wrap -->
     </div>
 
 
@@ -2037,438 +2041,586 @@
     </div>
 
     <!-- NUEVO MODAL: CONFIGURACIÓN AVANZADA -->
-    <div id="modal-config" class="hidden fixed inset-0 z-[4000] modal-custom flex flex-col items-center justify-center p-4">
-        <div class="bg-[#111827] border border-white/10 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl view-enter">
-            <div class="bg-gradient-to-r from-cyan-600 to-cyan-500 p-4 flex justify-between items-center">
+    <style>
+        /* iOS Settings redesign */
+        #modal-config .ios-modal-wrap {
+            background: #1c1c1e;
+            border-radius: 22px;
+            overflow: hidden;
+            width: 100%;
+            max-width: 430px;
+            box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 1px 0 rgba(255,255,255,0.06) inset;
+        }
+        #modal-config .ios-header {
+            padding: 18px 20px 14px;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            background: #2c2c2e;
+        }
+        #modal-config .ios-close-btn {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; color: #ebebf5cc;
+            transition: background 0.15s;
+        }
+        #modal-config .ios-close-btn:active { background: rgba(255,255,255,0.2); }
+        #modal-config .ios-scroll-area {
+            max-height: 78vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 16px 16px 24px;
+        }
+        #modal-config .ios-scroll-area::-webkit-scrollbar { display: none; }
+        /* Group label */
+        #modal-config .ios-group-label {
+            font-size: 11px; font-weight: 700; letter-spacing: 0.6px;
+            color: #8e8e93; text-transform: uppercase;
+            padding: 0 4px 6px;
+            margin-top: 20px;
+        }
+        #modal-config .ios-group-label:first-child { margin-top: 0; }
+        /* Group card */
+        #modal-config .ios-group {
+            background: #2c2c2e;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+        /* Row */
+        #modal-config .ios-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 13px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            transition: background 0.12s;
+            min-height: 52px;
+        }
+        #modal-config .ios-row:last-child { border-bottom: none; }
+        #modal-config .ios-row:active { background: rgba(255,255,255,0.05); }
+        #modal-config .ios-row-icon {
+            width: 30px; height: 30px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; flex-shrink: 0; margin-right: 12px;
+        }
+        #modal-config .ios-row-text { flex: 1; min-width: 0; }
+        #modal-config .ios-row-title {
+            font-size: 15px; font-weight: 500; color: #ebebf5;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        #modal-config .ios-row-sub {
+            font-size: 11px; color: #8e8e93; margin-top: 1px;
+        }
+        #modal-config .ios-chevron {
+            color: #48484a; font-size: 12px; flex-shrink: 0;
+            transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+            margin-left: 8px;
+        }
+        #modal-config .ios-chevron.open { transform: rotate(90deg); }
+        /* Body expandible */
+        #modal-config .ios-body {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.38s cubic-bezier(0.4,0,0.2,1), opacity 0.28s ease;
+            opacity: 0;
+            background: #1c1c1e;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        #modal-config .ios-body.open { opacity: 1; }
+        #modal-config .ios-body-inner { padding: 16px; }
+        /* Toggle iOS style */
+        #modal-config .ios-toggle-wrap { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; }
+        #modal-config .ios-toggle-wrap + .ios-toggle-wrap { border-top: 1px solid rgba(255,255,255,0.06); }
+        #modal-config .ios-save-btn {
+            width: 100%; padding: 13px;
+            border-radius: 12px; border: none;
+            font-size: 13px; font-weight: 700;
+            letter-spacing: 0.3px; cursor: pointer;
+            margin-top: 12px;
+            transition: opacity 0.15s, transform 0.1s;
+        }
+        #modal-config .ios-save-btn:active { opacity: 0.7; transform: scale(0.98); }
+        #modal-config .ios-input-label {
+            font-size: 11px; font-weight: 600; color: #8e8e93;
+            letter-spacing: 0.4px; text-transform: uppercase;
+            margin-bottom: 6px; display: block;
+        }
+        #modal-config .ios-font-btn {
+            flex: 1; padding: 9px 4px;
+            border-radius: 10px; border: none;
+            background: #3a3a3c; color: #ebebf5;
+            font-size: 13px; font-weight: 600; cursor: pointer;
+            transition: background 0.15s;
+        }
+        #modal-config .ios-font-btn:active { background: #4a4a4c; }
+        #modal-config .ios-color-dot {
+            width: 34px; height: 34px; border-radius: 50%;
+            border: 3px solid transparent;
+            transition: border-color 0.15s, transform 0.15s;
+            cursor: pointer;
+        }
+        #modal-config .ios-color-dot:active { transform: scale(0.88); }
+        #modal-config .ios-tecnico-input { display: flex; gap: 8px; }
+        #modal-config .ios-tecnico-add {
+            background: #f97316; color: white;
+            padding: 0 16px; border-radius: 10px; border: none;
+            font-size: 13px; font-weight: 700; cursor: pointer;
+            white-space: nowrap;
+        }
+        #modal-config .ios-tag {
+            display: inline-block; padding: 3px 10px; border-radius: 999px;
+            font-size: 10px; font-weight: 700;
+        }
+        #modal-config .ios-variables {
+            background: #3a3a3c; border-radius: 10px;
+            padding: 9px 12px; font-size: 11px; color: #8e8e93;
+            margin-bottom: 10px; line-height: 1.6;
+        }
+        #modal-config .ios-variables span { color: #34d399; font-weight: 700; }
+        #modal-config .ios-danger-btn {
+            width: 100%; padding: 13px;
+            border-radius: 12px; border: none;
+            font-size: 14px; font-weight: 600;
+            cursor: pointer; transition: opacity 0.15s;
+            margin-bottom: 8px;
+        }
+        #modal-config .ios-danger-btn:active { opacity: 0.7; }
+    </style>
+    <div id="modal-config" class="hidden fixed inset-0 z-[4000] modal-custom flex flex-col items-center justify-center p-3">
+        <div class="ios-modal-wrap view-enter">
+
+            <!-- Header -->
+            <div class="ios-header">
                 <div>
-                    <h3 class="text-white font-black text-lg">⚙️ CONFIGURACIÓN</h3>
-                    <p class="text-cyan-200 text-[10px] font-bold opacity-80">Toca una sección para expandir</p>
+                    <p style="font-size:11px;font-weight:700;color:#8e8e93;letter-spacing:0.5px;text-transform:uppercase;margin:0 0 2px;">NelsonApp Pro</p>
+                    <h3 style="font-size:19px;font-weight:700;color:#ebebf5;margin:0;">Configuración</h3>
                 </div>
-                <button onclick="closeConfigModal()" class="text-white bg-black/30 w-8 h-8 rounded-full font-bold">✕</button>
+                <button onclick="closeConfigModal()" class="ios-close-btn">✕</button>
             </div>
-            <div class="px-4 pb-4 max-h-[78vh] overflow-y-auto no-scrollbar space-y-0">
+
+            <div class="ios-scroll-area">
 
                 <!-- ── 1. APARIENCIA ── -->
-                <div class="cfg-section">
-                    <div class="cfg-header" onclick="toggleCfg('cfg-apariencia',this)">
-                        <div class="flex items-center gap-3">
-                            <span class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-base">🎨</span>
-                            <div><p class="text-sm font-black text-white">Apariencia</p><p class="text-[10px] text-slate-500">Color, letra, contraste</p></div>
+                <p class="ios-group-label">Personalización</p>
+                <div class="ios-group">
+                    <div class="ios-row" onclick="iosCfgToggle('cfg-apariencia',this)">
+                        <div class="ios-row-icon" style="background:linear-gradient(135deg,#bf5af2,#9b59b6);">🎨</div>
+                        <div class="ios-row-text">
+                            <p class="ios-row-title">Apariencia</p>
+                            <p class="ios-row-sub">Color de acento, letra y contraste</p>
                         </div>
-                        <span class="cfg-arrow">▼</span>
+                        <svg class="ios-chevron" width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </div>
-                    <div id="cfg-apariencia" class="cfg-body pb-4 space-y-4">
-                        <div>
-                            <label class="text-[10px] text-slate-400 font-bold block mb-2">🔤 TAMAÑO DE LETRA</label>
-                            <div class="flex gap-2">
-                                <button onclick="setFontSize('small')" class="flex-1 py-2 rounded-xl bg-slate-700 text-xs font-bold hover:bg-purple-700 transition">Pequeño</button>
-                                <button onclick="setFontSize('normal')" class="flex-1 py-2 rounded-xl bg-slate-700 text-xs font-bold hover:bg-purple-700 transition">Normal</button>
-                                <button onclick="setFontSize('large')" class="flex-1 py-2 rounded-xl bg-slate-700 text-xs font-bold hover:bg-purple-700 transition">Grande</button>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <div><p class="text-xs font-bold text-slate-300">🌓 Alto contraste</p><p class="text-[10px] text-slate-500">Mejora visibilidad</p></div>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="high-contrast-toggle" class="sr-only peer" onchange="toggleHighContrast()">
-                                <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-                            </label>
-                        </div>
-                        <!-- Auto-tema por horario -->
-                        <div class="bg-slate-800/50 rounded-2xl p-3 space-y-3 border border-white/5">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <p class="text-xs font-bold text-slate-300">🌅 Tema automático por horario</p>
-                                    <p class="text-[10px] text-slate-500">Claro de día · Oscuro de noche</p>
+                    <div id="cfg-apariencia" class="ios-body">
+                        <div class="ios-body-inner space-y-4">
+                            <div>
+                                <span class="ios-input-label">🔤 Tamaño de letra</span>
+                                <div class="flex gap-2">
+                                    <button onclick="setFontSize('small')" class="ios-font-btn">Pequeño</button>
+                                    <button onclick="setFontSize('normal')" class="ios-font-btn">Normal</button>
+                                    <button onclick="setFontSize('large')" class="ios-font-btn">Grande</button>
                                 </div>
+                            </div>
+                            <div class="ios-toggle-wrap">
+                                <div><p style="font-size:14px;font-weight:500;color:#ebebf5;">🌓 Alto contraste</p><p style="font-size:11px;color:#8e8e93;">Mejora la visibilidad</p></div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="high-contrast-toggle" class="sr-only peer" onchange="toggleHighContrast()">
+                                    <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-500"></div>
+                                </label>
+                            </div>
+                            <div class="ios-toggle-wrap">
+                                <div><p style="font-size:14px;font-weight:500;color:#ebebf5;">🌅 Tema automático</p><p style="font-size:11px;color:#8e8e93;">Claro de día · Oscuro de noche</p></div>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" id="auto-theme-toggle" class="sr-only peer" onchange="saveAutoThemeConfig()">
                                     <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
                                 </label>
                             </div>
-                            <div id="auto-theme-hours" class="hidden grid grid-cols-2 gap-2">
+                            <div id="auto-theme-hours" class="hidden grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="text-[9px] text-slate-500 font-bold block mb-1">☀️ HORA MODO CLARO</label>
-                                    <input type="number" id="auto-theme-day" min="0" max="23" value="7"
-                                        class="w-full text-center font-black text-amber-400 text-sm" oninput="saveAutoThemeConfig()">
+                                    <span class="ios-input-label">☀️ Hora modo claro</span>
+                                    <input type="number" id="auto-theme-day" min="0" max="23" value="7" class="w-full text-center font-black text-amber-400 text-sm" oninput="saveAutoThemeConfig()">
                                 </div>
                                 <div>
-                                    <label class="text-[9px] text-slate-500 font-bold block mb-1">🌙 HORA MODO OSCURO</label>
-                                    <input type="number" id="auto-theme-night" min="0" max="23" value="19"
-                                        class="w-full text-center font-black text-blue-400 text-sm" oninput="saveAutoThemeConfig()">
+                                    <span class="ios-input-label">🌙 Hora modo oscuro</span>
+                                    <input type="number" id="auto-theme-night" min="0" max="23" value="19" class="w-full text-center font-black text-blue-400 text-sm" oninput="saveAutoThemeConfig()">
                                 </div>
                             </div>
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-slate-400 font-bold block mb-2">🎨 COLOR DE ACENTO</label>
-                            <div class="flex gap-3 flex-wrap" id="accent-color-btns">
-                                <button onclick="setAccentColor('orange','#f97316','#ea580c')" class="w-9 h-9 rounded-full bg-orange-500 border-2 border-transparent transition-all" data-color="orange" title="Naranja"></button>
-                                <button onclick="setAccentColor('blue','#3b82f6','#2563eb')" class="w-9 h-9 rounded-full bg-blue-500 border-2 border-transparent transition-all" data-color="blue" title="Azul"></button>
-                                <button onclick="setAccentColor('emerald','#10b981','#059669')" class="w-9 h-9 rounded-full bg-emerald-500 border-2 border-transparent transition-all" data-color="emerald" title="Verde"></button>
-                                <button onclick="setAccentColor('violet','#8b5cf6','#7c3aed')" class="w-9 h-9 rounded-full bg-violet-500 border-2 border-transparent transition-all" data-color="violet" title="Morado"></button>
-                                <button onclick="setAccentColor('rose','#f43f5e','#e11d48')" class="w-9 h-9 rounded-full bg-rose-500 border-2 border-transparent transition-all" data-color="rose" title="Rosa"></button>
-                                <button onclick="setAccentColor('amber','#f59e0b','#d97706')" class="w-9 h-9 rounded-full bg-amber-500 border-2 border-transparent transition-all" data-color="amber" title="Ámbar"></button>
+                            <div>
+                                <span class="ios-input-label">🎨 Color de acento</span>
+                                <div class="flex gap-3 flex-wrap" id="accent-color-btns">
+                                    <button onclick="setAccentColor('orange','#f97316','#ea580c')" class="ios-color-dot bg-orange-500" data-color="orange" title="Naranja"></button>
+                                    <button onclick="setAccentColor('blue','#3b82f6','#2563eb')" class="ios-color-dot bg-blue-500" data-color="blue" title="Azul"></button>
+                                    <button onclick="setAccentColor('emerald','#10b981','#059669')" class="ios-color-dot bg-emerald-500" data-color="emerald" title="Verde"></button>
+                                    <button onclick="setAccentColor('violet','#8b5cf6','#7c3aed')" class="ios-color-dot bg-violet-500" data-color="violet" title="Morado"></button>
+                                    <button onclick="setAccentColor('rose','#f43f5e','#e11d48')" class="ios-color-dot bg-rose-500" data-color="rose" title="Rosa"></button>
+                                    <button onclick="setAccentColor('amber','#f59e0b','#d97706')" class="ios-color-dot bg-amber-500" data-color="amber" title="Ámbar"></button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- ── 2. NEGOCIO ── -->
-                <div class="cfg-section">
-                    <div class="cfg-header" onclick="toggleCfg('cfg-negocio',this)">
-                        <div class="flex items-center gap-3">
-                            <span class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-base">🏢</span>
-                            <div><p class="text-sm font-black text-white">Datos del negocio</p><p class="text-[10px] text-slate-500">Nombre, logo, NIT, dirección</p></div>
+                <p class="ios-group-label" style="margin-top:20px;">Mi negocio</p>
+                <div class="ios-group">
+                    <div class="ios-row" onclick="iosCfgToggle('cfg-negocio',this)">
+                        <div class="ios-row-icon" style="background:linear-gradient(135deg,#0a84ff,#0060df);">🏢</div>
+                        <div class="ios-row-text">
+                            <p class="ios-row-title">Datos del negocio</p>
+                            <p class="ios-row-sub">Nombre, logo, NIT, dirección</p>
                         </div>
-                        <span class="cfg-arrow">▼</span>
+                        <svg class="ios-chevron" width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </div>
-                    <div id="cfg-negocio" class="cfg-body pb-4 space-y-2">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div id="logo-preview" class="w-14 h-14 rounded-2xl bg-slate-800 border border-white/10 flex items-center justify-center text-2xl overflow-hidden flex-shrink-0">🔧</div>
-                            <label class="cursor-pointer flex-1 py-2 bg-slate-700 rounded-xl text-xs font-bold text-center hover:bg-slate-600 transition block">
-                                📁 Subir logo
-                                <input type="file" id="config-logo" accept="image/*" class="hidden" onchange="previewLogo(this)">
-                            </label>
+                    <div id="cfg-negocio" class="ios-body">
+                        <div class="ios-body-inner space-y-3">
+                            <div class="flex items-center gap-3 mb-1">
+                                <div id="logo-preview" class="w-14 h-14 rounded-2xl bg-slate-800 border border-white/10 flex items-center justify-center text-2xl overflow-hidden flex-shrink-0">🔧</div>
+                                <label class="cursor-pointer flex-1 py-2.5 bg-[#3a3a3c] rounded-xl text-xs font-semibold text-center text-slate-300 block">
+                                    📁 Subir logo
+                                    <input type="file" id="config-logo" accept="image/*" class="hidden" onchange="previewLogo(this)">
+                                </label>
+                            </div>
+                            <input type="text" id="config-business-name" placeholder="Nombre comercial" class="w-full text-sm">
+                            <input type="text" id="config-business-short" placeholder="Nombre corto (ej: TODO REPUESTOS)" class="w-full text-sm">
+                            <input type="text" id="config-business-phone" placeholder="Teléfono / WhatsApp" class="w-full text-sm">
+                            <input type="text" id="config-business-address" placeholder="Dirección" class="w-full text-sm">
+                            <input type="text" id="config-business-nit" placeholder="NIT / RUC" class="w-full text-sm">
+                            <input type="text" id="config-business-footer" placeholder="Pie de factura" class="w-full text-sm">
+                            <button onclick="saveBusinessConfig()" class="ios-save-btn" style="background:#0a84ff;color:white;">💾 Guardar datos</button>
                         </div>
-                        <input type="text" id="config-business-name" placeholder="Nombre comercial" class="w-full text-sm">
-                        <input type="text" id="config-business-short" placeholder="Nombre corto (ej: TODO REPUESTOS)" class="w-full text-sm">
-                        <input type="text" id="config-business-phone" placeholder="Teléfono / WhatsApp" class="w-full text-sm">
-                        <input type="text" id="config-business-address" placeholder="Dirección" class="w-full text-sm">
-                        <input type="text" id="config-business-nit" placeholder="NIT / RUC" class="w-full text-sm">
-                        <input type="text" id="config-business-footer" placeholder="Pie de factura" class="w-full text-sm">
-                        <button onclick="saveBusinessConfig()" class="w-full bg-blue-600 py-2 rounded-xl text-xs font-black uppercase hover:bg-blue-500 transition mt-1">💾 GUARDAR</button>
+                    </div>
+                    <!-- ── 3. REGIONAL ── -->
+                    <div class="ios-row" onclick="iosCfgToggle('cfg-regional',this)">
+                        <div class="ios-row-icon" style="background:linear-gradient(135deg,#30d158,#25a244);">🌍</div>
+                        <div class="ios-row-text">
+                            <p class="ios-row-title">Regional</p>
+                            <p class="ios-row-sub">Moneda y formato de fecha</p>
+                        </div>
+                        <svg class="ios-chevron" width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <div id="cfg-regional" class="ios-body">
+                        <div class="ios-body-inner space-y-3">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <span class="ios-input-label">Moneda</span>
+                                    <select id="config-currency" class="w-full text-sm">
+                                        <option value="$">$ (COP / USD)</option>
+                                        <option value="COP">COP</option>
+                                        <option value="USD">USD</option>
+                                        <option value="€">€ Euro</option>
+                                        <option value="Bs">Bs Bolívar</option>
+                                        <option value="S/">S/ Sol</option>
+                                        <option value="Q">Q Quetzal</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <span class="ios-input-label">Formato fecha</span>
+                                    <select id="config-date-format" class="w-full text-sm">
+                                        <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                        <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                        <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button onclick="saveRegionalConfig()" class="ios-save-btn" style="background:#30d158;color:white;">💾 Guardar</button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- ── 3. REGIONAL ── -->
-                <div class="cfg-section">
-                    <div class="cfg-header" onclick="toggleCfg('cfg-regional',this)">
-                        <div class="flex items-center gap-3">
-                            <span class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-base">🌍</span>
-                            <div><p class="text-sm font-black text-white">Regional</p><p class="text-[10px] text-slate-500">Moneda y formato de fecha</p></div>
+                <!-- ── 4. NOTIFICACIONES + 5. SEGURIDAD ── -->
+                <p class="ios-group-label" style="margin-top:20px;">Sistema</p>
+                <div class="ios-group">
+                    <div class="ios-row" onclick="iosCfgToggle('cfg-notif',this)">
+                        <div class="ios-row-icon" style="background:linear-gradient(135deg,#ffd60a,#b8860b);">🔔</div>
+                        <div class="ios-row-text">
+                            <p class="ios-row-title">Notificaciones</p>
+                            <p class="ios-row-sub">Sonido, garantías y alertas</p>
                         </div>
-                        <span class="cfg-arrow">▼</span>
+                        <svg class="ios-chevron" width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </div>
-                    <div id="cfg-regional" class="cfg-body pb-4 space-y-3">
-                        <div class="grid grid-cols-2 gap-3">
+                    <div id="cfg-notif" class="ios-body">
+                        <div class="ios-body-inner space-y-0">
+                            <div class="ios-toggle-wrap">
+                                <div><p style="font-size:14px;font-weight:500;color:#ebebf5;">🔊 Sonido al registrar</p><p style="font-size:11px;color:#8e8e93;">Beep al guardar orden o venta</p></div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="config-sound" class="sr-only peer" onchange="saveSoundConfig()">
+                                    <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-500"></div>
+                                </label>
+                            </div>
+                            <div class="ios-toggle-wrap">
+                                <div><p style="font-size:14px;font-weight:500;color:#ebebf5;">⚠️ Alerta garantías</p><p style="font-size:11px;color:#8e8e93;">Aviso antes de que venza</p></div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="config-warranty-alert" class="sr-only peer" onchange="saveWarrantyAlertConfig()">
+                                    <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-500"></div>
+                                </label>
+                            </div>
+                            <div style="padding-top:12px;">
+                                <span class="ios-input-label">Días de alerta previa</span>
+                                <input type="number" id="config-warranty-days" placeholder="Ej: 3" min="1" max="30" class="w-full text-sm text-center">
+                                <button onclick="saveWarrantyAlertConfig()" class="ios-save-btn" style="background:#ffd60a;color:#000;">💾 Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Seguridad -->
+                    <div class="ios-row" onclick="iosCfgToggle('cfg-seguridad',this)">
+                        <div class="ios-row-icon" style="background:linear-gradient(135deg,#ff375f,#c0003c);">🔒</div>
+                        <div class="ios-row-text">
+                            <p class="ios-row-title">Seguridad</p>
+                            <p class="ios-row-sub">Bloqueo automático e intentos</p>
+                        </div>
+                        <svg class="ios-chevron" width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <div id="cfg-seguridad" class="ios-body">
+                        <div class="ios-body-inner space-y-3">
                             <div>
-                                <label class="text-[10px] text-slate-400 block mb-1">MONEDA</label>
-                                <select id="config-currency" class="w-full text-sm">
-                                    <option value="$">$ (COP / USD)</option>
-                                    <option value="COP">COP</option>
-                                    <option value="USD">USD</option>
-                                    <option value="€">€ Euro</option>
-                                    <option value="Bs">Bs Bolívar</option>
-                                    <option value="S/">S/ Sol</option>
-                                    <option value="Q">Q Quetzal</option>
+                                <span class="ios-input-label">⏱️ Bloqueo por inactividad</span>
+                                <select id="config-auto-lock" class="w-full text-sm" onchange="saveAutoLockConfig()">
+                                    <option value="0">Desactivado</option>
+                                    <option value="5">5 minutos</option>
+                                    <option value="15">15 minutos</option>
+                                    <option value="30">30 minutos</option>
+                                    <option value="60">1 hora</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="text-[10px] text-slate-400 block mb-1">FORMATO FECHA</label>
-                                <select id="config-date-format" class="w-full text-sm">
-                                    <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                                    <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-                                    <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                <span class="ios-input-label">🚫 Bloqueo por intentos fallidos</span>
+                                <select id="config-max-attempts" class="w-full text-sm" onchange="saveMaxAttemptsConfig()">
+                                    <option value="0">Desactivado</option>
+                                    <option value="3">Bloquear tras 3 intentos</option>
+                                    <option value="5">Bloquear tras 5 intentos</option>
                                 </select>
                             </div>
-                        </div>
-                        <button onclick="saveRegionalConfig()" class="w-full bg-emerald-600 py-2 rounded-xl text-xs font-black uppercase hover:bg-emerald-500 transition">💾 GUARDAR</button>
-                    </div>
-                </div>
-
-                <!-- ── 4. NOTIFICACIONES ── -->
-                <div class="cfg-section">
-                    <div class="cfg-header" onclick="toggleCfg('cfg-notif',this)">
-                        <div class="flex items-center gap-3">
-                            <span class="w-8 h-8 rounded-full bg-yellow-500/20 flex items-center justify-center text-base">🔔</span>
-                            <div><p class="text-sm font-black text-white">Notificaciones</p><p class="text-[10px] text-slate-500">Sonido, garantías, alertas</p></div>
-                        </div>
-                        <span class="cfg-arrow">▼</span>
-                    </div>
-                    <div id="cfg-notif" class="cfg-body pb-4 space-y-4">
-                        <div class="flex justify-between items-center">
-                            <div><p class="text-xs font-bold text-slate-300">🔊 Sonido al registrar</p><p class="text-[10px] text-slate-500">Beep al guardar orden o venta</p></div>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="config-sound" class="sr-only peer" onchange="saveSoundConfig()">
-                                <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-600"></div>
-                            </label>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <div><p class="text-xs font-bold text-slate-300">⚠️ Alerta garantías</p><p class="text-[10px] text-slate-500">Aviso antes de que venza</p></div>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="config-warranty-alert" class="sr-only peer" onchange="saveWarrantyAlertConfig()">
-                                <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-600"></div>
-                            </label>
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-slate-400 block mb-1">DÍAS DE ALERTA PREVIA</label>
-                            <input type="number" id="config-warranty-days" placeholder="Ej: 3" min="1" max="30" class="w-full text-sm text-center">
-                            <button onclick="saveWarrantyAlertConfig()" class="mt-2 w-full bg-yellow-600 py-2 rounded-xl text-xs font-black uppercase hover:bg-yellow-500 transition">💾 GUARDAR</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ── 5. SEGURIDAD ── -->
-                <div class="cfg-section">
-                    <div class="cfg-header" onclick="toggleCfg('cfg-seguridad',this)">
-                        <div class="flex items-center gap-3">
-                            <span class="w-8 h-8 rounded-full bg-rose-500/20 flex items-center justify-center text-base">🔒</span>
-                            <div><p class="text-sm font-black text-white">Seguridad</p><p class="text-[10px] text-slate-500">Bloqueo automático e intentos</p></div>
-                        </div>
-                        <span class="cfg-arrow">▼</span>
-                    </div>
-                    <div id="cfg-seguridad" class="cfg-body pb-4 space-y-3">
-                        <div>
-                            <label class="text-xs font-bold text-slate-300 block mb-1">⏱️ Bloqueo por inactividad</label>
-                            <select id="config-auto-lock" class="w-full text-sm" onchange="saveAutoLockConfig()">
-                                <option value="0">Desactivado</option>
-                                <option value="5">5 minutos</option>
-                                <option value="15">15 minutos</option>
-                                <option value="30">30 minutos</option>
-                                <option value="60">1 hora</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="text-xs font-bold text-slate-300 block mb-1">🚫 Bloqueo por intentos fallidos</label>
-                            <select id="config-max-attempts" class="w-full text-sm" onchange="saveMaxAttemptsConfig()">
-                                <option value="0">Desactivado</option>
-                                <option value="3">Bloquear tras 3 intentos</option>
-                                <option value="5">Bloquear tras 5 intentos</option>
-                            </select>
                         </div>
                     </div>
                 </div>
 
                 <!-- ── 6. PLANTILLAS WHATSAPP ── -->
-                <div class="cfg-section">
-                    <div class="cfg-header" onclick="toggleCfg('cfg-wapp',this)">
-                        <div class="flex items-center gap-3">
-                            <span class="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-base">💬</span>
-                            <div><p class="text-sm font-black text-white">Plantillas WhatsApp</p><p class="text-[10px] text-slate-500">Mensajes para clientes</p></div>
+                <p class="ios-group-label" style="margin-top:20px;">Comunicación</p>
+                <div class="ios-group">
+                    <div class="ios-row" onclick="iosCfgToggle('cfg-wapp',this)">
+                        <div class="ios-row-icon" style="background:linear-gradient(135deg,#25d366,#128c7e);">💬</div>
+                        <div class="ios-row-text">
+                            <p class="ios-row-title">Plantillas WhatsApp</p>
+                            <p class="ios-row-sub">Mensajes para clientes</p>
                         </div>
-                        <span class="cfg-arrow">▼</span>
+                        <svg class="ios-chevron" width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </div>
-                    <div id="cfg-wapp" class="cfg-body pb-4 space-y-3">
-                        <p class="text-[10px] text-slate-500 bg-slate-800/60 px-3 py-2 rounded-xl">Variables: <span class="text-emerald-400 font-bold">{cliente} {equipo} {valor} {orden} {dias}</span></p>
-                        <div>
-                            <label class="text-[10px] text-slate-400 block mb-1">📥 AL RECIBIR EQUIPO</label>
-                            <textarea id="tpl-recepcion" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, recibimos tu {equipo}. Orden {orden}. Te avisamos cuando esté listo 🔧"></textarea>
+                    <div id="cfg-wapp" class="ios-body">
+                        <div class="ios-body-inner space-y-3">
+                            <div class="ios-variables">Variables: <span>{cliente} {equipo} {valor} {orden} {dias}</span></div>
+                            <div><span class="ios-input-label">📥 Al recibir equipo</span><textarea id="tpl-recepcion" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, recibimos tu {equipo}. Orden {orden}. Te avisamos cuando esté listo 🔧"></textarea></div>
+                            <div><span class="ios-input-label">🔍 En revisión</span><textarea id="tpl-revision" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, tu {equipo} está siendo revisado 🔍"></textarea></div>
+                            <div><span class="ios-input-label">💼 Enviar presupuesto</span><textarea id="tpl-presupuesto" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, el presupuesto para tu {equipo} es de ${valor}. ¿Apruebas? ✅"></textarea></div>
+                            <div><span class="ios-input-label">✅ Equipo listo</span><textarea id="tpl-listo" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, tu {equipo} ya está listo! Valor: ${valor} 🎉"></textarea></div>
+                            <div><span class="ios-input-label">🛡️ Recordatorio garantía</span><textarea id="tpl-garantia" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, tu {equipo} tiene garantía de {dias} días 🛡️"></textarea></div>
+                            <div><span class="ios-input-label">⚠️ Sin reparación</span><textarea id="tpl-norepara" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, lamentamos que tu {equipo} no tiene reparación posible 😔"></textarea></div>
+                            <div><span class="ios-input-label">⏳ Aviso de retraso</span><textarea id="tpl-retraso" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, la reparación está tomando más tiempo. Gracias ⏳"></textarea></div>
+                            <div><span class="ios-input-label">💸 Recordatorio de pago</span><textarea id="tpl-cobro" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, tienes un saldo pendiente de ${valor}. Gracias 🙏"></textarea></div>
+                            <button onclick="saveWhatsappTemplates()" class="ios-save-btn" style="background:#25d366;color:white;">💾 Guardar plantillas</button>
                         </div>
-                        <div>
-                            <label class="text-[10px] text-slate-400 block mb-1">🔍 EN REVISIÓN</label>
-                            <textarea id="tpl-revision" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, tu {equipo} está siendo revisado y diagnosticado 🔍"></textarea>
+                    </div>
+                    <!-- Técnicos -->
+                    <div class="ios-row" onclick="iosCfgToggle('cfg-tecnicos',this)">
+                        <div class="ios-row-icon" style="background:linear-gradient(135deg,#ff9f0a,#c77800);">👷</div>
+                        <div class="ios-row-text">
+                            <p class="ios-row-title">Técnicos</p>
+                            <p class="ios-row-sub">Gestión de empleados</p>
                         </div>
-                        <div>
-                            <label class="text-[10px] text-slate-400 block mb-1">💼 ENVIAR PRESUPUESTO</label>
-                            <textarea id="tpl-presupuesto" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, el presupuesto para tu {equipo} es de ${valor}. ¿Apruebas? ✅"></textarea>
+                        <svg class="ios-chevron" width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <div id="cfg-tecnicos" class="ios-body">
+                        <div class="ios-body-inner space-y-3">
+                            <div class="ios-tecnico-input">
+                                <input type="text" id="new-tecnico" placeholder="Nombre del técnico" class="flex-1 text-sm">
+                                <button onclick="addTecnico()" class="ios-tecnico-add">+ Agregar</button>
+                            </div>
+                            <div id="tecnicos-list" class="space-y-2 max-h-36 overflow-y-auto no-scrollbar"></div>
                         </div>
-                        <div>
-                            <label class="text-[10px] text-slate-400 block mb-1">✅ EQUIPO LISTO</label>
-                            <textarea id="tpl-listo" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, tu {equipo} ya está listo! Valor: ${valor}. Puedes pasar a recogerlo 🎉"></textarea>
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-slate-400 block mb-1">🛡️ RECORDATORIO DE GARANTÍA</label>
-                            <textarea id="tpl-garantia" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, tu {equipo} tiene garantía de {dias} días. Estamos a tu servicio 🛡️"></textarea>
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-slate-400 block mb-1">⚠️ SIN REPARACIÓN</label>
-                            <textarea id="tpl-norepara" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, lamentamos que tu {equipo} no tiene reparación posible. Puedes pasar a recogerlo 😔"></textarea>
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-slate-400 block mb-1">⏳ AVISO DE RETRASO</label>
-                            <textarea id="tpl-retraso" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, la reparación de tu {equipo} está tomando más tiempo. Gracias por tu paciencia ⏳"></textarea>
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-slate-400 block mb-1">💸 RECORDATORIO DE PAGO</label>
-                            <textarea id="tpl-cobro" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, tienes un saldo pendiente de ${valor}. Gracias 🙏"></textarea>
-                        </div>
-                        <button onclick="saveWhatsappTemplates()" class="w-full bg-green-600 py-2 rounded-xl text-xs font-black uppercase hover:bg-green-500 transition">💾 GUARDAR PLANTILLAS</button>
                     </div>
                 </div>
 
-                <!-- ── 7. TÉCNICOS ── -->
-                <div class="cfg-section">
-                    <div class="cfg-header" onclick="toggleCfg('cfg-tecnicos',this)">
-                        <div class="flex items-center gap-3">
-                            <span class="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center text-base">👷</span>
-                            <div><p class="text-sm font-black text-white">Técnicos</p><p class="text-[10px] text-slate-500">Gestión de empleados</p></div>
+                <!-- ── 8. META MENSUAL + 9. RECORDATORIOS ── -->
+                <p class="ios-group-label" style="margin-top:20px;">Metas y recordatorios</p>
+                <div class="ios-group">
+                    <div class="ios-row" onclick="iosCfgToggle('cfg-meta',this)">
+                        <div class="ios-row-icon" style="background:linear-gradient(135deg,#30d158,#1a9e3f);">🎯</div>
+                        <div class="ios-row-text">
+                            <p class="ios-row-title">Meta mensual</p>
+                            <p class="ios-row-sub">Objetivo de ingresos</p>
                         </div>
-                        <span class="cfg-arrow">▼</span>
+                        <svg class="ios-chevron" width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </div>
-                    <div id="cfg-tecnicos" class="cfg-body pb-4 space-y-3">
-                        <div class="flex gap-2">
-                            <input type="text" id="new-tecnico" placeholder="Nombre del técnico" class="flex-1 text-sm">
-                            <button onclick="addTecnico()" class="bg-orange-600 px-4 rounded-xl text-xs font-black">+ ADD</button>
-                        </div>
-                        <div id="tecnicos-list" class="space-y-2 max-h-36 overflow-y-auto no-scrollbar"></div>
-                    </div>
-                </div>
-
-                <!-- ── 8. META MENSUAL ── -->
-                <div class="cfg-section">
-                    <div class="cfg-header" onclick="toggleCfg('cfg-meta',this)">
-                        <div class="flex items-center gap-3">
-                            <span class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-base">🎯</span>
-                            <div><p class="text-sm font-black text-white">Meta mensual</p><p class="text-[10px] text-slate-500">Objetivo de ingresos</p></div>
-                        </div>
-                        <span class="cfg-arrow">▼</span>
-                    </div>
-                    <div id="cfg-meta" class="cfg-body pb-4 space-y-3">
-                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Meta mensual</p>
-                        <div class="flex gap-2 items-center">
-                            <span class="text-slate-400 text-sm font-bold">$</span>
-                            <input type="number" id="config-meta" placeholder="Ej: 5000000" class="flex-1 text-sm font-black text-emerald-400 text-center" min="0">
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <label class="text-xs font-bold text-slate-300">Mostrar barra en el header</label>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="config-meta-visible" class="sr-only peer">
-                                <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
-                            </label>
-                        </div>
-                        <hr class="border-white/10">
-                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Meta semanal</p>
-                        <div class="flex gap-2 items-center">
-                            <span class="text-slate-400 text-sm font-bold">$</span>
-                            <input type="number" id="config-meta-semanal" placeholder="Ej: 1200000" class="flex-1 text-sm font-black text-cyan-400 text-center" min="0">
-                        </div>
-                        <button onclick="saveMetaConfig()" class="w-full bg-emerald-600 py-2 rounded-xl text-xs font-black uppercase hover:bg-emerald-500 transition">💾 GUARDAR METAS</button>
-                    </div>
-                </div>
-
-                <!-- ── 9. RECORDATORIOS ── -->
-                <div class="cfg-section">
-                    <div class="cfg-header" onclick="toggleCfg('cfg-recordatorios',this)">
-                        <div class="flex items-center gap-3">
-                            <span class="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center text-base">⏰</span>
-                            <div><p class="text-sm font-black text-white">Recordatorios</p><p class="text-[10px] text-slate-500">Cierre de caja y órdenes sin mov.</p></div>
-                        </div>
-                        <span class="cfg-arrow">▼</span>
-                    </div>
-                    <div id="cfg-recordatorios" class="cfg-body pb-4 space-y-3">
-                        <div class="grid grid-cols-2 gap-3">
+                    <div id="cfg-meta" class="ios-body">
+                        <div class="ios-body-inner space-y-3">
                             <div>
-                                <label class="text-[10px] text-slate-400 block mb-1">CIERRE DE CAJA</label>
-                                <input type="time" id="config-cierre-hora" class="w-full text-sm">
+                                <span class="ios-input-label">Meta mensual</span>
+                                <div class="flex gap-2 items-center">
+                                    <span style="color:#8e8e93;font-weight:700;">$</span>
+                                    <input type="number" id="config-meta" placeholder="Ej: 5000000" class="flex-1 text-sm font-black text-emerald-400 text-center" min="0">
+                                </div>
+                            </div>
+                            <div class="ios-toggle-wrap">
+                                <p style="font-size:14px;font-weight:500;color:#ebebf5;">Mostrar barra en header</p>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="config-meta-visible" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                                </label>
+                            </div>
+                            <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:12px;">
+                                <span class="ios-input-label">Meta semanal</span>
+                                <div class="flex gap-2 items-center">
+                                    <span style="color:#8e8e93;font-weight:700;">$</span>
+                                    <input type="number" id="config-meta-semanal" placeholder="Ej: 1200000" class="flex-1 text-sm font-black text-cyan-400 text-center" min="0">
+                                </div>
+                            </div>
+                            <button onclick="saveMetaConfig()" class="ios-save-btn" style="background:#30d158;color:white;">💾 Guardar metas</button>
+                        </div>
+                    </div>
+                    <!-- Recordatorios -->
+                    <div class="ios-row" onclick="iosCfgToggle('cfg-recordatorios',this)">
+                        <div class="ios-row-icon" style="background:linear-gradient(135deg,#64d2ff,#0070c9);">⏰</div>
+                        <div class="ios-row-text">
+                            <p class="ios-row-title">Recordatorios</p>
+                            <p class="ios-row-sub">Cierre de caja y órdenes sin mov.</p>
+                        </div>
+                        <svg class="ios-chevron" width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <div id="cfg-recordatorios" class="ios-body">
+                        <div class="ios-body-inner space-y-3">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <span class="ios-input-label">Cierre de caja</span>
+                                    <input type="time" id="config-cierre-hora" class="w-full text-sm">
+                                </div>
+                                <div>
+                                    <span class="ios-input-label">Sin movimiento (días)</span>
+                                    <input type="number" id="config-sin-mov" placeholder="Ej: 7" min="1" max="60" class="w-full text-sm text-center">
+                                </div>
                             </div>
                             <div>
-                                <label class="text-[10px] text-slate-400 block mb-1">SIN MOVIMIENTO (días)</label>
-                                <input type="number" id="config-sin-mov" placeholder="Ej: 7" min="1" max="60" class="w-full text-sm text-center">
+                                <span class="ios-input-label">Sin recoger (días)</span>
+                                <input type="number" id="config-sin-recoger" placeholder="Ej: 7" min="1" max="30" class="w-full text-sm text-center">
                             </div>
+                            <button onclick="saveReminderConfig()" class="ios-save-btn" style="background:#64d2ff;color:#000;">💾 Guardar</button>
                         </div>
-                        <div>
-                            <label class="text-[10px] text-slate-400 block mb-1">SIN RECOGER (días)</label>
-                            <input type="number" id="config-sin-recoger" placeholder="Ej: 7" min="1" max="30" class="w-full text-sm text-center">
-                        </div>
-                        <button onclick="saveReminderConfig()" class="w-full bg-cyan-600 py-2 rounded-xl text-xs font-black uppercase hover:bg-cyan-500 transition">💾 GUARDAR</button>
                     </div>
                 </div>
 
-                <!-- ── 10. DOCUMENTOS ── -->
-                <div class="cfg-section">
-                    <div class="cfg-header" onclick="toggleCfg('cfg-docs',this)">
-                        <div class="flex items-center gap-3">
-                            <span class="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center text-base">🖨️</span>
-                            <div><p class="text-sm font-black text-white">Documentos</p><p class="text-[10px] text-slate-500">Facturas y recibos</p></div>
+                <!-- ── 10–13. DOCUMENTOS, NUMERACIÓN, INVENTARIO, RESPALDO ── -->
+                <p class="ios-group-label" style="margin-top:20px;">Operación</p>
+                <div class="ios-group">
+                    <!-- Documentos -->
+                    <div class="ios-row" onclick="iosCfgToggle('cfg-docs',this)">
+                        <div class="ios-row-icon" style="background:linear-gradient(135deg,#ff9f0a,#8b5e00);">🖨️</div>
+                        <div class="ios-row-text">
+                            <p class="ios-row-title">Documentos</p>
+                            <p class="ios-row-sub">Facturas y recibos</p>
                         </div>
-                        <span class="cfg-arrow">▼</span>
+                        <svg class="ios-chevron" width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </div>
-                    <div id="cfg-docs" class="cfg-body pb-4 space-y-3">
-                        <div class="flex justify-between items-center">
-                            <div><p class="text-xs font-bold text-slate-300">Incluir fotos en factura</p></div>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="config-factura-fotos" class="sr-only peer" checked>
-                                <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
-                            </label>
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-slate-400 block mb-1">MENSAJE DE GARANTÍA EN RECIBO</label>
-                            <textarea id="config-garantia-msg" rows="2" class="w-full text-xs" placeholder="Garantía cubre solo la falla reparada, no daños por mal uso."></textarea>
-                        </div>
-                        <button onclick="saveDocumentConfig()" class="w-full bg-amber-600 py-2 rounded-xl text-xs font-black uppercase hover:bg-amber-500 transition">💾 GUARDAR</button>
-                    </div>
-                </div>
-
-                <!-- ── 11. NUMERACIÓN ── -->
-                <div class="cfg-section">
-                    <div class="cfg-header" onclick="toggleCfg('cfg-numeracion',this)">
-                        <div class="flex items-center gap-3">
-                            <span class="w-8 h-8 rounded-full bg-violet-500/20 flex items-center justify-center text-base">🔢</span>
-                            <div><p class="text-sm font-black text-white">Numeración de órdenes</p><p class="text-[10px] text-slate-500">Prefijo y consecutivo</p></div>
-                        </div>
-                        <span class="cfg-arrow">▼</span>
-                    </div>
-                    <div id="cfg-numeracion" class="cfg-body pb-4 space-y-3">
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="text-[10px] text-slate-400 block mb-1">NÚMERO INICIAL</label>
-                                <input type="number" id="config-order-start" placeholder="Ej: 1" min="1" class="w-full text-sm text-center font-black">
+                    <div id="cfg-docs" class="ios-body">
+                        <div class="ios-body-inner space-y-3">
+                            <div class="ios-toggle-wrap">
+                                <p style="font-size:14px;font-weight:500;color:#ebebf5;">Incluir fotos en factura</p>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="config-factura-fotos" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                                </label>
                             </div>
                             <div>
-                                <label class="text-[10px] text-slate-400 block mb-1">PREFIJO</label>
-                                <input type="text" id="config-order-prefix" placeholder="Ej: NR-" class="w-full text-sm text-center font-black">
+                                <span class="ios-input-label">Mensaje de garantía en recibo</span>
+                                <textarea id="config-garantia-msg" rows="2" class="w-full text-xs" placeholder="Garantía cubre solo la falla reparada, no daños por mal uso."></textarea>
                             </div>
+                            <button onclick="saveDocumentConfig()" class="ios-save-btn" style="background:#ff9f0a;color:#000;">💾 Guardar</button>
                         </div>
-                        <div class="flex justify-between items-center">
-                            <label class="text-xs font-bold text-slate-300">Reiniciar por año automático</label>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="config-order-reset-year" class="sr-only peer">
-                                <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-600"></div>
-                            </label>
+                    </div>
+                    <!-- Numeración -->
+                    <div class="ios-row" onclick="iosCfgToggle('cfg-numeracion',this)">
+                        <div class="ios-row-icon" style="background:linear-gradient(135deg,#bf5af2,#7d2fad);">🔢</div>
+                        <div class="ios-row-text">
+                            <p class="ios-row-title">Numeración de órdenes</p>
+                            <p class="ios-row-sub">Prefijo y consecutivo</p>
                         </div>
-                        <button onclick="saveOrderNumConfig()" class="w-full bg-violet-600 py-2 rounded-xl text-xs font-black uppercase hover:bg-violet-500 transition">💾 GUARDAR</button>
+                        <svg class="ios-chevron" width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </div>
-                </div>
-
-                <!-- ── 12. INVENTARIO ── -->
-                <div class="cfg-section">
-                    <div class="cfg-header" onclick="toggleCfg('cfg-inventario',this)">
-                        <div class="flex items-center gap-3">
-                            <span class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-base">📦</span>
-                            <div><p class="text-sm font-black text-white">Inventario</p><p class="text-[10px] text-slate-500">Umbral de stock bajo</p></div>
+                    <div id="cfg-numeracion" class="ios-body">
+                        <div class="ios-body-inner space-y-3">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <span class="ios-input-label">Número inicial</span>
+                                    <input type="number" id="config-order-start" placeholder="Ej: 1" min="1" class="w-full text-sm text-center font-black">
+                                </div>
+                                <div>
+                                    <span class="ios-input-label">Prefijo</span>
+                                    <input type="text" id="config-order-prefix" placeholder="Ej: NR-" class="w-full text-sm text-center font-black">
+                                </div>
+                            </div>
+                            <div class="ios-toggle-wrap">
+                                <p style="font-size:14px;font-weight:500;color:#ebebf5;">Reiniciar por año automático</p>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="config-order-reset-year" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-500"></div>
+                                </label>
+                            </div>
+                            <button onclick="saveOrderNumConfig()" class="ios-save-btn" style="background:#bf5af2;color:white;">💾 Guardar</button>
                         </div>
-                        <span class="cfg-arrow">▼</span>
                     </div>
-                    <div id="cfg-inventario" class="cfg-body pb-4 space-y-3">
-                        <label class="text-[10px] text-slate-400 block">Alertar cuando queden menos de X unidades</label>
-                        <input type="number" id="config-low-stock" min="1" max="20" class="w-full text-center text-sm">
-                        <button onclick="saveLowStockThreshold()" class="w-full bg-blue-600 py-2 rounded-xl text-xs font-black uppercase hover:bg-blue-500 transition">💾 GUARDAR</button>
-                    </div>
-                </div>
-
-                <!-- ── 13. RESPALDO ── -->
-                <div class="cfg-section">
-                    <div class="cfg-header" onclick="toggleCfg('cfg-respaldo',this)">
-                        <div class="flex items-center gap-3">
-                            <span class="w-8 h-8 rounded-full bg-teal-500/20 flex items-center justify-center text-base">⏱️</span>
-                            <div><p class="text-sm font-black text-white">Respaldo automático</p><p class="text-[10px] text-slate-500">Intervalo del backup</p></div>
+                    <!-- Inventario -->
+                    <div class="ios-row" onclick="iosCfgToggle('cfg-inventario',this)">
+                        <div class="ios-row-icon" style="background:linear-gradient(135deg,#0a84ff,#004eb5);">📦</div>
+                        <div class="ios-row-text">
+                            <p class="ios-row-title">Inventario</p>
+                            <p class="ios-row-sub">Umbral de stock bajo</p>
                         </div>
-                        <span class="cfg-arrow">▼</span>
+                        <svg class="ios-chevron" width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </div>
-                    <div id="cfg-respaldo" class="cfg-body pb-4 space-y-3">
-                        <select id="config-backup-interval" class="w-full text-sm">
-                            <option value="12">Cada 12 horas</option>
-                            <option value="24">Cada 24 horas</option>
-                            <option value="48">Cada 48 horas</option>
-                            <option value="168">Semanal</option>
-                        </select>
-                        <button onclick="saveBackupInterval()" class="w-full bg-teal-600 py-2 rounded-xl text-xs font-black uppercase hover:bg-teal-500 transition">💾 APLICAR</button>
+                    <div id="cfg-inventario" class="ios-body">
+                        <div class="ios-body-inner space-y-3">
+                            <span class="ios-input-label">Alertar cuando queden menos de X unidades</span>
+                            <input type="number" id="config-low-stock" min="1" max="20" class="w-full text-center text-sm">
+                            <button onclick="saveLowStockThreshold()" class="ios-save-btn" style="background:#0a84ff;color:white;">💾 Guardar</button>
+                        </div>
+                    </div>
+                    <!-- Respaldo -->
+                    <div class="ios-row" onclick="iosCfgToggle('cfg-respaldo',this)">
+                        <div class="ios-row-icon" style="background:linear-gradient(135deg,#5ac8fa,#0070c9);">⏱️</div>
+                        <div class="ios-row-text">
+                            <p class="ios-row-title">Respaldo automático</p>
+                            <p class="ios-row-sub">Intervalo del backup</p>
+                        </div>
+                        <svg class="ios-chevron" width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <div id="cfg-respaldo" class="ios-body">
+                        <div class="ios-body-inner space-y-3">
+                            <select id="config-backup-interval" class="w-full text-sm">
+                                <option value="12">Cada 12 horas</option>
+                                <option value="24">Cada 24 horas</option>
+                                <option value="48">Cada 48 horas</option>
+                                <option value="168">Semanal</option>
+                            </select>
+                            <button onclick="saveBackupInterval()" class="ios-save-btn" style="background:#5ac8fa;color:#000;">💾 Aplicar</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- ── 14. SISTEMA ── -->
-                <div class="cfg-section border-b-0">
-                    <div class="cfg-header" onclick="toggleCfg('cfg-sistema',this)">
-                        <div class="flex items-center gap-3">
-                            <span class="w-8 h-8 rounded-full bg-rose-500/20 flex items-center justify-center text-base">🛠️</span>
-                            <div><p class="text-sm font-black text-white">Sistema</p><p class="text-[10px] text-slate-500">Reset y versión</p></div>
+                <p class="ios-group-label" style="margin-top:20px;">Sistema</p>
+                <div class="ios-group">
+                    <div class="ios-row" onclick="iosCfgToggle('cfg-sistema',this)">
+                        <div class="ios-row-icon" style="background:linear-gradient(135deg,#ff375f,#9b0020);">🛠️</div>
+                        <div class="ios-row-text">
+                            <p class="ios-row-title">Sistema</p>
+                            <p class="ios-row-sub">Reset, versión y actualizaciones</p>
                         </div>
-                        <span class="cfg-arrow">▼</span>
+                        <svg class="ios-chevron" width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </div>
-                    <div id="cfg-sistema" class="cfg-body pb-4 space-y-2">
-                        <button onclick="resetTutorial()" class="w-full bg-yellow-600/80 py-2 rounded-xl text-xs font-bold hover:bg-yellow-600 transition">🔄 Restablecer tutorial</button>
-                        <button onclick="factoryReset()" class="w-full bg-rose-600/80 py-2 rounded-xl text-xs font-bold hover:bg-rose-600 transition">⚠️ RESTABLECER FÁBRICA</button>
-                        <p class="text-[10px] text-slate-500 text-center">Borra TODOS los datos. PIN y configuración se mantienen.</p>
-                        <p class="text-center text-[10px] text-slate-600 pt-1">v3.0.0 — <a href="#" onclick="checkUpdate()" class="text-cyan-400 underline">Buscar actualizaciones</a></p>
+                    <div id="cfg-sistema" class="ios-body">
+                        <div class="ios-body-inner space-y-2">
+                            <button onclick="resetTutorial()" class="ios-danger-btn" style="background:#3a3a3c;color:#ffd60a;">🔄 Restablecer tutorial</button>
+                            <button onclick="factoryReset()" class="ios-danger-btn" style="background:rgba(255,55,95,0.15);color:#ff375f;border:1px solid rgba(255,55,95,0.3);">⚠️ Restablecer fábrica</button>
+                            <p style="font-size:11px;color:#48484a;text-align:center;margin-top:4px;">Borra TODOS los datos. PIN y configuración se mantienen.</p>
+                            <p style="text-align:center;font-size:11px;color:#48484a;padding-top:4px;">v3.0.0 — <a href="#" onclick="checkUpdate()" style="color:#0a84ff;">Buscar actualizaciones</a></p>
+                        </div>
                     </div>
                 </div>
 
@@ -5941,6 +6093,26 @@
                 body.classList.add('open');
                 header.classList.add('open');
                 setTimeout(() => body.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+            }
+        }
+
+        function iosCfgToggle(id, rowEl) {
+            const body = document.getElementById(id);
+            if (!body) return;
+            const chevron = rowEl.querySelector('.ios-chevron');
+            const isOpen = body.classList.contains('open');
+            document.querySelectorAll('#modal-config .ios-body').forEach(b => {
+                b.classList.remove('open');
+                b.style.maxHeight = '0';
+                b.style.opacity = '0';
+            });
+            document.querySelectorAll('#modal-config .ios-chevron').forEach(c => c.classList.remove('open'));
+            if (!isOpen) {
+                body.classList.add('open');
+                body.style.maxHeight = body.scrollHeight + 300 + 'px';
+                body.style.opacity = '1';
+                if (chevron) chevron.classList.add('open');
+                setTimeout(() => body.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 80);
             }
         }
 
