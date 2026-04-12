@@ -970,9 +970,11 @@
             </div>
             <!-- Búsqueda y ordenar -->
             <div class="flex gap-2 mb-3">
-                <input type="text" id="stock-search" placeholder="🔍 Buscar nombre o código..." class="flex-1 text-xs py-2 px-3 rounded-xl" oninput="renderStock()">
-                <button onclick="openQRScanner('stock')" class="bg-violet-600/20 border border-violet-500/30 text-violet-300 px-3 rounded-xl text-lg active:scale-95 transition flex-shrink-0" title="Escanear código QR/barras">📷</button>
-                <select id="stock-sort" class="text-xs py-2 px-2 rounded-xl w-28" onchange="renderStock()">
+                <div class="relative flex-1">
+                    <input type="text" id="stock-search" placeholder="🔍 Buscar nombre o código..." class="w-full text-xs py-2 pl-3 pr-9 rounded-xl" oninput="renderStock()">
+                    <button onclick="openQRScanner('stock')" class="absolute right-2 top-1/2 -translate-y-1/2 text-violet-400 text-base leading-none active:scale-90 transition" title="Escanear código QR/barras">📷</button>
+                </div>
+                <select id="stock-sort" class="text-xs py-2 px-2 rounded-xl w-28 flex-shrink-0" onchange="renderStock()">
                     <option value="name">A-Z</option>
                     <option value="stock-low">Menor stock</option>
                     <option value="stock-high">Mayor stock</option>
@@ -3646,6 +3648,11 @@
             }
 
             await put('orders', o);
+
+            // Registrar cambio de estado en el chat interno
+            const staEmojis = { recibido:'📥', 'revisión':'🔍', reparado:'✅', entregado:'📦' };
+            await logChatSistema(o.id, `Estado cambiado: ${staEmojis[oldSta]||'•'} ${oldSta} → ${staEmojis[newSta]||'•'} ${newSta}`);
+
             await updateTotal(); await renderOrders(); await renderCartera();
 
             // Aviso automático WA al pasar a "reparado"
@@ -4486,7 +4493,7 @@
         async function exportData() {
             try {
                 const loading = document.createElement('div'); loading.innerHTML = '<div class="fixed inset-0 bg-black/70 flex items-center justify-center z-[4000]"><div class="bg-slate-800 p-6 rounded-2xl text-center"><div class="loading-spinner mx-auto"></div><p class="mt-2 text-sm">Exportando...</p></div></div>'; document.body.appendChild(loading);
-                const orders = await getAll('orders'); const stock = await getAll('stock'); const sales = await getAll('sales'); const gastos = await getAll('gastos'); const clientes = await getAll('clientes'); const payments = await getAll('payments'); const calificaciones = await getAll('calificaciones');
+                const orders = await getAll('orders'); const stock = await getAll('stock'); const sales = await getAll('sales'); const gastos = await getAll('gastos'); const clientes = await getAll('clientes'); const payments = await getAll('payments'); const calificaciones = await getAll('calificaciones'); const stockHistory = await getAll('stockHistory'); const orderChat = await getAll('orderChat'); const paymentPlans = await getAll('paymentPlans');
 
                 const exportOrders = [];
                 for(let o of orders) {
@@ -4495,7 +4502,7 @@
                     exportOrders.push({...o, fotos, fotosEntrega});
                 }
 
-                const jsonStr = JSON.stringify({orders:exportOrders, stock, sales, gastos, clientes, payments, calificaciones});
+                const jsonStr = JSON.stringify({orders:exportOrders, stock, sales, gastos, clientes, payments, calificaciones, stockHistory, orderChat, paymentPlans});
                 const fileName = `nelson_backup_${new Date().toISOString().slice(0,10)}.json`;
                 loading.remove();
 
@@ -4609,6 +4616,8 @@
                 try {
                     await clearStore('orders'); await clearStore('stock'); await clearStore('sales');
                     await clearStore('gastos'); await clearStore('clientes'); await clearStore('payments');
+                    await clearStore('stockHistory'); await clearStore('orderChat');
+                    await clearStore('paymentPlans'); await clearStore('calificaciones');
                     for(let o of data.orders) {
                         const fotos = [];
                         if(o.fotos && Array.isArray(o.fotos)) {
@@ -4626,6 +4635,9 @@
                     for(let c of data.clientes || []) await put('clientes', c);
                     for(let p of data.payments || []) await put('payments', p);
                     for(let c of data.calificaciones || []) await put('calificaciones', c);
+                    for(let h of data.stockHistory || []) await put('stockHistory', h);
+                    for(let m of data.orderChat || []) await put('orderChat', m);
+                    for(let p of data.paymentPlans || []) await put('paymentPlans', p);
                     await updateTotal(); await updateSuggestions(); await renderCartera();
                     showAlert("✅ Importación exitosa. La app se recargará.", "success", () => location.reload());
                 } catch(err) { showAlert("Error al importar: " + err.message, "error"); }
@@ -4680,6 +4692,9 @@
             touchEndX = e.changedTouches[0].screenX;
             const diff = touchEndX - touchStartX;
             if (Math.abs(diff) < 50) return;
+            // No hacer swipe si hay algún modal visible
+            const modalAbierto = document.querySelector('.fixed.inset-0:not(.hidden):not(#splash-screen):not(#pin-modal)');
+            if (modalAbierto) return;
             const tabs = ['taller', 'ordenes', 'ventas', 'admin'];
             const current = tabs.find(t => !document.getElementById(`view-${t}`).classList.contains('hidden'));
             const idx = tabs.indexOf(current);
@@ -5123,12 +5138,17 @@
                 await clearStore('clientes');
                 await clearStore('payments');
                 await clearStore('config');
+                await clearStore('stockHistory');
+                await clearStore('orderChat');
+                await clearStore('paymentPlans');
+                await clearStore('calificaciones');
+                await clearStore('proveedores');
                 await put('config', { key: 'orderCounter', value: 0 });
                 showAlert('Todos los datos han sido eliminados. La aplicación se recargará.', 'success', () => location.reload());
             });
         }
         function checkUpdate() {
-            showAlert('Actualmente estás en la versión estable v3.0.0. Para actualizar, descarga el nuevo archivo desde tu proveedor.', 'info');
+            showAlert('Actualmente estás en la versión estable v3.2.0. Para actualizar, descarga el nuevo archivo desde tu proveedor.', 'info');
         }
         function openAdvancedConfig() {
             loadBusinessConfig();
@@ -6166,14 +6186,14 @@
 
                 // Stock
                 stock.filter(s =>
-                    (s.name||'').toUpperCase().includes(q) ||
+                    (s.n||'').toUpperCase().includes(q) ||
                     (s.code||'').toUpperCase().includes(q) ||
-                    (s.category||'').toUpperCase().includes(q)
+                    (s.cat||'').toUpperCase().includes(q)
                 ).slice(0,4).forEach(s => {
                     results.push({
                         tipo:'stock', icon:'🔩',
-                        titulo: s.name,
-                        sub: `Stock: ${s.qty||0} uds · ${cur}${(s.price||0).toLocaleString()}`,
+                        titulo: s.n,
+                        sub: `Stock: ${s.q||0} uds · ${cur}${(s.p||0).toLocaleString()}`,
                         action: () => { tab('ventas'); document.getElementById('global-search-input').value=''; box.classList.remove('open'); }
                     });
                 });
@@ -6693,14 +6713,14 @@
                 const stock = await getAll('stock');
                 const match = stock.find(s =>
                     (s.code || '').toUpperCase() === q ||
-                    (s.name || '').toUpperCase().includes(q)
+                    (s.n || '').toUpperCase().includes(q)
                 );
                 if (match) {
                     // Rellenar el buscador de stock y filtrar
                     const searchEl = document.getElementById('stock-search');
-                    if (searchEl) { searchEl.value = match.name; renderStock(); }
+                    if (searchEl) { searchEl.value = match.n; renderStock(); }
                     tab('ventas');
-                    showToast(`🔩 Encontrado: ${match.name}`, 'success');
+                    showToast(`🔩 Encontrado: ${match.n}`, 'success');
                 } else {
                     // Si no encuentra, rellenar el campo código en el modal de nuevo repuesto
                     addStockItem();
@@ -7618,7 +7638,7 @@
             const loader = document.getElementById('dash-loader');
             try {
                 const orders  = await getAll('orders');
-                const ventas  = await getAll('ventas');
+                const ventas  = await getAll('sales');
                 const stock   = (await getAll('stock')) || [];
                 const cur     = (typeof getCurrency === 'function') ? getCurrency() : '$';
 
@@ -7639,11 +7659,12 @@
                 });
                 const ventasMes = ventas.filter(v => {
                     const d = new Date(v.fecha || v.id);
-                    return d.getMonth() === mesAct && d.getFullYear() === anoAct;
+                    return d.getMonth() === mesAct && d.getFullYear() === anoAct
+                        && v.tipo !== 'adelanto' && v.tipo !== 'cobro_entrega';
                 });
-                const ingresosMes = ventasMes.reduce((s, v) => s + (Number(v.total) || 0), 0)
-                                  + ordensMes.filter(o => o.est === 'entregado').reduce((s, o) => s + (Number(o.val) || 0), 0);
-                const pendientes  = orders.filter(o => o.est !== 'entregado' && o.est !== 'cancelado').length;
+                const ingresosMes = ventasMes.reduce((s, v) => s + (Number(v.val) || 0), 0)
+                                  + ordensMes.filter(o => o.sta === 'entregado').reduce((s, o) => s + (Number(o.val) || 0), 0);
+                const pendientes  = orders.filter(o => o.sta !== 'entregado' && o.sta !== 'cancelado').length;
 
                 const elIng = document.getElementById('dash-kpi-ingresos');
                 const elOrd = document.getElementById('dash-kpi-ordenes');
@@ -7658,9 +7679,9 @@
                     const d = new Date(anoAct, mesAct - i, 1);
                     const m = d.getMonth(), a = d.getFullYear();
                     labels6.push(meses[m]);
-                    const ing = ventas.filter(v => { const dd = new Date(v.fecha || v.id); return dd.getMonth()===m && dd.getFullYear()===a; })
-                                      .reduce((s,v) => s+(Number(v.total)||0), 0)
-                              + orders.filter(o => { const dd = new Date(o.fecha || o.id); return o.est==='entregado' && dd.getMonth()===m && dd.getFullYear()===a; })
+                    const ing = ventas.filter(v => { const dd = new Date(v.fecha || v.id); return dd.getMonth()===m && dd.getFullYear()===a && v.tipo !== 'adelanto' && v.tipo !== 'cobro_entrega'; })
+                                      .reduce((s,v) => s+(Number(v.val)||0), 0)
+                              + orders.filter(o => { const dd = new Date(o.fecha || o.id); return o.sta==='entregado' && dd.getMonth()===m && dd.getFullYear()===a; })
                                       .reduce((s,o) => s+(Number(o.val)||0), 0);
                     data6.push(ing);
                 }
@@ -7706,7 +7727,7 @@
                 const totalOrd = orders.length || 1;
                 const elEstados = document.getElementById('dash-estados');
                 if (elEstados) elEstados.innerHTML = estadosConfig.map(e => {
-                    const cnt = orders.filter(o => (o.est||'').toLowerCase() === e.key).length;
+                    const cnt = orders.filter(o => (o.sta||'').toLowerCase() === e.key).length;
                     const pct = Math.round(cnt / totalOrd * 100);
                     return `<div>
                         <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
@@ -7748,7 +7769,7 @@
                 // ---- Alertas ----
                 const alertas = [];
                 const vencidas = orders.filter(o => {
-                    if (o.est === 'entregado' || o.est === 'cancelado') return false;
+                    if (o.sta === 'entregado' || o.sta === 'cancelado') return false;
                     if (!o.deadline) return false;
                     return new Date(o.deadline) < new Date();
                 });
@@ -7804,7 +7825,7 @@
                 try {
                     const orders = await getAll('orders');
                     const vencidas = orders.filter(o => {
-                        if (o.est === 'entregado' || o.est === 'cancelado') return false;
+                        if (o.sta === 'entregado' || o.sta === 'cancelado') return false;
                         if (!o.deadline) return false;
                         return new Date(o.deadline) < new Date();
                     });
