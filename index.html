@@ -201,6 +201,32 @@
             80%      { transform: translateX(4px); }
         }
         canvas { max-height: 250px; width: 100% !important; }
+
+        /* ===== VOZ: botón micrófono ===== */
+        .voice-mic-btn {
+            width: 30px; height: 30px; border-radius: 10px;
+            background: rgba(249,115,22,0.15); border: 1px solid rgba(249,115,22,0.3);
+            font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; flex-shrink: 0; z-index: 2;
+        }
+        .voice-mic-btn:hover { background: rgba(249,115,22,0.3); }
+        .voice-mic-btn.listening {
+            background: rgba(244,63,94,0.25); border-color: rgba(244,63,94,0.6);
+            animation: pulse-mic 0.8s ease infinite;
+        }
+        @keyframes pulse-mic { 0%,100%{box-shadow:0 0 0 0 rgba(244,63,94,0.4)} 50%{box-shadow:0 0 0 6px rgba(244,63,94,0)} }
+
+        /* ===== MODAL EXPORTAR PDF/EXCEL ===== */
+        #modal-export-panel { z-index: 4100; }
+        .export-option-btn {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 16px; border-radius: 16px;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+            cursor: pointer; transition: all 0.2s; width: 100%; text-align: left;
+        }
+        .export-option-btn:hover { background: rgba(249,115,22,0.1); border-color: rgba(249,115,22,0.25); }
+        .export-option-btn:active { transform: scale(0.97); }
+        .export-opt-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
         .swipe-area { touch-action: pan-y; }
         .garantia-badge { background: linear-gradient(135deg, #10b981, #059669); padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 800; color: white; }
         .garantia-vencida { background: linear-gradient(135deg, #f43f5e, #e11d48); }
@@ -705,6 +731,7 @@
             <button onclick="window.location.href='./dashboard.html'" style="background:rgba(159,122,234,0.15);border:1px solid rgba(159,122,234,0.3);color:#c4b5fd;padding:8px 16px;border-radius:12px;font-size:11px;font-weight:800;cursor:pointer;">📊 DASHBOARD</button>
             <button onclick="notifyAllReady()" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:8px 16px;border-radius:12px;font-size:11px;font-weight:800;cursor:pointer;">💬 AVISAR LISTOS</button>
             <button onclick="exportMonthlyReport()" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:8px 16px;border-radius:12px;font-size:11px;font-weight:800;cursor:pointer;">📄 REPORTE MES</button>
+            <button onclick="openExportPanel()" style="background:rgba(249,115,22,0.15);border:1px solid rgba(249,115,22,0.3);color:#fb923c;padding:8px 16px;border-radius:12px;font-size:11px;font-weight:800;cursor:pointer;">⬇️ EXPORTAR</button>
             <button onclick="toggleTheme()" id="desktop-theme-btn" style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);font-size:1.1rem;cursor:pointer;">🌙</button>
         </div>
     </div>
@@ -799,14 +826,23 @@
         <div class="card p-6 space-y-5">
             <h2 class="text-center text-[11px] font-black text-slate-400 uppercase tracking-[3px]">📝 NUEVA RECEPCIÓN</h2>
             <div>
-                <input type="text" id="c-nom" placeholder="CLIENTE" class="uppercase font-semibold w-full" list="clientes-list" onkeyup="checkClient()">
+                <div class="relative">
+                    <input type="text" id="c-nom" placeholder="CLIENTE" class="uppercase font-semibold w-full pr-12" list="clientes-list" onkeyup="checkClient()">
+                    <button type="button" onclick="startVoiceInput('c-nom')" id="voice-btn-c-nom" class="voice-mic-btn absolute right-2 top-1/2 -translate-y-1/2" title="Dictado por voz">🎤</button>
+                </div>
                 <div id="client-alert" class="text-[10px] text-emerald-400 font-bold mt-1 min-h-[15px] ml-2"></div>
             </div>
             <datalist id="clientes-list"></datalist>
             <input type="tel" id="c-tel" placeholder="WHATSAPP" class="w-full">
-            <input type="text" id="c-equ" placeholder="EQUIPO / MODELO" class="uppercase font-bold text-orange-400 w-full" list="equipos-list">
+            <div class="relative">
+                <input type="text" id="c-equ" placeholder="EQUIPO / MODELO" class="uppercase font-bold text-orange-400 w-full pr-12" list="equipos-list">
+                <button type="button" onclick="startVoiceInput('c-equ')" id="voice-btn-c-equ" class="voice-mic-btn absolute right-2 top-1/2 -translate-y-1/2" title="Dictado por voz">🎤</button>
+            </div>
             <datalist id="equipos-list"></datalist>
-            <textarea id="c-fal" placeholder="FALLA INICIAL Y ESTADO FÍSICO..." class="h-24 text-xs uppercase w-full" oninput="suggestDiagnosis()"></textarea>
+            <div class="relative">
+                <textarea id="c-fal" placeholder="FALLA INICIAL Y ESTADO FÍSICO..." class="h-24 text-xs uppercase w-full pr-10" oninput="suggestDiagnosis()"></textarea>
+                <button type="button" onclick="startVoiceInput('c-fal')" id="voice-btn-c-fal" class="voice-mic-btn absolute right-2 top-3" title="Dictado por voz">🎤</button>
+            </div>
             <div id="diagnosis-suggestions" class="suggestion-box"></div>
             <div class="grid grid-cols-2 gap-3">
                 <div>
@@ -878,7 +914,10 @@
             <!-- Notas internas (solo para el taller, no aparece en recibo) -->
             <div>
                 <label class="text-[10px] text-slate-400 block mb-1 ml-1">🔒 NOTAS INTERNAS <span class="text-slate-600">(no aparece en recibo)</span></label>
-                <textarea id="c-notas" placeholder="Observaciones del técnico, contraseña del equipo, accesorios entregados..." class="h-16 text-xs w-full"></textarea>
+                <div class="relative">
+                    <textarea id="c-notas" placeholder="Observaciones del técnico, contraseña del equipo, accesorios entregados..." class="h-16 text-xs w-full pr-10"></textarea>
+                    <button type="button" onclick="startVoiceInput('c-notas')" id="voice-btn-c-notas" class="voice-mic-btn absolute right-2 top-3" title="Dictado por voz">🎤</button>
+                </div>
             </div>
             <button onclick="saveOrder()" class="w-full bg-gradient-to-r from-orange-600 to-orange-500 py-4 rounded-2xl font-black uppercase shadow-lg active:scale-95 transition-all">REGISTRAR ENTRADA</button>
         </div>
@@ -890,8 +929,12 @@
                 <button onclick="notifyAllReady()" class="flex-1 bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition">💬 AVISAR LISTOS</button>
                 <button onclick="exportMonthlyReport()" class="flex-1 bg-blue-600/20 border border-blue-500/30 text-blue-400 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition">📄 REPORTE MES</button>
                 <button onclick="openCalendarioEntregas()" class="flex-1 bg-violet-600/20 border border-violet-500/30 text-violet-400 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition">📆 AGENDA</button>
+                <button onclick="openExportPanel()" class="flex-1 bg-orange-600/20 border border-orange-500/30 text-orange-400 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition">⬇️ EXPORTAR</button>
             </div>
-            <input type="text" id="search-orders" placeholder="🔍 Buscar cliente o equipo..." class="w-full text-sm font-semibold uppercase tracking-wide" oninput="onSearchInput()" list="search-suggestions">
+            <div class="relative">
+            <input type="text" id="search-orders" placeholder="🔍 Buscar cliente o equipo..." class="w-full text-sm font-semibold uppercase tracking-wide pr-12" oninput="onSearchInput()" list="search-suggestions">
+            <button type="button" onclick="startVoiceInput('search-orders', true)" id="voice-btn-search" class="voice-mic-btn absolute right-2 top-1/2 -translate-y-1/2" title="Buscar por voz">🎤</button>
+            </div>
             <datalist id="search-suggestions"></datalist>
             <button onclick="toggleFilters()" id="filterToggleBtn" class="filter-toggle w-full py-3 rounded-xl text-xs font-bold uppercase flex items-center justify-between px-4">
                 <span class="flex items-center gap-2">⚙️ FILTROS AVANZADOS</span>
@@ -1214,6 +1257,74 @@
     </main>
 
     <!-- ===== MODAL CHAT INTERNO DE ORDEN ===== -->
+    <!-- ===== MODAL EXPORTAR PDF / EXCEL ===== -->
+    <div id="modal-export-panel" class="hidden fixed inset-0 z-[4100] modal-custom flex items-center justify-center p-4">
+        <div class="bg-[#111827] border border-white/10 w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl view-enter">
+            <div class="bg-gradient-to-r from-orange-700 to-orange-500 p-5 flex justify-between items-center">
+                <div>
+                    <h3 class="text-white font-black text-lg">⬇️ EXPORTAR DATOS</h3>
+                    <p class="text-orange-200 text-[10px] font-bold mt-0.5">PDF · Excel · CSV</p>
+                </div>
+                <button onclick="closeExportPanel()" class="text-white bg-black/30 w-9 h-9 rounded-full font-bold text-lg">✕</button>
+            </div>
+            <div class="p-5 space-y-3">
+                <!-- Formato -->
+                <div class="flex gap-2 mb-1">
+                    <button id="exp-fmt-pdf" onclick="setExportFmt('pdf')" class="flex-1 py-2 rounded-xl text-xs font-black border border-white/10 bg-rose-600/20 text-rose-400 border-rose-500/40 transition active:scale-95">📄 PDF</button>
+                    <button id="exp-fmt-excel" onclick="setExportFmt('excel')" class="flex-1 py-2 rounded-xl text-xs font-black border border-white/10 bg-white/5 text-slate-400 transition active:scale-95">📊 Excel</button>
+                    <button id="exp-fmt-csv" onclick="setExportFmt('csv')" class="flex-1 py-2 rounded-xl text-xs font-black border border-white/10 bg-white/5 text-slate-400 transition active:scale-95">📋 CSV</button>
+                </div>
+                <p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest px-1">¿Qué quieres exportar?</p>
+                <!-- Opciones -->
+                <button class="export-option-btn" onclick="runExport('ordenes')">
+                    <div class="export-opt-icon bg-orange-500/20">🔧</div>
+                    <div>
+                        <p class="text-sm font-black text-white">Órdenes del Taller</p>
+                        <p class="text-[10px] text-slate-400 font-bold">Todas las órdenes con estado y valor</p>
+                    </div>
+                </button>
+                <button class="export-option-btn" onclick="runExport('ventas')">
+                    <div class="export-opt-icon bg-emerald-500/20">💵</div>
+                    <div>
+                        <p class="text-sm font-black text-white">Ventas</p>
+                        <p class="text-[10px] text-slate-400 font-bold">Historial de ventas y gastos</p>
+                    </div>
+                </button>
+                <button class="export-option-btn" onclick="runExport('inventario')">
+                    <div class="export-opt-icon bg-blue-500/20">📦</div>
+                    <div>
+                        <p class="text-sm font-black text-white">Inventario / Stock</p>
+                        <p class="text-[10px] text-slate-400 font-bold">Repuestos, precios y cantidades</p>
+                    </div>
+                </button>
+                <button class="export-option-btn" onclick="runExport('reporte')">
+                    <div class="export-opt-icon bg-violet-500/20">📊</div>
+                    <div>
+                        <p class="text-sm font-black text-white">Reporte General del Mes</p>
+                        <p class="text-[10px] text-slate-400 font-bold">Resumen financiero completo</p>
+                    </div>
+                </button>
+                <div id="export-loading" class="hidden text-center py-3">
+                    <span class="loading-spinner"></span>
+                    <p class="text-xs text-slate-400 font-bold mt-2">Generando archivo...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL NOTIFICACIONES PUSH ===== -->
+    <div id="modal-push-setup" class="hidden fixed inset-0 z-[4200] modal-custom flex items-center justify-center p-4">
+        <div class="bg-[#111827] border border-white/10 w-full max-w-xs rounded-[2rem] overflow-hidden shadow-2xl view-enter text-center">
+            <div class="p-8 space-y-4">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-3xl mx-auto shadow-lg">🔔</div>
+                <h3 class="text-white font-black text-lg">Activar Notificaciones</h3>
+                <p class="text-slate-400 text-xs font-medium leading-relaxed">Recibe alertas cuando una orden esté vencida, lista para entregar, o un repuesto baje del mínimo.</p>
+                <button onclick="requestPushPermission()" class="w-full bg-gradient-to-r from-orange-600 to-orange-500 py-3 rounded-2xl font-black text-sm shadow-lg active:scale-95 transition">🔔 ACTIVAR AHORA</button>
+                <button onclick="document.getElementById('modal-push-setup').classList.add('hidden')" class="w-full bg-white/5 border border-white/10 py-2 rounded-2xl font-black text-xs text-slate-400 active:scale-95 transition">Más tarde</button>
+            </div>
+        </div>
+    </div>
+
     <div id="modal-order-chat" class="hidden fixed inset-0 z-[3800] modal-custom flex flex-col items-center justify-center p-4">
         <div class="bg-[#111827] border border-white/10 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl view-enter flex flex-col" style="max-height:88vh;">
             <div class="bg-gradient-to-r from-cyan-700 to-cyan-500 p-4 flex justify-between items-center flex-shrink-0">
@@ -7868,6 +7979,379 @@
                 } catch(e) { /* ignorar */ }
             }, 1500);
         });
+        // ==================== 🎤 ENTRADA DE VOZ ====================
+        let _voiceRecognition = null;
+        let _voiceTargetId = null;
+        let _voiceTriggerSearch = false;
+
+        function startVoiceInput(targetId, triggerSearch = false) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                showToast('Tu dispositivo no soporta entrada de voz', 'warning');
+                return;
+            }
+            // Si ya hay reconocimiento activo en este campo, cancelar
+            if (_voiceRecognition && _voiceTargetId === targetId) {
+                _voiceRecognition.stop();
+                return;
+            }
+            // Cancelar cualquier otro activo
+            if (_voiceRecognition) _voiceRecognition.stop();
+
+            _voiceTargetId = targetId;
+            _voiceTriggerSearch = triggerSearch;
+            const btn = document.getElementById('voice-btn-' + (targetId === 'search-orders' ? 'search' : targetId));
+
+            _voiceRecognition = new SpeechRecognition();
+            _voiceRecognition.lang = 'es-CO';
+            _voiceRecognition.continuous = false;
+            _voiceRecognition.interimResults = false;
+
+            _voiceRecognition.onstart = () => {
+                if (btn) btn.classList.add('listening');
+                if (btn) btn.textContent = '🔴';
+                showToast('🎤 Escuchando...', 'info');
+            };
+
+            _voiceRecognition.onresult = (e) => {
+                const transcript = e.results[0][0].transcript;
+                const el = document.getElementById(targetId);
+                if (!el) return;
+                // Para textareas y inputs tipo text, agregar al texto existente
+                const isTextarea = el.tagName === 'TEXTAREA';
+                el.value = isTextarea ? (el.value ? el.value + ' ' + transcript : transcript) : transcript.toUpperCase();
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+                if (_voiceTriggerSearch) onSearchInput && onSearchInput();
+                if (targetId === 'c-fal') suggestDiagnosis && suggestDiagnosis();
+                if (targetId === 'c-nom') checkClient && checkClient();
+                showToast('✅ Texto capturado', 'success');
+            };
+
+            _voiceRecognition.onerror = (e) => {
+                const msgs = { 'no-speech': 'No se detectó voz', 'not-allowed': 'Permiso de micrófono denegado', 'network': 'Error de red' };
+                showToast('🎤 ' + (msgs[e.error] || 'Error al escuchar'), 'warning');
+            };
+
+            _voiceRecognition.onend = () => {
+                if (btn) { btn.classList.remove('listening'); btn.textContent = '🎤'; }
+                _voiceRecognition = null;
+                _voiceTargetId = null;
+            };
+
+            _voiceRecognition.start();
+        }
+
+        // ==================== ⬇️ EXPORTAR PDF / EXCEL / CSV ====================
+        let _exportFmt = 'pdf';
+
+        function openExportPanel() {
+            _exportFmt = 'pdf';
+            setExportFmt('pdf');
+            document.getElementById('modal-export-panel').classList.remove('hidden');
+        }
+        function closeExportPanel() {
+            document.getElementById('modal-export-panel').classList.add('hidden');
+            document.getElementById('export-loading').classList.add('hidden');
+        }
+
+        function setExportFmt(fmt) {
+            _exportFmt = fmt;
+            const fmts = ['pdf','excel','csv'];
+            const colors = { pdf: 'bg-rose-600/20 text-rose-400 border-rose-500/40', excel: 'bg-emerald-600/20 text-emerald-400 border-emerald-500/40', csv: 'bg-blue-600/20 text-blue-400 border-blue-500/40' };
+            fmts.forEach(f => {
+                const btn = document.getElementById('exp-fmt-' + f);
+                if (!btn) return;
+                btn.className = 'flex-1 py-2 rounded-xl text-xs font-black border transition active:scale-95 ' + (f === fmt ? colors[f] : 'bg-white/5 text-slate-400 border-white/10');
+            });
+        }
+
+        async function runExport(type) {
+            const loader = document.getElementById('export-loading');
+            loader.classList.remove('hidden');
+            try {
+                const cur = (typeof getCurrency === 'function') ? getCurrency() : '$';
+                const biz = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+                const bizName = biz.name || 'NelsonApp';
+                const now = new Date();
+                const dateStr = now.toISOString().slice(0,10);
+                const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+                let rows = [], headers = [], filename = '';
+
+                if (type === 'ordenes') {
+                    const orders = await getAll('orders');
+                    headers = ['#Orden','Cliente','Teléfono','Equipo','Falla','Estado','Valor','Adelanto','Saldo','Fecha','Entrega Estimada','Técnico'];
+                    rows = orders.map((o,i) => [
+                        i+1, o.nom||'', o.tel||'', o.equ||'', (o.fal||'').replace(/,/g,' '),
+                        o.sta||'', o.val||0, o.adelanto||0, (o.val||0)-(o.adelanto||0),
+                        o.fecha ? new Date(o.fecha).toLocaleDateString('es-CO') : '',
+                        o.deadline ? new Date(o.deadline).toLocaleDateString('es-CO') : '',
+                        o.tecnico||''
+                    ]);
+                    filename = `ordenes_${dateStr}`;
+                } else if (type === 'ventas') {
+                    const sales = await getAll('sales');
+                    const gastos = await getAll('gastos') || [];
+                    headers = ['Tipo','Descripción','Ítem','Cantidad','Valor','Fecha'];
+                    const saleRows = sales.map(s => [s.tipo||'venta', s.det||s.item||'', s.item||'', s.qty||1, s.val||0, s.fecha ? new Date(s.fecha).toLocaleDateString('es-CO') : '']);
+                    const gastoRows = gastos.map(g => ['gasto', g.det||'', '', 1, -(g.val||0), g.fecha ? new Date(g.fecha).toLocaleDateString('es-CO') : '']);
+                    rows = [...saleRows, ...gastoRows].sort((a,b) => new Date(b[5]) - new Date(a[5]));
+                    filename = `ventas_${dateStr}`;
+                } else if (type === 'inventario') {
+                    const stock = await getAll('stock');
+                    headers = ['Nombre','Categoría','Código','Cantidad','Mínimo','Precio Venta','Precio Costo','Estado'];
+                    rows = stock.map(s => [
+                        s.name||'', s.category||'', s.code||'', s.qty||0, s.minimo||0,
+                        s.price||0, s.cost||0,
+                        (s.qty||0) <= (s.minimo||0) ? 'BAJO MÍNIMO' : 'OK'
+                    ]);
+                    filename = `inventario_${dateStr}`;
+                } else if (type === 'reporte') {
+                    const orders = await getAll('orders');
+                    const sales = await getAll('sales');
+                    const gastos = await getAll('gastos') || [];
+                    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+                    const monthOrders = orders.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha) >= startOfMonth);
+                    const monthSales = sales.filter(s => s.fecha >= startOfMonth && s.tipo !== 'adelanto' && s.tipo !== 'cobro_entrega');
+                    const monthGastos = gastos.filter(g => g.fecha >= startOfMonth);
+                    const totalRep = monthOrders.reduce((a,b) => a+(b.val||0), 0);
+                    const totalVentas = monthSales.reduce((a,b) => a+(b.val||0), 0);
+                    const totalGastos = monthGastos.reduce((a,b) => a+(b.val||0), 0);
+                    const neto = totalRep + totalVentas - totalGastos;
+                    headers = ['Concepto','Valor'];
+                    rows = [
+                        ['Mes', meses[now.getMonth()] + ' ' + now.getFullYear()],
+                        ['Ingresos Reparaciones', totalRep],
+                        ['Ingresos Ventas Stock', totalVentas],
+                        ['Total Gastos', totalGastos],
+                        ['GANANCIA NETA', neto],
+                        ['Órdenes entregadas este mes', monthOrders.length],
+                        ['Órdenes en proceso', orders.filter(o => o.sta !== 'entregado' && o.sta !== 'cancelado').length],
+                        ['Ticket promedio', monthOrders.length ? Math.round(totalRep/monthOrders.length) : 0],
+                    ];
+                    filename = `reporte_mes_${dateStr}`;
+                }
+
+                if (_exportFmt === 'csv') {
+                    _exportCSV(headers, rows, filename + '.csv');
+                } else if (_exportFmt === 'excel') {
+                    await _exportExcel(headers, rows, filename + '.xlsx', bizName, type);
+                } else {
+                    await _exportPDF(headers, rows, filename + '.pdf', bizName, type, cur);
+                }
+                showToast('✅ Archivo generado correctamente', 'success');
+                closeExportPanel();
+            } catch(err) {
+                console.error('Export error:', err);
+                showToast('❌ Error al exportar: ' + err.message, 'error');
+            } finally {
+                loader.classList.add('hidden');
+            }
+        }
+
+        function _exportCSV(headers, rows, filename) {
+            const BOM = '\uFEFF';
+            const csvContent = BOM + [headers, ...rows].map(r => r.map(v => '"' + String(v).replace(/"/g,'""') + '"').join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = filename; a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        async function _exportExcel(headers, rows, filename, bizName, type) {
+            // Usar SheetJS si está disponible, si no, fallback a CSV
+            if (window.XLSX) {
+                const wsData = [headers, ...rows];
+                const ws = XLSX.utils.aoa_to_sheet(wsData);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, type.charAt(0).toUpperCase() + type.slice(1));
+                XLSX.writeFile(wb, filename);
+            } else {
+                // Cargar SheetJS dinámicamente
+                await new Promise((resolve, reject) => {
+                    const s = document.createElement('script');
+                    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+                    s.onload = resolve; s.onerror = reject;
+                    document.head.appendChild(s);
+                });
+                const wsData = [headers, ...rows];
+                const ws = window.XLSX.utils.aoa_to_sheet(wsData);
+                // Estilo de cabecera (SheetJS Community no soporta estilos, pero sí anchos)
+                const maxWidths = headers.map((h, i) => Math.max(h.length, ...rows.map(r => String(r[i]||'').length)));
+                ws['!cols'] = maxWidths.map(w => ({ wch: Math.min(w + 2, 30) }));
+                const wb = window.XLSX.utils.book_new();
+                window.XLSX.utils.book_append_sheet(wb, ws, type.charAt(0).toUpperCase() + type.slice(1));
+                window.XLSX.writeFile(wb, filename);
+            }
+        }
+
+        async function _exportPDF(headers, rows, filename, bizName, type, cur) {
+            // Cargar jsPDF dinámicamente
+            if (!window.jspdf) {
+                await new Promise((resolve, reject) => {
+                    const s = document.createElement('script');
+                    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+                    s.onload = resolve; s.onerror = reject;
+                    document.head.appendChild(s);
+                });
+                await new Promise((resolve, reject) => {
+                    const s = document.createElement('script');
+                    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js';
+                    s.onload = resolve; s.onerror = reject;
+                    document.head.appendChild(s);
+                });
+            }
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: rows.length > 5 && headers.length > 6 ? 'landscape' : 'portrait', unit: 'mm', format: 'a4' });
+            const now = new Date();
+            const typeLabels = { ordenes: 'Órdenes del Taller', ventas: 'Ventas y Gastos', inventario: 'Inventario / Stock', reporte: 'Reporte General del Mes' };
+
+            // Header
+            doc.setFillColor(249, 115, 22);
+            doc.rect(0, 0, doc.internal.pageSize.width, 22, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(14); doc.setFont('helvetica', 'bold');
+            doc.text(bizName.toUpperCase(), 14, 10);
+            doc.setFontSize(9); doc.setFont('helvetica', 'normal');
+            doc.text(typeLabels[type] || type, 14, 17);
+            doc.setFontSize(8);
+            doc.text('Generado: ' + now.toLocaleString('es-CO'), doc.internal.pageSize.width - 14, 17, { align: 'right' });
+
+            // Table
+            doc.autoTable({
+                head: [headers],
+                body: rows,
+                startY: 26,
+                styles: { fontSize: 7, cellPadding: 2, overflow: 'linebreak', valign: 'middle' },
+                headStyles: { fillColor: [30, 30, 50], textColor: 255, fontStyle: 'bold', fontSize: 8 },
+                alternateRowStyles: { fillColor: [245, 245, 250] },
+                margin: { left: 10, right: 10 },
+            });
+
+            // Footer
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(7); doc.setTextColor(150);
+                doc.text(`Página ${i} de ${pageCount} · ${bizName}`, doc.internal.pageSize.width / 2, doc.internal.pageSize.height - 8, { align: 'center' });
+            }
+
+            doc.save(filename);
+        }
+
+        // ==================== 🔔 NOTIFICACIONES PUSH ====================
+        function initPushNotifications() {
+            if (!('Notification' in window)) return;
+            // Mostrar modal de invitación si aún no se ha respondido
+            if (Notification.permission === 'default') {
+                // Solo mostrar después de que el usuario interactúe un poco
+                setTimeout(() => {
+                    if (Notification.permission === 'default') {
+                        document.getElementById('modal-push-setup')?.classList.remove('hidden');
+                    }
+                }, 8000);
+            }
+            // Si ya tiene permiso, programar verificación
+            if (Notification.permission === 'granted') {
+                schedulePushChecks();
+            }
+        }
+
+        async function requestPushPermission() {
+            document.getElementById('modal-push-setup')?.classList.add('hidden');
+            if (!('Notification' in window)) {
+                showToast('Tu navegador no soporta notificaciones', 'warning');
+                return;
+            }
+            const perm = await Notification.requestPermission();
+            if (perm === 'granted') {
+                showToast('🔔 Notificaciones activadas', 'success');
+                schedulePushChecks();
+                // Notificación de bienvenida
+                setTimeout(() => {
+                    new Notification('NelsonApp · Notificaciones activas', {
+                        body: 'Recibirás alertas de órdenes vencidas, listas y stock bajo mínimo.',
+                        icon: 'icons/icon-192x192.png',
+                        badge: 'icons/icon-192x192.png',
+                        tag: 'welcome'
+                    });
+                }, 500);
+            } else {
+                showToast('Notificaciones denegadas — puedes activarlas desde el navegador', 'warning');
+            }
+        }
+
+        let _pushCheckInterval = null;
+        function schedulePushChecks() {
+            if (_pushCheckInterval) return; // ya está corriendo
+            // Verificar inmediatamente y luego cada 30 minutos
+            checkAndNotify();
+            _pushCheckInterval = setInterval(checkAndNotify, 30 * 60 * 1000);
+        }
+
+        async function checkAndNotify() {
+            if (Notification.permission !== 'granted') return;
+            try {
+                const orders = await getAll('orders');
+                const stock = (await getAll('stock')) || [];
+                const now = new Date();
+
+                // 1. Órdenes vencidas
+                const vencidas = orders.filter(o => {
+                    if (o.sta === 'entregado' || o.sta === 'cancelado') return false;
+                    if (!o.deadline) return false;
+                    return new Date(o.deadline) < now;
+                });
+                if (vencidas.length > 0) {
+                    const lastKey = '_notif_vencidas_' + vencidas.length;
+                    if (!sessionStorage.getItem(lastKey)) {
+                        sessionStorage.setItem(lastKey, '1');
+                        new Notification('⏰ Órdenes vencidas · NelsonApp', {
+                            body: `${vencidas.length} orden(es) superaron la fecha de entrega.`,
+                            icon: 'icons/icon-192x192.png',
+                            tag: 'vencidas',
+                            requireInteraction: true
+                        });
+                    }
+                }
+
+                // 2. Equipos listos para entregar (estado "reparado")
+                const listos = orders.filter(o => o.sta === 'reparado' && o.tel);
+                if (listos.length > 0) {
+                    const lastKey = '_notif_listos_' + listos.length;
+                    if (!sessionStorage.getItem(lastKey)) {
+                        sessionStorage.setItem(lastKey, '1');
+                        new Notification('✅ Equipos listos · NelsonApp', {
+                            body: `${listos.length} equipo(s) están reparados y listos para entregar.`,
+                            icon: 'icons/icon-192x192.png',
+                            tag: 'listos'
+                        });
+                    }
+                }
+
+                // 3. Repuestos bajo mínimo
+                const bajosMin = stock.filter(s => s.qty !== undefined && s.minimo !== undefined && Number(s.qty) <= Number(s.minimo));
+                if (bajosMin.length > 0) {
+                    const lastKey = '_notif_stock_' + bajosMin.length;
+                    if (!sessionStorage.getItem(lastKey)) {
+                        sessionStorage.setItem(lastKey, '1');
+                        const names = bajosMin.slice(0,3).map(s => s.name).join(', ');
+                        new Notification('📦 Stock bajo mínimo · NelsonApp', {
+                            body: `${bajosMin.length} repuesto(s) con stock crítico: ${names}${bajosMin.length > 3 ? '...' : ''}`,
+                            icon: 'icons/icon-192x192.png',
+                            tag: 'stock-bajo'
+                        });
+                    }
+                }
+            } catch(e) { console.warn('Push check error:', e); }
+        }
+
+        // Inicializar push al cargar
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(initPushNotifications, 3000);
+        });
+
     </script>
 </body>
 </html>
