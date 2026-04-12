@@ -207,6 +207,22 @@
         .presupuesto-badge { padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 800; }
         .order-num { font-size: 10px; color: var(--accent); font-weight: 900; letter-spacing: 1px; }
 
+        /* Botones de acción de tarjeta — tamaño fijo en px para no escalar con la fuente */
+        .order-action-btn {
+            width: 34px !important;
+            height: 34px !important;
+            min-width: 34px !important;
+            border-radius: 12px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 15px !important;
+            padding: 0 !important;
+            flex-shrink: 0 !important;
+            cursor: pointer;
+            border: none;
+        }
+
         /* ===== MEJORAS TALLER v3.2 ===== */
         .deadline-badge { display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:800; }
 
@@ -3352,7 +3368,7 @@
                             <p class="text-xs text-orange-400">${escapeHtml(o.equ)}</p>
                             ${saldoBadge}
                         </div>
-                        <select onchange="updateSta(${o.id}, this.value)" class="text-[10px] bg-slate-800 rounded-full px-2 py-1 font-bold border-none flex-shrink-0">
+                        <select onchange="updateSta(${o.id}, this.value)" style="font-size:10px;padding:4px 8px;border-radius:999px;font-weight:700;border:none;flex-shrink:0;background:rgb(30 41 59);color:#cbd5e1;height:28px;">
                             <option ${o.sta==='recibido'?'selected':''}>recibido</option>
                             <option ${o.sta==='revisión'?'selected':''}>revisión</option>
                             <option ${o.sta==='reparado'?'selected':''}>reparado</option>
@@ -3381,11 +3397,11 @@
                             ${canEditValue ? `<button onclick="editOrderValue(${o.id})" class="text-emerald-400 font-black ml-2 underline">$${o.val.toLocaleString()} ✏️</button>` : `<span class="text-emerald-400 font-black ml-2">$${o.val.toLocaleString()}</span>`}
                         </div>
                         <div class="flex gap-2">
-                            <button onclick="openOrderChat(${o.id})" class="bg-cyan-500/20 p-2 rounded-xl text-cyan-400" title="Notas internas">📝</button>
-                            <button onclick="openPaymentPlan(${o.id})" class="bg-blue-500/20 p-2 rounded-xl text-blue-400" title="Plan de pagos">💳</button>
-                            <button onclick="printInvoice(${o.id})" class="bg-amber-500/20 p-2 rounded-xl text-amber-400">🧾</button>
-                            <button onclick="sendWA(${o.id})" class="bg-emerald-500/20 p-2 rounded-xl text-emerald-400" title="WhatsApp">💬</button>
-                            <button onclick="delOrder(${o.id})" class="bg-rose-500/20 p-2 rounded-xl text-rose-400">🗑️</button>
+                            <button onclick="openOrderChat(${o.id})" class="order-action-btn bg-cyan-500/20 text-cyan-400" title="Notas internas">📝</button>
+                            <button onclick="openPaymentPlan(${o.id})" class="order-action-btn bg-blue-500/20 text-blue-400" title="Plan de pagos">💳</button>
+                            <button onclick="printInvoice(${o.id})" class="order-action-btn bg-amber-500/20 text-amber-400">🧾</button>
+                            <button onclick="sendWA(${o.id})" class="order-action-btn bg-emerald-500/20 text-emerald-400" title="WhatsApp">💬</button>
+                            <button onclick="delOrder(${o.id})" class="order-action-btn bg-rose-500/20 text-rose-400">🗑️</button>
                         </div>
                     </div>
                 </div>`;
