@@ -1084,6 +1084,48 @@
             </div>
         </div>
 
+        <!-- ═══ TARJETA NELSON IA — Asistente Inteligente ═══ -->
+        <div id="nia-card" onclick="niaOpen()" role="button" tabindex="0"
+             style="border-radius:22px;overflow:hidden;background:linear-gradient(135deg,#1a0f08 0%,#2d1506 50%,#3d1a04 100%);border:1px solid rgba(249,115,22,0.25);cursor:pointer;position:relative;box-shadow:0 8px 24px rgba(249,115,22,0.12);transition:transform 0.2s ease, box-shadow 0.25s ease;"
+             onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 32px rgba(249,115,22,0.2)';"
+             onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 8px 24px rgba(249,115,22,0.12)';"
+             ontouchstart="this.style.transform='scale(0.98)';" ontouchend="this.style.transform='scale(1)';">
+            <!-- Glow decorativo -->
+            <div style="position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(249,115,22,0.25) 0%,transparent 70%);pointer-events:none;"></div>
+            <div style="position:absolute;bottom:-30px;left:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(236,72,153,0.12) 0%,transparent 70%);pointer-events:none;"></div>
+
+            <div style="padding:18px 18px;display:flex;align-items:center;gap:14px;position:relative;">
+                <!-- Avatar -->
+                <div style="width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#f97316 0%,#ea580c 55%,#c2410c 100%);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 6px 18px rgba(249,115,22,0.5),inset 0 1px 0 rgba(255,255,255,0.15);position:relative;">
+                    <span style="font-size:26px;">🧠</span>
+                    <!-- Badge "IA" -->
+                    <div style="position:absolute;top:-4px;right:-4px;background:#10b981;color:#fff;font-size:9px;font-weight:900;letter-spacing:0.5px;padding:2px 5px;border-radius:6px;border:2px solid #1a0f08;box-shadow:0 2px 6px rgba(16,185,129,0.4);line-height:1;">IA</div>
+                </div>
+
+                <!-- Texto -->
+                <div style="flex:1;min-width:0;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+                        <p style="font-size:10px;font-weight:900;letter-spacing:3px;color:#fb923c;text-transform:uppercase;margin:0;">ASISTENTE</p>
+                        <span style="font-size:8px;font-weight:900;color:#10b981;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);padding:2px 6px;border-radius:6px;letter-spacing:1px;">GRATIS</span>
+                    </div>
+                    <p style="font-size:17px;font-weight:900;color:#fff;margin:0;letter-spacing:-0.3px;">Nelson IA</p>
+                    <p style="font-size:11px;color:#94a3b8;margin:3px 0 0;line-height:1.4;">Pregúntale sobre deudas, órdenes, inventario y te redacta WhatsApps.</p>
+                </div>
+
+                <!-- Flecha -->
+                <div style="width:32px;height:32px;border-radius:10px;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+            </div>
+
+            <!-- Chips de ejemplos -->
+            <div style="padding:0 16px 14px;display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;" onclick="event.stopPropagation();">
+                <button onclick="event.stopPropagation();niaQuickAsk('¿Quién me debe plata?')" style="flex-shrink:0;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.25);color:#fdba74;padding:6px 12px;border-radius:999px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">💰 ¿Quién me debe?</button>
+                <button onclick="event.stopPropagation();niaQuickAsk('¿Qué equipos están listos para avisar?')" style="flex-shrink:0;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.25);color:#fdba74;padding:6px 12px;border-radius:999px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">📢 Equipos listos</button>
+                <button onclick="event.stopPropagation();niaQuickAsk('¿Qué debo hacer hoy?')" style="flex-shrink:0;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.25);color:#fdba74;padding:6px 12px;border-radius:999px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">💡 Plan del día</button>
+            </div>
+        </div>
+
         <!-- Menú iOS Premium -->
         <div style="border-radius:24px;overflow:hidden;background:#0d1117;border:1px solid #1a2235;">
 
@@ -8616,402 +8658,197 @@
          Módulo autocontenido. No modifica nada del código existente.
          ══════════════════════════════════════════════════════════════════════ -->
     <style>
-        /* ═══════════════════════════════════════════════════════════════════
-           NELSON IA — EXECUTIVE EDITION v2.0
-           Glassmorphism · Pantalla completa · Animaciones fluidas
-           ═══════════════════════════════════════════════════════════════════ */
-
-        /* Botón flotante (oculto por defecto ahora — entrada principal desde Datos) */
+        /* Botón flotante (FAB) — paleta Nelson: naranja/ámbar, bien separado del nav */
         #nia-fab {
             position: fixed;
             right: 16px;
             bottom: calc(104px + env(safe-area-inset-bottom, 0px));
             width: 54px; height: 54px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #f97316, #ea580c);
-            box-shadow: 0 8px 24px rgba(249,115,22,0.45);
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 55%, #c2410c 100%);
+            box-shadow:
+                0 8px 24px rgba(249,115,22,0.45),
+                0 0 0 1px rgba(255,255,255,0.1) inset,
+                0 -2px 8px rgba(0,0,0,0.2) inset;
             display: flex; align-items: center; justify-content: center;
             font-size: 24px;
             border: 2px solid rgba(255,255,255,0.08);
             cursor: pointer;
             z-index: 9500;
+            transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease;
+            animation: nia-pulse 2.8s ease-in-out infinite;
         }
+        #nia-fab::after {
+            /* Badge pequeño "IA" para que se entienda qué es */
+            content: 'IA';
+            position: absolute;
+            top: -4px; right: -4px;
+            background: #10b981;
+            color: #fff;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            padding: 2px 5px;
+            border-radius: 6px;
+            border: 2px solid #0d0f1a;
+            box-shadow: 0 2px 6px rgba(16,185,129,0.4);
+            line-height: 1;
+        }
+        #nia-fab:hover { transform: scale(1.08) rotate(-3deg); box-shadow: 0 12px 32px rgba(249,115,22,0.6); }
+        #nia-fab:active { transform: scale(0.92); }
+        @keyframes nia-pulse {
+            0%, 100% { box-shadow: 0 8px 24px rgba(249,115,22,0.45), 0 0 0 1px rgba(255,255,255,0.1) inset, 0 -2px 8px rgba(0,0,0,0.2) inset, 0 0 0 0 rgba(249,115,22,0.5); }
+            50%      { box-shadow: 0 8px 24px rgba(249,115,22,0.45), 0 0 0 1px rgba(255,255,255,0.1) inset, 0 -2px 8px rgba(0,0,0,0.2) inset, 0 0 0 12px rgba(249,115,22,0); }
+        }
+        /* Oculto el FAB cuando el modal está abierto */
         body.nia-open #nia-fab { display: none; }
+        /* En desktop: abajo a la derecha con más aire */
+        @media (min-width: 768px) {
+            #nia-fab { bottom: 32px; right: 32px; width: 60px; height: 60px; font-size: 28px; }
+            #nia-fab::after { font-size: 10px; padding: 3px 6px; }
+        }
+        /* Light mode: mantengo naranja pero ajusto el borde */
+        body.light-mode #nia-fab { border-color: rgba(0,0,0,0.06); }
+        body.light-mode #nia-fab::after { border-color: #f5f3ee; }
 
-        /* ═══ MODAL CONTAINER ═══ */
+        /* Modal del asistente */
         #nia-modal {
             position: fixed; inset: 0;
             z-index: 9600;
+            background: rgba(5,6,15,0.88);
+            backdrop-filter: blur(18px);
             display: none;
-            background: radial-gradient(ellipse at top, rgba(249,115,22,0.08) 0%, rgba(5,6,15,0.92) 50%, rgba(0,0,0,0.96) 100%);
-            backdrop-filter: blur(24px) saturate(1.2);
-            -webkit-backdrop-filter: blur(24px) saturate(1.2);
-            align-items: stretch;
-            justify-content: center;
+            align-items: flex-end; justify-content: center;
+            padding: 0;
         }
-        #nia-modal.open { display: flex; animation: nia-fade-in 0.3s ease; }
+        #nia-modal.open { display: flex; animation: nia-fade-in 0.25s ease; }
         @keyframes nia-fade-in { from { opacity: 0; } to { opacity: 1; } }
 
-        /* ═══ PANEL PRINCIPAL (pantalla completa en móvil) ═══ */
         #nia-panel {
             width: 100%;
-            height: 100vh;
-            max-height: 100vh;
-            background: linear-gradient(180deg, rgba(18,20,34,0.92) 0%, rgba(10,12,22,0.96) 100%);
+            max-width: 520px;
+            height: 92vh;
+            max-height: 92vh;
+            background: linear-gradient(180deg, #14162a 0%, #0d0f1a 100%);
+            border-radius: 28px 28px 0 0;
+            border: 1px solid rgba(249,115,22,0.18);
+            border-bottom: none;
             display: flex; flex-direction: column;
             overflow: hidden;
-            animation: nia-slide-up 0.4s cubic-bezier(0.16,1,0.3,1);
-            position: relative;
+            box-shadow: 0 -20px 60px rgba(0,0,0,0.6);
+            animation: nia-slide-up 0.35s cubic-bezier(0.16,1,0.3,1);
         }
-        /* Glow ambient */
-        #nia-panel::before {
-            content: '';
-            position: absolute;
-            top: -120px; left: 50%;
-            transform: translateX(-50%);
-            width: 500px; height: 500px;
-            background: radial-gradient(circle, rgba(249,115,22,0.15) 0%, transparent 60%);
-            pointer-events: none;
-            z-index: 0;
-        }
-        @keyframes nia-slide-up { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes nia-slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
         @media (min-width: 768px) {
-            #nia-modal { padding: 24px; }
-            #nia-panel { border-radius: 28px; height: 92vh; max-height: 900px; max-width: 620px; border: 1px solid rgba(249,115,22,0.15); box-shadow: 0 40px 120px rgba(0,0,0,0.6); }
+            #nia-modal { align-items: center; padding: 20px; }
+            #nia-panel { border-radius: 24px; border-bottom: 1px solid rgba(249,115,22,0.18); height: 85vh; max-height: 780px; }
         }
 
-        /* ═══ HEADER ═══ */
+        /* Header del modal */
         #nia-header {
-            padding: 18px 18px 14px;
-            padding-top: calc(18px + env(safe-area-inset-top, 0px));
-            display: flex; align-items: center; gap: 14px;
+            padding: 18px 20px 14px;
             border-bottom: 1px solid rgba(255,255,255,0.05);
-            background: linear-gradient(180deg, rgba(249,115,22,0.06) 0%, transparent 100%);
-            position: relative; z-index: 2;
+            display: flex; align-items: center; gap: 12px;
+            background: linear-gradient(180deg, rgba(249,115,22,0.08) 0%, transparent 100%);
             flex-shrink: 0;
         }
         #nia-avatar {
-            width: 48px; height: 48px; border-radius: 16px;
-            background: linear-gradient(135deg, #f97316 0%, #ea580c 55%, #c2410c 100%);
+            width: 44px; height: 44px; border-radius: 14px;
+            background: linear-gradient(135deg, #f97316, #ea580c);
             display: flex; align-items: center; justify-content: center;
-            font-size: 24px;
-            position: relative;
-            box-shadow: 0 8px 24px rgba(249,115,22,0.35), inset 0 1px 0 rgba(255,255,255,0.2);
-            flex-shrink: 0;
-            animation: nia-breathe 4s ease-in-out infinite;
+            font-size: 22px;
+            box-shadow: 0 6px 16px rgba(249,115,22,0.4);
         }
-        @keyframes nia-breathe {
-            0%, 100% { transform: scale(1); box-shadow: 0 8px 24px rgba(249,115,22,0.35), inset 0 1px 0 rgba(255,255,255,0.2); }
-            50% { transform: scale(1.04); box-shadow: 0 12px 32px rgba(249,115,22,0.55), inset 0 1px 0 rgba(255,255,255,0.3); }
-        }
-        /* Anillo pulsante alrededor del avatar */
-        #nia-avatar::before {
-            content: '';
-            position: absolute;
-            inset: -4px;
-            border-radius: 18px;
-            border: 2px solid rgba(249,115,22,0.3);
-            animation: nia-ring-pulse 2.5s ease-in-out infinite;
-        }
-        @keyframes nia-ring-pulse {
-            0%, 100% { opacity: 0; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.08); }
-        }
-
         #nia-title-wrap { flex: 1; min-width: 0; }
-        #nia-title {
-            font-size: 17px; font-weight: 900; color: #fff;
-            letter-spacing: -0.3px;
-            display: flex; align-items: center; gap: 8px;
-        }
-        /* Indicador "online" verde */
-        #nia-title::after {
-            content: '';
-            width: 8px; height: 8px;
-            background: #10b981;
-            border-radius: 50%;
-            box-shadow: 0 0 0 3px rgba(16,185,129,0.2);
-            animation: nia-online-pulse 2s ease-in-out infinite;
-        }
-        @keyframes nia-online-pulse {
-            0%, 100% { opacity: 1; box-shadow: 0 0 0 3px rgba(16,185,129,0.2); }
-            50% { opacity: 0.6; box-shadow: 0 0 0 6px rgba(16,185,129,0); }
-        }
-        #nia-subtitle {
-            font-size: 10px; font-weight: 800; color: #fb923c;
-            letter-spacing: 2.5px; text-transform: uppercase;
-            margin-top: 3px;
-        }
-        /* Botones del header */
-        .nia-header-btn {
-            width: 36px; height: 36px; border-radius: 12px;
+        #nia-title { font-size: 15px; font-weight: 900; color: #fff; letter-spacing: 0.3px; }
+        #nia-subtitle { font-size: 10px; font-weight: 700; color: #fb923c; letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+        #nia-close {
+            width: 34px; height: 34px; border-radius: 10px;
             background: rgba(255,255,255,0.06);
             border: 1px solid rgba(255,255,255,0.08);
-            color: #fff; font-size: 15px;
-            cursor: pointer;
+            color: #fff; font-size: 16px; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
-            transition: all 0.2s;
         }
-        .nia-header-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.15); }
-        .nia-header-btn:active { transform: scale(0.92); }
-        #nia-close:hover { background: rgba(244,63,94,0.15); border-color: rgba(244,63,94,0.3); color: #fca5a5; }
-        #nia-menu-btn:hover { background: rgba(249,115,22,0.15); border-color: rgba(249,115,22,0.3); color: #fb923c; }
+        #nia-close:hover { background: rgba(244,63,94,0.15); border-color: rgba(244,63,94,0.3); }
 
-        /* ═══ MENU DESPLEGABLE ═══ */
-        #nia-menu {
-            position: absolute;
-            top: 62px; right: 16px;
-            background: rgba(24,27,40,0.98);
-            backdrop-filter: blur(24px);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px;
-            padding: 6px;
-            display: none;
-            flex-direction: column;
-            gap: 2px;
-            z-index: 20;
-            box-shadow: 0 16px 48px rgba(0,0,0,0.5);
-            min-width: 200px;
-            animation: nia-menu-in 0.2s ease;
-        }
-        @keyframes nia-menu-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
-        #nia-menu.open { display: flex; }
-        .nia-menu-item {
-            background: transparent;
-            border: none;
-            color: #e8eaf6;
-            padding: 10px 14px;
-            border-radius: 10px;
-            font-size: 13px; font-weight: 600;
-            text-align: left;
-            cursor: pointer;
-            display: flex; align-items: center; gap: 10px;
-            transition: background 0.15s;
-            font-family: inherit;
-        }
-        .nia-menu-item:hover { background: rgba(255,255,255,0.06); }
-        .nia-menu-item.danger { color: #fca5a5; }
-        .nia-menu-item.danger:hover { background: rgba(244,63,94,0.1); }
-        .nia-menu-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 4px 0; }
-
-        /* ═══ PANEL DE INTELIGENCIA PROACTIVA (briefing al abrir) ═══ */
-        #nia-briefing {
-            padding: 14px 18px;
-            display: none;
-            flex-direction: column;
-            gap: 10px;
-            position: relative; z-index: 2;
-            flex-shrink: 0;
-            animation: nia-msg-in 0.4s ease;
-        }
-        #nia-briefing.active { display: flex; }
-        #nia-briefing-title {
-            font-size: 9px; font-weight: 900;
-            color: #10b981; letter-spacing: 2.5px; text-transform: uppercase;
-            display: flex; align-items: center; gap: 6px;
-        }
-        #nia-briefing-title::before {
-            content: '';
-            width: 6px; height: 6px;
-            background: #10b981;
-            border-radius: 50%;
-            box-shadow: 0 0 0 3px rgba(16,185,129,0.25);
-            animation: nia-online-pulse 2s ease-in-out infinite;
-        }
-        #nia-kpis {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-        }
-        .nia-kpi {
-            background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 14px;
-            padding: 10px 8px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.2s;
-        }
-        .nia-kpi:active { transform: scale(0.97); }
-        .nia-kpi-label {
-            font-size: 8px; font-weight: 800;
-            color: #64748b; letter-spacing: 1.5px; text-transform: uppercase;
-            margin-bottom: 3px;
-        }
-        .nia-kpi-value {
-            font-size: 16px; font-weight: 900;
-            color: #fff; letter-spacing: -0.5px;
-            line-height: 1.2;
-        }
-        .nia-kpi-value.highlight { color: #fb923c; }
-        .nia-kpi-value.success { color: #34d399; }
-        .nia-kpi-value.danger { color: #fb7185; }
-        .nia-kpi-icon {
-            font-size: 14px;
-            margin-bottom: 4px;
-            opacity: 0.85;
-        }
-
-        /* ═══ ÁREA DE MENSAJES ═══ */
+        /* Área de mensajes */
         #nia-messages {
             flex: 1;
             overflow-y: auto;
-            padding: 12px 16px;
-            display: flex; flex-direction: column; gap: 12px;
+            padding: 16px 16px 8px;
+            display: flex; flex-direction: column; gap: 10px;
             scroll-behavior: smooth;
-            position: relative; z-index: 1;
-            -webkit-overflow-scrolling: touch;
         }
-        #nia-messages::-webkit-scrollbar { width: 4px; }
-        #nia-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
-
         .nia-msg {
-            max-width: 86%;
-            padding: 12px 15px;
-            border-radius: 20px;
-            font-size: 14.5px;
-            line-height: 1.55;
+            max-width: 85%;
+            padding: 11px 14px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.5;
             word-wrap: break-word;
-            animation: nia-msg-in 0.35s cubic-bezier(0.16,1,0.3,1);
-            position: relative;
+            animation: nia-msg-in 0.25s ease;
         }
-        @keyframes nia-msg-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
+        @keyframes nia-msg-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
         .nia-msg.user {
             align-self: flex-end;
             background: linear-gradient(135deg, #f97316, #ea580c);
             color: #fff;
-            font-weight: 500;
-            border-bottom-right-radius: 8px;
-            box-shadow: 0 6px 18px rgba(249,115,22,0.3);
+            border-bottom-right-radius: 6px;
+            box-shadow: 0 4px 14px rgba(249,115,22,0.35);
         }
         .nia-msg.assistant {
             align-self: flex-start;
-            background: rgba(30,34,53,0.7);
-            backdrop-filter: blur(10px);
+            background: #1e2235;
             color: #e8eaf6;
-            border: 1px solid rgba(255,255,255,0.05);
-            border-bottom-left-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-bottom-left-radius: 6px;
             white-space: pre-wrap;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
         }
         .nia-msg.assistant strong { color: #fb923c; font-weight: 800; }
         .nia-msg.assistant code {
             background: rgba(249,115,22,0.12);
             color: #fdba74;
-            padding: 2px 7px; border-radius: 6px;
+            padding: 1px 6px; border-radius: 5px;
             font-size: 13px; font-weight: 700;
-            font-family: 'JetBrains Mono', monospace;
         }
-        .nia-msg.assistant em { color: #a78bfa; font-style: italic; }
         .nia-msg.error {
             align-self: center;
             background: rgba(244,63,94,0.1);
             color: #fca5a5;
             border: 1px solid rgba(244,63,94,0.25);
-            font-size: 12.5px;
-            padding: 10px 14px;
-            border-radius: 14px;
+            font-size: 12px;
         }
 
-        /* ═══ INDICADOR DE "PENSANDO" (nuevo — más sofisticado) ═══ */
-        .nia-thinking {
+        /* Indicador de "escribiendo" */
+        .nia-typing {
             align-self: flex-start;
-            background: rgba(30,34,53,0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 20px;
-            border-bottom-left-radius: 8px;
-            padding: 14px 18px;
-            display: flex; align-items: center; gap: 10px;
-            animation: nia-msg-in 0.35s ease;
+            background: #1e2235;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 18px;
+            border-bottom-left-radius: 6px;
+            padding: 14px 16px;
+            display: flex; gap: 5px;
         }
-        .nia-thinking-brain {
-            font-size: 18px;
-            animation: nia-brain-think 2s ease-in-out infinite;
-            display: inline-block;
+        .nia-typing span {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: #f97316;
+            animation: nia-bounce 1.4s infinite ease-in-out;
         }
-        @keyframes nia-brain-think {
-            0%, 100% { transform: rotate(-4deg) scale(1); }
-            50% { transform: rotate(4deg) scale(1.1); }
-        }
-        .nia-thinking-text {
-            font-size: 12.5px; font-weight: 700;
-            color: #94a3b8;
-            letter-spacing: 0.3px;
-        }
-        .nia-thinking-dots { display: inline-flex; gap: 3px; margin-left: 4px; }
-        .nia-thinking-dots span {
-            width: 5px; height: 5px; border-radius: 50%;
-            background: #fb923c;
-            animation: nia-dot-wave 1.4s infinite ease-in-out;
-        }
-        .nia-thinking-dots span:nth-child(2) { animation-delay: 0.15s; }
-        .nia-thinking-dots span:nth-child(3) { animation-delay: 0.3s; }
-        @keyframes nia-dot-wave {
-            0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
-            40% { transform: translateY(-4px); opacity: 1; }
+        .nia-typing span:nth-child(2) { animation-delay: 0.2s; }
+        .nia-typing span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes nia-bounce {
+            0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
         }
 
-        /* ═══ BOTONES DE ACCIÓN (WhatsApp) ═══ */
-        .nia-actions {
-            align-self: flex-start;
-            max-width: 94%;
-            display: flex; flex-direction: column;
-            gap: 8px;
-            margin-top: 2px;
-            animation: nia-msg-in 0.5s ease 0.15s both;
-        }
-        .nia-actions-label {
-            font-size: 10px; font-weight: 800;
-            color: #10b981; letter-spacing: 2.5px; text-transform: uppercase;
-            padding: 0 4px;
-            display: flex; align-items: center; gap: 6px;
-        }
-        .nia-actions-label::before {
-            content: '';
-            width: 6px; height: 6px;
-            background: #10b981;
-            border-radius: 50%;
-            box-shadow: 0 0 0 3px rgba(16,185,129,0.25);
-            animation: nia-online-pulse 2s ease-in-out infinite;
-        }
-        .nia-action-btn {
-            background: linear-gradient(135deg, rgba(16,185,129,0.18), rgba(5,150,105,0.1));
-            border: 1px solid rgba(16,185,129,0.35);
-            color: #6ee7b7;
-            padding: 13px 15px;
-            border-radius: 16px;
-            font-size: 13.5px; font-weight: 800;
-            text-align: left; cursor: pointer;
-            display: flex; align-items: center; gap: 10px;
-            width: 100%;
-            transition: all 0.2s;
-            font-family: inherit;
-            backdrop-filter: blur(8px);
-        }
-        .nia-action-btn:hover {
-            background: linear-gradient(135deg, rgba(16,185,129,0.28), rgba(5,150,105,0.18));
-            border-color: rgba(16,185,129,0.55);
-            transform: translateX(3px);
-        }
-        .nia-action-btn:active { transform: scale(0.97); }
-        .nia-action-btn .nia-action-text { flex: 1; min-width: 0; line-height: 1.35; }
-        .nia-action-btn .nia-action-arrow {
-            margin-left: auto; font-size: 15px; color: #10b981;
-            font-weight: 900; flex-shrink: 0;
-        }
-
-        /* ═══ SUGERENCIAS RÁPIDAS ═══ */
+        /* Sugerencias rápidas */
         #nia-suggestions {
-            padding: 8px 14px;
+            padding: 4px 16px 8px;
             display: flex; gap: 8px;
             overflow-x: auto;
             flex-shrink: 0;
             -webkit-overflow-scrolling: touch;
-            position: relative; z-index: 2;
         }
         #nia-suggestions::-webkit-scrollbar { display: none; }
         .nia-chip {
@@ -9019,67 +8856,57 @@
             background: rgba(249,115,22,0.1);
             border: 1px solid rgba(249,115,22,0.25);
             color: #fdba74;
-            padding: 9px 14px;
+            padding: 8px 14px;
             border-radius: 999px;
             font-size: 12px; font-weight: 700;
             cursor: pointer;
             white-space: nowrap;
             transition: all 0.2s;
-            backdrop-filter: blur(8px);
         }
-        .nia-chip:hover { background: rgba(249,115,22,0.2); border-color: rgba(249,115,22,0.45); transform: translateY(-1px); }
-        .nia-chip:active { transform: scale(0.95); }
+        .nia-chip:hover { background: rgba(249,115,22,0.2); border-color: rgba(249,115,22,0.45); }
+        .nia-chip:active { transform: scale(0.96); }
 
-        /* ═══ INPUT DE MENSAJE ═══ */
+        /* Input de pregunta */
         #nia-input-wrap {
-            padding: 10px 14px calc(14px + env(safe-area-inset-bottom, 0px));
+            padding: 10px 12px calc(12px + env(safe-area-inset-bottom, 0px));
             border-top: 1px solid rgba(255,255,255,0.05);
-            display: flex; gap: 10px; align-items: flex-end;
-            background: rgba(10,12,22,0.7);
-            backdrop-filter: blur(14px);
+            display: flex; gap: 8px; align-items: flex-end;
+            background: rgba(13,15,26,0.6);
             flex-shrink: 0;
-            position: relative; z-index: 2;
         }
         #nia-input {
             flex: 1;
-            background: rgba(30,34,53,0.7) !important;
-            backdrop-filter: blur(8px);
+            background: #1e2235 !important;
             border: 1px solid rgba(255,255,255,0.08) !important;
             border-radius: 18px !important;
-            padding: 11px 15px !important;
-            color: #fff !important;
-            font-size: 14.5px !important;
+            padding: 10px 14px !important;
+            color: #e8eaf6 !important;
+            font-size: 14px !important;
             font-family: inherit;
             resize: none;
             max-height: 100px;
-            min-height: 44px;
+            min-height: 42px;
             line-height: 1.4;
-            transition: all 0.2s;
+            transition: border-color 0.2s;
         }
-        #nia-input:focus {
-            border-color: #f97316 !important;
-            background: rgba(30,34,53,0.9) !important;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(249,115,22,0.15);
-        }
+        #nia-input:focus { border-color: #f97316 !important; outline: none; box-shadow: 0 0 0 3px rgba(249,115,22,0.18); }
         #nia-send {
-            width: 44px; height: 44px;
-            border-radius: 14px;
+            width: 42px; height: 42px;
+            border-radius: 50%;
             background: linear-gradient(135deg, #f97316, #ea580c);
             border: none;
             color: #fff;
             font-size: 18px;
             cursor: pointer;
             flex-shrink: 0;
-            box-shadow: 0 4px 14px rgba(249,115,22,0.4);
+            box-shadow: 0 4px 12px rgba(249,115,22,0.4);
             transition: all 0.2s;
             display: flex; align-items: center; justify-content: center;
         }
-        #nia-send:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(249,115,22,0.5); }
-        #nia-send:active { transform: scale(0.92); }
-        #nia-send:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        #nia-send:active { transform: scale(0.9); }
+        #nia-send:disabled { opacity: 0.4; cursor: not-allowed; }
 
-        /* ═══ PANTALLA DE CONFIGURACIÓN INICIAL ═══ */
+        /* Pantalla de configuración (primera vez) */
         #nia-setup {
             padding: 20px;
             flex: 1;
@@ -9087,99 +8914,150 @@
             display: none;
             flex-direction: column;
             gap: 14px;
-            position: relative; z-index: 2;
         }
         #nia-setup.active { display: flex; }
-        #nia-setup h3 { font-size: 17px; font-weight: 900; color: #fff; margin: 0; letter-spacing: -0.3px; }
-        #nia-setup p { font-size: 13.5px; color: #94a3b8; line-height: 1.6; margin: 0; }
+        #nia-setup h3 { font-size: 16px; font-weight: 900; color: #fff; margin: 0; }
+        #nia-setup p { font-size: 13px; color: #94a3b8; line-height: 1.6; margin: 0; }
         #nia-setup .nia-step {
             background: rgba(249,115,22,0.06);
             border: 1px solid rgba(249,115,22,0.15);
-            padding: 13px 15px;
-            border-radius: 16px;
+            padding: 12px 14px;
+            border-radius: 14px;
             display: flex; gap: 12px; align-items: flex-start;
         }
         #nia-setup .nia-step-num {
-            width: 28px; height: 28px; border-radius: 50%;
+            width: 26px; height: 26px; border-radius: 50%;
             background: linear-gradient(135deg, #f97316, #ea580c);
             color: #fff; font-weight: 900; font-size: 13px;
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(249,115,22,0.3);
         }
-        #nia-setup .nia-step-text { font-size: 13px; color: #cbd5e1; line-height: 1.55; }
+        #nia-setup .nia-step-text { font-size: 12.5px; color: #cbd5e1; line-height: 1.55; }
         #nia-setup .nia-step-text a { color: #fb923c; font-weight: 800; text-decoration: underline; }
         #nia-setup input {
-            background: rgba(30,34,53,0.7) !important;
+            background: #1e2235 !important;
             border: 1px solid rgba(249,115,22,0.3) !important;
             color: #fff !important;
-            padding: 13px 15px !important;
-            border-radius: 14px !important;
+            padding: 12px 14px !important;
+            border-radius: 12px !important;
             font-size: 13px !important;
-            font-family: 'JetBrains Mono', monospace !important;
+            font-family: monospace !important;
         }
         #nia-save-key {
             background: linear-gradient(135deg, #f97316, #ea580c);
             color: #fff;
             border: none;
-            padding: 15px;
+            padding: 14px;
             border-radius: 14px;
             font-size: 13px; font-weight: 900;
-            letter-spacing: 1.5px; text-transform: uppercase;
+            letter-spacing: 1px; text-transform: uppercase;
             cursor: pointer;
-            box-shadow: 0 8px 24px rgba(249,115,22,0.4);
-            transition: transform 0.15s;
+            box-shadow: 0 6px 18px rgba(249,115,22,0.35);
         }
         #nia-save-key:active { transform: scale(0.98); }
 
-        /* ═══ LIGHT MODE (opcional) ═══ */
-        body.light-mode #nia-modal { background: radial-gradient(ellipse at top, rgba(249,115,22,0.06) 0%, rgba(245,243,238,0.95) 50%, rgba(237,233,224,0.98) 100%); }
-        body.light-mode #nia-panel { background: linear-gradient(180deg, rgba(253,252,249,0.95) 0%, rgba(245,243,238,0.98) 100%); }
+        /* ═══ Botones de acción WhatsApp ═══ */
+        .nia-actions {
+            align-self: flex-start;
+            max-width: 92%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 2px;
+            animation: nia-msg-in 0.35s ease 0.1s both;
+        }
+        .nia-actions-label {
+            font-size: 10px;
+            font-weight: 800;
+            color: #10b981;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 0 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .nia-actions-label::before {
+            content: '';
+            width: 6px; height: 6px;
+            background: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 0 3px rgba(16,185,129,0.2);
+            animation: nia-dot-pulse 1.8s ease-in-out infinite;
+        }
+        @keyframes nia-dot-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .nia-action-btn {
+            background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(5,150,105,0.1));
+            border: 1px solid rgba(16,185,129,0.35);
+            color: #6ee7b7;
+            padding: 12px 14px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 800;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .nia-action-btn:hover {
+            background: linear-gradient(135deg, rgba(16,185,129,0.25), rgba(5,150,105,0.18));
+            border-color: rgba(16,185,129,0.55);
+            transform: translateX(2px);
+        }
+        .nia-action-btn:active { transform: scale(0.97); }
+        .nia-action-btn .nia-action-arrow {
+            margin-left: auto;
+            font-size: 14px;
+            color: #10b981;
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+        .nia-action-btn .nia-action-text {
+            flex: 1;
+            min-width: 0;
+            line-height: 1.35;
+        }
+        body.light-mode .nia-action-btn {
+            background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(5,150,105,0.06));
+            color: #047857;
+        }
+
+        /* Light mode */
+        body.light-mode #nia-panel { background: linear-gradient(180deg, #fdfcf9 0%, #f5f3ee 100%); }
         body.light-mode #nia-title { color: #1c1917; }
-        body.light-mode .nia-msg.assistant { background: rgba(255,255,255,0.9); color: #1c1917; border-color: #e5e0d3; }
-        body.light-mode #nia-input { background: rgba(240,236,227,0.8) !important; color: #1c1917 !important; border-color: #cdc8bc !important; }
-        body.light-mode #nia-input-wrap { background: rgba(245,243,238,0.8); }
-        body.light-mode .nia-header-btn { background: rgba(0,0,0,0.05); color: #1c1917; border-color: rgba(0,0,0,0.08); }
-        body.light-mode .nia-kpi { background: rgba(255,255,255,0.7); border-color: rgba(0,0,0,0.05); }
-        body.light-mode .nia-kpi-value { color: #1c1917; }
+        body.light-mode .nia-msg.assistant { background: #fff; color: #1c1917; border-color: #e5e0d3; }
+        body.light-mode #nia-input { background: #f0ece3 !important; color: #1c1917 !important; border-color: #cdc8bc !important; }
+        body.light-mode #nia-input-wrap { background: rgba(245,243,238,0.7); }
+        body.light-mode #nia-close { background: #f0ece3; color: #1c1917; border-color: #cdc8bc; }
     </style>
 
-    <!-- Botón flotante (oculto — la entrada principal es desde la tarjeta en Datos) -->
+    <!-- Botón flotante -->
+    <!-- Botón flotante (oculto por defecto - la entrada principal ahora está en la pestaña Datos) -->
     <button id="nia-fab" onclick="niaOpen()" aria-label="Abrir asistente IA" style="display:none;">🧠</button>
 
-    <!-- ═══ MODAL EXECUTIVE EDITION ═══ -->
+    <!-- Modal del asistente -->
     <div id="nia-modal" onclick="if(event.target===this) niaClose()">
         <div id="nia-panel">
-            <!-- HEADER -->
             <div id="nia-header">
                 <div id="nia-avatar">🧠</div>
                 <div id="nia-title-wrap">
                     <div id="nia-title">Nelson IA</div>
                     <div id="nia-subtitle">Asistente del Taller</div>
                 </div>
-                <button id="nia-menu-btn" class="nia-header-btn" onclick="niaToggleMenu(event)" aria-label="Menú">⋯</button>
-                <button id="nia-close" class="nia-header-btn" onclick="niaClose()" aria-label="Cerrar">✕</button>
+                <button id="nia-close" onclick="niaClose()" aria-label="Cerrar">✕</button>
             </div>
 
-            <!-- MENU DESPLEGABLE -->
-            <div id="nia-menu" onclick="event.stopPropagation()">
-                <button class="nia-menu-item" onclick="niaShowBriefing();niaCloseMenu()">📊 Ver briefing del día</button>
-                <button class="nia-menu-item" onclick="niaClearHistory();niaCloseMenu()">🗑️ Limpiar conversación</button>
-                <button class="nia-menu-item" onclick="niaExportChat();niaCloseMenu()">📤 Exportar chat</button>
-                <div class="nia-menu-divider"></div>
-                <button class="nia-menu-item danger" onclick="niaReset();niaCloseMenu()">⚠️ Borrar llave API</button>
-            </div>
-
-            <!-- BRIEFING PROACTIVO (KPIs al abrir) -->
-            <div id="nia-briefing">
-                <div id="nia-briefing-title">Resumen en vivo</div>
-                <div id="nia-kpis"></div>
-            </div>
-
-            <!-- SETUP INICIAL -->
+            <!-- Pantalla de configuración inicial -->
             <div id="nia-setup">
                 <h3>👋 ¡Hola Luis! Configuremos tu asistente</h3>
-                <p>Nelson IA usa <strong style="color:#fb923c;">Google Gemini 2.5 Flash</strong>, que es <strong style="color:#10b981;">100% gratis</strong> (hasta 500 consultas al día). Solo necesitas una llave API, que se obtiene en 2 minutos.</p>
+                <p>Nelson IA usa <strong style="color:#fb923c;">Google Gemini 2.5 Flash</strong>, que es <strong style="color:#10b981;">100% gratis</strong> (hasta 500 consultas al día y 10 por minuto). Solo necesitas una llave API, que se obtiene en 2 minutos.</p>
 
                 <div class="nia-step">
                     <div class="nia-step-num">1</div>
@@ -9187,27 +9065,28 @@
                 </div>
                 <div class="nia-step">
                     <div class="nia-step-num">2</div>
-                    <div class="nia-step-text">Toca <strong style="color:#fff;">"Create API key"</strong> y copia la llave (empieza con <code style="background:rgba(249,115,22,0.15);color:#fdba74;padding:1px 5px;border-radius:4px;">AIza...</code>).</div>
+                    <div class="nia-step-text">Toca <strong style="color:#fff;">"Create API key"</strong> y copia la llave que te genere (empieza con <code style="background:rgba(249,115,22,0.15);color:#fdba74;padding:1px 5px;border-radius:4px;">AIza...</code>).</div>
                 </div>
                 <div class="nia-step">
                     <div class="nia-step-num">3</div>
-                    <div class="nia-step-text">Pégala aquí abajo. Se guarda solo en tu dispositivo.</div>
+                    <div class="nia-step-text">Pégala aquí abajo. Se guarda solo en tu dispositivo, nadie más la ve.</div>
                 </div>
 
                 <input type="password" id="nia-api-key-input" placeholder="AIzaSy..." autocomplete="off" spellcheck="false">
                 <button id="nia-save-key" onclick="niaSaveKey()">✓ Guardar y activar</button>
-                <p style="font-size:11px;color:#64748b;text-align:center;margin-top:4px;">🔒 Tu llave queda solo en este dispositivo.</p>
+
+                <p style="font-size:11px;color:#64748b;text-align:center;margin-top:4px;">🔒 Tu llave queda solo en este dispositivo. Nunca sale de aquí.</p>
             </div>
 
-            <!-- MENSAJES -->
+            <!-- Área de chat -->
             <div id="nia-messages"></div>
 
-            <!-- SUGERENCIAS -->
+            <!-- Sugerencias rápidas -->
             <div id="nia-suggestions"></div>
 
-            <!-- INPUT -->
+            <!-- Input -->
             <div id="nia-input-wrap" style="display:none;">
-                <textarea id="nia-input" placeholder="Pregúntame lo que quieras..." rows="1" onkeydown="niaKeyDown(event)" oninput="niaAutoGrow(this)"></textarea>
+                <textarea id="nia-input" placeholder="Pregúntame sobre tu taller..." rows="1" onkeydown="niaKeyDown(event)" oninput="niaAutoGrow(this)"></textarea>
                 <button id="nia-send" onclick="niaSend()" aria-label="Enviar">➤</button>
             </div>
         </div>
@@ -9249,37 +9128,24 @@
         }
         function niaLoadHistory() {
             try {
-                const raw = localStorage.getItem(NIA_HISTORY_STORAGE);
-                if (!raw) { niaHistory = []; return; }
-                const data = JSON.parse(raw);
-                // Expirar historial si es más viejo de 7 días
-                if (data.timestamp && (Date.now() - data.timestamp) > 7*86400000) {
-                    niaHistory = [];
-                    localStorage.removeItem(NIA_HISTORY_STORAGE);
-                    return;
-                }
-                niaHistory = Array.isArray(data.messages) ? data.messages : [];
+                const raw = sessionStorage.getItem(NIA_HISTORY_STORAGE);
+                niaHistory = raw ? JSON.parse(raw) : [];
             } catch(e) { niaHistory = []; }
         }
         function niaSaveHistory() {
             try {
-                // Persistente en localStorage (antes era sessionStorage y se borraba al cerrar)
-                // Ahora queda guardado hasta 7 días — Nelson IA recuerda conversaciones pasadas
-                localStorage.setItem(NIA_HISTORY_STORAGE, JSON.stringify({
-                    timestamp: Date.now(),
-                    messages: niaHistory.slice(-NIA_MAX_HISTORY)
-                }));
+                // solo guardo en sessionStorage (se borra al cerrar app, es lo correcto)
+                sessionStorage.setItem(NIA_HISTORY_STORAGE, JSON.stringify(niaHistory.slice(-NIA_MAX_HISTORY)));
             } catch(e) {}
         }
 
         // ──────────── Abrir / Cerrar ────────────
-        window.niaOpen = async function() {
+        window.niaOpen = function() {
             const modal = document.getElementById('nia-modal');
             const setup = document.getElementById('nia-setup');
             const messages = document.getElementById('nia-messages');
             const suggestions = document.getElementById('nia-suggestions');
             const inputWrap = document.getElementById('nia-input-wrap');
-            const briefing = document.getElementById('nia-briefing');
 
             modal.classList.add('open');
             document.body.classList.add('nia-open');
@@ -9291,7 +9157,6 @@
                 messages.style.display = 'none';
                 suggestions.style.display = 'none';
                 inputWrap.style.display = 'none';
-                briefing.classList.remove('active');
                 setTimeout(() => document.getElementById('nia-api-key-input').focus(), 300);
             } else {
                 // Ya configurado
@@ -9299,20 +9164,10 @@
                 messages.style.display = 'flex';
                 suggestions.style.display = 'flex';
                 inputWrap.style.display = 'flex';
-
-                // Cargar historial persistente
-                await niaLoadHistory();
+                niaLoadHistory();
                 niaRenderMessages();
                 niaRenderSuggestions();
-
-                // Si no hay historial reciente, mostrar briefing proactivo + welcome
-                if (niaHistory.length === 0) {
-                    await niaShowBriefing();
-                    niaShowWelcome();
-                } else {
-                    briefing.classList.remove('active');
-                }
-
+                if (niaHistory.length === 0) niaShowWelcome();
                 setTimeout(() => {
                     const inp = document.getElementById('nia-input');
                     if (inp && window.innerWidth >= 768) inp.focus();
@@ -9323,129 +9178,6 @@
         window.niaClose = function() {
             document.getElementById('nia-modal').classList.remove('open');
             document.body.classList.remove('nia-open');
-            niaCloseMenu();
-        };
-
-        // ──────────── Menú desplegable ────────────
-        window.niaToggleMenu = function(e) {
-            if (e) e.stopPropagation();
-            const menu = document.getElementById('nia-menu');
-            menu.classList.toggle('open');
-            // Cerrar al click fuera
-            if (menu.classList.contains('open')) {
-                setTimeout(() => {
-                    document.addEventListener('click', niaCloseMenuOnOutside, { once: true });
-                }, 10);
-            }
-        };
-        window.niaCloseMenu = function() {
-            document.getElementById('nia-menu').classList.remove('open');
-        };
-        function niaCloseMenuOnOutside(e) {
-            if (!e.target.closest('#nia-menu') && !e.target.closest('#nia-menu-btn')) {
-                niaCloseMenu();
-            }
-        }
-
-        // ──────────── Briefing proactivo (KPIs en vivo) ────────────
-        window.niaShowBriefing = async function() {
-            const briefing = document.getElementById('nia-briefing');
-            const kpisWrap = document.getElementById('nia-kpis');
-            try {
-                const ctx = await niaBuildContext();
-                const kpis = [
-                    {
-                        icon: '💰',
-                        label: 'Cartera',
-                        value: niaFormatMoneyShort(ctx.cuentasPorCobrar?.montoTotal || 0),
-                        cls: (ctx.cuentasPorCobrar?.montoTotal || 0) > 500000 ? 'danger' : 'highlight'
-                    },
-                    {
-                        icon: '📋',
-                        label: 'Activas',
-                        value: ctx.ordenes?.activasAhora || 0,
-                        cls: ''
-                    },
-                    {
-                        icon: '⏰',
-                        label: 'Atrasadas',
-                        value: ctx.ordenes?.atrasadas || 0,
-                        cls: (ctx.ordenes?.atrasadas || 0) > 0 ? 'danger' : 'success'
-                    },
-                    {
-                        icon: '📦',
-                        label: 'Stock bajo',
-                        value: ctx.inventario?.productosStockBajo || 0,
-                        cls: (ctx.inventario?.productosStockBajo || 0) > 5 ? 'danger' : ''
-                    },
-                    {
-                        icon: '📈',
-                        label: 'Mes',
-                        value: niaFormatMoneyShort(ctx.ingresos?.totalEsteMes || 0),
-                        cls: 'success'
-                    },
-                    {
-                        icon: '🏷️',
-                        label: 'Hoy',
-                        value: niaFormatMoneyShort(ctx.ingresos?.totalHoy || 0),
-                        cls: (ctx.ingresos?.totalHoy || 0) > 0 ? 'success' : ''
-                    }
-                ];
-                kpisWrap.innerHTML = kpis.map(k => `
-                    <div class="nia-kpi">
-                        <div class="nia-kpi-icon">${k.icon}</div>
-                        <div class="nia-kpi-label">${k.label}</div>
-                        <div class="nia-kpi-value ${k.cls}">${k.value}</div>
-                    </div>
-                `).join('');
-                briefing.classList.add('active');
-            } catch (e) {
-                briefing.classList.remove('active');
-            }
-        };
-
-        // Formatea dinero de forma compacta: $1.2M, $450K, $85.000
-        function niaFormatMoneyShort(n) {
-            if (!n || isNaN(n)) return '$0';
-            const abs = Math.abs(n);
-            if (abs >= 1000000) return '$' + (n/1000000).toFixed(1).replace('.0','') + 'M';
-            if (abs >= 10000) return '$' + Math.round(n/1000) + 'K';
-            return '$' + n.toLocaleString('es-CO');
-        }
-
-        // ──────────── Limpiar conversación ────────────
-        window.niaClearHistory = function() {
-            if (!confirm('¿Borrar toda la conversación actual? (La llave API NO se borra)')) return;
-            niaHistory = [];
-            niaSaveHistory();
-            niaShowWelcome();
-            if (typeof showAlert === 'function') showAlert('Conversación limpiada', 'info');
-        };
-
-        // ──────────── Exportar conversación ────────────
-        window.niaExportChat = function() {
-            if (niaHistory.length === 0) {
-                if (typeof showAlert === 'function') showAlert('No hay conversación para exportar', 'info');
-                return;
-            }
-            const fecha = new Date().toLocaleString('es-CO');
-            let txt = `NELSON IA — Conversación\nTodo Repuestos Nelson\nFecha: ${fecha}\n\n${'='.repeat(50)}\n\n`;
-            niaHistory.forEach(m => {
-                const who = m.role === 'user' ? '👤 LUIS' : '🧠 NELSON IA';
-                txt += `${who}:\n${m.text}\n\n${'-'.repeat(40)}\n\n`;
-            });
-            try {
-                const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `nelson-ia-chat-${new Date().toISOString().slice(0,10)}.txt`;
-                a.click();
-                URL.revokeObjectURL(url);
-                if (typeof showAlert === 'function') showAlert('✅ Conversación descargada', 'success');
-            } catch (e) {
-                if (typeof showAlert === 'function') showAlert('Error al exportar: ' + e.message, 'warning');
-            }
         };
 
         // ──────────── Guardar llave ────────────
@@ -9469,22 +9201,34 @@
             niaRenderSuggestions();
         };
 
+        // ──────────── Pregunta rápida desde la tarjeta de Datos ────────────
+        window.niaQuickAsk = function(question) {
+            // Primero abro el modal
+            niaOpen();
+            // Espero a que esté abierto y a que el input esté visible
+            setTimeout(() => {
+                const key = niaGetKey();
+                if (!key) {
+                    // Si no hay llave configurada, solo abro el setup (ya lo abrió niaOpen)
+                    return;
+                }
+                const inp = document.getElementById('nia-input');
+                if (inp) {
+                    inp.value = question;
+                    niaSend();
+                }
+            }, 350);
+        };
+
         // ──────────── Renderizar ────────────
         function niaShowWelcome() {
             niaHistory = [];
             niaSaveHistory();
             const wrap = document.getElementById('nia-messages');
             wrap.innerHTML = '';
-
-            // Saludo según hora del día
-            const h = new Date().getHours();
-            let saludo = '¡Buenos días';
-            if (h >= 12 && h < 19) saludo = '¡Buenas tardes';
-            else if (h >= 19 || h < 5) saludo = '¡Buenas noches';
-
             const msg = document.createElement('div');
             msg.className = 'nia-msg assistant';
-            msg.innerHTML = `${saludo}, Luis! ☕\n\nSoy <strong>Nelson IA</strong>, tu asistente del taller. Arriba tienes un resumen en vivo del negocio.\n\nPuedo ayudarte con:\n• 💰 <em>"¿Quién me debe plata?"</em>\n• 📢 <em>"¿Qué equipos están listos?"</em>\n• 👥 <em>"Clientes que no han vuelto"</em>\n• 💡 <em>"¿Qué debo hacer hoy?"</em>\n\nCuando sea útil, te generaré <strong style="color:#10b981;">botones verdes de WhatsApp</strong> 🟢 con el mensaje listo para enviar.`;
+            msg.innerHTML = '¡Hola Luis! 👋 Soy <strong>Nelson IA</strong>, tu asistente del taller.\n\nAhora puedo <strong style="color:#10b981;">enviarte a WhatsApp con el mensaje listo</strong> cuando pregunto por deudas, clientes, equipos listos, etc. Solo toca el botón verde que aparece. 🟢\n\nPrueba con:\n• <em>"¿Quién me debe plata?"</em>\n• <em>"¿Qué equipos están listos para avisar?"</em>\n• <em>"Clientes que no han vuelto"</em>\n• <em>"¿Qué debo hacer hoy?"</em>';
             wrap.appendChild(msg);
         }
 
@@ -9525,22 +9269,107 @@
                 .replace(/\*(.+?)\*/g, '<em>$1</em>');
         }
 
-        // Parsea el bloque [[ACTIONS]]{...}[[/ACTIONS]] de la respuesta
+        // Parsea el bloque de acciones de la respuesta.
+        // Soporta: [[ACTIONS]]...[[/ACTIONS]], bloque abierto sin cierre (cortado por MAX_TOKENS),
+        // variantes con ```json, backticks, espacios o saltos de línea.
         function niaParseActions(fullText) {
-            const regex = /\[\[ACTIONS\]\]([\s\S]*?)\[\[\/ACTIONS\]\]/;
-            const match = fullText.match(regex);
-            if (!match) return { cleanText: fullText.trim(), actions: [] };
-            const cleanText = fullText.replace(regex, '').trim();
-            try {
-                const jsonStr = match[1].trim();
-                const parsed = JSON.parse(jsonStr);
-                const items = Array.isArray(parsed?.items) ? parsed.items : [];
-                // Filtro acciones inválidas (sin tel o sin message)
-                const valid = items.filter(a => a && a.tel && a.message && a.label);
-                return { cleanText, actions: valid.slice(0, 5) };
-            } catch (e) {
-                return { cleanText, actions: [] };
+            if (!fullText) return { cleanText: '', actions: [] };
+
+            // 1. Buscar donde COMIENZA el bloque de acciones (con varias variantes)
+            //    [[ACTIONS]], [ACTIONS], ACTIONS:, ```json, etc.
+            const startPatterns = [
+                /\[\[ACTIONS\]\]/i,
+                /\[ACTIONS\]/i,
+                /```json\s*\n?\s*\{[\s\S]*?"items"/i, // bloque markdown con items
+            ];
+            let startIdx = -1;
+            let startMatch = null;
+            for (const pat of startPatterns) {
+                const m = fullText.match(pat);
+                if (m && (startIdx === -1 || m.index < startIdx)) {
+                    startIdx = m.index;
+                    startMatch = m[0];
+                }
             }
+
+            // Si no hay marcador de inicio, devuelve texto normal
+            if (startIdx === -1) return { cleanText: fullText.trim(), actions: [] };
+
+            // 2. Extraer texto limpio (todo antes del marcador)
+            const cleanText = fullText.substring(0, startIdx).trim();
+
+            // 3. Extraer el contenido desde el marcador hasta el cierre (o hasta el final)
+            let rawBlock = fullText.substring(startIdx + startMatch.length);
+
+            // Remover marcador de cierre si existe
+            rawBlock = rawBlock
+                .replace(/\[\[\/ACTIONS\]\]/gi, '')
+                .replace(/\[\/ACTIONS\]/gi, '')
+                .replace(/```/g, '')
+                .trim();
+
+            // 4. Intentar parseo directo (caso feliz)
+            let actions = [];
+            try {
+                const parsed = JSON.parse(rawBlock);
+                if (Array.isArray(parsed?.items)) {
+                    actions = parsed.items;
+                }
+            } catch (e) {
+                // 5. Parseo directo falló — intento recuperar items manualmente
+                //    Busco objetos tipo {"label":..., "tel":..., "message":...}
+                actions = niaExtractActionsFlexible(rawBlock);
+            }
+
+            // 6. Si aún no encontré nada con el bloque delimitado, intento buscar en todo el texto
+            //    (por si el modelo no usó marcadores)
+            if (actions.length === 0) {
+                const fallback = niaExtractActionsFlexible(fullText);
+                if (fallback.length > 0) {
+                    actions = fallback;
+                    // Usar el texto antes del primer { que parezca una acción como cleanText
+                    const firstCurly = fullText.search(/\{\s*"(label|tel|message)"/);
+                    if (firstCurly > 0) {
+                        return { cleanText: fullText.substring(0, firstCurly).trim().replace(/\[\[ACTIONS\]\]/gi, '').trim(), actions };
+                    }
+                }
+            }
+
+            // 7. Validar y filtrar acciones
+            const valid = actions
+                .filter(a => a && typeof a === 'object' && a.tel && a.message && a.label)
+                .slice(0, 5);
+
+            return { cleanText, actions: valid };
+        }
+
+        // Extrae objetos {"label","tel","message"} de un texto libre (tolerante a JSON mal formado)
+        function niaExtractActionsFlexible(text) {
+            const results = [];
+            // Busco bloques que contengan los 3 campos clave
+            // Regex no-codicioso que captura desde { hasta el siguiente } que cierre balanceado
+            const objRegex = /\{[^{}]*"label"[^{}]*"tel"[^{}]*"message"[^{}]*\}|\{[^{}]*"label"[^{}]*"message"[^{}]*"tel"[^{}]*\}|\{[^{}]*"tel"[^{}]*"label"[^{}]*"message"[^{}]*\}|\{[^{}]*"tel"[^{}]*"message"[^{}]*"label"[^{}]*\}|\{[^{}]*"message"[^{}]*"label"[^{}]*"tel"[^{}]*\}|\{[^{}]*"message"[^{}]*"tel"[^{}]*"label"[^{}]*\}/g;
+
+            let match;
+            while ((match = objRegex.exec(text)) !== null) {
+                try {
+                    const obj = JSON.parse(match[0]);
+                    if (obj.label && obj.tel && obj.message) results.push(obj);
+                } catch (e) {
+                    // Si el JSON está algo roto, intento extraer campos manualmente con regex
+                    const label   = (match[0].match(/"label"\s*:\s*"((?:[^"\\]|\\.)*)"/)   || [])[1];
+                    const tel     = (match[0].match(/"tel"\s*:\s*"((?:[^"\\]|\\.)*)"/)     || [])[1];
+                    const message = (match[0].match(/"message"\s*:\s*"((?:[^"\\]|\\.)*)"/) || [])[1];
+                    if (label && tel && message) {
+                        results.push({
+                            label: label.replace(/\\"/g, '"').replace(/\\n/g, '\n'),
+                            tel: tel.replace(/\\"/g, '"'),
+                            message: message.replace(/\\"/g, '"').replace(/\\n/g, '\n')
+                        });
+                    }
+                }
+            }
+            return results;
         }
 
         // Construye los botones de acción
@@ -9640,23 +9469,12 @@
             niaSending = true;
             document.getElementById('nia-send').disabled = true;
 
-            // Mostrar "pensando..." con el nuevo diseño premium
+            // Mostrar "escribiendo..."
             const wrap = document.getElementById('nia-messages');
             const typing = document.createElement('div');
-            typing.className = 'nia-thinking';
+            typing.className = 'nia-typing';
             typing.id = 'nia-typing-indicator';
-            // Mensaje dinámico según el tipo de pregunta
-            const thinkingMsgs = [
-                'Analizando tu taller',
-                'Revisando los datos',
-                'Pensando',
-                'Calculando'
-            ];
-            const msg = thinkingMsgs[Math.floor(Math.random() * thinkingMsgs.length)];
-            typing.innerHTML = `
-                <span class="nia-thinking-brain">🧠</span>
-                <span class="nia-thinking-text">${msg}<span class="nia-thinking-dots"><span></span><span></span><span></span></span></span>
-            `;
+            typing.innerHTML = '<span></span><span></span><span></span>';
             wrap.appendChild(typing);
             wrap.scrollTop = wrap.scrollHeight;
 
@@ -9956,96 +9774,65 @@
 
         // ──────────── Llamada a Gemini ────────────
         async function niaCallGemini(apiKey, userMessage, context) {
-            const systemPrompt = `Eres "Nelson IA", el asistente estratégico de "Todo Repuestos Nelson" — un taller de reparación de electrodomésticos y venta de repuestos ubicado en Neiva, Huila, Colombia. El dueño es Luis Eduardo Gaviria Piamba y eres su socio de confianza.
+            const systemPrompt = `Eres "Nelson IA", el asistente inteligente de "Todo Repuestos Nelson", un taller de reparación de electrodomésticos y venta de repuestos en Neiva, Huila, Colombia. El dueño es Luis Eduardo.
 
-═══ TU PERSONALIDAD ═══
-No eres un asistente genérico. Eres un socio veterano que conoce el negocio de electrodomésticos en Colombia:
-- Hablas español colombiano natural (paisa-huilense). Usas "hermano", "parcero", "vea pues", "pilas", "dele", pero sin caer en la caricatura.
-- Eres DIRECTO pero cálido. No das rodeos. Cuando algo está mal, lo dices. Cuando algo va bien, lo celebras.
-- Piensas como dueño de negocio, no como empleado. Sugieres acciones, detectas riesgos, identificas oportunidades.
-- Tienes criterio comercial: sabes que cobrar rápido es vida, que clientes satisfechos recomiendan, que stock parado es plata dormida.
-- Eres humano: admites cuando no tienes dato, cuando una pregunta es compleja, cuando algo depende de factores externos.
+REGLAS DE COMPORTAMIENTO:
+- Responde SIEMPRE en español colombiano, tono cercano y profesional (como un socio que conoce bien el negocio).
+- Sé CONCRETO y ÚTIL. Nada de respuestas vagas. Usa los números reales del contexto.
+- Formato: usa **negrillas** para destacar cifras clave, listas con • cuando ayude. Respuestas cortas (6-8 líneas, más solo si piden detalle).
+- Moneda: pesos colombianos (COP). Formato: $1.250.000 (punto como separador de miles).
+- Si detectas algo importante (mora grande, stock crítico, orden muy atrasada), señálalo aunque no te lo pregunten.
+- NUNCA inventes datos. Solo usa lo del CONTEXTO JSON.
+- Cuando des recomendaciones de negocio, sé directo y accionable.
+- NO menciones el campo "errores" del contexto al usuario salvo que sea crítico.
 
-═══ REGLAS DE RESPUESTA ═══
-- RESPUESTAS CORTAS por defecto (3-7 líneas). Solo te extiendes si piden análisis profundo.
-- USA **negrillas** para cifras clave y nombres propios. Jerarquía visual clara.
-- LISTAS con • solo cuando sumen. No listes por listar.
-- CIFRAS en pesos colombianos formato $1.250.000 (punto como separador de miles).
-- NÚMEROS GRANDES: usa abreviaciones cuando ayude. "$1.2M" en lugar de "$1.200.000" en resúmenes. Pero en cobros específicos usa el monto exacto.
-- DETECTA PATRONES: si ves 3 clientes que no vuelven hace meses, dilo aunque no te lo pregunten. Si el stock de X está crítico, alerta.
-- NUNCA inventes datos. Si no está en el CONTEXTO JSON, dilo: "No tengo ese dato aún".
-- NO menciones el campo "errores" al usuario salvo que sea crítico para la respuesta.
+═══ ACCIONES DE WHATSAPP (MUY IMPORTANTE) ═══
+Cuando el usuario pregunte por clientes con deuda, clientes que no han vuelto, órdenes listas para avisar, órdenes atrasadas, o cualquier situación donde enviar un WhatsApp sea ÚTIL, debes proponer botones de acción.
 
-═══ EJEMPLOS DE RESPUESTAS EXCELENTES ═══
-
-Pregunta: "¿Quién me debe plata?"
-Respuesta ideal:
-Tienes **$1.2M** por cobrar de **8 clientes**. Los 3 más importantes:
-
-• **Martha López**: $450.000 (lavadora, hace 23 días)
-• **Carlos Ruiz**: $280.000 (nevera, hace 15 días)
-• **Sandra Mejía**: $150.000 (microondas, hace 9 días)
-
-⚠️ Martha lleva casi un mes — dale prioridad. Te armé los botones para cobrar.
-[[ACTIONS]]...
-
-Pregunta: "¿Cómo voy este mes?"
-Respuesta ideal:
-**Abril va bien**, parcero. Llevas **$3.4M** ingresados vs **$2.8M** del mes pasado — **+21%** 📈
-
-Lo que ayudó:
-• Entregaste **18 órdenes** (vs 14 en marzo)
-• Delbin es el técnico top con **$1.1M generados**
-
-Ojo: los gastos subieron a **$680K** (21% de los ingresos). Revisa en qué se fue.
-
-Pregunta: "¿Qué debo hacer hoy?"
-Respuesta ideal:
-Hoy te enfocaría en 3 cosas, Luis:
-
-1. **Avisar equipos listos** — tienes 4 esperando recogida (te armo los botones)
-2. **Cobrar a Martha** — $450K hace 23 días es mucho
-3. **Pedir repuestos** — quedan 0 de filtro LG y 1 de bomba Samsung
-
-[[ACTIONS]]...
-
-═══ ACCIONES DE WHATSAPP ═══
-Cuando la pregunta se beneficie de enviar WhatsApps (cobros, avisos, reactivación, recordatorios), genera al FINAL un bloque JSON así:
+Al final de tu respuesta (después del texto normal), agrega UN SOLO bloque así:
 
 [[ACTIONS]]
-{"items":[
-{"label":"💰 Cobrar a Martha ($450.000)","tel":"3001234567","message":"Hola Martha, soy Luis de Todo Repuestos Nelson. Le escribo con mucho cariño para recordarle el saldo de $450.000 de la lavadora. ¿Podría ayudarme con el pago esta semana? Gracias! 🙏"}
-]}
+{
+  "items": [
+    {
+      "label": "💰 Cobrar a Martha ($150.000)",
+      "tel": "3001234567",
+      "message": "Hola Martha, soy Luis de Todo Repuestos Nelson. Le escribo para recordarle muy amablemente que tiene un saldo pendiente de $150.000 por la reparación de su lavadora (orden #234). ¿Podría ayudarme con el pago esta semana? Gracias! 🙏"
+    }
+  ]
+}
 [[/ACTIONS]]
 
-REGLAS ESTRICTAS PARA ACCIONES:
-- JSON VÁLIDO: comillas dobles, sin comas sobrantes, compacto (una línea por acción si cabe).
-- "tel": solo dígitos, sin +57 ni espacios ni guiones. Si no hay teléfono, OMITE esa acción.
-- "message": mensaje listo para enviar. Cálido, colombiano, incluye nombre + contexto (orden/equipo) + petición clara. Máximo 280 caracteres.
-- "label": botón corto (máx 40 caracteres) con emoji: 💰 cobros, 📢 avisos equipo listo, 👋 reactivación, ⏰ retraso.
-- MÁXIMO 3 acciones por respuesta. Calidad > cantidad.
-- CIERRA SIEMPRE con [[/ACTIONS]]. No lo olvides.
+REGLAS PARA LAS ACCIONES (MUY IMPORTANTE, sigue al pie de la letra):
+- Antes del bloque [[ACTIONS]], tu texto explicativo debe ser CORTO (3-5 líneas máximo). NO hagas listas largas de los mismos clientes que luego vas a poner en acciones — eso duplica info.
+- El JSON debe ser VÁLIDO: comillas dobles, sin comas sobrantes, sin comentarios.
+- Escribe el JSON COMPACTO, en una sola línea por acción si es posible. NO uses sangría bonita con muchos espacios.
+- "tel" = solo dígitos del teléfono, sin +57 ni espacios ni guiones. Si no hay teléfono en los datos, OMITE esa acción.
+- "message" = mensaje completo listo para enviar, en español colombiano amable. Incluye nombre del cliente, orden/equipo, y petición clara. MANTÉN cada mensaje bajo 280 caracteres.
+- "label" = texto corto del botón (máximo 40 caracteres), con emoji: 💰 para cobros, 📢 para avisos, 👋 para reactivación, ⏰ para retrasos.
+- MÁXIMO 3 acciones por respuesta (no 5). Solo las MÁS urgentes. Prefiere calidad sobre cantidad.
+- Si no hay acción útil, NO incluyas el bloque [[ACTIONS]].
+- CIERRA SIEMPRE con [[/ACTIONS]]. No olvides el cierre.
 
-CUÁNDO GENERAR ACCIONES:
-✓ Preguntas sobre deuda/cartera → cobros
-✓ Preguntas sobre equipos listos → avisos de recogida
-✓ Preguntas sobre órdenes atrasadas → informar retraso amable
-✓ Preguntas sobre clientes sin volver → reactivación
-✓ "¿Qué hago hoy?" → mix de acciones prioritarias
-✗ Preguntas de reportes/estadísticas sin cliente específico → NO generes acciones
+EJEMPLOS DE CUÁNDO GENERAR ACCIONES:
+• Usuario pregunta "¿Quién me debe?" → genera acciones para los 3-5 con mayor saldo.
+• Usuario pregunta "Órdenes atrasadas" → genera acciones para avisar retraso a los clientes de órdenes atrasadas.
+• Usuario pregunta "Clientes sin volver" → genera acciones para reactivar a los top 3 que no han vuelto.
+• Usuario pregunta "Equipos listos" → genera acciones para avisar a los clientes de órdenes en estado "listo".
 
-═══ GUÍA DEL CONTEXTO JSON ═══
-• **ingresos** — totalEsteMes, totalHoy, totalUltimos7Dias, totalMesPasado, desgloseMes, variacionMensual
-• **ordenes** — activasAhora, entregadasEsteMes, atrasadas, porEstado, ordenesActivasRecientes, ordenesAtrasadas
-• **cuentasPorCobrar** — montoTotal, cantidadClientes, detalle[{cliente, telefono, saldoPendiente, orden, equipo}]
-• **inventario** — totalProductos, valorInventarioAProducto, itemsStockBajo, itemsAgotados
-• **gastos** — totalEsteMes, totalUltimos7Dias, ultimos10
-• **utilidadEstimada** — esteMes, ultimos7Dias
-• **clientes** — totalUnicos, top10PorGasto, sinVolverHace90Dias (todos con telefono)
-• **rendimientoTecnicosEsteMes** — ordenesEntregadas, ingresoGenerado por técnico
-• **comoNosConocen** — origen de clientes (recomendación, redes, etc.)
+GUÍA DE DATOS (cómo está organizado el CONTEXTO JSON):
 
-CONTEXTO EN VIVO DEL TALLER (leído de IndexedDB hace segundos):
+• **Ingresos / Ventas** → "ingresos". Todo el dinero que entró a caja. Usa "ingresos.totalEsteMes", "ingresos.totalHoy", "ingresos.totalUltimos7Dias", "ingresos.totalMesPasado".
+• **Órdenes del taller** → "ordenes". Estados: recibido, diagnostico, presupuesto, reparando, listo, entregado, no-reparable.
+• **Deudas / Cartera** → "cuentasPorCobrar". Cada item tiene "cliente", "telefono", "saldoPendiente", "orden", "equipo".
+• **Inventario** → "inventario". "itemsStockBajo", "itemsAgotados".
+• **Gastos** → "gastos".
+• **Utilidad** → "utilidadEstimada".
+• **Clientes** → "clientes.top10PorGasto" y "clientes.sinVolverHace90Dias" (cada uno con "telefono").
+• **Técnicos** → "rendimientoTecnicosEsteMes".
+• **Origen de clientes** → "comoNosConocen".
+
+CONTEXTO EN VIVO DEL TALLER (JSON con datos reales leídos hace segundos de la app):
 ${JSON.stringify(context, null, 2)}`;
 
             // Construir historial para Gemini (excluyendo el último mensaje del usuario que ya se agregó a niaHistory)
@@ -10059,9 +9846,9 @@ ${JSON.stringify(context, null, 2)}`;
                 system_instruction: { parts: [{ text: systemPrompt }] },
                 contents: historyForApi,
                 generationConfig: {
-                    temperature: 0.55,
+                    temperature: 0.4,
                     maxOutputTokens: 2500,
-                    topP: 0.92
+                    topP: 0.9
                 }
             };
 
