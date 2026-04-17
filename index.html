@@ -8611,6 +8611,854 @@
         </div>
     </div>
 
+    <!-- ══════════════════════════════════════════════════════════════════════
+         NELSON IA — ASISTENTE INTELIGENTE DEL TALLER (Gemini Flash · Gratis)
+         Módulo autocontenido. No modifica nada del código existente.
+         ══════════════════════════════════════════════════════════════════════ -->
+    <style>
+        /* Botón flotante (FAB) — paleta Nelson: naranja/ámbar, bien separado del nav */
+        #nia-fab {
+            position: fixed;
+            right: 16px;
+            bottom: calc(104px + env(safe-area-inset-bottom, 0px));
+            width: 54px; height: 54px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 55%, #c2410c 100%);
+            box-shadow:
+                0 8px 24px rgba(249,115,22,0.45),
+                0 0 0 1px rgba(255,255,255,0.1) inset,
+                0 -2px 8px rgba(0,0,0,0.2) inset;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+            border: 2px solid rgba(255,255,255,0.08);
+            cursor: pointer;
+            z-index: 9500;
+            transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease;
+            animation: nia-pulse 2.8s ease-in-out infinite;
+        }
+        #nia-fab::after {
+            /* Badge pequeño "IA" para que se entienda qué es */
+            content: 'IA';
+            position: absolute;
+            top: -4px; right: -4px;
+            background: #10b981;
+            color: #fff;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            padding: 2px 5px;
+            border-radius: 6px;
+            border: 2px solid #0d0f1a;
+            box-shadow: 0 2px 6px rgba(16,185,129,0.4);
+            line-height: 1;
+        }
+        #nia-fab:hover { transform: scale(1.08) rotate(-3deg); box-shadow: 0 12px 32px rgba(249,115,22,0.6); }
+        #nia-fab:active { transform: scale(0.92); }
+        @keyframes nia-pulse {
+            0%, 100% { box-shadow: 0 8px 24px rgba(249,115,22,0.45), 0 0 0 1px rgba(255,255,255,0.1) inset, 0 -2px 8px rgba(0,0,0,0.2) inset, 0 0 0 0 rgba(249,115,22,0.5); }
+            50%      { box-shadow: 0 8px 24px rgba(249,115,22,0.45), 0 0 0 1px rgba(255,255,255,0.1) inset, 0 -2px 8px rgba(0,0,0,0.2) inset, 0 0 0 12px rgba(249,115,22,0); }
+        }
+        /* Oculto el FAB cuando el modal está abierto */
+        body.nia-open #nia-fab { display: none; }
+        /* En desktop: abajo a la derecha con más aire */
+        @media (min-width: 768px) {
+            #nia-fab { bottom: 32px; right: 32px; width: 60px; height: 60px; font-size: 28px; }
+            #nia-fab::after { font-size: 10px; padding: 3px 6px; }
+        }
+        /* Light mode: mantengo naranja pero ajusto el borde */
+        body.light-mode #nia-fab { border-color: rgba(0,0,0,0.06); }
+        body.light-mode #nia-fab::after { border-color: #f5f3ee; }
+
+        /* Modal del asistente */
+        #nia-modal {
+            position: fixed; inset: 0;
+            z-index: 9600;
+            background: rgba(5,6,15,0.88);
+            backdrop-filter: blur(18px);
+            display: none;
+            align-items: flex-end; justify-content: center;
+            padding: 0;
+        }
+        #nia-modal.open { display: flex; animation: nia-fade-in 0.25s ease; }
+        @keyframes nia-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+        #nia-panel {
+            width: 100%;
+            max-width: 520px;
+            height: 92vh;
+            max-height: 92vh;
+            background: linear-gradient(180deg, #14162a 0%, #0d0f1a 100%);
+            border-radius: 28px 28px 0 0;
+            border: 1px solid rgba(249,115,22,0.18);
+            border-bottom: none;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 -20px 60px rgba(0,0,0,0.6);
+            animation: nia-slide-up 0.35s cubic-bezier(0.16,1,0.3,1);
+        }
+        @keyframes nia-slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        @media (min-width: 768px) {
+            #nia-modal { align-items: center; padding: 20px; }
+            #nia-panel { border-radius: 24px; border-bottom: 1px solid rgba(249,115,22,0.18); height: 85vh; max-height: 780px; }
+        }
+
+        /* Header del modal */
+        #nia-header {
+            padding: 18px 20px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex; align-items: center; gap: 12px;
+            background: linear-gradient(180deg, rgba(249,115,22,0.08) 0%, transparent 100%);
+            flex-shrink: 0;
+        }
+        #nia-avatar {
+            width: 44px; height: 44px; border-radius: 14px;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 6px 16px rgba(249,115,22,0.4);
+        }
+        #nia-title-wrap { flex: 1; min-width: 0; }
+        #nia-title { font-size: 15px; font-weight: 900; color: #fff; letter-spacing: 0.3px; }
+        #nia-subtitle { font-size: 10px; font-weight: 700; color: #fb923c; letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+        #nia-close {
+            width: 34px; height: 34px; border-radius: 10px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #fff; font-size: 16px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        #nia-close:hover { background: rgba(244,63,94,0.15); border-color: rgba(244,63,94,0.3); }
+
+        /* Área de mensajes */
+        #nia-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 16px 8px;
+            display: flex; flex-direction: column; gap: 10px;
+            scroll-behavior: smooth;
+        }
+        .nia-msg {
+            max-width: 85%;
+            padding: 11px 14px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.5;
+            word-wrap: break-word;
+            animation: nia-msg-in 0.25s ease;
+        }
+        @keyframes nia-msg-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .nia-msg.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: #fff;
+            border-bottom-right-radius: 6px;
+            box-shadow: 0 4px 14px rgba(249,115,22,0.35);
+        }
+        .nia-msg.assistant {
+            align-self: flex-start;
+            background: #1e2235;
+            color: #e8eaf6;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-bottom-left-radius: 6px;
+            white-space: pre-wrap;
+        }
+        .nia-msg.assistant strong { color: #fb923c; font-weight: 800; }
+        .nia-msg.assistant code {
+            background: rgba(249,115,22,0.12);
+            color: #fdba74;
+            padding: 1px 6px; border-radius: 5px;
+            font-size: 13px; font-weight: 700;
+        }
+        .nia-msg.error {
+            align-self: center;
+            background: rgba(244,63,94,0.1);
+            color: #fca5a5;
+            border: 1px solid rgba(244,63,94,0.25);
+            font-size: 12px;
+        }
+
+        /* Indicador de "escribiendo" */
+        .nia-typing {
+            align-self: flex-start;
+            background: #1e2235;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 18px;
+            border-bottom-left-radius: 6px;
+            padding: 14px 16px;
+            display: flex; gap: 5px;
+        }
+        .nia-typing span {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: #f97316;
+            animation: nia-bounce 1.4s infinite ease-in-out;
+        }
+        .nia-typing span:nth-child(2) { animation-delay: 0.2s; }
+        .nia-typing span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes nia-bounce {
+            0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Sugerencias rápidas */
+        #nia-suggestions {
+            padding: 4px 16px 8px;
+            display: flex; gap: 8px;
+            overflow-x: auto;
+            flex-shrink: 0;
+            -webkit-overflow-scrolling: touch;
+        }
+        #nia-suggestions::-webkit-scrollbar { display: none; }
+        .nia-chip {
+            flex-shrink: 0;
+            background: rgba(249,115,22,0.1);
+            border: 1px solid rgba(249,115,22,0.25);
+            color: #fdba74;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 12px; font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .nia-chip:hover { background: rgba(249,115,22,0.2); border-color: rgba(249,115,22,0.45); }
+        .nia-chip:active { transform: scale(0.96); }
+
+        /* Input de pregunta */
+        #nia-input-wrap {
+            padding: 10px 12px calc(12px + env(safe-area-inset-bottom, 0px));
+            border-top: 1px solid rgba(255,255,255,0.05);
+            display: flex; gap: 8px; align-items: flex-end;
+            background: rgba(13,15,26,0.6);
+            flex-shrink: 0;
+        }
+        #nia-input {
+            flex: 1;
+            background: #1e2235 !important;
+            border: 1px solid rgba(255,255,255,0.08) !important;
+            border-radius: 18px !important;
+            padding: 10px 14px !important;
+            color: #e8eaf6 !important;
+            font-size: 14px !important;
+            font-family: inherit;
+            resize: none;
+            max-height: 100px;
+            min-height: 42px;
+            line-height: 1.4;
+            transition: border-color 0.2s;
+        }
+        #nia-input:focus { border-color: #f97316 !important; outline: none; box-shadow: 0 0 0 3px rgba(249,115,22,0.18); }
+        #nia-send {
+            width: 42px; height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            border: none;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(249,115,22,0.4);
+            transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #nia-send:active { transform: scale(0.9); }
+        #nia-send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* Pantalla de configuración (primera vez) */
+        #nia-setup {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+            display: none;
+            flex-direction: column;
+            gap: 14px;
+        }
+        #nia-setup.active { display: flex; }
+        #nia-setup h3 { font-size: 16px; font-weight: 900; color: #fff; margin: 0; }
+        #nia-setup p { font-size: 13px; color: #94a3b8; line-height: 1.6; margin: 0; }
+        #nia-setup .nia-step {
+            background: rgba(249,115,22,0.06);
+            border: 1px solid rgba(249,115,22,0.15);
+            padding: 12px 14px;
+            border-radius: 14px;
+            display: flex; gap: 12px; align-items: flex-start;
+        }
+        #nia-setup .nia-step-num {
+            width: 26px; height: 26px; border-radius: 50%;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: #fff; font-weight: 900; font-size: 13px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        #nia-setup .nia-step-text { font-size: 12.5px; color: #cbd5e1; line-height: 1.55; }
+        #nia-setup .nia-step-text a { color: #fb923c; font-weight: 800; text-decoration: underline; }
+        #nia-setup input {
+            background: #1e2235 !important;
+            border: 1px solid rgba(249,115,22,0.3) !important;
+            color: #fff !important;
+            padding: 12px 14px !important;
+            border-radius: 12px !important;
+            font-size: 13px !important;
+            font-family: monospace !important;
+        }
+        #nia-save-key {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: #fff;
+            border: none;
+            padding: 14px;
+            border-radius: 14px;
+            font-size: 13px; font-weight: 900;
+            letter-spacing: 1px; text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 6px 18px rgba(249,115,22,0.35);
+        }
+        #nia-save-key:active { transform: scale(0.98); }
+
+        /* Light mode */
+        body.light-mode #nia-panel { background: linear-gradient(180deg, #fdfcf9 0%, #f5f3ee 100%); }
+        body.light-mode #nia-title { color: #1c1917; }
+        body.light-mode .nia-msg.assistant { background: #fff; color: #1c1917; border-color: #e5e0d3; }
+        body.light-mode #nia-input { background: #f0ece3 !important; color: #1c1917 !important; border-color: #cdc8bc !important; }
+        body.light-mode #nia-input-wrap { background: rgba(245,243,238,0.7); }
+        body.light-mode #nia-close { background: #f0ece3; color: #1c1917; border-color: #cdc8bc; }
+    </style>
+
+    <!-- Botón flotante -->
+    <button id="nia-fab" onclick="niaOpen()" aria-label="Abrir asistente IA">🧠</button>
+
+    <!-- Modal del asistente -->
+    <div id="nia-modal" onclick="if(event.target===this) niaClose()">
+        <div id="nia-panel">
+            <div id="nia-header">
+                <div id="nia-avatar">🧠</div>
+                <div id="nia-title-wrap">
+                    <div id="nia-title">Nelson IA</div>
+                    <div id="nia-subtitle">Asistente del Taller</div>
+                </div>
+                <button id="nia-close" onclick="niaClose()" aria-label="Cerrar">✕</button>
+            </div>
+
+            <!-- Pantalla de configuración inicial -->
+            <div id="nia-setup">
+                <h3>👋 ¡Hola Luis! Configuremos tu asistente</h3>
+                <p>Nelson IA usa <strong style="color:#fb923c;">Google Gemini</strong> que es <strong style="color:#10b981;">100% gratis</strong> (hasta 1.500 consultas al día). Solo necesitas una llave API, que se obtiene en 2 minutos.</p>
+
+                <div class="nia-step">
+                    <div class="nia-step-num">1</div>
+                    <div class="nia-step-text">Entra a <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> con tu cuenta de Google.</div>
+                </div>
+                <div class="nia-step">
+                    <div class="nia-step-num">2</div>
+                    <div class="nia-step-text">Toca <strong style="color:#fff;">"Create API key"</strong> y copia la llave que te genere (empieza con <code style="background:rgba(249,115,22,0.15);color:#fdba74;padding:1px 5px;border-radius:4px;">AIza...</code>).</div>
+                </div>
+                <div class="nia-step">
+                    <div class="nia-step-num">3</div>
+                    <div class="nia-step-text">Pégala aquí abajo. Se guarda solo en tu dispositivo, nadie más la ve.</div>
+                </div>
+
+                <input type="password" id="nia-api-key-input" placeholder="AIzaSy..." autocomplete="off" spellcheck="false">
+                <button id="nia-save-key" onclick="niaSaveKey()">✓ Guardar y activar</button>
+
+                <p style="font-size:11px;color:#64748b;text-align:center;margin-top:4px;">🔒 Tu llave queda solo en este dispositivo. Nunca sale de aquí.</p>
+            </div>
+
+            <!-- Área de chat -->
+            <div id="nia-messages"></div>
+
+            <!-- Sugerencias rápidas -->
+            <div id="nia-suggestions"></div>
+
+            <!-- Input -->
+            <div id="nia-input-wrap" style="display:none;">
+                <textarea id="nia-input" placeholder="Pregúntame sobre tu taller..." rows="1" onkeydown="niaKeyDown(event)" oninput="niaAutoGrow(this)"></textarea>
+                <button id="nia-send" onclick="niaSend()" aria-label="Enviar">➤</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        // ═══════════════════════════════════════════════════════════════
+        // NELSON IA — Lógica completamente aislada en un IIFE
+        // Usa Gemini 2.0 Flash (gratis hasta 1500 req/día)
+        // ═══════════════════════════════════════════════════════════════
+
+        const NIA_KEY_STORAGE = 'nia_gemini_key';
+        const NIA_HISTORY_STORAGE = 'nia_chat_history';
+        const NIA_MODEL = 'gemini-2.0-flash';
+        const NIA_MAX_HISTORY = 10; // últimos 10 mensajes en contexto
+
+        let niaHistory = []; // [{role:'user'|'model', text:''}]
+        let niaSending = false;
+
+        const SUGGESTIONS = [
+            '📊 Resumen del mes',
+            '💰 ¿Cuánto me deben?',
+            '📦 ¿Qué repuestos faltan?',
+            '⏰ Órdenes atrasadas',
+            '👥 Clientes sin volver',
+            '🏆 Mejor técnico del mes',
+            '💡 ¿Qué vender más?',
+            '📈 Comparar con mes pasado'
+        ];
+
+        // ──────────── Helpers ────────────
+        function niaGetKey() {
+            try { return localStorage.getItem(NIA_KEY_STORAGE) || ''; } catch(e) { return ''; }
+        }
+        function niaSetKey(k) {
+            try { localStorage.setItem(NIA_KEY_STORAGE, k); } catch(e) {}
+        }
+        function niaLoadHistory() {
+            try {
+                const raw = sessionStorage.getItem(NIA_HISTORY_STORAGE);
+                niaHistory = raw ? JSON.parse(raw) : [];
+            } catch(e) { niaHistory = []; }
+        }
+        function niaSaveHistory() {
+            try {
+                // solo guardo en sessionStorage (se borra al cerrar app, es lo correcto)
+                sessionStorage.setItem(NIA_HISTORY_STORAGE, JSON.stringify(niaHistory.slice(-NIA_MAX_HISTORY)));
+            } catch(e) {}
+        }
+
+        // ──────────── Abrir / Cerrar ────────────
+        window.niaOpen = function() {
+            const modal = document.getElementById('nia-modal');
+            const setup = document.getElementById('nia-setup');
+            const messages = document.getElementById('nia-messages');
+            const suggestions = document.getElementById('nia-suggestions');
+            const inputWrap = document.getElementById('nia-input-wrap');
+
+            modal.classList.add('open');
+            document.body.classList.add('nia-open');
+
+            const key = niaGetKey();
+            if (!key) {
+                // Primera vez: mostrar setup
+                setup.classList.add('active');
+                messages.style.display = 'none';
+                suggestions.style.display = 'none';
+                inputWrap.style.display = 'none';
+                setTimeout(() => document.getElementById('nia-api-key-input').focus(), 300);
+            } else {
+                // Ya configurado
+                setup.classList.remove('active');
+                messages.style.display = 'flex';
+                suggestions.style.display = 'flex';
+                inputWrap.style.display = 'flex';
+                niaLoadHistory();
+                niaRenderMessages();
+                niaRenderSuggestions();
+                if (niaHistory.length === 0) niaShowWelcome();
+                setTimeout(() => {
+                    const inp = document.getElementById('nia-input');
+                    if (inp && window.innerWidth >= 768) inp.focus();
+                }, 300);
+            }
+        };
+
+        window.niaClose = function() {
+            document.getElementById('nia-modal').classList.remove('open');
+            document.body.classList.remove('nia-open');
+        };
+
+        // ──────────── Guardar llave ────────────
+        window.niaSaveKey = function() {
+            const input = document.getElementById('nia-api-key-input');
+            const key = (input.value || '').trim();
+            if (!key || key.length < 20) {
+                if (typeof showAlert === 'function') showAlert('⚠️ La llave parece inválida. Debe empezar con AIza...', 'warning');
+                else alert('Llave inválida');
+                return;
+            }
+            niaSetKey(key);
+            if (typeof showAlert === 'function') showAlert('✅ Nelson IA activado correctamente', 'success');
+
+            // Recargar UI
+            document.getElementById('nia-setup').classList.remove('active');
+            document.getElementById('nia-messages').style.display = 'flex';
+            document.getElementById('nia-suggestions').style.display = 'flex';
+            document.getElementById('nia-input-wrap').style.display = 'flex';
+            niaShowWelcome();
+            niaRenderSuggestions();
+        };
+
+        // ──────────── Renderizar ────────────
+        function niaShowWelcome() {
+            niaHistory = [];
+            niaSaveHistory();
+            const wrap = document.getElementById('nia-messages');
+            wrap.innerHTML = '';
+            const msg = document.createElement('div');
+            msg.className = 'nia-msg assistant';
+            msg.innerHTML = '¡Hola Luis! 👋 Soy <strong>Nelson IA</strong>, tu asistente del taller.\n\nTengo acceso en vivo a tus <strong>órdenes, inventario, ventas, gastos, clientes y pagos</strong>. Pregúntame lo que quieras en palabras normales.\n\nPor ejemplo:\n• <em>"¿Cuánto me deben en total?"</em>\n• <em>"¿Qué cliente no ha vuelto hace más de 3 meses?"</em>\n• <em>"¿Me queda poco de qué repuesto?"</em>';
+            wrap.appendChild(msg);
+        }
+
+        function niaRenderMessages() {
+            const wrap = document.getElementById('nia-messages');
+            wrap.innerHTML = '';
+            niaHistory.forEach(m => {
+                const div = document.createElement('div');
+                div.className = 'nia-msg ' + (m.role === 'user' ? 'user' : 'assistant');
+                if (m.role === 'model') {
+                    div.innerHTML = niaFormatText(m.text);
+                } else {
+                    div.textContent = m.text;
+                }
+                wrap.appendChild(div);
+            });
+            wrap.scrollTop = wrap.scrollHeight;
+        }
+
+        function niaFormatText(text) {
+            // Escapo HTML primero
+            const esc = text
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            // Luego aplico formato markdown simple
+            return esc
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                .replace(/\*(.+?)\*/g, '<em>$1</em>');
+        }
+
+        function niaRenderSuggestions() {
+            const wrap = document.getElementById('nia-suggestions');
+            wrap.innerHTML = '';
+            SUGGESTIONS.forEach(s => {
+                const chip = document.createElement('button');
+                chip.className = 'nia-chip';
+                chip.textContent = s;
+                chip.onclick = () => {
+                    document.getElementById('nia-input').value = s.replace(/^[^\s]+\s/, '');
+                    niaSend();
+                };
+                wrap.appendChild(chip);
+            });
+        }
+
+        // ──────────── Input helpers ────────────
+        window.niaAutoGrow = function(el) {
+            el.style.height = 'auto';
+            el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+        };
+
+        window.niaKeyDown = function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                niaSend();
+            }
+        };
+
+        // ──────────── Enviar mensaje ────────────
+        window.niaSend = async function() {
+            if (niaSending) return;
+            const input = document.getElementById('nia-input');
+            const text = (input.value || '').trim();
+            if (!text) return;
+
+            const key = niaGetKey();
+            if (!key) {
+                if (typeof showAlert === 'function') showAlert('Configura tu llave API primero', 'warning');
+                return;
+            }
+
+            // Agregar mensaje del usuario
+            niaHistory.push({ role: 'user', text });
+            niaSaveHistory();
+            niaRenderMessages();
+            input.value = '';
+            input.style.height = 'auto';
+            niaSending = true;
+            document.getElementById('nia-send').disabled = true;
+
+            // Mostrar "escribiendo..."
+            const wrap = document.getElementById('nia-messages');
+            const typing = document.createElement('div');
+            typing.className = 'nia-typing';
+            typing.id = 'nia-typing-indicator';
+            typing.innerHTML = '<span></span><span></span><span></span>';
+            wrap.appendChild(typing);
+            wrap.scrollTop = wrap.scrollHeight;
+
+            try {
+                // Obtener contexto de la app
+                const context = await niaBuildContext();
+
+                // Llamar a Gemini
+                const answer = await niaCallGemini(key, text, context);
+
+                // Remover indicador
+                const t = document.getElementById('nia-typing-indicator');
+                if (t) t.remove();
+
+                // Agregar respuesta
+                niaHistory.push({ role: 'model', text: answer });
+                niaSaveHistory();
+                niaRenderMessages();
+            } catch (err) {
+                const t = document.getElementById('nia-typing-indicator');
+                if (t) t.remove();
+                const errDiv = document.createElement('div');
+                errDiv.className = 'nia-msg error';
+                errDiv.textContent = '⚠️ ' + (err.message || 'Error al consultar a Nelson IA');
+                wrap.appendChild(errDiv);
+                wrap.scrollTop = wrap.scrollHeight;
+            } finally {
+                niaSending = false;
+                document.getElementById('nia-send').disabled = false;
+            }
+        };
+
+        // ──────────── Construir contexto desde IndexedDB ────────────
+        async function niaBuildContext() {
+            // Reutilizo la función getAll ya existente en la app
+            const ctx = { fechaActual: new Date().toISOString().slice(0,10) };
+            try {
+                const [orders, stock, sales, gastos, clientes, payments] = await Promise.all([
+                    getAll('orders').catch(() => []),
+                    getAll('stock').catch(() => []),
+                    getAll('sales').catch(() => []),
+                    getAll('gastos').catch(() => []),
+                    getAll('clientes').catch(() => []),
+                    getAll('payments').catch(() => [])
+                ]);
+
+                // Fecha de hace 30 días y 90 días
+                const hoy = new Date();
+                const hace30 = new Date(hoy.getTime() - 30*24*60*60*1000).toISOString().slice(0,10);
+                const hace90 = new Date(hoy.getTime() - 90*24*60*60*1000).toISOString().slice(0,10);
+                const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().slice(0,10);
+                const inicioMesPasado = new Date(hoy.getFullYear(), hoy.getMonth()-1, 1).toISOString().slice(0,10);
+                const finMesPasado = new Date(hoy.getFullYear(), hoy.getMonth(), 0).toISOString().slice(0,10);
+
+                // ── ÓRDENES ──
+                const ordActivas = orders.filter(o => o.estado !== 'entregado' && o.estado !== 'no-reparable');
+                const ordEntregadasMes = orders.filter(o => o.estado === 'entregado' && (o.fechaEntregaReal || o.fecha || '') >= inicioMes);
+                const ordAtrasadas = orders.filter(o => {
+                    if (o.estado === 'entregado' || o.estado === 'no-reparable') return false;
+                    if (!o.fechaEstimada) return false;
+                    return o.fechaEstimada < ctx.fechaActual;
+                });
+
+                ctx.ordenes = {
+                    total: orders.length,
+                    activas: ordActivas.length,
+                    entregadasEsteMes: ordEntregadasMes.length,
+                    atrasadas: ordAtrasadas.length,
+                    porEstado: {}
+                };
+                orders.forEach(o => {
+                    ctx.ordenes.porEstado[o.estado || 'sin_estado'] = (ctx.ordenes.porEstado[o.estado || 'sin_estado'] || 0) + 1;
+                });
+
+                // Muestro las 15 más recientes activas con datos clave
+                ctx.ordenesActivasRecientes = ordActivas
+                    .sort((a,b) => (b.fecha || '').localeCompare(a.fecha || ''))
+                    .slice(0, 15)
+                    .map(o => ({
+                        id: o.id,
+                        cliente: o.cliente,
+                        equipo: o.equipo,
+                        marca: o.marca,
+                        problema: (o.problema || '').slice(0, 80),
+                        estado: o.estado,
+                        fecha: o.fecha,
+                        fechaEstimada: o.fechaEstimada,
+                        valor: o.valor,
+                        adelanto: o.adelanto,
+                        saldo: (o.valor || 0) - (o.adelanto || 0),
+                        tecnico: o.tecnico,
+                        prioridad: o.prioridad
+                    }));
+
+                // Órdenes atrasadas (top 10)
+                ctx.ordenesAtrasadas = ordAtrasadas.slice(0, 10).map(o => ({
+                    id: o.id, cliente: o.cliente, equipo: o.equipo,
+                    fechaEstimada: o.fechaEstimada, estado: o.estado,
+                    diasAtraso: Math.ceil((new Date(ctx.fechaActual) - new Date(o.fechaEstimada)) / 86400000)
+                }));
+
+                // ── DEUDAS / SALDOS ──
+                const ordConSaldo = orders.filter(o => o.estado === 'entregado' && ((o.valor || 0) - (o.adelanto || 0) > 0));
+                ctx.saldosPendientes = {
+                    totalClientes: ordConSaldo.length,
+                    montoTotal: ordConSaldo.reduce((s,o) => s + ((o.valor||0) - (o.adelanto||0)), 0),
+                    detalle: ordConSaldo.slice(0, 10).map(o => ({
+                        cliente: o.cliente, orden: o.id, saldo: (o.valor||0) - (o.adelanto||0), fecha: o.fecha
+                    }))
+                };
+
+                // ── INVENTARIO ──
+                const stockBajo = stock.filter(s => (s.cantidad || 0) <= (s.minimo || 3) && (s.cantidad || 0) > 0);
+                const stockAgotado = stock.filter(s => (s.cantidad || 0) <= 0);
+                ctx.inventario = {
+                    totalItems: stock.length,
+                    valorTotal: stock.reduce((s,i) => s + ((i.cantidad||0) * (i.precioCompra || i.precio || 0)), 0),
+                    stockBajo: stockBajo.length,
+                    stockAgotado: stockAgotado.length,
+                    itemsBajos: stockBajo.slice(0, 15).map(s => ({
+                        nombre: s.nombre, cantidad: s.cantidad, minimo: s.minimo, precio: s.precio
+                    })),
+                    itemsAgotados: stockAgotado.slice(0, 10).map(s => ({ nombre: s.nombre, precio: s.precio }))
+                };
+
+                // ── VENTAS DEL MES ──
+                const ventasEsteMes = sales.filter(v => (v.fecha || '') >= inicioMes);
+                const ventasMesPasado = sales.filter(v => (v.fecha || '') >= inicioMesPasado && (v.fecha || '') <= finMesPasado);
+                ctx.ventas = {
+                    cantidadEsteMes: ventasEsteMes.length,
+                    totalEsteMes: ventasEsteMes.reduce((s,v) => s + (v.total || 0), 0),
+                    cantidadMesPasado: ventasMesPasado.length,
+                    totalMesPasado: ventasMesPasado.reduce((s,v) => s + (v.total || 0), 0),
+                    ultimas10: sales.slice(-10).map(v => ({
+                        fecha: v.fecha, total: v.total, items: (v.items || []).length, cliente: v.cliente
+                    }))
+                };
+
+                // Top productos vendidos del mes
+                const productosContador = {};
+                ventasEsteMes.forEach(v => {
+                    (v.items || []).forEach(i => {
+                        if (!productosContador[i.nombre]) productosContador[i.nombre] = { cantidad: 0, ingreso: 0 };
+                        productosContador[i.nombre].cantidad += (i.cantidad || 1);
+                        productosContador[i.nombre].ingreso += (i.subtotal || i.precio || 0);
+                    });
+                });
+                ctx.topProductosDelMes = Object.entries(productosContador)
+                    .sort((a,b) => b[1].cantidad - a[1].cantidad)
+                    .slice(0, 10)
+                    .map(([nombre, d]) => ({ nombre, unidadesVendidas: d.cantidad, ingresoTotal: d.ingreso }));
+
+                // ── GASTOS ──
+                const gastosEsteMes = gastos.filter(g => (g.fecha || '') >= inicioMes);
+                ctx.gastos = {
+                    cantidadEsteMes: gastosEsteMes.length,
+                    totalEsteMes: gastosEsteMes.reduce((s,g) => s + (g.monto || 0), 0),
+                    porCategoria: {}
+                };
+                gastosEsteMes.forEach(g => {
+                    const cat = g.categoria || 'otros';
+                    ctx.gastos.porCategoria[cat] = (ctx.gastos.porCategoria[cat] || 0) + (g.monto || 0);
+                });
+
+                // ── UTILIDAD APROXIMADA ──
+                const ingresosMes = ctx.ventas.totalEsteMes + orders
+                    .filter(o => o.estado === 'entregado' && (o.fechaEntregaReal || o.fecha || '') >= inicioMes)
+                    .reduce((s,o) => s + (o.valor || 0), 0);
+                ctx.utilidadEstimadaMes = ingresosMes - ctx.gastos.totalEsteMes;
+                ctx.ingresosBrutosMes = ingresosMes;
+
+                // ── CLIENTES ──
+                // Agrupo órdenes por cliente
+                const clientesMap = {};
+                orders.forEach(o => {
+                    if (!o.cliente) return;
+                    if (!clientesMap[o.cliente]) clientesMap[o.cliente] = { ordenes: 0, gastoTotal: 0, ultimaFecha: '', telefono: o.telefono };
+                    clientesMap[o.cliente].ordenes += 1;
+                    clientesMap[o.cliente].gastoTotal += (o.valor || 0);
+                    if ((o.fecha || '') > clientesMap[o.cliente].ultimaFecha) clientesMap[o.cliente].ultimaFecha = o.fecha || '';
+                });
+                const clientesArr = Object.entries(clientesMap).map(([nombre, d]) => ({ nombre, ...d }));
+                ctx.clientes = {
+                    total: clientesArr.length,
+                    topGasto: clientesArr.sort((a,b) => b.gastoTotal - a.gastoTotal).slice(0, 10),
+                    sinVolverHace90Dias: clientesArr.filter(c => c.ultimaFecha && c.ultimaFecha < hace90).slice(0, 15)
+                };
+
+                // ── TÉCNICOS ──
+                const tecnicosMap = {};
+                orders.filter(o => o.estado === 'entregado' && (o.fechaEntregaReal || o.fecha || '') >= inicioMes).forEach(o => {
+                    const t = o.tecnico || 'sin_asignar';
+                    if (!tecnicosMap[t]) tecnicosMap[t] = { entregadas: 0, ingresoGenerado: 0 };
+                    tecnicosMap[t].entregadas += 1;
+                    tecnicosMap[t].ingresoGenerado += (o.valor || 0);
+                });
+                ctx.tecnicosEsteMes = Object.entries(tecnicosMap).map(([nombre, d]) => ({ nombre, ...d }));
+
+            } catch (e) {
+                ctx.error_lectura = 'No se pudieron leer algunos datos: ' + e.message;
+            }
+            return ctx;
+        }
+
+        // ──────────── Llamada a Gemini ────────────
+        async function niaCallGemini(apiKey, userMessage, context) {
+            const systemPrompt = `Eres "Nelson IA", el asistente inteligente de "Todo Repuestos Nelson", un taller de reparación de electrodomésticos y venta de repuestos en Neiva, Huila, Colombia. El dueño es Luis Eduardo.
+
+REGLAS:
+- Responde SIEMPRE en español colombiano, tono cercano y profesional (como un socio que conoce bien el negocio).
+- Sé CONCRETO y ÚTIL. Nada de respuestas vagas. Usa los números reales del contexto.
+- Formato: usa **negrillas** para destacar cifras clave, listas con • cuando ayude. Mantén respuestas cortas (máximo 6-8 líneas salvo que pidan detalle).
+- Moneda: pesos colombianos (COP). Formatea así: $1.250.000 (punto como separador de miles).
+- Si te preguntan algo que no está en los datos, dilo claramente: "No tengo ese dato en tu app" y sugiere cómo obtenerlo.
+- Si detectas algo importante (mora grande, stock crítico, orden muy atrasada), señálalo aunque no te lo pregunten.
+- NUNCA inventes datos. Solo usa lo del CONTEXTO.
+- Cuando des recomendaciones de negocio, sé directo y accionable.
+
+CONTEXTO EN VIVO DEL TALLER (JSON con datos reales de la app):
+${JSON.stringify(context, null, 2)}`;
+
+            // Construir historial para Gemini (excluyendo el último mensaje del usuario que ya se agregó a niaHistory)
+            const historyForApi = niaHistory.slice(0, -1).slice(-NIA_MAX_HISTORY).map(m => ({
+                role: m.role,
+                parts: [{ text: m.text }]
+            }));
+            historyForApi.push({ role: 'user', parts: [{ text: userMessage }] });
+
+            const body = {
+                system_instruction: { parts: [{ text: systemPrompt }] },
+                contents: historyForApi,
+                generationConfig: {
+                    temperature: 0.4,
+                    maxOutputTokens: 800,
+                    topP: 0.9
+                }
+            };
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${NIA_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+            const resp = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            if (!resp.ok) {
+                const errText = await resp.text().catch(() => '');
+                if (resp.status === 400 && errText.includes('API_KEY')) {
+                    throw new Error('Llave API inválida. Revisa la configuración.');
+                }
+                if (resp.status === 429) {
+                    throw new Error('Llegaste al límite diario gratis (1500 consultas). Intenta mañana.');
+                }
+                throw new Error(`Error ${resp.status}: ${errText.slice(0, 150) || 'No se pudo conectar'}`);
+            }
+
+            const data = await resp.json();
+            const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (!text) {
+                if (data?.promptFeedback?.blockReason) {
+                    throw new Error('La pregunta fue bloqueada por el filtro de seguridad de Gemini.');
+                }
+                throw new Error('Respuesta vacía de Gemini.');
+            }
+            return text.trim();
+        }
+
+        // ──────────── Acceso público: borrar llave (por si quiere resetear) ────────────
+        window.niaReset = function() {
+            if (!confirm('¿Borrar la llave API y el historial de Nelson IA?')) return;
+            try { localStorage.removeItem(NIA_KEY_STORAGE); } catch(e) {}
+            try { sessionStorage.removeItem(NIA_HISTORY_STORAGE); } catch(e) {}
+            niaHistory = [];
+            if (typeof showAlert === 'function') showAlert('Nelson IA reseteado', 'info');
+            niaClose();
+        };
+
+    })();
+    </script>
 
 </body>
 </html>
