@@ -3080,14 +3080,15 @@
             await renderCartera();
             await renderMovimientos();
             closeClientHistory();
-            showAlert(`Pago de $${amount.toLocaleString()} registrado correctamente.`, "success");
+            showAlert(`Pago de ${getCurrency()}${amount.toLocaleString()} registrado correctamente.`, "success");
         }
         async function renderCartera() {
+            const cur = getCurrency();
             const clientes = await getAll('clientes');
             const deudores = clientes.filter(c => c.deuda > 0).sort((a,b) => b.deuda - a.deuda);
             const container = document.getElementById('cartera-list');
             if (!deudores.length) { container.innerHTML = '<div class="text-center py-4 text-slate-500">✅ No hay deudas pendientes</div>'; return; }
-            container.innerHTML = deudores.map(c => `<div class="flex justify-between items-center bg-rose-500/10 p-2 rounded-xl"><div><p class="font-bold">${escapeHtml(c.nombre)}</p><p class="text-xs">Tel: ${c.telefono || '—'}</p></div><div><span class="text-rose-400 font-black">$${c.deuda.toLocaleString()}</span><button onclick="showClientHistory('${escapeHtml(c.nombre)}')" class="ml-2 text-xs bg-slate-700 px-2 py-1 rounded">📜</button></div></div>`).join('');
+            container.innerHTML = deudores.map(c => `<div class="flex justify-between items-center bg-rose-500/10 p-2 rounded-xl"><div><p class="font-bold">${escapeHtml(c.nombre)}</p><p class="text-xs">Tel: ${c.telefono || '—'}</p></div><div><span class="text-rose-400 font-black">${cur}${c.deuda.toLocaleString()}</span><button onclick="showClientHistory('${escapeHtml(c.nombre)}')" class="ml-2 text-xs bg-slate-700 px-2 py-1 rounded">📜</button></div></div>`).join('');
         }
         async function showClientHistory(nombre) {
             currentClientHistory = nombre;
@@ -3497,7 +3498,7 @@
             document.getElementById('val-error').innerText = '';
             document.getElementById('saldo-preview').classList.add('hidden');
             playBeep(); closeCamera(); await updateTotal(); await updateSuggestions(); tab('ordenes');
-            showToast(adelanto > 0 ? `✅ Orden registrada · Adelanto $${adelanto.toLocaleString()} guardado` : '✅ Orden registrada', 'success');
+            showToast(adelanto > 0 ? `✅ Orden registrada · Adelanto ${getCurrency()}${adelanto.toLocaleString()} guardado` : '✅ Orden registrada', 'success');
         }
 
         async function editOrder(id) {
@@ -3566,6 +3567,7 @@
         }
 
         async function renderOrders() {
+            const cur = getCurrency();
             let orders = await getAll('orders');
             if (filters.text) {
                 const q = filters.text;
@@ -3614,8 +3616,8 @@
                 const saldo = Number(o.saldo != null ? o.saldo : o.val) || 0;
                 const saldoBadge = adelanto > 0
                     ? `<div class="flex gap-2 text-[10px] font-bold mt-1">
-                        <span class="text-blue-400">💵 Adelanto: $${adelanto.toLocaleString()}</span>
-                        <span class="${saldo > 0 ? 'text-rose-400' : 'text-emerald-400'}">· Saldo: $${saldo.toLocaleString()}</span>
+                        <span class="text-blue-400">💵 Adelanto: ${cur}${adelanto.toLocaleString()}</span>
+                        <span class="${saldo > 0 ? 'text-rose-400' : 'text-emerald-400'}">· Saldo: ${cur}${saldo.toLocaleString()}</span>
                        </div>`
                     : '';
                 // Días en estado actual
@@ -3694,7 +3696,7 @@
                     <div class="flex justify-between items-center mt-3">
                         <div>
                             <span class="text-[10px] text-slate-400">TOTAL</span>
-                            ${canEditValue ? `<button onclick="editOrderValue(${o.id})" class="text-emerald-400 font-black ml-2 underline">$${o.val.toLocaleString()} ✏️</button>` : `<span class="text-emerald-400 font-black ml-2">$${o.val.toLocaleString()}</span>`}
+                            ${canEditValue ? `<button onclick="editOrderValue(${o.id})" class="text-emerald-400 font-black ml-2 underline">${cur}${o.val.toLocaleString()} ✏️</button>` : `<span class="text-emerald-400 font-black ml-2">${cur}${o.val.toLocaleString()}</span>`}
                         </div>
                         <div class="flex gap-2">
                             <button onclick="openOrderChat(${o.id})" class="order-action-btn bg-cyan-500/20 text-cyan-400" title="Notas internas">📝</button>
@@ -3710,6 +3712,7 @@
 
         // printInvoice usando datos del negocio y config de documentos
         async function printInvoice(id) {
+            const cur = getCurrency();
             const orders = await getAll('orders');
             const o = orders.find(x => x.id === id);
             if (!o) return;
@@ -3741,7 +3744,7 @@
                         ${garantiaTexto}
                     </div>
                     <div style="border-top:1px dashed #000;border-bottom:1px dashed #000;padding:10px 0;margin:10px 0;text-align:right;">
-                        <strong style="font-size:16px;">TOTAL: $${o.val.toLocaleString()}</strong>
+                        <strong style="font-size:16px;">TOTAL: ${cur}${o.val.toLocaleString()}</strong>
                     </div>
                     ${o.garantia > 0 ? `<div style="font-size:9px;color:#555;margin:10px 0;padding:8px;border:1px dashed #ccc;border-radius:4px;">⚠️ ${garantiaMsg}</div>` : ''}
                     <div style="text-align:center;font-size:10px;margin-top:16px;color:#666;">${footerMsg}</div>
@@ -3835,6 +3838,7 @@
 
         async function _entregaRapida(o) {
             const saldoPendiente = Number(o.saldo != null ? o.saldo : o.val) || 0;
+            const cur = getCurrency();
             const modal = document.createElement('div');
             modal.id = 'modal-entrega-rapida';
             modal.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.88);display:flex;align-items:flex-end;justify-content:center;padding:16px;';
@@ -3845,14 +3849,14 @@
                 </div>
                 <div style="padding:16px;display:flex;flex-direction:column;gap:12px;">
                     <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:12px;">
-                        <div style="display:flex;justify-content:space-between;font-size:12px;color:#94a3b8;margin-bottom:4px;"><span>Valor total:</span><span style="color:#fff;font-weight:900;">$${o.val.toLocaleString()}</span></div>
-                        <div style="display:flex;justify-content:space-between;font-size:12px;color:#94a3b8;margin-bottom:4px;"><span>Adelanto:</span><span style="color:#60a5fa;font-weight:900;">$${(Number(o.adelanto)||0).toLocaleString()}</span></div>
-                        <div style="display:flex;justify-content:space-between;font-size:14px;border-top:1px solid rgba(255,255,255,0.08);padding-top:8px;margin-top:4px;"><span style="color:#94a3b8;">Saldo a cobrar:</span><span style="color:${saldoPendiente > 0 ? '#f87171' : '#34d399'};font-weight:900;font-size:16px;">$${saldoPendiente.toLocaleString()}</span></div>
+                        <div style="display:flex;justify-content:space-between;font-size:12px;color:#94a3b8;margin-bottom:4px;"><span>Valor total:</span><span style="color:#fff;font-weight:900;">${cur}${o.val.toLocaleString()}</span></div>
+                        <div style="display:flex;justify-content:space-between;font-size:12px;color:#94a3b8;margin-bottom:4px;"><span>Adelanto:</span><span style="color:#60a5fa;font-weight:900;">${cur}${(Number(o.adelanto)||0).toLocaleString()}</span></div>
+                        <div style="display:flex;justify-content:space-between;font-size:14px;border-top:1px solid rgba(255,255,255,0.08);padding-top:8px;margin-top:4px;"><span style="color:#94a3b8;">Saldo a cobrar:</span><span style="color:${saldoPendiente > 0 ? '#f87171' : '#34d399'};font-weight:900;font-size:16px;">${cur}${saldoPendiente.toLocaleString()}</span></div>
                     </div>
                     ${saldoPendiente > 0 ? `
                     <div>
                         <label style="font-size:10px;color:#64748b;font-weight:700;">COBRO AL ENTREGAR</label>
-                        <input type="number" id="entrega-cobro" placeholder="$${saldoPendiente.toLocaleString()}" value="${saldoPendiente}" style="background:#1e2235;border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;color:#fff;font-size:16px;font-weight:900;text-align:center;width:100%;margin-top:6px;">
+                        <input type="number" id="entrega-cobro" placeholder="${cur}${saldoPendiente.toLocaleString()}" value="${saldoPendiente}" style="background:#1e2235;border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;color:#fff;font-size:16px;font-weight:900;text-align:center;width:100%;margin-top:6px;">
                     </div>` : '<p style="color:#34d399;text-align:center;font-weight:900;font-size:13px;">✅ Pagado completo</p>'}
                     <button onclick="_confirmarEntrega(${o.id}, ${saldoPendiente})" style="background:linear-gradient(to right,#2563eb,#3b82f6);color:white;padding:14px;border-radius:14px;font-weight:900;font-size:13px;">
                         ✅ CONFIRMAR ENTREGA
@@ -3889,7 +3893,7 @@
             await put('orders', o);
             document.getElementById('modal-entrega-rapida')?.remove();
             await updateTotal(); await renderOrders(); await renderCartera();
-            showToast(cobro > 0 ? `✅ Entregado · Cobrado $${cobro.toLocaleString()}${o.saldo > 0 ? ` · Saldo $${o.saldo.toLocaleString()}` : ''}` : '✅ Equipo entregado', 'success');
+            showToast(cobro > 0 ? `✅ Entregado · Cobrado ${getCurrency()}${cobro.toLocaleString()}${o.saldo > 0 ? ` · Saldo ${getCurrency()}${o.saldo.toLocaleString()}` : ''}` : '✅ Equipo entregado', 'success');
             // Ofrecer WhatsApp si tiene tel
             if (o.tel) setTimeout(() => _mostrarAvisoReparado({ ...o, sta: 'entregado' }), 400);
             // Pedir calificación del servicio
@@ -4092,17 +4096,18 @@
             document.getElementById('g-det').value = ''; document.getElementById('g-val').value = '';
             await updateTotal();
             await renderMovimientos();
-            showToast(`Gasto $${val.toLocaleString()} registrado`, 'success');
+            showToast(`Gasto ${getCurrency()}${val.toLocaleString()} registrado`, 'success');
         }
 
         async function renderMovimientos() {
+            const cur = getCurrency();
             const lastCierre = Number(localStorage.getItem('lastCierreCaja')) || 0;
             const sales = await getAll('sales');
             const gastos = await getAll('gastos');
             const movs = [...sales.filter(s=>s.fecha>lastCierre && s.tipo!=='adelanto' && s.tipo!=='cobro_entrega').map(s=>({...s,type:'sale'})), ...gastos.filter(g=>g.fecha>lastCierre).map(g=>({...g,type:'gasto'}))].sort((a,b)=>b.fecha-a.fecha);
             const container = document.getElementById('movimientos-history');
             if(!movs.length) { container.innerHTML = '<div class="text-center py-4 text-slate-500 text-xs">Sin movimientos en la caja actual</div>'; return; }
-            container.innerHTML = movs.map(m => m.type==='sale' ? `<div class="flex justify-between bg-emerald-500/10 p-2 rounded-xl"><div><p class="text-xs font-bold">+ ${escapeHtml(m.item)}</p><p class="text-[9px]">${m.qty} unid</p></div><div class="flex gap-2"><p class="text-xs font-black text-emerald-400">+$${m.val.toLocaleString()}</p><button onclick="annulSale(${m.id})" class="text-rose-400 text-[10px] bg-rose-500/20 px-2 py-1 rounded-lg">✕</button></div></div>` : `<div class="flex justify-between bg-rose-500/10 p-2 rounded-xl"><div><p class="text-xs font-bold">- ${escapeHtml(m.det)}</p><p class="text-[9px]">Gasto</p></div><div class="flex gap-2"><p class="text-xs font-black text-rose-400">-$${m.val.toLocaleString()}</p><button onclick="annulGasto(${m.id})" class="text-rose-400 text-[10px] bg-rose-500/20 px-2 py-1 rounded-lg">✕</button></div></div>`).join('');
+            container.innerHTML = movs.map(m => m.type==='sale' ? `<div class="flex justify-between bg-emerald-500/10 p-2 rounded-xl"><div><p class="text-xs font-bold">+ ${escapeHtml(m.item)}</p><p class="text-[9px]">${m.qty} unid</p></div><div class="flex gap-2"><p class="text-xs font-black text-emerald-400">+${cur}${m.val.toLocaleString()}</p><button onclick="annulSale(${m.id})" class="text-rose-400 text-[10px] bg-rose-500/20 px-2 py-1 rounded-lg">✕</button></div></div>` : `<div class="flex justify-between bg-rose-500/10 p-2 rounded-xl"><div><p class="text-xs font-bold">- ${escapeHtml(m.det)}</p><p class="text-[9px]">Gasto</p></div><div class="flex gap-2"><p class="text-xs font-black text-rose-400">-${cur}${m.val.toLocaleString()}</p><button onclick="annulGasto(${m.id})" class="text-rose-400 text-[10px] bg-rose-500/20 px-2 py-1 rounded-lg">✕</button></div></div>`).join('');
         }
         async function annulGasto(id) { showConfirm("¿Eliminar este gasto?", async () => { await del('gastos', id); await updateTotal(); }); }
 
@@ -4531,12 +4536,13 @@
         async function openCajaModal() {
             const lastCierre = Number(localStorage.getItem('lastCierreCaja')) || 0;
             const orders = await getAll('orders'); const sales = await getAll('sales'); const gastos = await getAll('gastos');
+            const cur = getCurrency();
             const tOrders = orders.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha) > lastCierre).reduce((a,b) => a + (b.val||0), 0);
             const tSales = sales.filter(v => v.fecha > lastCierre && v.tipo !== 'adelanto' && v.tipo !== 'cobro_entrega').reduce((a,b) => a + (b.val||0), 0);
             const tGastos = gastos.filter(g => g.fecha > lastCierre).reduce((a,b) => a + (b.val||0), 0);
-            document.getElementById('modal-caja-ingresos').innerText = 'Ingresos: $' + (tOrders + tSales).toLocaleString();
-            document.getElementById('modal-caja-gastos').innerText = 'Gastos: $' + tGastos.toLocaleString();
-            document.getElementById('modal-caja-total').innerText = '$' + (tOrders + tSales - tGastos).toLocaleString();
+            document.getElementById('modal-caja-ingresos').innerText = 'Ingresos: ' + cur + (tOrders + tSales).toLocaleString();
+            document.getElementById('modal-caja-gastos').innerText = 'Gastos: ' + cur + tGastos.toLocaleString();
+            document.getElementById('modal-caja-total').innerText = cur + (tOrders + tSales - tGastos).toLocaleString();
             const dailyData = {};
             const processItem = (item, dateField, isGasto=false) => { const d = new Date(item[dateField]); const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; if(!dailyData[key]) dailyData[key] = { display: d.toLocaleDateString('es-ES', { weekday: 'short', month: 'short', day: 'numeric' }), total: 0 }; isGasto ? dailyData[key].total -= (item.val||0) : dailyData[key].total += (item.val||0); };
             orders.filter(o=>o.sta==='entregado').forEach(o=>processItem(o, o.fechaEntrega ? 'fechaEntrega' : 'fecha'));
@@ -4544,7 +4550,7 @@
             gastos.forEach(g=>processItem(g,'fecha',true));
             const list = document.getElementById('daily-income-list');
             const keys = Object.keys(dailyData).sort((a,b)=>b.localeCompare(a));
-            list.innerHTML = keys.length ? keys.map(k=>`<div class="flex justify-between bg-white/5 p-3 rounded-xl"><span>${dailyData[k].display}</span><span class="font-black ${dailyData[k].total>=0?'text-emerald-400':'text-rose-400'}">$${dailyData[k].total.toLocaleString()}</span></div>`).join('') : '<div class="text-center py-6 text-slate-500">No hay registros diarios</div>';
+            list.innerHTML = keys.length ? keys.map(k=>`<div class="flex justify-between bg-white/5 p-3 rounded-xl"><span>${dailyData[k].display}</span><span class="font-black ${dailyData[k].total>=0?'text-emerald-400':'text-rose-400'}">${cur}${dailyData[k].total.toLocaleString()}</span></div>`).join('') : '<div class="text-center py-6 text-slate-500">No hay registros diarios</div>';
             document.getElementById('modal-caja').classList.remove('hidden');
         }
         function closeCajaModal() { document.getElementById('modal-caja').classList.add('hidden'); }
@@ -4983,6 +4989,7 @@
 
         // ==================== AVISAR LISTOS MEJORADO (mejora 6) ====================
         async function notifyAllReady() {
+            const cur = getCurrency();
             const orders = await getAll('orders');
             const ready = orders.filter(o => o.sta === 'reparado' && o.tel);
             if (!ready.length) return showAlert("No hay equipos en estado 'reparado' con teléfono registrado.", "info");
@@ -4998,7 +5005,7 @@
                             <div class="flex-1">
                                 <p class="font-bold text-sm">${escapeHtml(o.nom)}</p>
                                 <p class="text-xs text-slate-400">${escapeHtml(o.equ)} · Tel: ${o.tel}</p>
-                                <p class="text-[10px] text-slate-500 mt-1">Valor: $${o.val.toLocaleString()}</p>
+                                <p class="text-[10px] text-slate-500 mt-1">Valor: ${cur}${o.val.toLocaleString()}</p>
                             </div>
                             <div class="flex gap-2">
                                 <button onclick="sessionStorage.setItem('_waJump','1'); window.open('${waLink}','_blank')" class="bg-green-600/20 text-green-400 px-3 py-2 rounded-xl text-xs font-black">💬 ENVIAR</button>
@@ -6688,7 +6695,7 @@
             if (Notification.permission !== 'granted') return;
             const stock     = await getAll('stock');
             const threshold = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
-            const bajos     = stock.filter(s => (s.qty || 0) <= threshold && s.minStock !== undefined);
+            const bajos     = stock.filter(s => s.q !== undefined && Number(s.q) <= (s.minStock || threshold));
             if (bajos.length > 0) {
                 sendPushNotification(
                     '📦 Stock bajo — NelsonApp',
@@ -7921,7 +7928,7 @@
                 });
                 if (vencidas.length) alertas.push(`🕐 <strong>${vencidas.length}</strong> orden${vencidas.length>1?'es':''} vencida${vencidas.length>1?'s':''}`);
 
-                const bajosMin = stock.filter(s => s.qty !== undefined && s.minimo !== undefined && Number(s.qty) <= Number(s.minimo));
+                const bajosMin = stock.filter(s => s.q !== undefined && Number(s.q) <= (s.minStock || 3));
                 if (bajosMin.length) alertas.push(`📦 <strong>${bajosMin.length}</strong> repuesto${bajosMin.length>1?'s':''} bajo mínimo`);
 
                 const alertasWrap = document.getElementById('dash-alertas-wrap');
@@ -8101,9 +8108,9 @@
                     const stock = await getAll('stock');
                     headers = ['Nombre','Categoría','Código','Cantidad','Mínimo','Precio Venta','Precio Costo','Estado'];
                     rows = stock.map(s => [
-                        s.name||'', s.category||'', s.code||'', s.qty||0, s.minimo||0,
-                        s.price||0, s.cost||0,
-                        (s.qty||0) <= (s.minimo||0) ? 'BAJO MÍNIMO' : 'OK'
+                        s.n||'', s.cat||'', s.code||'', s.q||0, s.minStock||0,
+                        s.p||0, s.cost||0,
+                        (s.q||0) <= (s.minStock||0) ? 'BAJO MÍNIMO' : 'OK'
                     ]);
                     filename = `inventario_${dateStr}`;
                 } else if (type === 'reporte') {
@@ -8331,7 +8338,8 @@
                 }
 
                 // 3. Repuestos bajo mínimo
-                const bajosMin = stock.filter(s => s.qty !== undefined && s.minimo !== undefined && Number(s.qty) <= Number(s.minimo));
+                const threshold = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
+                const bajosMin = stock.filter(s => s.q !== undefined && Number(s.q) <= (s.minStock || threshold));
                 if (bajosMin.length > 0) {
                     const lastKey = '_notif_stock_' + bajosMin.length;
                     if (!sessionStorage.getItem(lastKey)) {
