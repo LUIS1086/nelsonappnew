@@ -8941,7 +8941,7 @@
             <!-- Pantalla de configuración inicial -->
             <div id="nia-setup">
                 <h3>👋 ¡Hola Luis! Configuremos tu asistente</h3>
-                <p>Nelson IA usa <strong style="color:#fb923c;">Google Gemini</strong> que es <strong style="color:#10b981;">100% gratis</strong> (hasta 1.500 consultas al día). Solo necesitas una llave API, que se obtiene en 2 minutos.</p>
+                <p>Nelson IA usa <strong style="color:#fb923c;">Google Gemini 2.5 Flash</strong>, que es <strong style="color:#10b981;">100% gratis</strong> (hasta 500 consultas al día y 10 por minuto). Solo necesitas una llave API, que se obtiene en 2 minutos.</p>
 
                 <div class="nia-step">
                     <div class="nia-step-num">1</div>
@@ -8985,7 +8985,7 @@
 
         const NIA_KEY_STORAGE = 'nia_gemini_key';
         const NIA_HISTORY_STORAGE = 'nia_chat_history';
-        const NIA_MODEL = 'gemini-2.0-flash';
+        const NIA_MODEL = 'gemini-2.5-flash';
         const NIA_MAX_HISTORY = 10; // últimos 10 mensajes en contexto
 
         let niaHistory = []; // [{role:'user'|'model', text:''}]
@@ -9417,34 +9417,88 @@ ${JSON.stringify(context, null, 2)}`;
                 }
             };
 
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${NIA_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`;
+            // Intento primero con el modelo principal. Si falla por 429/404, cambio a Flash-Lite.
+            const modelsToTry = [NIA_MODEL, 'gemini-2.5-flash-lite'];
+            let lastError = null;
 
-            const resp = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            });
+            for (let i = 0; i < modelsToTry.length; i++) {
+                const model = modelsToTry[i];
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+                try {
+                    const resp = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body)
+                    });
 
-            if (!resp.ok) {
-                const errText = await resp.text().catch(() => '');
-                if (resp.status === 400 && errText.includes('API_KEY')) {
-                    throw new Error('Llave API inválida. Revisa la configuración.');
+                    if (!resp.ok) {
+                        const errText = await resp.text().catch(() => '');
+
+                        // Llave inválida: fallo inmediato, no tiene sentido reintentar
+                        if (resp.status === 400 && (errText.includes('API_KEY') || errText.includes('API key'))) {
+                            throw new Error('Llave API inválida. Toca "✕" arriba, luego el 🧠 otra vez para reconfigurar.');
+                        }
+                        if (resp.status === 403) {
+                            throw new Error('Tu llave no tiene permiso. Crea una nueva en aistudio.google.com/apikey');
+                        }
+
+                        // 429 = límite. Si aún hay modelo para intentar, probamos el siguiente.
+                        if (resp.status === 429) {
+                            if (i < modelsToTry.length - 1) {
+                                lastError = new Error('rate_limit');
+                                continue; // prueba con Flash-Lite
+                            }
+                            // Ya no hay más modelos: explico claro qué pasó
+                            throw new Error('Esperaste muy rápido entre consultas. El plan gratis permite 10-15 por minuto. Espera 30 segundos y vuelve a intentar.');
+                        }
+
+                        // 404 = modelo no existe/no disponible en tu región
+                        if (resp.status === 404) {
+                            if (i < modelsToTry.length - 1) {
+                                lastError = new Error('model_not_found');
+                                continue;
+                            }
+                            throw new Error('Los modelos de Gemini no están disponibles en tu cuenta. Verifica en aistudio.google.com');
+                        }
+
+                        // Otros errores del servidor: intenta con el siguiente modelo
+                        if (resp.status >= 500 && i < modelsToTry.length - 1) {
+                            lastError = new Error(`server_${resp.status}`);
+                            continue;
+                        }
+
+                        throw new Error(`Error ${resp.status}: ${errText.slice(0, 150) || 'No se pudo conectar'}`);
+                    }
+
+                    const data = await resp.json();
+                    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (!text) {
+                        if (data?.promptFeedback?.blockReason) {
+                            throw new Error('La pregunta fue bloqueada por el filtro de seguridad de Gemini.');
+                        }
+                        // A veces Gemini 2.5 devuelve respuesta vacía con finishReason MAX_TOKENS en "thinking"
+                        if (data?.candidates?.[0]?.finishReason === 'MAX_TOKENS') {
+                            throw new Error('Respuesta demasiado larga. Intenta una pregunta más específica.');
+                        }
+                        if (i < modelsToTry.length - 1) {
+                            lastError = new Error('empty_response');
+                            continue;
+                        }
+                        throw new Error('Respuesta vacía de Gemini. Intenta de nuevo.');
+                    }
+                    return text.trim();
+                } catch (fetchErr) {
+                    // Error de red o timeout: intenta con el siguiente
+                    if (fetchErr.message === 'rate_limit' || fetchErr.message === 'model_not_found' ||
+                        fetchErr.message === 'empty_response' || fetchErr.message.startsWith('server_')) {
+                        lastError = fetchErr;
+                        continue;
+                    }
+                    throw fetchErr; // errores de llave inválida etc. se propagan inmediato
                 }
-                if (resp.status === 429) {
-                    throw new Error('Llegaste al límite diario gratis (1500 consultas). Intenta mañana.');
-                }
-                throw new Error(`Error ${resp.status}: ${errText.slice(0, 150) || 'No se pudo conectar'}`);
             }
 
-            const data = await resp.json();
-            const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (!text) {
-                if (data?.promptFeedback?.blockReason) {
-                    throw new Error('La pregunta fue bloqueada por el filtro de seguridad de Gemini.');
-                }
-                throw new Error('Respuesta vacía de Gemini.');
-            }
-            return text.trim();
+            throw lastError || new Error('No se pudo obtener respuesta de Gemini');
         }
 
         // ──────────── Acceso público: borrar llave (por si quiere resetear) ────────────
