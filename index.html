@@ -8992,14 +8992,15 @@
         let niaSending = false;
 
         const SUGGESTIONS = [
-            '📊 Resumen del mes',
-            '💰 ¿Cuánto me deben?',
-            '📦 ¿Qué repuestos faltan?',
+            '💰 Ingresos del mes',
+            '📊 Resumen general',
+            '💳 ¿Cuánto me deben?',
+            '📦 Repuestos por acabarse',
             '⏰ Órdenes atrasadas',
             '👥 Clientes sin volver',
             '🏆 Mejor técnico del mes',
-            '💡 ¿Qué vender más?',
-            '📈 Comparar con mes pasado'
+            '📈 Comparar con mes pasado',
+            '💡 ¿Qué debo hacer hoy?'
         ];
 
         // ──────────── Helpers ────────────
@@ -9212,173 +9213,266 @@
         };
 
         // ──────────── Construir contexto desde IndexedDB ────────────
+        // Campos reales de NelsonApp Pro:
+        //   orders: {id, orderNum, nom, tel, equ, val, adelanto, saldo, sta, det, fecha(timestamp),
+        //            alertSent, garantia, presupuesto, tecnico, fechaEstimada, notas, origen, fotos, fotosEntrega}
+        //   sales:  {id, item, val, qty, stockId, fecha(timestamp), tipo?, ordenId?}
+        //   stock:  {id, n(nombre), p(precio), c(cantidad), min(minimo), cat(categoria), codigo}
+        //   gastos: {id, det, val, fecha(timestamp)}
+        //   clientes: {nombre, tel?, ...}
+        //   payments: {id, ordenId, monto, fecha}
         async function niaBuildContext() {
-            // Reutilizo la función getAll ya existente en la app
-            const ctx = { fechaActual: new Date().toISOString().slice(0,10) };
+            const ahora = Date.now();
+            const hoy = new Date();
+            const ctx = {
+                fechaActual: hoy.toISOString().slice(0,10),
+                errores: []
+            };
+
+            // Helpers de fechas - timestamp en ms
+            const T_INICIO_HOY  = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()).getTime();
+            const T_INICIO_MES  = new Date(hoy.getFullYear(), hoy.getMonth(), 1).getTime();
+            const T_INICIO_MES_PASADO = new Date(hoy.getFullYear(), hoy.getMonth()-1, 1).getTime();
+            const T_FIN_MES_PASADO    = new Date(hoy.getFullYear(), hoy.getMonth(), 1).getTime() - 1;
+            const T_HACE_7_DIAS  = ahora - (7*86400000);
+            const T_HACE_30_DIAS = ahora - (30*86400000);
+            const T_HACE_90_DIAS = ahora - (90*86400000);
+            const tsToFecha = (ts) => ts ? new Date(ts).toISOString().slice(0,10) : '';
+
+            // Leer todo con catch individual
+            let orders=[], stock=[], sales=[], gastos=[], clientes=[], payments=[];
+            try { orders   = await getAll('orders');   } catch(e) { ctx.errores.push('orders: '+e.message); }
+            try { stock    = await getAll('stock');    } catch(e) { ctx.errores.push('stock: '+e.message); }
+            try { sales    = await getAll('sales');    } catch(e) { ctx.errores.push('sales: '+e.message); }
+            try { gastos   = await getAll('gastos');   } catch(e) { ctx.errores.push('gastos: '+e.message); }
+            try { clientes = await getAll('clientes'); } catch(e) { ctx.errores.push('clientes: '+e.message); }
+            try { payments = await getAll('payments'); } catch(e) { ctx.errores.push('payments: '+e.message); }
+
             try {
-                const [orders, stock, sales, gastos, clientes, payments] = await Promise.all([
-                    getAll('orders').catch(() => []),
-                    getAll('stock').catch(() => []),
-                    getAll('sales').catch(() => []),
-                    getAll('gastos').catch(() => []),
-                    getAll('clientes').catch(() => []),
-                    getAll('payments').catch(() => [])
-                ]);
-
-                // Fecha de hace 30 días y 90 días
-                const hoy = new Date();
-                const hace30 = new Date(hoy.getTime() - 30*24*60*60*1000).toISOString().slice(0,10);
-                const hace90 = new Date(hoy.getTime() - 90*24*60*60*1000).toISOString().slice(0,10);
-                const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().slice(0,10);
-                const inicioMesPasado = new Date(hoy.getFullYear(), hoy.getMonth()-1, 1).toISOString().slice(0,10);
-                const finMesPasado = new Date(hoy.getFullYear(), hoy.getMonth(), 0).toISOString().slice(0,10);
-
-                // ── ÓRDENES ──
-                const ordActivas = orders.filter(o => o.estado !== 'entregado' && o.estado !== 'no-reparable');
-                const ordEntregadasMes = orders.filter(o => o.estado === 'entregado' && (o.fechaEntregaReal || o.fecha || '') >= inicioMes);
-                const ordAtrasadas = orders.filter(o => {
-                    if (o.estado === 'entregado' || o.estado === 'no-reparable') return false;
+                // ═══════ ÓRDENES ═══════
+                // Estados en la app: recibido, diagnostico, presupuesto, reparando, listo, entregado, no-reparable
+                const ordActivas    = orders.filter(o => o.sta !== 'entregado' && o.sta !== 'no-reparable');
+                const ordEntregadas = orders.filter(o => o.sta === 'entregado');
+                const ordEntregadasMes = ordEntregadas.filter(o => (o.fecha || 0) >= T_INICIO_MES);
+                const ordAtrasadas  = orders.filter(o => {
+                    if (o.sta === 'entregado' || o.sta === 'no-reparable') return false;
                     if (!o.fechaEstimada) return false;
                     return o.fechaEstimada < ctx.fechaActual;
                 });
+                const ordNuevasHoy = orders.filter(o => (o.fecha || 0) >= T_INICIO_HOY);
 
                 ctx.ordenes = {
-                    total: orders.length,
-                    activas: ordActivas.length,
+                    totalHistorico: orders.length,
+                    activasAhora: ordActivas.length,
                     entregadasEsteMes: ordEntregadasMes.length,
+                    entregadasHistorico: ordEntregadas.length,
                     atrasadas: ordAtrasadas.length,
+                    nuevasHoy: ordNuevasHoy.length,
                     porEstado: {}
                 };
                 orders.forEach(o => {
-                    ctx.ordenes.porEstado[o.estado || 'sin_estado'] = (ctx.ordenes.porEstado[o.estado || 'sin_estado'] || 0) + 1;
+                    const s = o.sta || 'sin_estado';
+                    ctx.ordenes.porEstado[s] = (ctx.ordenes.porEstado[s] || 0) + 1;
                 });
 
-                // Muestro las 15 más recientes activas con datos clave
+                // 12 órdenes activas más recientes
                 ctx.ordenesActivasRecientes = ordActivas
-                    .sort((a,b) => (b.fecha || '').localeCompare(a.fecha || ''))
-                    .slice(0, 15)
+                    .sort((a,b) => (b.fecha || 0) - (a.fecha || 0))
+                    .slice(0, 12)
                     .map(o => ({
-                        id: o.id,
-                        cliente: o.cliente,
-                        equipo: o.equipo,
-                        marca: o.marca,
-                        problema: (o.problema || '').slice(0, 80),
-                        estado: o.estado,
-                        fecha: o.fecha,
-                        fechaEstimada: o.fechaEstimada,
-                        valor: o.valor,
+                        num: o.orderNum,
+                        cliente: o.nom,
+                        telefono: o.tel,
+                        equipo: o.equ,
+                        falla: (o.det || '').slice(0, 80),
+                        estado: o.sta,
+                        fecha: tsToFecha(o.fecha),
+                        fechaEstimadaEntrega: o.fechaEstimada,
+                        valor: o.val,
                         adelanto: o.adelanto,
-                        saldo: (o.valor || 0) - (o.adelanto || 0),
-                        tecnico: o.tecnico,
-                        prioridad: o.prioridad
+                        saldo: (o.val || 0) - (o.adelanto || 0),
+                        tecnico: o.tecnico
                     }));
 
-                // Órdenes atrasadas (top 10)
-                ctx.ordenesAtrasadas = ordAtrasadas.slice(0, 10).map(o => ({
-                    id: o.id, cliente: o.cliente, equipo: o.equipo,
-                    fechaEstimada: o.fechaEstimada, estado: o.estado,
-                    diasAtraso: Math.ceil((new Date(ctx.fechaActual) - new Date(o.fechaEstimada)) / 86400000)
+                ctx.ordenesAtrasadas = ordAtrasadas.slice(0, 12).map(o => ({
+                    num: o.orderNum,
+                    cliente: o.nom,
+                    telefono: o.tel,
+                    equipo: o.equ,
+                    estado: o.sta,
+                    fechaEstimadaEntrega: o.fechaEstimada,
+                    diasAtraso: Math.ceil((Date.now() - new Date(o.fechaEstimada).getTime()) / 86400000),
+                    valor: o.val
                 }));
 
-                // ── DEUDAS / SALDOS ──
-                const ordConSaldo = orders.filter(o => o.estado === 'entregado' && ((o.valor || 0) - (o.adelanto || 0) > 0));
-                ctx.saldosPendientes = {
-                    totalClientes: ordConSaldo.length,
-                    montoTotal: ordConSaldo.reduce((s,o) => s + ((o.valor||0) - (o.adelanto||0)), 0),
-                    detalle: ordConSaldo.slice(0, 10).map(o => ({
-                        cliente: o.cliente, orden: o.id, saldo: (o.valor||0) - (o.adelanto||0), fecha: o.fecha
-                    }))
-                };
+                // ═══════ INGRESOS (de sales + valor de órdenes entregadas) ═══════
+                // Las ventas incluyen: ventas de stock + adelantos + cobros de entrega
+                const ventasMes    = sales.filter(v => (v.fecha || 0) >= T_INICIO_MES);
+                const ventasHoy    = sales.filter(v => (v.fecha || 0) >= T_INICIO_HOY);
+                const ventas7dias  = sales.filter(v => (v.fecha || 0) >= T_HACE_7_DIAS);
+                const ventasMesPasado = sales.filter(v => (v.fecha || 0) >= T_INICIO_MES_PASADO && (v.fecha || 0) <= T_FIN_MES_PASADO);
 
-                // ── INVENTARIO ──
-                const stockBajo = stock.filter(s => (s.cantidad || 0) <= (s.minimo || 3) && (s.cantidad || 0) > 0);
-                const stockAgotado = stock.filter(s => (s.cantidad || 0) <= 0);
-                ctx.inventario = {
-                    totalItems: stock.length,
-                    valorTotal: stock.reduce((s,i) => s + ((i.cantidad||0) * (i.precioCompra || i.precio || 0)), 0),
-                    stockBajo: stockBajo.length,
-                    stockAgotado: stockAgotado.length,
-                    itemsBajos: stockBajo.slice(0, 15).map(s => ({
-                        nombre: s.nombre, cantidad: s.cantidad, minimo: s.minimo, precio: s.precio
-                    })),
-                    itemsAgotados: stockAgotado.slice(0, 10).map(s => ({ nombre: s.nombre, precio: s.precio }))
-                };
+                const sumVal = arr => arr.reduce((s,v) => s + (v.val || 0), 0);
 
-                // ── VENTAS DEL MES ──
-                const ventasEsteMes = sales.filter(v => (v.fecha || '') >= inicioMes);
-                const ventasMesPasado = sales.filter(v => (v.fecha || '') >= inicioMesPasado && (v.fecha || '') <= finMesPasado);
-                ctx.ventas = {
-                    cantidadEsteMes: ventasEsteMes.length,
-                    totalEsteMes: ventasEsteMes.reduce((s,v) => s + (v.total || 0), 0),
-                    cantidadMesPasado: ventasMesPasado.length,
-                    totalMesPasado: ventasMesPasado.reduce((s,v) => s + (v.total || 0), 0),
-                    ultimas10: sales.slice(-10).map(v => ({
-                        fecha: v.fecha, total: v.total, items: (v.items || []).length, cliente: v.cliente
-                    }))
-                };
-
-                // Top productos vendidos del mes
-                const productosContador = {};
-                ventasEsteMes.forEach(v => {
-                    (v.items || []).forEach(i => {
-                        if (!productosContador[i.nombre]) productosContador[i.nombre] = { cantidad: 0, ingreso: 0 };
-                        productosContador[i.nombre].cantidad += (i.cantidad || 1);
-                        productosContador[i.nombre].ingreso += (i.subtotal || i.precio || 0);
-                    });
+                // Clasifico sales por tipo (adelantos, cobros de entrega, ventas directas de stock)
+                const ingresosMesPorTipo = { adelantos: 0, cobros_entrega: 0, ventas_stock: 0, otros: 0 };
+                ventasMes.forEach(v => {
+                    if (v.tipo === 'adelanto')        ingresosMesPorTipo.adelantos     += (v.val || 0);
+                    else if (v.tipo === 'cobro_entrega') ingresosMesPorTipo.cobros_entrega += (v.val || 0);
+                    else if (v.stockId)               ingresosMesPorTipo.ventas_stock   += (v.val || 0);
+                    else                               ingresosMesPorTipo.otros          += (v.val || 0);
                 });
-                ctx.topProductosDelMes = Object.entries(productosContador)
-                    .sort((a,b) => b[1].cantidad - a[1].cantidad)
+
+                ctx.ingresos = {
+                    totalHoy: sumVal(ventasHoy),
+                    totalUltimos7Dias: sumVal(ventas7dias),
+                    totalEsteMes: sumVal(ventasMes),
+                    totalMesPasado: sumVal(ventasMesPasado),
+                    cantidadTransaccionesHoy: ventasHoy.length,
+                    cantidadTransaccionesMes: ventasMes.length,
+                    desgloseMes: ingresosMesPorTipo,
+                    variacionMensual: ventasMesPasado.length > 0
+                        ? (sumVal(ventasMes) - sumVal(ventasMesPasado))
+                        : null
+                };
+
+                // Últimos 10 movimientos de caja
+                ctx.ultimosMovimientosCaja = sales
+                    .sort((a,b) => (b.fecha || 0) - (a.fecha || 0))
                     .slice(0, 10)
-                    .map(([nombre, d]) => ({ nombre, unidadesVendidas: d.cantidad, ingresoTotal: d.ingreso }));
+                    .map(v => ({
+                        fecha: tsToFecha(v.fecha),
+                        concepto: v.item,
+                        valor: v.val,
+                        cantidad: v.qty,
+                        tipo: v.tipo || (v.stockId ? 'venta_stock' : 'otro')
+                    }));
 
-                // ── GASTOS ──
-                const gastosEsteMes = gastos.filter(g => (g.fecha || '') >= inicioMes);
-                ctx.gastos = {
-                    cantidadEsteMes: gastosEsteMes.length,
-                    totalEsteMes: gastosEsteMes.reduce((s,g) => s + (g.monto || 0), 0),
-                    porCategoria: {}
-                };
-                gastosEsteMes.forEach(g => {
-                    const cat = g.categoria || 'otros';
-                    ctx.gastos.porCategoria[cat] = (ctx.gastos.porCategoria[cat] || 0) + (g.monto || 0);
+                // ═══════ SALDOS PENDIENTES (órdenes entregadas o activas con saldo > 0) ═══════
+                const ordConSaldo = orders.filter(o => {
+                    const saldo = (o.val || 0) - (o.adelanto || 0);
+                    return saldo > 0 && o.sta !== 'no-reparable';
                 });
+                ctx.cuentasPorCobrar = {
+                    cantidadClientes: ordConSaldo.length,
+                    montoTotal: ordConSaldo.reduce((s,o) => s + ((o.val||0) - (o.adelanto||0)), 0),
+                    detalle: ordConSaldo
+                        .sort((a,b) => ((b.val||0)-(b.adelanto||0)) - ((a.val||0)-(a.adelanto||0)))
+                        .slice(0, 12)
+                        .map(o => ({
+                            orden: o.orderNum,
+                            cliente: o.nom,
+                            telefono: o.tel,
+                            equipo: o.equ,
+                            estado: o.sta,
+                            saldoPendiente: (o.val||0) - (o.adelanto||0),
+                            valorTotal: o.val,
+                            adelantado: o.adelanto,
+                            fechaOrden: tsToFecha(o.fecha)
+                        }))
+                };
 
-                // ── UTILIDAD APROXIMADA ──
-                const ingresosMes = ctx.ventas.totalEsteMes + orders
-                    .filter(o => o.estado === 'entregado' && (o.fechaEntregaReal || o.fecha || '') >= inicioMes)
-                    .reduce((s,o) => s + (o.valor || 0), 0);
-                ctx.utilidadEstimadaMes = ingresosMes - ctx.gastos.totalEsteMes;
-                ctx.ingresosBrutosMes = ingresosMes;
+                // ═══════ INVENTARIO (stock: n=nombre, p=precio, c=cantidad, min=minimo) ═══════
+                const stockBajo    = stock.filter(s => (s.c || 0) <= (s.min || 3) && (s.c || 0) > 0);
+                const stockAgotado = stock.filter(s => (s.c || 0) <= 0);
+                ctx.inventario = {
+                    totalProductos: stock.length,
+                    valorInventarioAProducto: stock.reduce((s,i) => s + ((i.c||0) * (i.p||0)), 0),
+                    productosStockBajo: stockBajo.length,
+                    productosAgotados: stockAgotado.length,
+                    itemsStockBajo: stockBajo.slice(0, 15).map(s => ({
+                        nombre: s.n, cantidad: s.c, minimo: s.min, precio: s.p, codigo: s.codigo
+                    })),
+                    itemsAgotados: stockAgotado.slice(0, 10).map(s => ({
+                        nombre: s.n, precio: s.p, codigo: s.codigo
+                    }))
+                };
 
-                // ── CLIENTES ──
-                // Agrupo órdenes por cliente
+                // ═══════ GASTOS ═══════
+                const gastosMes   = gastos.filter(g => (g.fecha || 0) >= T_INICIO_MES);
+                const gastos7dias = gastos.filter(g => (g.fecha || 0) >= T_HACE_7_DIAS);
+                ctx.gastos = {
+                    totalEsteMes: gastosMes.reduce((s,g) => s + (g.val || 0), 0),
+                    totalUltimos7Dias: gastos7dias.reduce((s,g) => s + (g.val || 0), 0),
+                    cantidadEsteMes: gastosMes.length,
+                    ultimos10: gastos.sort((a,b) => (b.fecha||0)-(a.fecha||0)).slice(0,10).map(g => ({
+                        fecha: tsToFecha(g.fecha),
+                        motivo: g.det,
+                        valor: g.val
+                    }))
+                };
+
+                // ═══════ UTILIDAD (ingresos caja - gastos) ═══════
+                ctx.utilidadEstimada = {
+                    esteMes: ctx.ingresos.totalEsteMes - ctx.gastos.totalEsteMes,
+                    ultimos7Dias: ctx.ingresos.totalUltimos7Dias - ctx.gastos.totalUltimos7Dias,
+                    nota: 'Utilidad = ingresos de caja (ventas + adelantos + cobros) - gastos registrados. No incluye costo de repuestos.'
+                };
+
+                // ═══════ CLIENTES ═══════
                 const clientesMap = {};
                 orders.forEach(o => {
-                    if (!o.cliente) return;
-                    if (!clientesMap[o.cliente]) clientesMap[o.cliente] = { ordenes: 0, gastoTotal: 0, ultimaFecha: '', telefono: o.telefono };
-                    clientesMap[o.cliente].ordenes += 1;
-                    clientesMap[o.cliente].gastoTotal += (o.valor || 0);
-                    if ((o.fecha || '') > clientesMap[o.cliente].ultimaFecha) clientesMap[o.cliente].ultimaFecha = o.fecha || '';
+                    if (!o.nom) return;
+                    if (!clientesMap[o.nom]) clientesMap[o.nom] = {
+                        ordenes: 0, gastoTotalAcumulado: 0, saldoPendiente: 0,
+                        ultimaOrdenTimestamp: 0, ultimaOrdenFecha: '', telefono: o.tel
+                    };
+                    const c = clientesMap[o.nom];
+                    c.ordenes += 1;
+                    c.gastoTotalAcumulado += (o.val || 0);
+                    c.saldoPendiente += Math.max(0, (o.val || 0) - (o.adelanto || 0));
+                    if ((o.fecha || 0) > c.ultimaOrdenTimestamp) {
+                        c.ultimaOrdenTimestamp = o.fecha || 0;
+                        c.ultimaOrdenFecha = tsToFecha(o.fecha);
+                        if (o.tel) c.telefono = o.tel;
+                    }
                 });
                 const clientesArr = Object.entries(clientesMap).map(([nombre, d]) => ({ nombre, ...d }));
                 ctx.clientes = {
-                    total: clientesArr.length,
-                    topGasto: clientesArr.sort((a,b) => b.gastoTotal - a.gastoTotal).slice(0, 10),
-                    sinVolverHace90Dias: clientesArr.filter(c => c.ultimaFecha && c.ultimaFecha < hace90).slice(0, 15)
+                    totalUnicos: clientesArr.length,
+                    top10PorGasto: clientesArr
+                        .sort((a,b) => b.gastoTotalAcumulado - a.gastoTotalAcumulado)
+                        .slice(0, 10)
+                        .map(c => ({
+                            nombre: c.nombre, telefono: c.telefono,
+                            totalOrdenes: c.ordenes,
+                            gastoTotalCOP: c.gastoTotalAcumulado,
+                            saldoPendienteCOP: c.saldoPendiente,
+                            ultimaVisita: c.ultimaOrdenFecha
+                        })),
+                    sinVolverHace90Dias: clientesArr
+                        .filter(c => c.ultimaOrdenTimestamp > 0 && c.ultimaOrdenTimestamp < T_HACE_90_DIAS)
+                        .slice(0, 15)
+                        .map(c => ({
+                            nombre: c.nombre, telefono: c.telefono,
+                            ultimaVisita: c.ultimaOrdenFecha,
+                            totalOrdenesHistoricas: c.ordenes,
+                            gastoTotalCOP: c.gastoTotalAcumulado
+                        }))
                 };
 
-                // ── TÉCNICOS ──
+                // ═══════ TÉCNICOS (rendimiento del mes) ═══════
                 const tecnicosMap = {};
-                orders.filter(o => o.estado === 'entregado' && (o.fechaEntregaReal || o.fecha || '') >= inicioMes).forEach(o => {
-                    const t = o.tecnico || 'sin_asignar';
-                    if (!tecnicosMap[t]) tecnicosMap[t] = { entregadas: 0, ingresoGenerado: 0 };
-                    tecnicosMap[t].entregadas += 1;
-                    tecnicosMap[t].ingresoGenerado += (o.valor || 0);
+                ordEntregadasMes.forEach(o => {
+                    const t = o.tecnico || '(sin asignar)';
+                    if (!tecnicosMap[t]) tecnicosMap[t] = { ordenesEntregadas: 0, ingresoGenerado: 0 };
+                    tecnicosMap[t].ordenesEntregadas += 1;
+                    tecnicosMap[t].ingresoGenerado += (o.val || 0);
                 });
-                ctx.tecnicosEsteMes = Object.entries(tecnicosMap).map(([nombre, d]) => ({ nombre, ...d }));
+                ctx.rendimientoTecnicosEsteMes = Object.entries(tecnicosMap)
+                    .map(([nombre, d]) => ({ nombre, ...d }))
+                    .sort((a,b) => b.ingresoGenerado - a.ingresoGenerado);
+
+                // ═══════ ORIGEN DE CLIENTES ═══════
+                const origenMap = {};
+                orders.forEach(o => {
+                    const og = o.origen || '(no registrado)';
+                    origenMap[og] = (origenMap[og] || 0) + 1;
+                });
+                ctx.comoNosConocen = origenMap;
 
             } catch (e) {
-                ctx.error_lectura = 'No se pudieron leer algunos datos: ' + e.message;
+                ctx.errorCritico = 'Error procesando datos: ' + (e.message || e);
             }
             return ctx;
         }
@@ -9387,17 +9481,37 @@
         async function niaCallGemini(apiKey, userMessage, context) {
             const systemPrompt = `Eres "Nelson IA", el asistente inteligente de "Todo Repuestos Nelson", un taller de reparación de electrodomésticos y venta de repuestos en Neiva, Huila, Colombia. El dueño es Luis Eduardo.
 
-REGLAS:
+REGLAS DE COMPORTAMIENTO:
 - Responde SIEMPRE en español colombiano, tono cercano y profesional (como un socio que conoce bien el negocio).
 - Sé CONCRETO y ÚTIL. Nada de respuestas vagas. Usa los números reales del contexto.
-- Formato: usa **negrillas** para destacar cifras clave, listas con • cuando ayude. Mantén respuestas cortas (máximo 6-8 líneas salvo que pidan detalle).
-- Moneda: pesos colombianos (COP). Formatea así: $1.250.000 (punto como separador de miles).
-- Si te preguntan algo que no está en los datos, dilo claramente: "No tengo ese dato en tu app" y sugiere cómo obtenerlo.
+- Formato: usa **negrillas** para destacar cifras clave, listas con • cuando ayude. Respuestas cortas (6-8 líneas, más solo si piden detalle).
+- Moneda: pesos colombianos (COP). Formato: $1.250.000 (punto como separador de miles).
 - Si detectas algo importante (mora grande, stock crítico, orden muy atrasada), señálalo aunque no te lo pregunten.
-- NUNCA inventes datos. Solo usa lo del CONTEXTO.
+- NUNCA inventes datos. Solo usa lo del CONTEXTO JSON.
 - Cuando des recomendaciones de negocio, sé directo y accionable.
+- NO menciones el campo "errores" del contexto al usuario salvo que sea crítico.
 
-CONTEXTO EN VIVO DEL TALLER (JSON con datos reales de la app):
+GUÍA DE DATOS (MUY IMPORTANTE — así están organizados en el CONTEXTO JSON):
+
+• **Ingresos / Ventas / Plata que entra** → campo "ingresos". Aquí está TODO el dinero que ha entrado a caja (adelantos de órdenes + cobros de entrega + ventas de repuestos de mostrador). Usa "ingresos.totalEsteMes", "ingresos.totalHoy", "ingresos.totalUltimos7Dias", "ingresos.totalMesPasado". El desglose por tipo está en "ingresos.desgloseMes".
+
+• **Órdenes del taller** → campo "ordenes". Estados posibles: recibido, diagnostico, presupuesto, reparando, listo, entregado, no-reparable. "activasAhora" excluye las ya entregadas.
+
+• **Deudas / Cartera / Cuánto le deben** → campo "cuentasPorCobrar". Es la suma de (valor - adelanto) de todas las órdenes. Usa "cuentasPorCobrar.montoTotal" y "cuentasPorCobrar.detalle".
+
+• **Inventario / Repuestos** → campo "inventario". "itemsStockBajo" son los que están por acabarse, "itemsAgotados" los que ya se acabaron.
+
+• **Gastos** → campo "gastos". "totalEsteMes" es lo que se ha gastado del mes.
+
+• **Utilidad / Ganancia** → campo "utilidadEstimada". Es ingresos menos gastos (aproximado, no incluye costo de repuestos).
+
+• **Clientes** → campo "clientes". "top10PorGasto" son los que más dinero han dejado. "sinVolverHace90Dias" son candidatos a reactivar con WhatsApp.
+
+• **Técnicos** → campo "rendimientoTecnicosEsteMes".
+
+• **Origen de clientes** → campo "comoNosConocen" (por dónde llegaron).
+
+CONTEXTO EN VIVO DEL TALLER (JSON con datos reales leídos hace segundos de la app):
 ${JSON.stringify(context, null, 2)}`;
 
             // Construir historial para Gemini (excluyendo el último mensaje del usuario que ya se agregó a niaHistory)
