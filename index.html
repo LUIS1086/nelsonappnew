@@ -9269,107 +9269,22 @@
                 .replace(/\*(.+?)\*/g, '<em>$1</em>');
         }
 
-        // Parsea el bloque de acciones de la respuesta.
-        // Soporta: [[ACTIONS]]...[[/ACTIONS]], bloque abierto sin cierre (cortado por MAX_TOKENS),
-        // variantes con ```json, backticks, espacios o saltos de línea.
+        // Parsea el bloque [[ACTIONS]]{...}[[/ACTIONS]] de la respuesta
         function niaParseActions(fullText) {
-            if (!fullText) return { cleanText: '', actions: [] };
-
-            // 1. Buscar donde COMIENZA el bloque de acciones (con varias variantes)
-            //    [[ACTIONS]], [ACTIONS], ACTIONS:, ```json, etc.
-            const startPatterns = [
-                /\[\[ACTIONS\]\]/i,
-                /\[ACTIONS\]/i,
-                /```json\s*\n?\s*\{[\s\S]*?"items"/i, // bloque markdown con items
-            ];
-            let startIdx = -1;
-            let startMatch = null;
-            for (const pat of startPatterns) {
-                const m = fullText.match(pat);
-                if (m && (startIdx === -1 || m.index < startIdx)) {
-                    startIdx = m.index;
-                    startMatch = m[0];
-                }
-            }
-
-            // Si no hay marcador de inicio, devuelve texto normal
-            if (startIdx === -1) return { cleanText: fullText.trim(), actions: [] };
-
-            // 2. Extraer texto limpio (todo antes del marcador)
-            const cleanText = fullText.substring(0, startIdx).trim();
-
-            // 3. Extraer el contenido desde el marcador hasta el cierre (o hasta el final)
-            let rawBlock = fullText.substring(startIdx + startMatch.length);
-
-            // Remover marcador de cierre si existe
-            rawBlock = rawBlock
-                .replace(/\[\[\/ACTIONS\]\]/gi, '')
-                .replace(/\[\/ACTIONS\]/gi, '')
-                .replace(/```/g, '')
-                .trim();
-
-            // 4. Intentar parseo directo (caso feliz)
-            let actions = [];
+            const regex = /\[\[ACTIONS\]\]([\s\S]*?)\[\[\/ACTIONS\]\]/;
+            const match = fullText.match(regex);
+            if (!match) return { cleanText: fullText.trim(), actions: [] };
+            const cleanText = fullText.replace(regex, '').trim();
             try {
-                const parsed = JSON.parse(rawBlock);
-                if (Array.isArray(parsed?.items)) {
-                    actions = parsed.items;
-                }
+                const jsonStr = match[1].trim();
+                const parsed = JSON.parse(jsonStr);
+                const items = Array.isArray(parsed?.items) ? parsed.items : [];
+                // Filtro acciones inválidas (sin tel o sin message)
+                const valid = items.filter(a => a && a.tel && a.message && a.label);
+                return { cleanText, actions: valid.slice(0, 5) };
             } catch (e) {
-                // 5. Parseo directo falló — intento recuperar items manualmente
-                //    Busco objetos tipo {"label":..., "tel":..., "message":...}
-                actions = niaExtractActionsFlexible(rawBlock);
+                return { cleanText, actions: [] };
             }
-
-            // 6. Si aún no encontré nada con el bloque delimitado, intento buscar en todo el texto
-            //    (por si el modelo no usó marcadores)
-            if (actions.length === 0) {
-                const fallback = niaExtractActionsFlexible(fullText);
-                if (fallback.length > 0) {
-                    actions = fallback;
-                    // Usar el texto antes del primer { que parezca una acción como cleanText
-                    const firstCurly = fullText.search(/\{\s*"(label|tel|message)"/);
-                    if (firstCurly > 0) {
-                        return { cleanText: fullText.substring(0, firstCurly).trim().replace(/\[\[ACTIONS\]\]/gi, '').trim(), actions };
-                    }
-                }
-            }
-
-            // 7. Validar y filtrar acciones
-            const valid = actions
-                .filter(a => a && typeof a === 'object' && a.tel && a.message && a.label)
-                .slice(0, 5);
-
-            return { cleanText, actions: valid };
-        }
-
-        // Extrae objetos {"label","tel","message"} de un texto libre (tolerante a JSON mal formado)
-        function niaExtractActionsFlexible(text) {
-            const results = [];
-            // Busco bloques que contengan los 3 campos clave
-            // Regex no-codicioso que captura desde { hasta el siguiente } que cierre balanceado
-            const objRegex = /\{[^{}]*"label"[^{}]*"tel"[^{}]*"message"[^{}]*\}|\{[^{}]*"label"[^{}]*"message"[^{}]*"tel"[^{}]*\}|\{[^{}]*"tel"[^{}]*"label"[^{}]*"message"[^{}]*\}|\{[^{}]*"tel"[^{}]*"message"[^{}]*"label"[^{}]*\}|\{[^{}]*"message"[^{}]*"label"[^{}]*"tel"[^{}]*\}|\{[^{}]*"message"[^{}]*"tel"[^{}]*"label"[^{}]*\}/g;
-
-            let match;
-            while ((match = objRegex.exec(text)) !== null) {
-                try {
-                    const obj = JSON.parse(match[0]);
-                    if (obj.label && obj.tel && obj.message) results.push(obj);
-                } catch (e) {
-                    // Si el JSON está algo roto, intento extraer campos manualmente con regex
-                    const label   = (match[0].match(/"label"\s*:\s*"((?:[^"\\]|\\.)*)"/)   || [])[1];
-                    const tel     = (match[0].match(/"tel"\s*:\s*"((?:[^"\\]|\\.)*)"/)     || [])[1];
-                    const message = (match[0].match(/"message"\s*:\s*"((?:[^"\\]|\\.)*)"/) || [])[1];
-                    if (label && tel && message) {
-                        results.push({
-                            label: label.replace(/\\"/g, '"').replace(/\\n/g, '\n'),
-                            tel: tel.replace(/\\"/g, '"'),
-                            message: message.replace(/\\"/g, '"').replace(/\\n/g, '\n')
-                        });
-                    }
-                }
-            }
-            return results;
         }
 
         // Construye los botones de acción
@@ -9803,16 +9718,14 @@ Al final de tu respuesta (después del texto normal), agrega UN SOLO bloque así
 }
 [[/ACTIONS]]
 
-REGLAS PARA LAS ACCIONES (MUY IMPORTANTE, sigue al pie de la letra):
-- Antes del bloque [[ACTIONS]], tu texto explicativo debe ser CORTO (3-5 líneas máximo). NO hagas listas largas de los mismos clientes que luego vas a poner en acciones — eso duplica info.
-- El JSON debe ser VÁLIDO: comillas dobles, sin comas sobrantes, sin comentarios.
-- Escribe el JSON COMPACTO, en una sola línea por acción si es posible. NO uses sangría bonita con muchos espacios.
+REGLAS PARA LAS ACCIONES:
+- El JSON debe ser VÁLIDO (comillas dobles, sin comas sobrantes).
 - "tel" = solo dígitos del teléfono, sin +57 ni espacios ni guiones. Si no hay teléfono en los datos, OMITE esa acción.
-- "message" = mensaje completo listo para enviar, en español colombiano amable. Incluye nombre del cliente, orden/equipo, y petición clara. MANTÉN cada mensaje bajo 280 caracteres.
-- "label" = texto corto del botón (máximo 40 caracteres), con emoji: 💰 para cobros, 📢 para avisos, 👋 para reactivación, ⏰ para retrasos.
-- MÁXIMO 3 acciones por respuesta (no 5). Solo las MÁS urgentes. Prefiere calidad sobre cantidad.
-- Si no hay acción útil, NO incluyas el bloque [[ACTIONS]].
-- CIERRA SIEMPRE con [[/ACTIONS]]. No olvides el cierre.
+- "message" = mensaje completo listo para enviar, en español colombiano amable y profesional. Incluye el nombre del cliente, contexto de la orden (número, equipo), y una petición/aviso claro.
+- "label" = texto corto del botón (máximo 45 caracteres), incluyendo emoji relevante: 💰 para cobros, 📢 para avisos de equipo listo, 👋 para reactivación, ⏰ para retrasos.
+- Máximo 5 acciones por respuesta, solo las MÁS urgentes o importantes.
+- Si no hay ninguna acción de WhatsApp útil, NO agregues el bloque [[ACTIONS]].
+- El mensaje debe ser tuyo (no robótico), adaptado al contexto específico del cliente.
 
 EJEMPLOS DE CUÁNDO GENERAR ACCIONES:
 • Usuario pregunta "¿Quién me debe?" → genera acciones para los 3-5 con mayor saldo.
@@ -9847,7 +9760,7 @@ ${JSON.stringify(context, null, 2)}`;
                 contents: historyForApi,
                 generationConfig: {
                     temperature: 0.4,
-                    maxOutputTokens: 2500,
+                    maxOutputTokens: 1500,
                     topP: 0.9
                 }
             };
