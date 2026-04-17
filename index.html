@@ -1084,6 +1084,48 @@
             </div>
         </div>
 
+        <!-- ═══ TARJETA NELSON IA — Asistente Inteligente ═══ -->
+        <div id="nia-card" onclick="niaOpen()" role="button" tabindex="0"
+             style="border-radius:22px;overflow:hidden;background:linear-gradient(135deg,#1a0f08 0%,#2d1506 50%,#3d1a04 100%);border:1px solid rgba(249,115,22,0.25);cursor:pointer;position:relative;box-shadow:0 8px 24px rgba(249,115,22,0.12);transition:transform 0.2s ease, box-shadow 0.25s ease;"
+             onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 32px rgba(249,115,22,0.2)';"
+             onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 8px 24px rgba(249,115,22,0.12)';"
+             ontouchstart="this.style.transform='scale(0.98)';" ontouchend="this.style.transform='scale(1)';">
+            <!-- Glow decorativo -->
+            <div style="position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(249,115,22,0.25) 0%,transparent 70%);pointer-events:none;"></div>
+            <div style="position:absolute;bottom:-30px;left:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(236,72,153,0.12) 0%,transparent 70%);pointer-events:none;"></div>
+
+            <div style="padding:18px 18px;display:flex;align-items:center;gap:14px;position:relative;">
+                <!-- Avatar -->
+                <div style="width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#f97316 0%,#ea580c 55%,#c2410c 100%);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 6px 18px rgba(249,115,22,0.5),inset 0 1px 0 rgba(255,255,255,0.15);position:relative;">
+                    <span style="font-size:26px;">🧠</span>
+                    <!-- Badge "IA" -->
+                    <div style="position:absolute;top:-4px;right:-4px;background:#10b981;color:#fff;font-size:9px;font-weight:900;letter-spacing:0.5px;padding:2px 5px;border-radius:6px;border:2px solid #1a0f08;box-shadow:0 2px 6px rgba(16,185,129,0.4);line-height:1;">IA</div>
+                </div>
+
+                <!-- Texto -->
+                <div style="flex:1;min-width:0;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+                        <p style="font-size:10px;font-weight:900;letter-spacing:3px;color:#fb923c;text-transform:uppercase;margin:0;">ASISTENTE</p>
+                        <span style="font-size:8px;font-weight:900;color:#10b981;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);padding:2px 6px;border-radius:6px;letter-spacing:1px;">GRATIS</span>
+                    </div>
+                    <p style="font-size:17px;font-weight:900;color:#fff;margin:0;letter-spacing:-0.3px;">Nelson IA</p>
+                    <p style="font-size:11px;color:#94a3b8;margin:3px 0 0;line-height:1.4;">Pregúntale sobre deudas, órdenes, inventario y te redacta WhatsApps.</p>
+                </div>
+
+                <!-- Flecha -->
+                <div style="width:32px;height:32px;border-radius:10px;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+            </div>
+
+            <!-- Chips de ejemplos -->
+            <div style="padding:0 16px 14px;display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;" onclick="event.stopPropagation();">
+                <button onclick="event.stopPropagation();niaQuickAsk('¿Quién me debe plata?')" style="flex-shrink:0;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.25);color:#fdba74;padding:6px 12px;border-radius:999px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">💰 ¿Quién me debe?</button>
+                <button onclick="event.stopPropagation();niaQuickAsk('¿Qué equipos están listos para avisar?')" style="flex-shrink:0;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.25);color:#fdba74;padding:6px 12px;border-radius:999px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">📢 Equipos listos</button>
+                <button onclick="event.stopPropagation();niaQuickAsk('¿Qué debo hacer hoy?')" style="flex-shrink:0;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.25);color:#fdba74;padding:6px 12px;border-radius:999px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">💡 Plan del día</button>
+            </div>
+        </div>
+
         <!-- Menú iOS Premium -->
         <div style="border-radius:24px;overflow:hidden;background:#0d1117;border:1px solid #1a2235;">
 
@@ -8997,7 +9039,8 @@
     </style>
 
     <!-- Botón flotante -->
-    <button id="nia-fab" onclick="niaOpen()" aria-label="Abrir asistente IA">🧠</button>
+    <!-- Botón flotante (oculto por defecto - la entrada principal ahora está en la pestaña Datos) -->
+    <button id="nia-fab" onclick="niaOpen()" aria-label="Abrir asistente IA" style="display:none;">🧠</button>
 
     <!-- Modal del asistente -->
     <div id="nia-modal" onclick="if(event.target===this) niaClose()">
@@ -9156,6 +9199,25 @@
             document.getElementById('nia-input-wrap').style.display = 'flex';
             niaShowWelcome();
             niaRenderSuggestions();
+        };
+
+        // ──────────── Pregunta rápida desde la tarjeta de Datos ────────────
+        window.niaQuickAsk = function(question) {
+            // Primero abro el modal
+            niaOpen();
+            // Espero a que esté abierto y a que el input esté visible
+            setTimeout(() => {
+                const key = niaGetKey();
+                if (!key) {
+                    // Si no hay llave configurada, solo abro el setup (ya lo abrió niaOpen)
+                    return;
+                }
+                const inp = document.getElementById('nia-input');
+                if (inp) {
+                    inp.value = question;
+                    niaSend();
+                }
+            }, 350);
         };
 
         // ──────────── Renderizar ────────────
