@@ -141,6 +141,32 @@
         /* Cards con gradiente en light */
         body.light-mode .bg-gradient-to-br { background: var(--card-light) !important; }
 
+        /* ===== PANEL DE SALUD DE LA APP ===== */
+        #modal-app-health { z-index: 9800; }
+        .health-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 14px; border-radius: 16px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: all 0.2s;
+        }
+        .health-dot {
+            width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+            box-shadow: 0 0 8px currentColor;
+        }
+        .health-dot.ok     { background: #10b981; color: #10b981; }
+        .health-dot.warn   { background: #f59e0b; color: #f59e0b; }
+        .health-dot.danger { background: #f43f5e; color: #f43f5e; }
+        .health-dot.info   { background: #38bdf8; color: #38bdf8; }
+        @keyframes health-pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        .health-dot.loading { background: #6b7a99; animation: health-pulse 1s ease infinite; }
+        .health-score-ring {
+            width: 80px; height: 80px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; font-weight: 900;
+            position: relative; flex-shrink: 0;
+        }
+
         @media (prefers-color-scheme: light) {
             body:not(.dark-mode) {
                 background: var(--bg-light);
@@ -1178,6 +1204,11 @@
 
                 <button onclick="openChangePinModal()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
                     <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#92400e,#f59e0b);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(245,158,11,0.35);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#fcd34d;margin:0;">Cambiar PIN</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Actualizar contraseña de acceso</p></div></div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+
+                <button onclick="openAppHealthModal()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
+                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#065f46,#10b981);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(16,185,129,0.35);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#34d399;margin:0;">Salud de la App</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Diagnóstico, espacio y alertas</p></div></div>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
 
@@ -2890,12 +2921,32 @@
         }
 
         // IndexedDB helpers
+        function _showDBError(msg) {
+            // Pantalla de error crítico en vez de pantalla negra
+            document.body.innerHTML = `
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:#0d0f1a;color:#e8eaf6;padding:32px;text-align:center;font-family:sans-serif;">
+                <div style="font-size:3rem;margin-bottom:16px;">⚠️</div>
+                <h2 style="font-size:18px;font-weight:900;color:#f43f5e;margin-bottom:8px;">Error de Base de Datos</h2>
+                <p style="font-size:13px;color:#6b7a99;max-width:320px;line-height:1.6;margin-bottom:24px;">${msg}<br><br>Intenta cerrar y volver a abrir la app. Si el problema persiste, exporta tus datos desde Configuración antes de reinstalar.</p>
+                <button onclick="location.reload()" style="background:#f97316;color:white;border:none;padding:14px 28px;border-radius:14px;font-size:14px;font-weight:900;cursor:pointer;">🔄 Reintentar</button>
+            </div>`;
+        }
+
         function openDB() {
             return new Promise((resolve, reject) => {
                 if (db && db.name === DB_NAME) return resolve(db);
-                const request = indexedDB.open(DB_NAME, 14);
-                request.onerror = () => reject(request.error);
-                request.onsuccess = () => { db = request.result; resolve(db); };
+                const request = indexedDB.open(DB_NAME, 15);
+                request.onerror = (e) => {
+                    const err = request.error || e.target.error;
+                    _showDBError('No se pudo abrir la base de datos local. (' + (err?.message || 'Error desconocido') + ')');
+                    reject(err);
+                };
+                request.onsuccess = () => {
+                    db = request.result;
+                    // Manejar errores en transacciones futuras
+                    db.onerror = (e) => console.warn('IndexedDB error:', e.target.error);
+                    resolve(db);
+                };
                 request.onupgradeneeded = (event) => {
                     const idb = event.target.result;
                     if (!idb.objectStoreNames.contains('orders')) {
@@ -2922,6 +2973,8 @@
                     }
                     if (!idb.objectStoreNames.contains('paymentPlans')) idb.createObjectStore('paymentPlans', { keyPath: 'id' });
                     if (!idb.objectStoreNames.contains('calificaciones')) idb.createObjectStore('calificaciones', { keyPath: 'id' });
+                    // v15: store de salud de la app
+                    if (!idb.objectStoreNames.contains('appHealth'))    idb.createObjectStore('appHealth',    { keyPath: 'key' });
                 };
             });
         }
@@ -3197,6 +3250,29 @@
             loadAutoThemeConfig();
             startAutoThemeWatcher();
             requestPushPermission();
+            // Migración silenciosa de campos stock (nombres cortos → nombres completos)
+            await _migrateStockFields();
+        }
+
+        // ==================== MIGRACIÓN DE CAMPOS STOCK ====================
+        // Normaliza objetos antiguos {n,p,q,cat,minStock} → {name,price,qty,category,minimo}
+        // y viceversa (aliases), para que tanto código nuevo como viejo funcionen sin bugs
+        async function _migrateStockFields() {
+            try {
+                const items = await getAll('stock');
+                let migrated = 0;
+                for (const s of items) {
+                    let changed = false;
+                    // Solo migrar si aún usan los nombres cortos sin los largos
+                    if (s.n !== undefined && s.name === undefined)        { s.name     = s.n;        changed = true; }
+                    if (s.p !== undefined && s.price === undefined)       { s.price    = s.p;        changed = true; }
+                    if (s.q !== undefined && s.qty === undefined)         { s.qty      = s.q;        changed = true; }
+                    if (s.cat !== undefined && s.category === undefined)  { s.category = s.cat;      changed = true; }
+                    if (s.minStock !== undefined && s.minimo === undefined){ s.minimo   = s.minStock; changed = true; }
+                    if (changed) { await put('stock', s); migrated++; }
+                }
+                if (migrated > 0) console.log(`[NelsonApp] Migración stock: ${migrated} items actualizados`);
+            } catch(e) { console.warn('[NelsonApp] Error en migración de stock:', e); }
         }
 
         function _refreshTecnicosSelects() {
@@ -8360,7 +8436,182 @@
             setTimeout(initPushNotifications, 3000);
         });
 
+        // ==================== 💚 SALUD DE LA APP ====================
+        async function openAppHealthModal() {
+            document.getElementById('modal-app-health').classList.remove('hidden');
+            // Mostrar estado de carga
+            const itemsEl = document.getElementById('health-items');
+            itemsEl.innerHTML = Array(6).fill(0).map(() =>
+                `<div class="health-item"><div class="health-dot loading"></div><div style="flex:1;"><div style="height:10px;background:rgba(255,255,255,0.05);border-radius:6px;width:60%;margin-bottom:6px;"></div><div style="height:8px;background:rgba(255,255,255,0.04);border-radius:6px;width:40%;"></div></div></div>`
+            ).join('');
+            document.getElementById('health-score-num').textContent = '…';
+            document.getElementById('health-score-label').textContent = 'Analizando…';
+            document.getElementById('health-score-sub').textContent = '';
+
+            try {
+                const [orders, stock, sales, gastos, clientes, payments] = await Promise.all([
+                    getAll('orders'), getAll('stock'), getAll('sales'),
+                    getAll('gastos'), getAll('clientes'), getAll('payments')
+                ]);
+                const cur = getCurrency();
+                const now = new Date();
+                const threshold = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
+
+                // ---- Calcular métricas ----
+                const totalRecords = orders.length + stock.length + sales.length + gastos.length;
+                const pendientes   = orders.filter(o => o.sta !== 'entregado' && o.sta !== 'cancelado');
+                const vencidas     = pendientes.filter(o => o.deadline && new Date(o.deadline) < now);
+                const stockBajo    = stock.filter(s => s.q !== undefined && Number(s.q) <= (s.minStock || threshold));
+                const stockAgotado = stock.filter(s => s.q === 0);
+                const deudores     = clientes.filter(c => c.deuda > 0);
+                const totalDeuda   = deudores.reduce((a,b) => a + (b.deuda||0), 0);
+                const lastBackup   = localStorage.getItem('driveLastBackup');
+                const lastCierre   = Number(localStorage.getItem('lastCierreCaja')) || 0;
+                const diasSinCierre = Math.floor((Date.now() - lastCierre) / 86400000);
+
+                // Estimar tamaño en IndexedDB
+                let storageInfo = '';
+                try {
+                    if (navigator.storage && navigator.storage.estimate) {
+                        const est = await navigator.storage.estimate();
+                        const usedMB  = (est.usage  / 1048576).toFixed(1);
+                        const quotaMB = (est.quota   / 1048576).toFixed(0);
+                        const pct     = Math.round((est.usage / est.quota) * 100);
+                        storageInfo = `${usedMB} MB usados de ${quotaMB} MB (${pct}%)`;
+                    }
+                } catch(_) { storageInfo = 'No disponible'; }
+
+                // ---- Calcular score ----
+                let score = 100;
+                if (vencidas.length > 0)         score -= Math.min(20, vencidas.length * 5);
+                if (stockBajo.length > 3)         score -= 10;
+                if (stockAgotado.length > 0)      score -= Math.min(10, stockAgotado.length * 2);
+                if (!lastBackup)                  score -= 15;
+                if (diasSinCierre > 7)            score -= 10;
+                if (totalDeuda > 0)               score -= 5;
+                score = Math.max(0, score);
+
+                const scoreColor = score >= 80 ? '#10b981' : score >= 60 ? '#f59e0b' : '#f43f5e';
+                const scoreLabel = score >= 80 ? '¡Todo en orden!' : score >= 60 ? 'Requiere atención' : 'Acción necesaria';
+                const scoreSub   = score >= 80
+                    ? 'Tu taller está funcionando correctamente.'
+                    : score >= 60
+                    ? 'Hay algunos puntos que puedes mejorar.'
+                    : 'Hay problemas que necesitan tu atención.';
+
+                document.getElementById('health-score-num').textContent = score;
+                document.getElementById('health-score-num').style.color = scoreColor;
+                document.getElementById('health-score-ring').style.borderColor = scoreColor;
+                document.getElementById('health-score-label').textContent = scoreLabel;
+                document.getElementById('health-score-sub').textContent = scoreSub;
+
+                // ---- Construir items ----
+                const items = [
+                    {
+                        icon: '📋',
+                        label: 'Órdenes activas',
+                        value: `${pendientes.length} pendiente${pendientes.length !== 1 ? 's' : ''}`,
+                        sub: vencidas.length > 0 ? `⚠️ ${vencidas.length} vencida${vencidas.length !== 1 ? 's' : ''}` : 'Sin vencidas ✓',
+                        status: vencidas.length > 0 ? 'danger' : pendientes.length > 10 ? 'warn' : 'ok'
+                    },
+                    {
+                        icon: '📦',
+                        label: 'Inventario',
+                        value: `${stock.length} producto${stock.length !== 1 ? 's' : ''}`,
+                        sub: stockAgotado.length > 0
+                            ? `❌ ${stockAgotado.length} agotado${stockAgotado.length !== 1 ? 's' : ''} · ⚠️ ${stockBajo.length} bajo mínimo`
+                            : stockBajo.length > 0
+                            ? `⚠️ ${stockBajo.length} bajo mínimo`
+                            : 'Stock en niveles correctos ✓',
+                        status: stockAgotado.length > 0 ? 'danger' : stockBajo.length > 0 ? 'warn' : 'ok'
+                    },
+                    {
+                        icon: '💳',
+                        label: 'Cartera de clientes',
+                        value: deudores.length > 0 ? `${cur}${totalDeuda.toLocaleString('es-CO')} en deudas` : 'Sin deudas pendientes',
+                        sub: deudores.length > 0 ? `${deudores.length} cliente${deudores.length !== 1 ? 's' : ''} con saldo` : 'Todos los pagos al día ✓',
+                        status: deudores.length > 0 ? 'warn' : 'ok'
+                    },
+                    {
+                        icon: '💾',
+                        label: 'Último respaldo',
+                        value: lastBackup || 'Sin respaldo registrado',
+                        sub: lastBackup ? 'Respaldo en Google Drive ✓' : '⚠️ Conecta Drive para respaldar',
+                        status: lastBackup ? 'ok' : 'danger'
+                    },
+                    {
+                        icon: '🗃️',
+                        label: 'Base de datos',
+                        value: `${totalRecords.toLocaleString()} registros totales`,
+                        sub: storageInfo || 'Calculando…',
+                        status: 'info'
+                    },
+                    {
+                        icon: '🏦',
+                        label: 'Cierre de caja',
+                        value: lastCierre > 0 ? `Hace ${diasSinCierre} día${diasSinCierre !== 1 ? 's' : ''}` : 'Nunca realizado',
+                        sub: diasSinCierre > 7 ? '⚠️ Recomendado hacer cierre semanal' : diasSinCierre <= 1 ? 'Caja al día ✓' : 'Dentro del rango normal',
+                        status: diasSinCierre > 7 ? 'warn' : 'ok'
+                    },
+                ];
+
+                itemsEl.innerHTML = items.map(item => `
+                    <div class="health-item">
+                        <span style="font-size:1.4rem;flex-shrink:0;">${item.icon}</span>
+                        <div style="flex:1;min-width:0;">
+                            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;">
+                                <p style="font-size:12px;font-weight:800;color:#e8eaf6;margin:0;white-space:nowrap;">${item.label}</p>
+                                <p style="font-size:11px;font-weight:900;color:${item.status === 'ok' ? '#10b981' : item.status === 'warn' ? '#f59e0b' : item.status === 'danger' ? '#f43f5e' : '#38bdf8'};margin:0;text-align:right;flex-shrink:0;">${item.value}</p>
+                            </div>
+                            <p style="font-size:10px;color:#6b7a99;margin:2px 0 0;">${item.sub}</p>
+                        </div>
+                        <div class="health-dot ${item.status}" style="flex-shrink:0;"></div>
+                    </div>`).join('');
+
+            } catch(e) {
+                document.getElementById('health-items').innerHTML =
+                    `<div class="health-item"><div class="health-dot danger"></div><p style="font-size:12px;color:#f43f5e;">Error al obtener diagnóstico: ${e.message}</p></div>`;
+            }
+        }
+
+        function closeAppHealthModal() {
+            document.getElementById('modal-app-health').classList.add('hidden');
+        }
+
     </script>
+    <!-- ===== MODAL SALUD DE LA APP ===== -->
+    <div id="modal-app-health" class="hidden fixed inset-0 z-[9800] modal-custom flex items-end justify-center p-4">
+        <div class="bg-[#0d0f1a] border border-white/10 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl view-enter" style="max-height:88vh;display:flex;flex-direction:column;">
+            <!-- Header -->
+            <div style="background:linear-gradient(135deg,#065f46,#047857);padding:18px 20px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+                <div>
+                    <p style="font-size:10px;font-weight:900;letter-spacing:3px;color:rgba(255,255,255,0.6);text-transform:uppercase;margin:0 0 2px;">DIAGNÓSTICO</p>
+                    <h3 style="font-size:18px;font-weight:900;color:white;margin:0;">Salud de la App</h3>
+                </div>
+                <button onclick="closeAppHealthModal()" style="background:rgba(0,0,0,0.3);color:white;width:34px;height:34px;border-radius:50%;font-size:18px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+            </div>
+            <!-- Score bar -->
+            <div id="health-score-wrap" style="padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:16px;flex-shrink:0;">
+                <div id="health-score-ring" class="health-score-ring" style="background:rgba(255,255,255,0.04);border:3px solid #10b981;">
+                    <span id="health-score-num" style="font-size:20px;font-weight:900;color:#10b981;">—</span>
+                </div>
+                <div style="flex:1;">
+                    <p id="health-score-label" style="font-size:14px;font-weight:900;color:#e8eaf6;margin:0 0 4px;">Analizando…</p>
+                    <p id="health-score-sub" style="font-size:11px;color:#6b7a99;margin:0;line-height:1.4;"></p>
+                </div>
+            </div>
+            <!-- Items scroll -->
+            <div id="health-items" style="overflow-y:auto;padding:12px 16px;flex:1;display:flex;flex-direction:column;gap:8px;">
+                <!-- generado por JS -->
+            </div>
+            <!-- Footer -->
+            <div style="padding:12px 16px;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0;">
+                <button onclick="openAppHealthModal()" style="width:100%;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:12px;border-radius:14px;font-size:12px;font-weight:900;cursor:pointer;letter-spacing:1px;text-transform:uppercase;">↻ Actualizar diagnóstico</button>
+            </div>
+        </div>
+    </div>
+
+
 </body>
 </html>
 
