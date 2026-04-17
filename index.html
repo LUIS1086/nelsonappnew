@@ -8914,6 +8914,79 @@
         }
         #nia-save-key:active { transform: scale(0.98); }
 
+        /* ═══ Botones de acción WhatsApp ═══ */
+        .nia-actions {
+            align-self: flex-start;
+            max-width: 92%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 2px;
+            animation: nia-msg-in 0.35s ease 0.1s both;
+        }
+        .nia-actions-label {
+            font-size: 10px;
+            font-weight: 800;
+            color: #10b981;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 0 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .nia-actions-label::before {
+            content: '';
+            width: 6px; height: 6px;
+            background: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 0 3px rgba(16,185,129,0.2);
+            animation: nia-dot-pulse 1.8s ease-in-out infinite;
+        }
+        @keyframes nia-dot-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .nia-action-btn {
+            background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(5,150,105,0.1));
+            border: 1px solid rgba(16,185,129,0.35);
+            color: #6ee7b7;
+            padding: 12px 14px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 800;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .nia-action-btn:hover {
+            background: linear-gradient(135deg, rgba(16,185,129,0.25), rgba(5,150,105,0.18));
+            border-color: rgba(16,185,129,0.55);
+            transform: translateX(2px);
+        }
+        .nia-action-btn:active { transform: scale(0.97); }
+        .nia-action-btn .nia-action-arrow {
+            margin-left: auto;
+            font-size: 14px;
+            color: #10b981;
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+        .nia-action-btn .nia-action-text {
+            flex: 1;
+            min-width: 0;
+            line-height: 1.35;
+        }
+        body.light-mode .nia-action-btn {
+            background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(5,150,105,0.06));
+            color: #047857;
+        }
+
         /* Light mode */
         body.light-mode #nia-panel { background: linear-gradient(180deg, #fdfcf9 0%, #f5f3ee 100%); }
         body.light-mode #nia-title { color: #1c1917; }
@@ -9093,7 +9166,7 @@
             wrap.innerHTML = '';
             const msg = document.createElement('div');
             msg.className = 'nia-msg assistant';
-            msg.innerHTML = '¡Hola Luis! 👋 Soy <strong>Nelson IA</strong>, tu asistente del taller.\n\nTengo acceso en vivo a tus <strong>órdenes, inventario, ventas, gastos, clientes y pagos</strong>. Pregúntame lo que quieras en palabras normales.\n\nPor ejemplo:\n• <em>"¿Cuánto me deben en total?"</em>\n• <em>"¿Qué cliente no ha vuelto hace más de 3 meses?"</em>\n• <em>"¿Me queda poco de qué repuesto?"</em>';
+            msg.innerHTML = '¡Hola Luis! 👋 Soy <strong>Nelson IA</strong>, tu asistente del taller.\n\nAhora puedo <strong style="color:#10b981;">enviarte a WhatsApp con el mensaje listo</strong> cuando pregunto por deudas, clientes, equipos listos, etc. Solo toca el botón verde que aparece. 🟢\n\nPrueba con:\n• <em>"¿Quién me debe plata?"</em>\n• <em>"¿Qué equipos están listos para avisar?"</em>\n• <em>"Clientes que no han vuelto"</em>\n• <em>"¿Qué debo hacer hoy?"</em>';
             wrap.appendChild(msg);
         }
 
@@ -9101,14 +9174,24 @@
             const wrap = document.getElementById('nia-messages');
             wrap.innerHTML = '';
             niaHistory.forEach(m => {
-                const div = document.createElement('div');
-                div.className = 'nia-msg ' + (m.role === 'user' ? 'user' : 'assistant');
-                if (m.role === 'model') {
-                    div.innerHTML = niaFormatText(m.text);
-                } else {
+                if (m.role === 'user') {
+                    const div = document.createElement('div');
+                    div.className = 'nia-msg user';
                     div.textContent = m.text;
+                    wrap.appendChild(div);
+                } else {
+                    // Separo texto normal de bloque de acciones
+                    const { cleanText, actions } = niaParseActions(m.text);
+                    const div = document.createElement('div');
+                    div.className = 'nia-msg assistant';
+                    div.innerHTML = niaFormatText(cleanText);
+                    wrap.appendChild(div);
+                    // Si hay acciones, renderizo los botones
+                    if (actions && actions.length > 0) {
+                        const actionsWrap = niaBuildActionsUI(actions);
+                        wrap.appendChild(actionsWrap);
+                    }
                 }
-                wrap.appendChild(div);
             });
             wrap.scrollTop = wrap.scrollHeight;
         }
@@ -9122,6 +9205,71 @@
                 .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
                 .replace(/`([^`]+)`/g, '<code>$1</code>')
                 .replace(/\*(.+?)\*/g, '<em>$1</em>');
+        }
+
+        // Parsea el bloque [[ACTIONS]]{...}[[/ACTIONS]] de la respuesta
+        function niaParseActions(fullText) {
+            const regex = /\[\[ACTIONS\]\]([\s\S]*?)\[\[\/ACTIONS\]\]/;
+            const match = fullText.match(regex);
+            if (!match) return { cleanText: fullText.trim(), actions: [] };
+            const cleanText = fullText.replace(regex, '').trim();
+            try {
+                const jsonStr = match[1].trim();
+                const parsed = JSON.parse(jsonStr);
+                const items = Array.isArray(parsed?.items) ? parsed.items : [];
+                // Filtro acciones inválidas (sin tel o sin message)
+                const valid = items.filter(a => a && a.tel && a.message && a.label);
+                return { cleanText, actions: valid.slice(0, 5) };
+            } catch (e) {
+                return { cleanText, actions: [] };
+            }
+        }
+
+        // Construye los botones de acción
+        function niaBuildActionsUI(actions) {
+            const wrap = document.createElement('div');
+            wrap.className = 'nia-actions';
+
+            const lbl = document.createElement('div');
+            lbl.className = 'nia-actions-label';
+            lbl.textContent = actions.length === 1 ? 'Acción sugerida' : `${actions.length} acciones sugeridas`;
+            wrap.appendChild(lbl);
+
+            actions.forEach(a => {
+                const btn = document.createElement('button');
+                btn.className = 'nia-action-btn';
+                btn.type = 'button';
+
+                const txt = document.createElement('span');
+                txt.className = 'nia-action-text';
+                txt.textContent = a.label;
+
+                const arrow = document.createElement('span');
+                arrow.className = 'nia-action-arrow';
+                arrow.textContent = '›';
+
+                btn.appendChild(txt);
+                btn.appendChild(arrow);
+
+                btn.onclick = () => niaOpenWhatsApp(a.tel, a.message);
+                wrap.appendChild(btn);
+            });
+            return wrap;
+        }
+
+        // Abre WhatsApp con el mensaje pre-escrito (mismo patrón que el resto de la app)
+        function niaOpenWhatsApp(tel, message) {
+            // Limpio el tel: solo dígitos
+            const digitsOnly = String(tel).replace(/\D/g, '');
+            if (!digitsOnly || digitsOnly.length < 7) {
+                if (typeof showAlert === 'function') showAlert('Teléfono inválido', 'warning');
+                return;
+            }
+            // Si ya tiene prefijo país (12+ dígitos) lo dejo, si no agrego 57 de Colombia
+            const withCountry = digitsOnly.length >= 11 ? digitsOnly : ('57' + digitsOnly);
+            const url = `https://wa.me/${withCountry}?text=${encodeURIComponent(message)}`;
+            try { sessionStorage.setItem('_waJump','1'); } catch(e) {}
+            window.open(url, '_blank');
         }
 
         function niaRenderSuggestions() {
@@ -9491,25 +9639,49 @@ REGLAS DE COMPORTAMIENTO:
 - Cuando des recomendaciones de negocio, sé directo y accionable.
 - NO menciones el campo "errores" del contexto al usuario salvo que sea crítico.
 
-GUÍA DE DATOS (MUY IMPORTANTE — así están organizados en el CONTEXTO JSON):
+═══ ACCIONES DE WHATSAPP (MUY IMPORTANTE) ═══
+Cuando el usuario pregunte por clientes con deuda, clientes que no han vuelto, órdenes listas para avisar, órdenes atrasadas, o cualquier situación donde enviar un WhatsApp sea ÚTIL, debes proponer botones de acción.
 
-• **Ingresos / Ventas / Plata que entra** → campo "ingresos". Aquí está TODO el dinero que ha entrado a caja (adelantos de órdenes + cobros de entrega + ventas de repuestos de mostrador). Usa "ingresos.totalEsteMes", "ingresos.totalHoy", "ingresos.totalUltimos7Dias", "ingresos.totalMesPasado". El desglose por tipo está en "ingresos.desgloseMes".
+Al final de tu respuesta (después del texto normal), agrega UN SOLO bloque así:
 
-• **Órdenes del taller** → campo "ordenes". Estados posibles: recibido, diagnostico, presupuesto, reparando, listo, entregado, no-reparable. "activasAhora" excluye las ya entregadas.
+[[ACTIONS]]
+{
+  "items": [
+    {
+      "label": "💰 Cobrar a Martha ($150.000)",
+      "tel": "3001234567",
+      "message": "Hola Martha, soy Luis de Todo Repuestos Nelson. Le escribo para recordarle muy amablemente que tiene un saldo pendiente de $150.000 por la reparación de su lavadora (orden #234). ¿Podría ayudarme con el pago esta semana? Gracias! 🙏"
+    }
+  ]
+}
+[[/ACTIONS]]
 
-• **Deudas / Cartera / Cuánto le deben** → campo "cuentasPorCobrar". Es la suma de (valor - adelanto) de todas las órdenes. Usa "cuentasPorCobrar.montoTotal" y "cuentasPorCobrar.detalle".
+REGLAS PARA LAS ACCIONES:
+- El JSON debe ser VÁLIDO (comillas dobles, sin comas sobrantes).
+- "tel" = solo dígitos del teléfono, sin +57 ni espacios ni guiones. Si no hay teléfono en los datos, OMITE esa acción.
+- "message" = mensaje completo listo para enviar, en español colombiano amable y profesional. Incluye el nombre del cliente, contexto de la orden (número, equipo), y una petición/aviso claro.
+- "label" = texto corto del botón (máximo 45 caracteres), incluyendo emoji relevante: 💰 para cobros, 📢 para avisos de equipo listo, 👋 para reactivación, ⏰ para retrasos.
+- Máximo 5 acciones por respuesta, solo las MÁS urgentes o importantes.
+- Si no hay ninguna acción de WhatsApp útil, NO agregues el bloque [[ACTIONS]].
+- El mensaje debe ser tuyo (no robótico), adaptado al contexto específico del cliente.
 
-• **Inventario / Repuestos** → campo "inventario". "itemsStockBajo" son los que están por acabarse, "itemsAgotados" los que ya se acabaron.
+EJEMPLOS DE CUÁNDO GENERAR ACCIONES:
+• Usuario pregunta "¿Quién me debe?" → genera acciones para los 3-5 con mayor saldo.
+• Usuario pregunta "Órdenes atrasadas" → genera acciones para avisar retraso a los clientes de órdenes atrasadas.
+• Usuario pregunta "Clientes sin volver" → genera acciones para reactivar a los top 3 que no han vuelto.
+• Usuario pregunta "Equipos listos" → genera acciones para avisar a los clientes de órdenes en estado "listo".
 
-• **Gastos** → campo "gastos". "totalEsteMes" es lo que se ha gastado del mes.
+GUÍA DE DATOS (cómo está organizado el CONTEXTO JSON):
 
-• **Utilidad / Ganancia** → campo "utilidadEstimada". Es ingresos menos gastos (aproximado, no incluye costo de repuestos).
-
-• **Clientes** → campo "clientes". "top10PorGasto" son los que más dinero han dejado. "sinVolverHace90Dias" son candidatos a reactivar con WhatsApp.
-
-• **Técnicos** → campo "rendimientoTecnicosEsteMes".
-
-• **Origen de clientes** → campo "comoNosConocen" (por dónde llegaron).
+• **Ingresos / Ventas** → "ingresos". Todo el dinero que entró a caja. Usa "ingresos.totalEsteMes", "ingresos.totalHoy", "ingresos.totalUltimos7Dias", "ingresos.totalMesPasado".
+• **Órdenes del taller** → "ordenes". Estados: recibido, diagnostico, presupuesto, reparando, listo, entregado, no-reparable.
+• **Deudas / Cartera** → "cuentasPorCobrar". Cada item tiene "cliente", "telefono", "saldoPendiente", "orden", "equipo".
+• **Inventario** → "inventario". "itemsStockBajo", "itemsAgotados".
+• **Gastos** → "gastos".
+• **Utilidad** → "utilidadEstimada".
+• **Clientes** → "clientes.top10PorGasto" y "clientes.sinVolverHace90Dias" (cada uno con "telefono").
+• **Técnicos** → "rendimientoTecnicosEsteMes".
+• **Origen de clientes** → "comoNosConocen".
 
 CONTEXTO EN VIVO DEL TALLER (JSON con datos reales leídos hace segundos de la app):
 ${JSON.stringify(context, null, 2)}`;
@@ -9526,7 +9698,7 @@ ${JSON.stringify(context, null, 2)}`;
                 contents: historyForApi,
                 generationConfig: {
                     temperature: 0.4,
-                    maxOutputTokens: 800,
+                    maxOutputTokens: 1500,
                     topP: 0.9
                 }
             };
