@@ -2,6 +2,7 @@
   "name": "Nelson App Pro",
   "short_name": "NelsonApp",
   "description": "Gestión de taller, ventas, inventario y caja",
+  "id": "/",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
@@ -13,25 +14,13 @@
       "src": "./icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "./icons/icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     },
     {
       "src": "./icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "./icons/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ],
   "shortcuts": [
@@ -39,38 +28,19 @@
       "name": "Nueva Orden",
       "short_name": "Nueva",
       "description": "Registrar una nueva entrada al taller",
-      "url": "./index.html?shortcut=taller",
-      "icons": [{ "src": "./icons/icon-192x192.png", "sizes": "192x192" }]
+      "url": "./index.html?shortcut=taller"
     },
     {
       "name": "Órdenes Listas",
       "short_name": "Listos",
       "description": "Ver equipos listos para entregar",
-      "url": "./index.html?shortcut=ordenes",
-      "icons": [{ "src": "./icons/icon-192x192.png", "sizes": "192x192" }]
+      "url": "./index.html?shortcut=ordenes"
     },
     {
       "name": "Caja & Inventario",
       "short_name": "Caja",
       "description": "Ver caja e inventario de repuestos",
-      "url": "./index.html?shortcut=ventas",
-      "icons": [{ "src": "./icons/icon-192x192.png", "sizes": "192x192" }]
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "./icons/screenshot-wide.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Pantalla principal de NelsonApp"
-    },
-    {
-      "src": "./icons/screenshot-mobile.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Vista de órdenes en móvil"
+      "url": "./index.html?shortcut=ventas"
     }
   ],
   "categories": ["business", "productivity", "utilities"],
