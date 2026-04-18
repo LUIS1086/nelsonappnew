@@ -1,0 +1,91 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:   # Permite ejecutarlo manualmente desde la pestaña Actions
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Capacitor project
+        run: npx cap add android
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      # Agregar permiso de biometría al AndroidManifest.xml
+      - name: Add biometric permission
+        run: |
+          MANIFEST="android/app/src/main/AndroidManifest.xml"
+          sed -i '/<manifest/a \
+          <uses-permission android:name="android.permission.USE_BIOMETRIC" />' $MANIFEST
+
+      # Habilitar WebAuthn en MainActivity.java
+      - name: Enable WebAuthn in MainActivity
+        run: |
+          MAIN_ACTIVITY="android/app/src/main/java/com/todorepuestos/nelson/MainActivity.java"
+          # Insertar imports
+          sed -i '1i import android.os.Bundle;' $MAIN_ACTIVITY
+          sed -i '1i import android.webkit.WebSettings;' $MAIN_ACTIVITY
+          sed -i '1i import android.webkit.WebView;' $MAIN_ACTIVITY
+          # Insertar método onCreate después de la declaración de la clase
+          sed -i '/public class MainActivity extends BridgeActivity {/a \
+          @Override\
+          public void onCreate(Bundle savedInstanceState) {\
+              super.onCreate(savedInstanceState);\
+              WebView webView = getBridge().getWebView();\
+              WebSettings settings = webView.getSettings();\
+              settings.setWebAuthenticationSupport(WebSettings.WEB_AUTHENTICATION_SUPPORT_FOR_APP);\
+          }' $MAIN_ACTIVITY
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x android/gradlew
+
+      # Generar keystore de firma (contraseñas fijas "android" para simplificar)
+      - name: Generate keystore
+        run: |
+          keytool -genkey -v \
+            -keystore android/app/release.keystore \
+            -alias nelsonapp \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass android \
+            -keypass android \
+            -dname "CN=Todo Repuestos Nelson, OU=Taller, O=NelsonApp, L=Neiva, ST=Huila, C=CO"
+
+      # Compilar APK firmada
+      - name: Build release APK
+        run: |
+          cd android
+          ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file=app/release.keystore \
+            -Pandroid.injected.signing.store.password=android \
+            -Pandroid.injected.signing.key.alias=nelsonapp \
+            -Pandroid.injected.signing.key.password=android
+
+      # Subir APK como artefacto para descargar
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: nelsonapp-release
+          path: android/app/build/outputs/apk/release/app-release.apk
