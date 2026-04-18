@@ -3356,13 +3356,25 @@
             showToast(`Intervalo de respaldo: cada ${hours} horas`, 'success');
         }
 
-        // ═══ Overlay de progreso de subida a Drive ═══
-        function showDriveProgress(fileName) {
+        // ═══ Overlay de progreso de subida/descarga a Drive ═══
+        function showDriveProgress(fileName, mode = 'upload') {
             let overlay = document.getElementById('drive-upload-overlay');
             if (overlay) overlay.remove();
             overlay = document.createElement('div');
             overlay.id = 'drive-upload-overlay';
             overlay.style.cssText = 'position:fixed;inset:0;background:rgba(5,6,15,0.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:99998;display:flex;align-items:center;justify-content:center;padding:20px;animation:dup-fadein 0.25s ease;';
+
+            // Paleta distinta según sea subida o descarga
+            const isDownload = mode === 'download';
+            const accent     = isDownload ? '#10b981' : '#3b82f6';    // verde para bajada, azul para subida
+            const accentDim  = isDownload ? '#059669' : '#1d4ed8';
+            const accentLite = isDownload ? '#34d399' : '#60a5fa';
+            const label      = isDownload ? 'Google Drive · Restaurar' : 'Google Drive';
+            // SVG: flecha arriba para upload, flecha abajo para download
+            const iconSvg = isDownload
+                ? `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`
+                : `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>`;
+
             overlay.innerHTML = `
                 <style>
                     @keyframes dup-fadein { from { opacity: 0; } to { opacity: 1; } }
@@ -3371,15 +3383,15 @@
                     @keyframes dup-shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
                     #dup-panel .dup-bar-fill { transition: width 0.18s cubic-bezier(0.4, 0, 0.2, 1); }
                 </style>
-                <div id="dup-panel" style="width:100%;max-width:360px;background:linear-gradient(180deg,#14162a 0%,#0d0f1a 100%);border-radius:24px;border:1px solid rgba(59,130,246,0.25);padding:26px 22px;box-shadow:0 20px 60px rgba(0,0,0,0.6);animation:dup-slidein 0.35s cubic-bezier(0.16,1,0.3,1);">
+                <div id="dup-panel" style="width:100%;max-width:360px;background:linear-gradient(180deg,#14162a 0%,#0d0f1a 100%);border-radius:24px;border:1px solid ${accent}40;padding:26px 22px;box-shadow:0 20px 60px rgba(0,0,0,0.6);animation:dup-slidein 0.35s cubic-bezier(0.16,1,0.3,1);">
                     <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
-                        <div style="width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#1d4ed8,#3b82f6);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 6px 18px rgba(59,130,246,0.4);position:relative;">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                            <div id="dup-spinner" style="position:absolute;inset:-3px;border-radius:19px;border:2px solid transparent;border-top-color:#60a5fa;animation:dup-spin 1s linear infinite;"></div>
+                        <div style="width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,${accentDim},${accent});display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 6px 18px ${accent}66;position:relative;">
+                            ${iconSvg}
+                            <div id="dup-spinner" style="position:absolute;inset:-3px;border-radius:19px;border:2px solid transparent;border-top-color:${accentLite};animation:dup-spin 1s linear infinite;"></div>
                         </div>
                         <div style="flex:1;min-width:0;">
-                            <div style="font-size:10px;font-weight:900;letter-spacing:2.5px;color:#60a5fa;text-transform:uppercase;margin-bottom:3px;">Google Drive</div>
-                            <div id="dup-status" style="font-size:15px;font-weight:800;color:#fff;line-height:1.3;">Preparando respaldo...</div>
+                            <div style="font-size:10px;font-weight:900;letter-spacing:2.5px;color:${accentLite};text-transform:uppercase;margin-bottom:3px;">${label}</div>
+                            <div id="dup-status" style="font-size:15px;font-weight:800;color:#fff;line-height:1.3;">${isDownload ? 'Preparando...' : 'Preparando respaldo...'}</div>
                         </div>
                     </div>
                     <div style="background:#0a0c17;border-radius:14px;padding:14px 16px;margin-bottom:14px;border:1px solid rgba(255,255,255,0.04);">
@@ -3388,7 +3400,7 @@
                             <span id="dup-size" style="font-size:11px;font-weight:700;color:#94a3b8;font-variant-numeric:tabular-nums;">— / —</span>
                         </div>
                         <div style="height:8px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;position:relative;">
-                            <div class="dup-bar-fill" id="dup-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#3b82f6 0%,#60a5fa 50%,#3b82f6 100%);background-size:200% 100%;animation:dup-shimmer 2s linear infinite;border-radius:999px;box-shadow:0 0 12px rgba(59,130,246,0.6);"></div>
+                            <div class="dup-bar-fill" id="dup-bar" style="height:100%;width:0%;background:linear-gradient(90deg,${accent} 0%,${accentLite} 50%,${accent} 100%);background-size:200% 100%;animation:dup-shimmer 2s linear infinite;border-radius:999px;box-shadow:0 0 12px ${accent}99;"></div>
                         </div>
                     </div>
                     <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#64748b;">
@@ -6033,6 +6045,39 @@
 
         // driveBackupNow ya está redefinido arriba con el parámetro silent
         // driveRestore original
+
+        // Descarga desde Drive con progreso real usando XHR
+        function downloadFromDriveWithProgress(fileId, token, onProgress) {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, true);
+                xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                xhr.responseType = 'text';
+                if (typeof onProgress === 'function') {
+                    xhr.onprogress = (e) => {
+                        if (e.lengthComputable) {
+                            onProgress((e.loaded / e.total) * 100, e.loaded, e.total);
+                        } else {
+                            // Drive a veces no envía Content-Length; reportamos solo bytes descargados
+                            onProgress(-1, e.loaded, 0);
+                        }
+                    };
+                }
+                xhr.onload = () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        resolve(xhr.responseText);
+                    } else {
+                        const err = new Error(`HTTP ${xhr.status}: ${xhr.responseText.slice(0,200)}`);
+                        err.status = xhr.status;
+                        reject(err);
+                    }
+                };
+                xhr.onerror = () => reject(new Error('Error de red al descargar desde Drive'));
+                xhr.onabort = () => reject(new Error('Descarga cancelada'));
+                xhr.send();
+            });
+        }
+
         async function driveRestore() {
             if (!driveToken) { showAlert('Primero conecta tu cuenta de Google.', 'warning'); return; }
             showToast('Buscando respaldos en Drive...', 'info');
@@ -6072,19 +6117,41 @@
         async function driveRestoreFile(fileId, fileName) {
             document.getElementById('modal-drive-restore')?.remove();
             showConfirm(`¿Restaurar "${fileName}"?\nEsto reemplazará TODOS los datos actuales.`, async () => {
+                // Reutilizo el overlay de progreso (mismo estilo que la subida pero en verde)
+                showDriveProgress(fileName, 'download');
+                updateDriveProgress(0, 0, 0, 'Conectando con Drive...');
                 try {
-                    showToast('Descargando desde Drive...', 'info');
-                    const content = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
-                        headers: { Authorization: 'Bearer ' + driveToken }
-                    }).then(r => r.text());
+                    const content = await downloadFromDriveWithProgress(fileId, driveToken, (pct, loaded, total) => {
+                        if (pct < 0) {
+                            // Progreso indeterminado (sin Content-Length): solo mostrar bytes
+                            updateDriveProgress(0, loaded, loaded, 'Descargando respaldo...');
+                        } else {
+                            updateDriveProgress(pct, loaded, total, pct >= 99 ? 'Finalizando descarga...' : 'Descargando respaldo...');
+                        }
+                    });
+
+                    updateDriveProgress(100, 0, 0, 'Aplicando respaldo...');
+
                     const blob = new Blob([content], { type: 'application/json' });
                     const file = new File([blob], fileName, { type: 'application/json' });
                     const dt   = new DataTransfer();
                     dt.items.add(file);
                     const input = document.getElementById('import-file');
                     Object.defineProperty(input, 'files', { value: dt.files, writable: false });
-                    importData({ target: input });
-                } catch(e) { showAlert('Error al restaurar: ' + e.message, 'error'); }
+
+                    // Cerrar el overlay antes de que importData dispare su propio confirm/alert
+                    hideDriveProgress(400);
+                    setTimeout(() => importData({ target: input }), 450);
+                } catch(e) {
+                    hideDriveProgress();
+                    const isAuthErr = (e.status === 401) || (e.message && e.message.includes('401'));
+                    if (isAuthErr) {
+                        driveToken = null; updateDriveUI(false);
+                        showAlert('Sesión de Google expirada. Vuelve a conectar.', 'warning');
+                    } else {
+                        showAlert('Error al restaurar: ' + e.message, 'error');
+                    }
+                }
             });
         }
 
