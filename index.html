@@ -1393,7 +1393,7 @@
                 <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-3xl mx-auto shadow-lg">🔔</div>
                 <h3 class="text-white font-black text-lg">Activar Notificaciones</h3>
                 <p class="text-slate-400 text-xs font-medium leading-relaxed">Recibe alertas cuando una orden esté vencida, lista para entregar, o un repuesto baje del mínimo.</p>
-                <button onclick="requestPushPermission()" class="w-full bg-gradient-to-r from-orange-600 to-orange-500 py-3 rounded-2xl font-black text-sm shadow-lg active:scale-95 transition">🔔 ACTIVAR AHORA</button>
+                <button onclick="requestPushPermissionFromModal()" class="w-full bg-gradient-to-r from-orange-600 to-orange-500 py-3 rounded-2xl font-black text-sm shadow-lg active:scale-95 transition">🔔 ACTIVAR AHORA</button>
                 <button onclick="document.getElementById('modal-push-setup').classList.add('hidden')" class="w-full bg-white/5 border border-white/10 py-2 rounded-2xl font-black text-xs text-slate-400 active:scale-95 transition">Más tarde</button>
             </div>
         </div>
@@ -2900,6 +2900,15 @@
         let currentEditOrderId = null;
         let currentClientHistory = null;
 
+        // ==================== HELPERS GLOBALES ====================
+        // esc: escapa strings para inyección segura en innerHTML (previene XSS)
+        // Usar siempre que concatenes datos del usuario: ${esc(orden.nom)} en vez de ${orden.nom}
+        const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        window.esc = esc; // accesible desde cualquier parte
+        // attr: para atributos HTML (escapa comillas dobles agresivamente)
+        const escAttr = s => String(s ?? '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        window.escAttr = escAttr;
+
         // ── PIN: almacenado con hash SHA-256 (nunca en texto plano) ──
         async function _hashPin(pin) {
             const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pin + '_nelsonapp_v1'));
@@ -3266,35 +3275,57 @@
         function closeClientHistory() { document.getElementById('modal-client-history').classList.add('hidden'); currentClientHistory = null; document.getElementById('payment-amount').value = ''; }
 
         // ==================== FUNCIONES PRINCIPALES ====================
+        // OPTIMIZACIÓN: arranque escalonado en 3 fases.
+        // Fase 1 (crítica, síncrona): UI visible y usable al instante.
+        // Fase 2 (defer suave): checks de datos y UI secundaria, ~200ms después.
+        // Fase 3 (idle): migraciones, reconexión Drive, push permission, cuando el navegador esté ocioso.
         async function initApp() {
+            // ═══ FASE 1: CRÍTICA ═══ Lo que el usuario necesita ver ya
             applyStoredTheme();
             applyAccentColor();
+            applyFontSize();
+            applyHighContrast();
+            loadBusinessConfig();
             await openDB();
             await updateTotal();
             await updateSuggestions();
             await renderCartera();
-            requestNotificationPermission();
-            checkLowStock();
-            checkOverdueOrders();
-            checkWarrantyAlerts();
-            checkSinMovimiento();
-            applyFontSize();
-            applyHighContrast();
-            loadBusinessConfig();
-            loadLowStockThreshold();
-            loadBackupInterval();
-            resetLockTimer();
-            tryDriveReconnect();
-            setupReminderChecks();
             updateMetaBar();
-            startAutoBackup();
+            resetLockTimer();
             _refreshTecnicosSelects();
-            // Bloque 3
-            loadAutoThemeConfig();
-            startAutoThemeWatcher();
-            requestPushPermission();
-            // Migración silenciosa de campos stock (nombres cortos → nombres completos)
-            await _migrateStockFields();
+
+            // ═══ FASE 2: DEFER SUAVE ═══ Checks y configuraciones que pueden esperar un frame
+            setTimeout(() => {
+                try {
+                    checkLowStock();
+                    checkOverdueOrders();
+                    checkWarrantyAlerts();
+                    checkSinMovimiento();
+                    loadLowStockThreshold();
+                    loadBackupInterval();
+                    setupReminderChecks();
+                    startAutoBackup();
+                    loadAutoThemeConfig();
+                    startAutoThemeWatcher();
+                } catch(e) { console.warn('Fase 2 init:', e); }
+            }, 200);
+
+            // ═══ FASE 3: IDLE ═══ Lo no urgente: permisos, reconexión Drive, migraciones
+            const runIdle = (fn) => {
+                if (window.requestIdleCallback) {
+                    requestIdleCallback(fn, { timeout: 3000 });
+                } else {
+                    setTimeout(fn, 1500);
+                }
+            };
+            runIdle(async () => {
+                try {
+                    requestNotificationPermission();
+                    requestPushPermission();
+                    tryDriveReconnect();
+                    await _migrateStockFields();
+                } catch(e) { console.warn('Fase 3 init:', e); }
+            });
         }
 
         // ==================== MIGRACIÓN DE CAMPOS STOCK ====================
@@ -5155,20 +5186,22 @@
         }
 
         function syncSidebarCash() {
+            // OPTIMIZACIÓN: salir temprano si no hay sidebar visible (móvil)
+            const sideVal = document.getElementById('sidebar-cash-value');
+            if (!sideVal || sideVal.offsetParent === null) return;
+
             // Sync caja
             const mainVal = document.getElementById('total-cash');
-            const sideVal = document.getElementById('sidebar-cash-value');
-            if (mainVal && sideVal) sideVal.innerText = mainVal.innerText;
+            if (mainVal && sideVal.innerText !== mainVal.innerText) sideVal.innerText = mainVal.innerText;
             // Sync biz names
             const bizShort = document.getElementById('business-short-name');
             const bizFull  = document.getElementById('business-name-display');
             const sideShort   = document.getElementById('sidebar-biz-short');
             const sideFull    = document.getElementById('sidebar-biz-name');
             const dtSubtitle  = document.getElementById('desktop-topbar-subtitle');
-            const dtTitleMain = document.getElementById('desktop-topbar-title');
-            if (bizShort && sideShort)    sideShort.innerText   = bizShort.innerText;
-            if (bizFull  && sideFull)     sideFull.innerText    = bizFull.innerText;
-            if (bizShort && dtSubtitle)   dtSubtitle.innerText  = bizShort.innerText;
+            if (bizShort && sideShort && sideShort.innerText !== bizShort.innerText) sideShort.innerText = bizShort.innerText;
+            if (bizFull  && sideFull  && sideFull.innerText  !== bizFull.innerText)  sideFull.innerText  = bizFull.innerText;
+            if (bizShort && dtSubtitle && dtSubtitle.innerText !== bizShort.innerText) dtSubtitle.innerText = bizShort.innerText;
             // Sync meta bar
             const metaFill = document.getElementById('meta-bar-fill');
             const metaPct  = document.getElementById('meta-bar-pct');
@@ -5177,15 +5210,26 @@
             const sidePct  = document.getElementById('sidebar-meta-pct');
             const sideMetaWrap = document.getElementById('sidebar-meta-wrap-desktop');
             if (metaFill && sideFill) {
-                sideFill.style.width = metaFill.style.width;
-                sideFill.style.background = metaFill.style.background;
+                if (sideFill.style.width !== metaFill.style.width) sideFill.style.width = metaFill.style.width;
+                if (sideFill.style.background !== metaFill.style.background) sideFill.style.background = metaFill.style.background;
             }
-            if (metaPct  && sidePct)  sidePct.innerText = metaPct.innerText;
+            if (metaPct  && sidePct && sidePct.innerText !== metaPct.innerText) sidePct.innerText = metaPct.innerText;
             if (sideMetaWrap && metaWrap) {
-                sideMetaWrap.style.display = metaWrap.classList.contains('hidden') ? 'none' : 'block';
+                const shouldShow = !metaWrap.classList.contains('hidden');
+                const isShowing  = sideMetaWrap.style.display !== 'none';
+                if (shouldShow !== isShowing) sideMetaWrap.style.display = shouldShow ? 'block' : 'none';
             }
         }
-        setInterval(syncSidebarCash, 2000);
+        // OPTIMIZACIÓN: cada 5s en vez de 2s, y solo cuando la pestaña está visible
+        let _sidebarSyncInterval = null;
+        function startSidebarSync() {
+            if (_sidebarSyncInterval) return;
+            _sidebarSyncInterval = setInterval(() => {
+                if (document.hidden) return; // no sincronizar si la pestaña está en background
+                syncSidebarCash();
+            }, 5000);
+        }
+        startSidebarSync();
 
         window.onload = async () => {
             await initPinSystem(); // cargar/migrar hash del PIN antes de mostrar el modal
@@ -8674,7 +8718,7 @@
             }
         }
 
-        async function requestPushPermission() {
+        async function requestPushPermissionFromModal() {
             document.getElementById('modal-push-setup')?.classList.add('hidden');
             if (!('Notification' in window)) {
                 showToast('Tu navegador no soporta notificaciones', 'warning');
