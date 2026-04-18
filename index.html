@@ -3477,6 +3477,12 @@
         async function driveBackupNow(silent = false) {
             if (!driveToken) { if(!silent) showAlert('Primero conecta tu cuenta de Google.', 'warning'); return; }
 
+            // Chequeo offline: si no hay red, no intentar backup
+            if (!navigator.onLine) {
+                if (!silent) showAlert('Sin conexión. El backup se realizará cuando vuelva internet.', 'warning');
+                return;
+            }
+
             const fileName = `nelson_backup_${new Date().toISOString().slice(0,10)}.json`;
             if (!silent) showDriveProgress(fileName);
 
@@ -5965,6 +5971,9 @@
         let driveFolderId = null;
 
         function driveSignIn() {
+            if (!navigator.onLine) {
+                showAlert('Sin conexión. Conecta a internet para iniciar sesión con Google.', 'warning'); return;
+            }
             if (!window.google || !google.accounts) {
                 showAlert('Google API aún cargando. Intenta en unos segundos.', 'warning'); return;
             }
@@ -6080,6 +6089,7 @@
 
         async function driveRestore() {
             if (!driveToken) { showAlert('Primero conecta tu cuenta de Google.', 'warning'); return; }
+            if (!navigator.onLine) { showAlert('Sin conexión. Conecta a internet para restaurar desde Drive.', 'warning'); return; }
             showToast('Buscando respaldos en Drive...', 'info');
             try {
                 const folderId = await ensureDriveFolder();
@@ -6629,7 +6639,20 @@
             }
         }
         window.addEventListener('offline', () => showNetBadge(false));
-        window.addEventListener('online',  () => showNetBadge(true));
+        window.addEventListener('online',  () => {
+            showNetBadge(true);
+            // Al volver online: si hay token y auto-backup configurado, disparar un backup silencioso
+            try {
+                const hours = parseInt(localStorage.getItem('backupIntervalHours')) || 0;
+                if (hours > 0 && driveToken && typeof driveBackupNow === 'function') {
+                    setTimeout(() => driveBackupNow(true), 2000);
+                }
+            } catch(e) { console.warn('Reintento backup online falló:', e); }
+            // Pedir al SW que refresque caché de CDNs si hay cambios
+            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                try { navigator.serviceWorker.controller.postMessage({ type: 'UPDATE_CACHE' }); } catch(e){}
+            }
+        });
         if (!navigator.onLine) setTimeout(() => showNetBadge(false), 2500);
 
         // ==================== BÚSQUEDA GLOBAL ====================
@@ -9852,6 +9875,12 @@
             const key = niaGetKey();
             if (!key) {
                 if (typeof showAlert === 'function') showAlert('Configura tu llave API primero', 'warning');
+                return;
+            }
+
+            // Chequeo offline: la IA requiere internet
+            if (!navigator.onLine) {
+                if (typeof showAlert === 'function') showAlert('Sin conexión. La IA necesita internet para responder.', 'warning');
                 return;
             }
 
