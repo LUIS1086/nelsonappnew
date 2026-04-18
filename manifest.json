@@ -37,7 +37,7 @@
       "url": "./index.html?shortcut=ordenes"
     },
     {
-      "name": "Caja &amp; Inventario",
+      "name": "Caja &amp;amp; Inventario",
       "short_name": "Caja",
       "description": "Ver caja e inventario de repuestos",
       "url": "./index.html?shortcut=ventas"
@@ -57,5 +57,8 @@
     "minimal-ui",
     "standalone",
     "window-controls-overlay"
-  ]
+  ],
+  "share_target": {
+    "method": "GET"
+  }
 }
