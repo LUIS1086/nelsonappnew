@@ -958,9 +958,13 @@
                 <button onclick="openExportPanel()" class="flex-1 bg-orange-600/20 border border-orange-500/30 text-orange-400 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition">⬇️ EXPORTAR</button>
             </div>
             <div class="relative">
-            <input type="text" id="search-orders" placeholder="🔍 Buscar cliente o equipo..." class="w-full text-sm font-semibold uppercase tracking-wide pr-12" oninput="onSearchInput()" list="search-suggestions">
+            <input type="text" id="search-orders" placeholder="🔍 Buscar cliente, equipo o #orden..." class="w-full text-sm font-semibold uppercase tracking-wide pr-12" oninput="onSearchInput()" onfocus="_onSearchFocus()" onblur="_onSearchBlur()" list="search-suggestions">
             <button type="button" onclick="startVoiceInput('search-orders', true)" id="voice-btn-search" class="voice-mic-btn absolute right-2 top-1/2 -translate-y-1/2" title="Buscar por voz">🎤</button>
             </div>
+            <!-- Chips de búsquedas recientes (solo visibles con input vacío y con foco) -->
+            <div id="search-recent-chips" style="display:none;" class="flex flex-wrap gap-2 items-center"></div>
+            <!-- Tarjetas de órdenes encontradas por número (naranja) -->
+            <div id="search-order-hits" style="display:none;" class="space-y-2"></div>
             <!-- Sugerencias de clientes (tocables, abren ficha) -->
             <div id="search-client-hits" style="display:none;" class="space-y-2"></div>
             <datalist id="search-suggestions"></datalist>
@@ -3863,8 +3867,87 @@
 
         function onSearchInput() {
             if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
-            searchDebounceTimer = setTimeout(() => applyFilters(), 300);
+            // Ocultar chips de recientes mientras el usuario escribe
+            const recentBox = document.getElementById('search-recent-chips');
+            if (recentBox) recentBox.style.display = 'none';
+            searchDebounceTimer = setTimeout(() => {
+                applyFilters();
+                // Guardar búsqueda en historial después de 900ms de inactividad
+                _saveRecentSearch(document.getElementById('search-orders').value);
+            }, 300);
         }
+
+        // ==================== HISTORIAL DE BÚSQUEDAS RECIENTES ====================
+        const _RECENT_KEY = 'nelsonapp_recent_searches';
+        const _RECENT_MAX = 5;
+
+        function _getRecentSearches() {
+            try {
+                const raw = localStorage.getItem(_RECENT_KEY);
+                return raw ? JSON.parse(raw) : [];
+            } catch(e) { return []; }
+        }
+
+        function _saveRecentSearch(text) {
+            const trimmed = (text || '').trim();
+            if (trimmed.length < 2) return; // ignorar búsquedas muy cortas
+            const upper = trimmed.toUpperCase();
+            let list = _getRecentSearches();
+            // Quitar si ya existe (para moverlo al principio)
+            list = list.filter(s => s.toUpperCase() !== upper);
+            // Agregar al principio
+            list.unshift(trimmed);
+            // Limitar a _RECENT_MAX
+            list = list.slice(0, _RECENT_MAX);
+            try { localStorage.setItem(_RECENT_KEY, JSON.stringify(list)); } catch(e) {}
+        }
+
+        function _clearRecentSearches() {
+            try { localStorage.removeItem(_RECENT_KEY); } catch(e) {}
+            _renderRecentChips();
+        }
+        window._clearRecentSearches = _clearRecentSearches;
+
+        function _renderRecentChips() {
+            const box = document.getElementById('search-recent-chips');
+            if (!box) return;
+            const list = _getRecentSearches();
+            if (!list.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+            box.innerHTML = `
+                <span class="text-[9px] font-black text-slate-500 uppercase tracking-wider">Recientes:</span>
+                ${list.map(text => `
+                    <button onclick="_useRecentSearch('${escapeHtml(text).replace(/'/g, "\\'")}')"
+                            class="bg-slate-700/50 border border-slate-600/50 text-slate-300 text-[11px] font-bold px-3 py-1 rounded-full active:scale-95 transition hover:bg-slate-600/50">
+                        🕐 ${escapeHtml(text)}
+                    </button>
+                `).join('')}
+                <button onclick="_clearRecentSearches()"
+                        class="bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[11px] font-black px-2 py-1 rounded-full active:scale-95 transition"
+                        title="Borrar historial">✕</button>
+            `;
+            box.style.display = 'flex';
+        }
+
+        window._useRecentSearch = function(text) {
+            const input = document.getElementById('search-orders');
+            if (input) input.value = text;
+            document.getElementById('search-recent-chips').style.display = 'none';
+            applyFilters();
+        };
+
+        // Mostrar recientes al hacer focus si el input está vacío
+        window._onSearchFocus = function() {
+            const input = document.getElementById('search-orders');
+            if (input && !input.value.trim()) _renderRecentChips();
+        };
+
+        // Ocultar recientes al perder el foco (con delay para permitir click en chip)
+        window._onSearchBlur = function() {
+            setTimeout(() => {
+                const box = document.getElementById('search-recent-chips');
+                if (box) box.style.display = 'none';
+            }, 200);
+        };
 
         // Helper global: normaliza texto para búsqueda (quita acentos, espacios extras, mayúsculas)
         function _normalizeSearch(s) {
@@ -3941,9 +4024,80 @@
             showClientHistory(nombre);
         };
 
+        // Tarjetas de órdenes encontradas por número (color naranja)
+        async function _renderOrderHits(query) {
+            const box = document.getElementById('search-order-hits');
+            if (!box) return;
+            const q = _normalizeSearch(query);
+            // Solo buscar si hay texto con al menos 1 dígito
+            if (!q || !/\d/.test(q)) { box.style.display = 'none'; box.innerHTML = ''; return; }
+
+            const orders = await getAll('orders');
+            const qDigits = q.replace(/[^0-9]/g, '');
+            const cur = getCurrency();
+
+            // Coincidencias por número de orden (exacto o parcial)
+            const hits = orders.filter(o => {
+                if (!o.orderNum) return false;
+                const numStr = String(o.orderNum);
+                const formatted = formatOrderNum(o.orderNum).replace(/[^0-9]/g, '');
+                return numStr.includes(qDigits) || formatted.includes(qDigits);
+            }).slice(0, 3);
+
+            if (!hits.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+
+            const staColor = {
+                recibido:'#94a3b8', 'revisión':'#fbbf24', reparado:'#34d399',
+                entregado:'#60a5fa', 'no-reparable':'#f87171'
+            };
+
+            box.innerHTML = `
+                <div class="text-[10px] font-black uppercase tracking-wider text-orange-400 px-2 pt-1">📋 Órdenes por número</div>
+                ${hits.map(o => {
+                    const color = staColor[o.sta] || '#94a3b8';
+                    return `
+                    <button onclick="_openOrderFromSearch(${o.id}, '${escapeHtml(o.nom).replace(/'/g, "\\'")}')"
+                            class="w-full text-left bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/30 p-3 rounded-2xl active:scale-95 transition flex items-center justify-between gap-2">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2">
+                                <span class="font-black text-orange-400 text-sm">${formatOrderNum(o.orderNum)}</span>
+                                <span class="font-bold text-white text-sm truncate">${escapeHtml(o.nom)}</span>
+                            </div>
+                            <div class="text-[10px] text-slate-400 mt-1 truncate">🔧 ${escapeHtml(o.equ || '')}</div>
+                            <div class="flex gap-2 mt-1 items-center">
+                                <span class="text-[10px] font-black px-2 py-0.5 rounded-lg" style="background:${color}22;color:${color};">${o.sta || 'recibido'}</span>
+                                <span class="text-[10px] text-emerald-400 font-black">${cur}${(o.val||0).toLocaleString()}</span>
+                            </div>
+                        </div>
+                        <span class="text-orange-400 text-lg flex-shrink-0">›</span>
+                    </button>`;
+                }).join('')}
+            `;
+            box.style.display = 'block';
+        }
+
+        // Al tocar una tarjeta de orden por número: filtra abajo Y abre el modal de edición
+        window._openOrderFromSearch = function(orderId, nombreCliente) {
+            const input = document.getElementById('search-orders');
+            if (input) input.value = nombreCliente;
+            filters.text = nombreCliente.toUpperCase();
+            renderOrders();
+            // Abrir modal de edición
+            if (typeof editOrder === 'function') editOrder(orderId);
+        };
+
         async function renderOrders() {
-            // Mostrar sugerencias de clientes en paralelo (no bloquea)
-            _renderClientHits(filters.text);
+            // Si no hay texto, limpiar todas las sugerencias
+            if (!filters.text) {
+                const hits = document.getElementById('search-client-hits');
+                const box = document.getElementById('search-order-hits');
+                if (hits) { hits.style.display = 'none'; hits.innerHTML = ''; }
+                if (box)  { box.style.display  = 'none'; box.innerHTML  = ''; }
+            } else {
+                // Mostrar sugerencias de clientes y órdenes por número en paralelo (no bloquea)
+                _renderClientHits(filters.text);
+                _renderOrderHits(filters.text);
+            }
 
             const cur = getCurrency();
             let orders = await getAll('orders');
