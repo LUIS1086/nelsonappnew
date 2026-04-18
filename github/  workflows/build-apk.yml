@@ -16,7 +16,7 @@ jobs:
       - name: Prepare web directory
         run: |
           mkdir -p www
-          # Copia todo EXCEPTO las carpetas que no deben ir a la app (node_modules, .git, .github, android, www)
+          # Copia todo EXCEPTO las carpetas que no deben ir a la app
           shopt -s extglob
           cp -r !(www|.git|.github|node_modules|android|package.json|package-lock.json|capacitor.config.json) www/ || true
           # Asegurar que index.html esté presente
