@@ -3355,11 +3355,120 @@
             showToast(`Intervalo de respaldo: cada ${hours} horas`, 'success');
         }
 
+        // ═══ Overlay de progreso de subida a Drive ═══
+        function showDriveProgress(fileName) {
+            let overlay = document.getElementById('drive-upload-overlay');
+            if (overlay) overlay.remove();
+            overlay = document.createElement('div');
+            overlay.id = 'drive-upload-overlay';
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(5,6,15,0.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:99998;display:flex;align-items:center;justify-content:center;padding:20px;animation:dup-fadein 0.25s ease;';
+            overlay.innerHTML = `
+                <style>
+                    @keyframes dup-fadein { from { opacity: 0; } to { opacity: 1; } }
+                    @keyframes dup-slidein { from { transform: translateY(20px) scale(0.96); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+                    @keyframes dup-spin { to { transform: rotate(360deg); } }
+                    @keyframes dup-shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+                    #dup-panel .dup-bar-fill { transition: width 0.18s cubic-bezier(0.4, 0, 0.2, 1); }
+                </style>
+                <div id="dup-panel" style="width:100%;max-width:360px;background:linear-gradient(180deg,#14162a 0%,#0d0f1a 100%);border-radius:24px;border:1px solid rgba(59,130,246,0.25);padding:26px 22px;box-shadow:0 20px 60px rgba(0,0,0,0.6);animation:dup-slidein 0.35s cubic-bezier(0.16,1,0.3,1);">
+                    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+                        <div style="width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#1d4ed8,#3b82f6);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 6px 18px rgba(59,130,246,0.4);position:relative;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            <div id="dup-spinner" style="position:absolute;inset:-3px;border-radius:19px;border:2px solid transparent;border-top-color:#60a5fa;animation:dup-spin 1s linear infinite;"></div>
+                        </div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-size:10px;font-weight:900;letter-spacing:2.5px;color:#60a5fa;text-transform:uppercase;margin-bottom:3px;">Google Drive</div>
+                            <div id="dup-status" style="font-size:15px;font-weight:800;color:#fff;line-height:1.3;">Preparando respaldo...</div>
+                        </div>
+                    </div>
+                    <div style="background:#0a0c17;border-radius:14px;padding:14px 16px;margin-bottom:14px;border:1px solid rgba(255,255,255,0.04);">
+                        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;">
+                            <span id="dup-percent" style="font-size:28px;font-weight:900;color:#fff;letter-spacing:-0.5px;font-variant-numeric:tabular-nums;">0%</span>
+                            <span id="dup-size" style="font-size:11px;font-weight:700;color:#94a3b8;font-variant-numeric:tabular-nums;">— / —</span>
+                        </div>
+                        <div style="height:8px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;position:relative;">
+                            <div class="dup-bar-fill" id="dup-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#3b82f6 0%,#60a5fa 50%,#3b82f6 100%);background-size:200% 100%;animation:dup-shimmer 2s linear infinite;border-radius:999px;box-shadow:0 0 12px rgba(59,130,246,0.6);"></div>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#64748b;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <span id="dup-filename" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:monospace;">${fileName || ''}</span>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            return overlay;
+        }
+
+        function updateDriveProgress(percent, loaded, total, status) {
+            const overlay = document.getElementById('drive-upload-overlay');
+            if (!overlay) return;
+            const pct = Math.max(0, Math.min(100, Math.round(percent)));
+            const bar = overlay.querySelector('#dup-bar');
+            const pctEl = overlay.querySelector('#dup-percent');
+            const sizeEl = overlay.querySelector('#dup-size');
+            const statusEl = overlay.querySelector('#dup-status');
+            if (bar) bar.style.width = pct + '%';
+            if (pctEl) pctEl.textContent = pct + '%';
+            if (sizeEl && loaded != null && total != null) {
+                const fmt = (n) => {
+                    if (n < 1024) return n + ' B';
+                    if (n < 1024*1024) return (n/1024).toFixed(1) + ' KB';
+                    return (n/1024/1024).toFixed(2) + ' MB';
+                };
+                sizeEl.textContent = `${fmt(loaded)} / ${fmt(total)}`;
+            }
+            if (status && statusEl) statusEl.textContent = status;
+        }
+
+        function hideDriveProgress(delay = 0) {
+            const overlay = document.getElementById('drive-upload-overlay');
+            if (!overlay) return;
+            setTimeout(() => {
+                overlay.style.transition = 'opacity 0.25s ease';
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.remove(), 260);
+            }, delay);
+        }
+
+        // Sube un FormData a Drive con progreso real usando XHR
+        function uploadToDriveWithProgress(url, method, form, token, onProgress) {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open(method, url, true);
+                xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                if (xhr.upload && typeof onProgress === 'function') {
+                    xhr.upload.onprogress = (e) => {
+                        if (e.lengthComputable) {
+                            onProgress((e.loaded / e.total) * 100, e.loaded, e.total);
+                        }
+                    };
+                }
+                xhr.onload = () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        try { resolve(JSON.parse(xhr.responseText)); }
+                        catch(_) { resolve({}); }
+                    } else {
+                        const err = new Error(`HTTP ${xhr.status}: ${xhr.responseText.slice(0,200)}`);
+                        err.status = xhr.status;
+                        reject(err);
+                    }
+                };
+                xhr.onerror = () => reject(new Error('Error de red al subir a Drive'));
+                xhr.onabort = () => reject(new Error('Subida cancelada'));
+                xhr.send(form);
+            });
+        }
+
         // Modificar driveBackupNow para aceptar parámetro silent
         async function driveBackupNow(silent = false) {
             if (!driveToken) { if(!silent) showAlert('Primero conecta tu cuenta de Google.', 'warning'); return; }
-            if (!silent) showToast('Subiendo respaldo a Drive...', 'info');
+
+            const fileName = `nelson_backup_${new Date().toISOString().slice(0,10)}.json`;
+            if (!silent) showDriveProgress(fileName);
+
             try {
+                if (!silent) updateDriveProgress(0, 0, 0, 'Leyendo base de datos...');
                 const orders   = await getAll('orders');
                 const stock    = await getAll('stock');
                 const sales    = await getAll('sales');
@@ -3368,19 +3477,21 @@
                 const payments = await getAll('payments');
                 const calificaciones = await getAll('calificaciones');
 
+                if (!silent) updateDriveProgress(0, 0, 0, 'Empaquetando fotos...');
                 const exportOrders = [];
                 for (let o of orders) {
                     exportOrders.push({ ...o, fotos: await blobsToB64(o.fotos || []), fotosEntrega: await blobsToB64(o.fotosEntrega || []) });
                 }
 
                 const jsonStr  = JSON.stringify({ orders: exportOrders, stock, sales, gastos, clientes, payments, calificaciones, date: new Date().toISOString() });
-                const fileName = `nelson_backup_${new Date().toISOString().slice(0,10)}.json`;
                 const folderId = await ensureDriveFolder();
 
                 const blob = new Blob([jsonStr], { type: 'application/json' });
                 let url    = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
                 let method = 'POST';
                 let form   = new FormData();
+
+                if (!silent) updateDriveProgress(0, 0, blob.size, 'Conectando con Drive...');
 
                 // Verificar si ya existe un archivo con ese nombre para sobreescribirlo
                 try {
@@ -3407,20 +3518,39 @@
                     form.append('file', blob);
                 }
 
-                const result = await fetch(url, {
-                    method,
-                    headers: { Authorization: 'Bearer ' + driveToken },
-                    body: form
-                }).then(r => r.json());
+                if (!silent) updateDriveProgress(0, 0, blob.size, 'Subiendo respaldo...');
+
+                let result;
+                if (!silent) {
+                    // Subida con progreso visible
+                    result = await uploadToDriveWithProgress(url, method, form, driveToken, (pct, loaded, total) => {
+                        updateDriveProgress(pct, loaded, total, pct >= 99 ? 'Finalizando...' : 'Subiendo respaldo...');
+                    });
+                } else {
+                    // Subida silenciosa (backup automático) - sin UI
+                    result = await fetch(url, {
+                        method,
+                        headers: { Authorization: 'Bearer ' + driveToken },
+                        body: form
+                    }).then(r => r.json());
+                }
 
                 if (result.id) {
                     localStorage.setItem('driveLastBackup', new Date().toLocaleString('es-ES'));
-                    if (!silent) showAlert(`✅ Respaldo guardado en Google Drive\n📁 Carpeta: ${DRIVE_FOLDER}\n📄 Archivo: ${fileName}`, 'success');
+                    if (!silent) {
+                        updateDriveProgress(100, blob.size, blob.size, '✓ Respaldo completado');
+                        hideDriveProgress(900);
+                        setTimeout(() => {
+                            showAlert(`✅ Respaldo guardado en Google Drive\n📁 Carpeta: ${DRIVE_FOLDER}\n📄 Archivo: ${fileName}`, 'success');
+                        }, 950);
+                    }
                 } else {
                     throw new Error(JSON.stringify(result));
                 }
             } catch(e) {
-                if (e.message && e.message.includes('401')) {
+                if (!silent) hideDriveProgress();
+                const isAuthErr = (e.status === 401) || (e.message && e.message.includes('401'));
+                if (isAuthErr) {
                     driveToken = null; updateDriveUI(false);
                     if (!silent) showAlert('Sesión de Google expirada. Vuelve a conectar.', 'warning');
                 } else {
@@ -8658,159 +8788,246 @@
          Módulo autocontenido. No modifica nada del código existente.
          ══════════════════════════════════════════════════════════════════════ -->
     <style>
-        /* Botón flotante (FAB) — paleta Nelson: naranja/ámbar, bien separado del nav */
+        /* ═══════════════════════════════════════════════════════
+           NELSON IA — Estilo "Taller Pro Neural"
+           Paleta: ámbar-naranja (#f97316), cyan-eléctrico (#22d3ee),
+           esmeralda (#10b981), azul profundo (#1e293b → #0a0c17)
+           ═══════════════════════════════════════════════════════ */
+
+        /* Botón flotante (FAB) — glow doble, ring cyan pulsante */
         #nia-fab {
             position: fixed;
             right: 16px;
             bottom: calc(104px + env(safe-area-inset-bottom, 0px));
-            width: 54px; height: 54px;
-            border-radius: 50%;
+            width: 56px; height: 56px;
+            border-radius: 18px;
             background: linear-gradient(135deg, #f97316 0%, #ea580c 55%, #c2410c 100%);
             box-shadow:
-                0 8px 24px rgba(249,115,22,0.45),
-                0 0 0 1px rgba(255,255,255,0.1) inset,
-                0 -2px 8px rgba(0,0,0,0.2) inset;
+                0 10px 28px rgba(249,115,22,0.5),
+                0 0 0 1px rgba(255,255,255,0.12) inset,
+                0 -2px 10px rgba(0,0,0,0.25) inset;
             display: flex; align-items: center; justify-content: center;
-            font-size: 24px;
-            border: 2px solid rgba(255,255,255,0.08);
+            font-size: 26px;
+            border: none;
             cursor: pointer;
             z-index: 9500;
-            transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease;
+            transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1);
             animation: nia-pulse 2.8s ease-in-out infinite;
         }
+        #nia-fab::before {
+            /* Ring cyan exterior animado */
+            content: '';
+            position: absolute;
+            inset: -6px;
+            border-radius: 22px;
+            border: 1.5px solid rgba(34,211,238,0.35);
+            animation: nia-ring 2.4s ease-in-out infinite;
+            pointer-events: none;
+        }
         #nia-fab::after {
-            /* Badge pequeño "IA" para que se entienda qué es */
             content: 'IA';
             position: absolute;
-            top: -4px; right: -4px;
-            background: #10b981;
+            top: -5px; right: -5px;
+            background: linear-gradient(135deg,#10b981,#059669);
             color: #fff;
             font-size: 9px;
             font-weight: 900;
             letter-spacing: 0.5px;
-            padding: 2px 5px;
-            border-radius: 6px;
+            padding: 2px 6px;
+            border-radius: 7px;
             border: 2px solid #0d0f1a;
-            box-shadow: 0 2px 6px rgba(16,185,129,0.4);
+            box-shadow: 0 2px 8px rgba(16,185,129,0.55);
             line-height: 1;
         }
-        #nia-fab:hover { transform: scale(1.08) rotate(-3deg); box-shadow: 0 12px 32px rgba(249,115,22,0.6); }
+        #nia-fab:hover { transform: scale(1.08) rotate(-3deg); }
         #nia-fab:active { transform: scale(0.92); }
         @keyframes nia-pulse {
-            0%, 100% { box-shadow: 0 8px 24px rgba(249,115,22,0.45), 0 0 0 1px rgba(255,255,255,0.1) inset, 0 -2px 8px rgba(0,0,0,0.2) inset, 0 0 0 0 rgba(249,115,22,0.5); }
-            50%      { box-shadow: 0 8px 24px rgba(249,115,22,0.45), 0 0 0 1px rgba(255,255,255,0.1) inset, 0 -2px 8px rgba(0,0,0,0.2) inset, 0 0 0 12px rgba(249,115,22,0); }
+            0%, 100% { box-shadow: 0 10px 28px rgba(249,115,22,0.5), 0 0 0 1px rgba(255,255,255,0.12) inset, 0 -2px 10px rgba(0,0,0,0.25) inset, 0 0 0 0 rgba(249,115,22,0.45); }
+            50%      { box-shadow: 0 10px 28px rgba(249,115,22,0.5), 0 0 0 1px rgba(255,255,255,0.12) inset, 0 -2px 10px rgba(0,0,0,0.25) inset, 0 0 0 14px rgba(249,115,22,0); }
         }
-        /* Oculto el FAB cuando el modal está abierto */
+        @keyframes nia-ring {
+            0%, 100% { transform: scale(1); opacity: 0.6; }
+            50%      { transform: scale(1.12); opacity: 0; }
+        }
         body.nia-open #nia-fab { display: none; }
-        /* En desktop: abajo a la derecha con más aire */
         @media (min-width: 768px) {
-            #nia-fab { bottom: 32px; right: 32px; width: 60px; height: 60px; font-size: 28px; }
-            #nia-fab::after { font-size: 10px; padding: 3px 6px; }
+            #nia-fab { bottom: 32px; right: 32px; width: 62px; height: 62px; font-size: 28px; }
+            #nia-fab::after { font-size: 10px; padding: 3px 7px; }
         }
-        /* Light mode: mantengo naranja pero ajusto el borde */
-        body.light-mode #nia-fab { border-color: rgba(0,0,0,0.06); }
         body.light-mode #nia-fab::after { border-color: #f5f3ee; }
 
-        /* Modal del asistente */
+        /* ═══ Modal backdrop ═══ */
         #nia-modal {
             position: fixed; inset: 0;
             z-index: 9600;
-            background: rgba(5,6,15,0.88);
-            backdrop-filter: blur(18px);
+            background: radial-gradient(ellipse at 50% 30%, rgba(249,115,22,0.18) 0%, rgba(5,6,15,0.92) 45%, rgba(2,3,8,0.96) 100%);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
             display: none;
             align-items: flex-end; justify-content: center;
             padding: 0;
         }
-        #nia-modal.open { display: flex; animation: nia-fade-in 0.25s ease; }
+        #nia-modal.open { display: flex; animation: nia-fade-in 0.28s ease; }
         @keyframes nia-fade-in { from { opacity: 0; } to { opacity: 1; } }
 
+        /* ═══ Panel principal ═══ */
         #nia-panel {
             width: 100%;
-            max-width: 520px;
+            max-width: 540px;
             height: 92vh;
             max-height: 92vh;
-            background: linear-gradient(180deg, #14162a 0%, #0d0f1a 100%);
+            background:
+                radial-gradient(circle at 100% 0%, rgba(249,115,22,0.12) 0%, transparent 40%),
+                radial-gradient(circle at 0% 100%, rgba(34,211,238,0.08) 0%, transparent 40%),
+                linear-gradient(180deg, #0f1424 0%, #0a0c17 100%);
             border-radius: 28px 28px 0 0;
-            border: 1px solid rgba(249,115,22,0.18);
+            border: 1px solid rgba(249,115,22,0.22);
             border-bottom: none;
             display: flex; flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 -20px 60px rgba(0,0,0,0.6);
-            animation: nia-slide-up 0.35s cubic-bezier(0.16,1,0.3,1);
+            box-shadow:
+                0 -20px 60px rgba(0,0,0,0.7),
+                0 0 0 1px rgba(255,255,255,0.03) inset;
+            animation: nia-slide-up 0.4s cubic-bezier(0.16,1,0.3,1);
+            position: relative;
+        }
+        /* Líneas decorativas sutiles en el panel */
+        #nia-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, rgba(249,115,22,0.6) 20%, rgba(34,211,238,0.5) 80%, transparent 100%);
+            pointer-events: none;
         }
         @keyframes nia-slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
         @media (min-width: 768px) {
             #nia-modal { align-items: center; padding: 20px; }
-            #nia-panel { border-radius: 24px; border-bottom: 1px solid rgba(249,115,22,0.18); height: 85vh; max-height: 780px; }
+            #nia-panel { border-radius: 28px; border-bottom: 1px solid rgba(249,115,22,0.22); height: 85vh; max-height: 800px; }
         }
 
-        /* Header del modal */
+        /* ═══ Header ═══ */
         #nia-header {
-            padding: 18px 20px 14px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            display: flex; align-items: center; gap: 12px;
-            background: linear-gradient(180deg, rgba(249,115,22,0.08) 0%, transparent 100%);
+            padding: 18px 20px 16px;
+            display: flex; align-items: center; gap: 14px;
+            background:
+                linear-gradient(180deg, rgba(249,115,22,0.1) 0%, transparent 100%),
+                repeating-linear-gradient(90deg, transparent 0, transparent 32px, rgba(255,255,255,0.015) 32px, rgba(255,255,255,0.015) 33px);
+            border-bottom: 1px solid rgba(249,115,22,0.1);
             flex-shrink: 0;
+            position: relative;
         }
         #nia-avatar {
-            width: 44px; height: 44px; border-radius: 14px;
-            background: linear-gradient(135deg, #f97316, #ea580c);
+            width: 48px; height: 48px; border-radius: 15px;
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 60%, #c2410c 100%);
             display: flex; align-items: center; justify-content: center;
-            font-size: 22px;
-            box-shadow: 0 6px 16px rgba(249,115,22,0.4);
-        }
-        #nia-title-wrap { flex: 1; min-width: 0; }
-        #nia-title { font-size: 15px; font-weight: 900; color: #fff; letter-spacing: 0.3px; }
-        #nia-subtitle { font-size: 10px; font-weight: 700; color: #fb923c; letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
-        #nia-close {
-            width: 34px; height: 34px; border-radius: 10px;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.08);
-            color: #fff; font-size: 16px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+            box-shadow:
+                0 8px 20px rgba(249,115,22,0.45),
+                0 0 0 1px rgba(255,255,255,0.12) inset,
+                0 -2px 6px rgba(0,0,0,0.25) inset;
+            position: relative;
             flex-shrink: 0;
         }
-        #nia-close:hover { background: rgba(244,63,94,0.15); border-color: rgba(244,63,94,0.3); }
+        /* Punto "online" verde en el avatar */
+        #nia-avatar::after {
+            content: '';
+            position: absolute;
+            bottom: -2px; right: -2px;
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            background: #10b981;
+            border: 2.5px solid #0a0c17;
+            box-shadow: 0 0 8px rgba(16,185,129,0.6);
+            animation: nia-dot-pulse 1.8s ease-in-out infinite;
+        }
+        #nia-title-wrap { flex: 1; min-width: 0; }
+        #nia-title {
+            font-family: 'Syne', system-ui, sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.3px;
+            line-height: 1.1;
+        }
+        #nia-subtitle {
+            font-size: 10px;
+            font-weight: 800;
+            color: #22d3ee;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            margin-top: 4px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        #nia-subtitle::before {
+            content: '';
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: #22d3ee;
+            box-shadow: 0 0 6px #22d3ee;
+            animation: nia-dot-pulse 1.8s ease-in-out infinite;
+        }
+        #nia-close {
+            width: 36px; height: 36px; border-radius: 11px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #cbd5e1; font-size: 15px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+        #nia-close:hover { background: rgba(244,63,94,0.15); border-color: rgba(244,63,94,0.4); color: #fca5a5; }
+        #nia-close:active { transform: scale(0.9); }
 
-        /* Área de mensajes */
+        /* ═══ Área de mensajes ═══ */
         #nia-messages {
             flex: 1;
             overflow-y: auto;
-            padding: 16px 16px 8px;
-            display: flex; flex-direction: column; gap: 10px;
+            padding: 18px 16px 10px;
+            display: flex; flex-direction: column; gap: 12px;
             scroll-behavior: smooth;
+            position: relative;
         }
+        #nia-messages::-webkit-scrollbar { width: 4px; }
+        #nia-messages::-webkit-scrollbar-thumb { background: rgba(249,115,22,0.2); border-radius: 10px; }
+
         .nia-msg {
-            max-width: 85%;
-            padding: 11px 14px;
+            max-width: 86%;
+            padding: 12px 15px;
             border-radius: 18px;
             font-size: 14px;
-            line-height: 1.5;
+            line-height: 1.55;
             word-wrap: break-word;
-            animation: nia-msg-in 0.25s ease;
+            animation: nia-msg-in 0.3s cubic-bezier(0.16,1,0.3,1);
+            position: relative;
         }
-        @keyframes nia-msg-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes nia-msg-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .nia-msg.user {
             align-self: flex-end;
             background: linear-gradient(135deg, #f97316, #ea580c);
             color: #fff;
             border-bottom-right-radius: 6px;
-            box-shadow: 0 4px 14px rgba(249,115,22,0.35);
+            box-shadow:
+                0 6px 18px rgba(249,115,22,0.4),
+                0 0 0 1px rgba(255,255,255,0.1) inset;
+            font-weight: 500;
         }
         .nia-msg.assistant {
             align-self: flex-start;
-            background: #1e2235;
+            background: linear-gradient(180deg, #1a1f36 0%, #151929 100%);
             color: #e8eaf6;
             border: 1px solid rgba(255,255,255,0.06);
             border-bottom-left-radius: 6px;
             white-space: pre-wrap;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.2);
         }
         .nia-msg.assistant strong { color: #fb923c; font-weight: 800; }
         .nia-msg.assistant code {
-            background: rgba(249,115,22,0.12);
-            color: #fdba74;
-            padding: 1px 6px; border-radius: 5px;
+            background: rgba(34,211,238,0.12);
+            color: #67e8f9;
+            padding: 1px 7px; border-radius: 6px;
             font-size: 13px; font-weight: 700;
+            border: 1px solid rgba(34,211,238,0.2);
         }
         .nia-msg.error {
             align-self: center;
@@ -8818,97 +9035,125 @@
             color: #fca5a5;
             border: 1px solid rgba(244,63,94,0.25);
             font-size: 12px;
+            border-radius: 12px;
         }
 
-        /* Indicador de "escribiendo" */
+        /* Indicador de "escribiendo" mejorado */
         .nia-typing {
             align-self: flex-start;
-            background: #1e2235;
+            background: linear-gradient(180deg, #1a1f36 0%, #151929 100%);
             border: 1px solid rgba(255,255,255,0.06);
             border-radius: 18px;
             border-bottom-left-radius: 6px;
-            padding: 14px 16px;
-            display: flex; gap: 5px;
+            padding: 14px 18px;
+            display: flex; gap: 6px;
+            align-items: center;
         }
         .nia-typing span {
-            width: 7px; height: 7px; border-radius: 50%;
-            background: #f97316;
+            width: 8px; height: 8px; border-radius: 50%;
+            background: linear-gradient(135deg, #f97316, #ea580c);
             animation: nia-bounce 1.4s infinite ease-in-out;
+            box-shadow: 0 0 8px rgba(249,115,22,0.5);
         }
         .nia-typing span:nth-child(2) { animation-delay: 0.2s; }
         .nia-typing span:nth-child(3) { animation-delay: 0.4s; }
         @keyframes nia-bounce {
-            0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+            0%, 80%, 100% { transform: scale(0.5); opacity: 0.4; }
             40% { transform: scale(1); opacity: 1; }
         }
 
-        /* Sugerencias rápidas */
+        /* ═══ Sugerencias (chips) ═══ */
         #nia-suggestions {
-            padding: 4px 16px 8px;
+            padding: 6px 16px 10px;
             display: flex; gap: 8px;
             overflow-x: auto;
             flex-shrink: 0;
             -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
         }
         #nia-suggestions::-webkit-scrollbar { display: none; }
         .nia-chip {
             flex-shrink: 0;
-            background: rgba(249,115,22,0.1);
-            border: 1px solid rgba(249,115,22,0.25);
+            background: linear-gradient(135deg, rgba(249,115,22,0.08), rgba(234,88,12,0.05));
+            border: 1px solid rgba(249,115,22,0.28);
             color: #fdba74;
-            padding: 8px 14px;
+            padding: 9px 15px;
             border-radius: 999px;
             font-size: 12px; font-weight: 700;
             cursor: pointer;
             white-space: nowrap;
             transition: all 0.2s;
+            backdrop-filter: blur(8px);
         }
-        .nia-chip:hover { background: rgba(249,115,22,0.2); border-color: rgba(249,115,22,0.45); }
+        .nia-chip:hover {
+            background: linear-gradient(135deg, rgba(249,115,22,0.18), rgba(234,88,12,0.1));
+            border-color: rgba(249,115,22,0.5);
+            transform: translateY(-1px);
+        }
         .nia-chip:active { transform: scale(0.96); }
 
-        /* Input de pregunta */
+        /* ═══ Input ═══ */
         #nia-input-wrap {
-            padding: 10px 12px calc(12px + env(safe-area-inset-bottom, 0px));
+            padding: 12px 14px calc(14px + env(safe-area-inset-bottom, 0px));
             border-top: 1px solid rgba(255,255,255,0.05);
-            display: flex; gap: 8px; align-items: flex-end;
-            background: rgba(13,15,26,0.6);
+            display: flex; gap: 10px; align-items: flex-end;
+            background:
+                linear-gradient(180deg, transparent 0%, rgba(10,12,23,0.8) 100%);
             flex-shrink: 0;
+            position: relative;
+        }
+        #nia-input-wrap::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 20%; right: 20%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(249,115,22,0.3), transparent);
         }
         #nia-input {
             flex: 1;
-            background: #1e2235 !important;
+            background: rgba(30,34,53,0.6) !important;
             border: 1px solid rgba(255,255,255,0.08) !important;
-            border-radius: 18px !important;
-            padding: 10px 14px !important;
+            border-radius: 16px !important;
+            padding: 12px 16px !important;
             color: #e8eaf6 !important;
             font-size: 14px !important;
             font-family: inherit;
             resize: none;
-            max-height: 100px;
-            min-height: 42px;
+            max-height: 110px;
+            min-height: 44px;
             line-height: 1.4;
-            transition: border-color 0.2s;
+            transition: all 0.2s;
+            backdrop-filter: blur(8px);
         }
-        #nia-input:focus { border-color: #f97316 !important; outline: none; box-shadow: 0 0 0 3px rgba(249,115,22,0.18); }
+        #nia-input::placeholder { color: #64748b; }
+        #nia-input:focus {
+            border-color: rgba(249,115,22,0.5) !important;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(249,115,22,0.15), 0 0 20px rgba(249,115,22,0.1);
+            background: rgba(30,34,53,0.9) !important;
+        }
         #nia-send {
-            width: 42px; height: 42px;
-            border-radius: 50%;
+            width: 44px; height: 44px;
+            border-radius: 14px;
             background: linear-gradient(135deg, #f97316, #ea580c);
             border: none;
             color: #fff;
             font-size: 18px;
             cursor: pointer;
             flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(249,115,22,0.4);
+            box-shadow:
+                0 6px 18px rgba(249,115,22,0.45),
+                0 0 0 1px rgba(255,255,255,0.12) inset;
             transition: all 0.2s;
             display: flex; align-items: center; justify-content: center;
         }
-        #nia-send:active { transform: scale(0.9); }
-        #nia-send:disabled { opacity: 0.4; cursor: not-allowed; }
+        #nia-send:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(249,115,22,0.55), 0 0 0 1px rgba(255,255,255,0.15) inset; }
+        #nia-send:active { transform: scale(0.92); }
+        #nia-send:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-        /* Pantalla de configuración (primera vez) */
+        /* ═══ Pantalla de configuración ═══ */
         #nia-setup {
-            padding: 20px;
+            padding: 22px;
             flex: 1;
             overflow-y: auto;
             display: none;
@@ -8916,30 +9161,38 @@
             gap: 14px;
         }
         #nia-setup.active { display: flex; }
-        #nia-setup h3 { font-size: 16px; font-weight: 900; color: #fff; margin: 0; }
+        #nia-setup h3 {
+            font-family: 'Syne', system-ui, sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            color: #fff;
+            margin: 0;
+            letter-spacing: -0.3px;
+        }
         #nia-setup p { font-size: 13px; color: #94a3b8; line-height: 1.6; margin: 0; }
         #nia-setup .nia-step {
-            background: rgba(249,115,22,0.06);
-            border: 1px solid rgba(249,115,22,0.15);
-            padding: 12px 14px;
+            background: linear-gradient(135deg, rgba(249,115,22,0.06), rgba(234,88,12,0.03));
+            border: 1px solid rgba(249,115,22,0.18);
+            padding: 13px 15px;
             border-radius: 14px;
             display: flex; gap: 12px; align-items: flex-start;
         }
         #nia-setup .nia-step-num {
-            width: 26px; height: 26px; border-radius: 50%;
+            width: 28px; height: 28px; border-radius: 9px;
             background: linear-gradient(135deg, #f97316, #ea580c);
             color: #fff; font-weight: 900; font-size: 13px;
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(249,115,22,0.4);
         }
         #nia-setup .nia-step-text { font-size: 12.5px; color: #cbd5e1; line-height: 1.55; }
         #nia-setup .nia-step-text a { color: #fb923c; font-weight: 800; text-decoration: underline; }
         #nia-setup input {
-            background: #1e2235 !important;
+            background: rgba(30,34,53,0.8) !important;
             border: 1px solid rgba(249,115,22,0.3) !important;
             color: #fff !important;
-            padding: 12px 14px !important;
-            border-radius: 12px !important;
+            padding: 13px 15px !important;
+            border-radius: 13px !important;
             font-size: 13px !important;
             font-family: monospace !important;
         }
@@ -8947,13 +9200,17 @@
             background: linear-gradient(135deg, #f97316, #ea580c);
             color: #fff;
             border: none;
-            padding: 14px;
+            padding: 15px;
             border-radius: 14px;
             font-size: 13px; font-weight: 900;
-            letter-spacing: 1px; text-transform: uppercase;
+            letter-spacing: 1.2px; text-transform: uppercase;
             cursor: pointer;
-            box-shadow: 0 6px 18px rgba(249,115,22,0.35);
+            box-shadow:
+                0 8px 22px rgba(249,115,22,0.4),
+                0 0 0 1px rgba(255,255,255,0.1) inset;
+            transition: all 0.2s;
         }
+        #nia-save-key:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(249,115,22,0.5), 0 0 0 1px rgba(255,255,255,0.15) inset; }
         #nia-save-key:active { transform: scale(0.98); }
 
         /* ═══ Botones de acción WhatsApp ═══ */
