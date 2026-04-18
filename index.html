@@ -3864,17 +3864,27 @@
             searchDebounceTimer = setTimeout(() => applyFilters(), 300);
         }
 
+        // Helper global: normaliza texto para búsqueda (quita acentos, espacios extras, mayúsculas)
+        function _normalizeSearch(s) {
+            return String(s || '')
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quitar acentos
+                .toUpperCase()
+                .replace(/\s+/g, ' ') // colapsar espacios múltiples
+                .trim();
+        }
+        window._normalizeSearch = _normalizeSearch;
+
         async function renderOrders() {
             const cur = getCurrency();
             let orders = await getAll('orders');
             if (filters.text) {
-                const q = filters.text;
+                const q = _normalizeSearch(filters.text);
                 orders = orders.filter(o =>
-                    (o.nom || '').includes(q) ||
-                    (o.equ || '').includes(q) ||
-                    (o.det || '').includes(q) ||
-                    (o.tel || '').includes(q) ||
-                    (o.tecnico || '').toUpperCase().includes(q) ||
+                    _normalizeSearch(o.nom).includes(q) ||
+                    _normalizeSearch(o.equ).includes(q) ||
+                    _normalizeSearch(o.det).includes(q) ||
+                    _normalizeSearch(o.tel).includes(q) ||
+                    _normalizeSearch(o.tecnico).includes(q) ||
                     formatOrderNum(o.orderNum || 0).includes(q) ||
                     String(o.orderNum || '').includes(q) ||
                     (o.orderNum && formatOrderNum(o.orderNum).replace(/[^0-9]/g,'').includes(q.replace(/[^0-9]/g,'')))
@@ -10135,21 +10145,19 @@
                         }))
                 };
 
-                // ═══════ INVENTARIO (stock real: n=nombre, p=precio, q=cantidad, minStock=minimo) ═══════
-                const umbralGlobal = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
-                const stockBajo    = stock.filter(s => (s.q || 0) <= (s.minStock || umbralGlobal) && (s.q || 0) > 0);
-                const stockAgotado = stock.filter(s => (s.q || 0) <= 0);
+                // ═══════ INVENTARIO (stock: n=nombre, p=precio, c=cantidad, min=minimo) ═══════
+                const stockBajo    = stock.filter(s => (s.c || 0) <= (s.min || 3) && (s.c || 0) > 0);
+                const stockAgotado = stock.filter(s => (s.c || 0) <= 0);
                 ctx.inventario = {
                     totalProductos: stock.length,
-                    umbralStockBajoGlobal: umbralGlobal,
-                    valorInventarioAProducto: stock.reduce((s,i) => s + ((i.q||0) * (i.p||0)), 0),
+                    valorInventarioAProducto: stock.reduce((s,i) => s + ((i.c||0) * (i.p||0)), 0),
                     productosStockBajo: stockBajo.length,
                     productosAgotados: stockAgotado.length,
                     itemsStockBajo: stockBajo.slice(0, 15).map(s => ({
-                        nombre: s.n, cantidad: s.q, minimo: s.minStock || umbralGlobal, precio: s.p, codigo: s.code
+                        nombre: s.n, cantidad: s.c, minimo: s.min, precio: s.p, codigo: s.codigo
                     })),
                     itemsAgotados: stockAgotado.slice(0, 10).map(s => ({
-                        nombre: s.n, precio: s.p, codigo: s.code
+                        nombre: s.n, precio: s.p, codigo: s.codigo
                     }))
                 };
 
