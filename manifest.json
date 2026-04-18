@@ -3,10 +3,10 @@
   "short_name": "NelsonApp",
   "description": "Gestión de taller, ventas, inventario y caja",
   "id": "/",
-  "start_url": "./index.html",
+  "start_url": "./index.html/dashboard",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
   "theme_color": "#f97316",
   "background_color": "#0d0f1a",
   "icons": [
@@ -37,14 +37,25 @@
       "url": "./index.html?shortcut=ordenes"
     },
     {
-      "name": "Caja & Inventario",
+      "name": "Caja &amp; Inventario",
       "short_name": "Caja",
       "description": "Ver caja e inventario de repuestos",
       "url": "./index.html?shortcut=ventas"
     }
   ],
-  "categories": ["business", "productivity", "utilities"],
+  "categories": [
+    "business",
+    "productivity",
+    "utilities"
+  ],
   "lang": "es-ES",
-  "dir": "ltr",
-  "prefer_related_applications": false
+  "dir": "auto",
+  "prefer_related_applications": false,
+  "display_override": [
+    "browser",
+    "fullscreen",
+    "minimal-ui",
+    "standalone",
+    "window-controls-overlay"
+  ]
 }
