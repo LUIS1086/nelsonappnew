@@ -4013,14 +4013,21 @@
             hits.style.display = 'block';
         }
 
-        // Al tocar una tarjeta de cliente: filtra órdenes por su nombre exacto Y abre su ficha
+        // Al tocar una tarjeta de cliente: filtra estrictamente por su nombre Y abre su ficha
         window._selectClientFromSearch = function(nombre) {
-            // 1. Filtrar la lista de órdenes con el nombre exacto (sobrescribe el filtro de texto)
             const input = document.getElementById('search-orders');
             if (input) input.value = nombre;
-            filters.text = nombre.toUpperCase();
+            // Filtro ESTRICTO por cliente exacto (no texto libre que puede dar falsos positivos)
+            filters.exactClient = nombre;
+            filters.exactOrderId = null;
+            filters.text = ''; // desactivamos búsqueda de texto libre
             renderOrders();
-            // 2. Abrir la ficha del cliente
+            // Ocultar tarjetas violetas y naranjas de arriba (ya escogimos)
+            const ch = document.getElementById('search-client-hits');
+            const oh = document.getElementById('search-order-hits');
+            if (ch) { ch.style.display = 'none'; ch.innerHTML = ''; }
+            if (oh) { oh.style.display = 'none'; oh.innerHTML = ''; }
+            // Abrir la ficha del cliente
             showClientHistory(nombre);
         };
 
@@ -4076,32 +4083,47 @@
             box.style.display = 'block';
         }
 
-        // Al tocar una tarjeta de orden por número: filtra abajo Y abre el modal de edición
+        // Al tocar una tarjeta de orden por número: filtra solo esa orden Y abre el modal de edición
         window._openOrderFromSearch = function(orderId, nombreCliente) {
             const input = document.getElementById('search-orders');
-            if (input) input.value = nombreCliente;
-            filters.text = nombreCliente.toUpperCase();
+            if (input) input.value = '#' + (orderId ? String(orderId) : nombreCliente);
+            // Filtro ESTRICTO por ID de orden exacta
+            filters.exactOrderId = orderId;
+            filters.exactClient = null;
+            filters.text = '';
             renderOrders();
+            // Ocultar tarjetas de arriba
+            const ch = document.getElementById('search-client-hits');
+            const oh = document.getElementById('search-order-hits');
+            if (ch) { ch.style.display = 'none'; ch.innerHTML = ''; }
+            if (oh) { oh.style.display = 'none'; oh.innerHTML = ''; }
             // Abrir modal de edición
             if (typeof editOrder === 'function') editOrder(orderId);
         };
 
         async function renderOrders() {
-            // Si no hay texto, limpiar todas las sugerencias
-            if (!filters.text) {
+            // Si no hay búsqueda activa (ni texto, ni cliente exacto, ni orden exacta), limpiar hits de arriba
+            if (!filters.text && !filters.exactClient && !filters.exactOrderId) {
                 const hits = document.getElementById('search-client-hits');
                 const box = document.getElementById('search-order-hits');
                 if (hits) { hits.style.display = 'none'; hits.innerHTML = ''; }
                 if (box)  { box.style.display  = 'none'; box.innerHTML  = ''; }
-            } else {
-                // Mostrar sugerencias de clientes y órdenes por número en paralelo (no bloquea)
+            } else if (filters.text && !filters.exactClient && !filters.exactOrderId) {
+                // Solo mostrar hits cuando hay texto libre (no cuando ya elegimos uno exacto)
                 _renderClientHits(filters.text);
                 _renderOrderHits(filters.text);
             }
 
             const cur = getCurrency();
             let orders = await getAll('orders');
-            if (filters.text) {
+
+            // FILTROS ESTRICTOS (tienen prioridad sobre texto libre)
+            if (filters.exactOrderId) {
+                orders = orders.filter(o => o.id === filters.exactOrderId);
+            } else if (filters.exactClient) {
+                const target = _normalizeSearch(filters.exactClient);
+                orders = orders.filter(o => _normalizeSearch(o.nom) === target);
+            } else if (filters.text) {
                 const q = _normalizeSearch(filters.text);
                 orders = orders.filter(o =>
                     _normalizeSearch(o.nom).includes(q) ||
@@ -5165,7 +5187,10 @@
                 dateFrom: document.getElementById('filter-date-from').value ? new Date(document.getElementById('filter-date-from').value).getTime() : null,
                 dateTo: document.getElementById('filter-date-to').value ? new Date(document.getElementById('filter-date-to').value).getTime() + 86399999 : null,
                 statuses: Array.from(document.querySelectorAll('.status-filter:checked')).map(cb=>cb.value),
-                tecnico: document.getElementById('filter-tecnico')?.value || ''
+                tecnico: document.getElementById('filter-tecnico')?.value || '',
+                // Filtros estrictos (se resetean con cada nueva escritura, activados por tarjetas)
+                exactClient: null,
+                exactOrderId: null
             };
             renderOrders();
         }
