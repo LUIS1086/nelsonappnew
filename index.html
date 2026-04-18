@@ -961,6 +961,8 @@
             <input type="text" id="search-orders" placeholder="🔍 Buscar cliente o equipo..." class="w-full text-sm font-semibold uppercase tracking-wide pr-12" oninput="onSearchInput()" list="search-suggestions">
             <button type="button" onclick="startVoiceInput('search-orders', true)" id="voice-btn-search" class="voice-mic-btn absolute right-2 top-1/2 -translate-y-1/2" title="Buscar por voz">🎤</button>
             </div>
+            <!-- Sugerencias de clientes (tocables, abren ficha) -->
+            <div id="search-client-hits" style="display:none;" class="space-y-2"></div>
             <datalist id="search-suggestions"></datalist>
             <button onclick="toggleFilters()" id="filterToggleBtn" class="filter-toggle w-full py-3 rounded-xl text-xs font-bold uppercase flex items-center justify-between px-4">
                 <span class="flex items-center gap-2">⚙️ FILTROS AVANZADOS</span>
@@ -3874,7 +3876,64 @@
         }
         window._normalizeSearch = _normalizeSearch;
 
+        // Muestra sugerencias de clientes coincidentes al buscar (tocables, abren ficha)
+        async function _renderClientHits(query) {
+            const hits = document.getElementById('search-client-hits');
+            if (!hits) return;
+            const q = _normalizeSearch(query);
+            if (!q || q.length < 2) { hits.style.display = 'none'; hits.innerHTML = ''; return; }
+
+            const [orders, clientes] = await Promise.all([ getAll('orders'), getAll('clientes') ]);
+            const cur = getCurrency();
+
+            // Recolectar nombres únicos de clientes desde clientes y orders
+            const nombres = new Set();
+            clientes.forEach(c => { if (c.nombre && _normalizeSearch(c.nombre).includes(q)) nombres.add(c.nombre); });
+            orders.forEach(o => { if (o.nom && _normalizeSearch(o.nom).includes(q)) nombres.add(o.nom); });
+
+            const lista = [...nombres].slice(0, 5).map(nombre => {
+                const clienteData = clientes.find(c => c.nombre === nombre);
+                const deuda = clienteData?.deuda || 0;
+                const ordenesCliente = orders.filter(o => o.nom === nombre);
+                const totalOrdenes = ordenesCliente.length;
+                const ordenesActivas = ordenesCliente.filter(o => o.sta !== 'entregado').length;
+                const tel = clienteData?.telefono || ordenesCliente[0]?.tel || '';
+                const deudaBadge = deuda > 0
+                    ? `<span class="bg-rose-500/20 text-rose-400 text-[10px] font-black px-2 py-1 rounded-lg">💰 ${cur}${deuda.toLocaleString()}</span>`
+                    : '';
+                const activasBadge = ordenesActivas > 0
+                    ? `<span class="bg-amber-500/20 text-amber-400 text-[10px] font-black px-2 py-1 rounded-lg">🔧 ${ordenesActivas} activas</span>`
+                    : '';
+                return `
+                <button onclick="showClientHistory('${escapeHtml(nombre).replace(/'/g, "\\'")}')"
+                        class="w-full text-left bg-gradient-to-r from-violet-500/10 to-blue-500/10 border border-violet-500/30 p-3 rounded-2xl active:scale-95 transition flex items-center justify-between gap-2">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2">
+                            <span class="text-lg">👤</span>
+                            <span class="font-black text-sm text-white truncate">${escapeHtml(nombre)}</span>
+                        </div>
+                        <div class="text-[10px] text-slate-400 mt-1 flex flex-wrap gap-2 items-center">
+                            <span>📋 ${totalOrdenes} órden${totalOrdenes===1?'':'es'}</span>
+                            ${tel ? `<span>📞 ${escapeHtml(tel)}</span>` : ''}
+                        </div>
+                        <div class="flex gap-1 mt-1 flex-wrap">${deudaBadge}${activasBadge}</div>
+                    </div>
+                    <span class="text-violet-400 text-lg flex-shrink-0">›</span>
+                </button>`;
+            }).join('');
+
+            if (!lista) { hits.style.display = 'none'; hits.innerHTML = ''; return; }
+            hits.innerHTML = `
+                <div class="text-[10px] font-black uppercase tracking-wider text-violet-400 px-2 pt-1">👥 Clientes encontrados</div>
+                ${lista}
+            `;
+            hits.style.display = 'block';
+        }
+
         async function renderOrders() {
+            // Mostrar sugerencias de clientes en paralelo (no bloquea)
+            _renderClientHits(filters.text);
+
             const cur = getCurrency();
             let orders = await getAll('orders');
             if (filters.text) {
