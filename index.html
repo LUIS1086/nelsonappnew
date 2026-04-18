@@ -978,6 +978,7 @@
                         <label class="flex items-center gap-1"><input type="checkbox" value="revisión" class="status-filter" onchange="applyFilters()"> Revisión</label>
                         <label class="flex items-center gap-1"><input type="checkbox" value="reparado" class="status-filter" onchange="applyFilters()"> Reparado</label>
                         <label class="flex items-center gap-1"><input type="checkbox" value="entregado" class="status-filter" onchange="applyFilters()"> Entregado</label>
+                        <label class="flex items-center gap-1"><input type="checkbox" value="no-reparable" class="status-filter" onchange="applyFilters()"> No reparable</label>
                     </div>
                 </div>
                 <div>
@@ -3205,7 +3206,7 @@
             const deuda = clientData?.deuda || 0;
 
             // Colores por estado
-            const staColor = { recibido:'#94a3b8', 'revisión':'#fbbf24', reparado:'#34d399', entregado:'#60a5fa' };
+            const staColor = { recibido:'#94a3b8', 'revisión':'#fbbf24', reparado:'#34d399', entregado:'#60a5fa', 'no-reparable':'#f87171' };
 
             // Tarjetas de resumen
             let html = `
@@ -3871,7 +3872,7 @@
                 // Días en estado actual
                 const fechaEstado = o.fechaEstado || o.fecha;
                 const daysInStatus = getBusinessDaysDiff(new Date(fechaEstado), today);
-                const staColors = { recibido:'text-slate-400', 'revisión':'text-yellow-400', reparado:'text-emerald-400', entregado:'text-blue-400' };
+                const staColors = { recibido:'text-slate-400', 'revisión':'text-yellow-400', reparado:'text-emerald-400', entregado:'text-blue-400', 'no-reparable':'text-red-400' };
                 const fechaEstBadge = (() => {
                     if (!o.fechaEstimada || o.sta === 'entregado') return '';
                     const deadlineTs = new Date(o.fechaEstimada + 'T23:59:59').getTime();
@@ -3904,10 +3905,11 @@
                         <div class="relative flex-shrink-0" id="sta-wrap-${o.id}">
                             ${(()=>{
                                 const cfg = {
-                                    recibido:  {bg:'#1e293b', color:'#94a3b8', icon:'📥'},
-                                    'revisión':{bg:'#3d1f00', color:'#fbbf24', icon:'🔍'},
-                                    reparado:  {bg:'#052e16', color:'#4ade80', icon:'✅'},
-                                    entregado: {bg:'#0c1a2e', color:'#60a5fa', icon:'📦'},
+                                    recibido:      {bg:'#1e293b', color:'#94a3b8', icon:'📥'},
+                                    'revisión':    {bg:'#3d1f00', color:'#fbbf24', icon:'🔍'},
+                                    reparado:      {bg:'#052e16', color:'#4ade80', icon:'✅'},
+                                    entregado:     {bg:'#0c1a2e', color:'#60a5fa', icon:'📦'},
+                                    'no-reparable':{bg:'#2a0a0a', color:'#f87171', icon:'🚫'},
                                 };
                                 const c = cfg[o.sta] || cfg.recibido;
                                 return `<button onclick="toggleStaMenu(${o.id},event)"
@@ -4021,7 +4023,7 @@
             if (oldSta === newSta) return;
 
             // Confirmación si baja de estado (ej: entregado → recibido)
-            const staOrder = ['recibido','revisión','reparado','entregado'];
+            const staOrder = ['recibido','revisión','reparado','entregado','no-reparable'];
             const isDowngrade = staOrder.indexOf(newSta) < staOrder.indexOf(oldSta);
             if (isDowngrade) {
                 showConfirm(`¿Cambiar estado de "${oldSta}" a "${newSta}"? Esto puede afectar la caja.`, async () => {
@@ -4044,10 +4046,20 @@
                 return;
             }
 
+            // Si se marca como "no reparable": poner valor en 0 y saldo en 0 automáticamente
+            if (newSta === 'no-reparable' && oldSta !== 'no-reparable') {
+                o.val = 0;
+                o.saldo = 0;
+                // Si había adelanto registrado, avisar al usuario
+                if (o.adelanto && o.adelanto > 0) {
+                    showToast(`⚠️ Hay un adelanto de ${getCurrency()}${o.adelanto.toLocaleString()} que debes devolver al cliente`, 'warning');
+                }
+            }
+
             await put('orders', o);
 
             // Registrar cambio de estado en el chat interno
-            const staEmojis = { recibido:'📥', 'revisión':'🔍', reparado:'✅', entregado:'📦' };
+            const staEmojis = { recibido:'📥', 'revisión':'🔍', reparado:'✅', entregado:'📦', 'no-reparable':'🚫' };
             await logChatSistema(o.id, `Estado cambiado: ${staEmojis[oldSta]||'•'} ${oldSta} → ${staEmojis[newSta]||'•'} ${newSta}`);
 
             await updateTotal(); await renderOrders(); await renderCartera();
@@ -6779,28 +6791,87 @@
                 : '<p class="text-center text-slate-500 text-sm py-10">Sin datos aún.</p>';
 
             } else if (mode === 'falla') {
-                // Top fallas/diagnósticos frecuentes
-                const falMap = {};
-                orders.forEach(o => {
-                    const det = (o.det||'').trim().toUpperCase();
-                    if (det.length < 4) return;
-                    // Tomar primeras palabras como clave
-                    const key = det.split(' ').slice(0,5).join(' ');
-                    falMap[key] = (falMap[key]||0) + 1;
-                });
-                const sorted = Object.entries(falMap).sort((a,b) => b[1]-a[1]).slice(0,12);
-                const maxN = Math.max(...sorted.map(s=>s[1]),1);
+                // ── Top fallas/diagnósticos frecuentes (normalizado) ──
+                // 1) Quitar acentos y puntuación
+                // 2) Filtrar textos que parecen mensajes al cliente (no fallas)
+                // 3) Extraer la "raíz" de la falla: primeras 2-3 palabras significativas
+                // 4) Agrupar por esa raíz y mostrar la versión más común como etiqueta
 
-                container.innerHTML = sorted.length ? sorted.map(([fal,n],i) => `
+                // Palabras que indican que el texto es un aviso/mensaje, NO una falla
+                const MENSAJE_HINTS = [
+                    'HOLA','AMIGO','BUENAS','BUENOS','SEÑOR','SEÑORA','SRA','SR','DON','DOÑA',
+                    'YA SU','SU EQUIPO','SU LAVADORA','SU NEVERA','SU LICUADORA','LISTO PUEDE','PUEDES PASAR',
+                    'PUEDE PASAR','PUEDE RECOGER','FAVOR DE','LE INFORMO','LE AVISO','LE COMENTO',
+                    'TE INFORMO','TE AVISO','TE COMENTO','GRACIAS','SALUDOS','CONFIRMADO'
+                ];
+
+                // Palabras sueltas que no son fallas útiles (artículos, preposiciones, verbos genéricos al inicio)
+                const STOPWORDS = new Set([
+                    'EL','LA','LOS','LAS','UN','UNA','UNOS','UNAS','DE','DEL','EN','CON','POR','PARA',
+                    'SE','LE','LES','ME','TE','NOS','SU','SUS','MI','MIS','TU','TUS','QUE','Y','O','A',
+                    'AL','ES','ESTA','ESTE','ESTO','ESA','ESE','ESO','HAY','HA','HAN','HUBO','FUE',
+                    'SON','ERA','ERAN','PUDO','PUEDE','PUEDO','VOY','VAMOS','LISTA','LISTO','PASAR'
+                ]);
+
+                const normalizar = (s) => {
+                    return (s||'')
+                        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')   // quitar acentos
+                        .replace(/[.,;:¡!¿?()\-–—_"'“”]/g, ' ')              // quitar puntuación
+                        .replace(/\s+/g, ' ')
+                        .trim()
+                        .toUpperCase();
+                };
+
+                const esMensaje = (txt) => {
+                    return MENSAJE_HINTS.some(h => txt.includes(h));
+                };
+
+                const extraerRaiz = (txt) => {
+                    // Tomar hasta 3 primeras palabras significativas (no stopwords)
+                    const palabras = txt.split(' ').filter(w => w && !STOPWORDS.has(w));
+                    return palabras.slice(0, 3).join(' ');
+                };
+
+                const falMap = {}; // raíz -> { count, labels: {textoCompleto: count} }
+                orders.forEach(o => {
+                    const original = (o.det||'').trim();
+                    const norm = normalizar(original);
+                    // Filtros de limpieza
+                    if (norm.length < 4) return;
+                    if (esMensaje(norm)) return;
+                    if (norm.split(' ').length < 1) return;
+                    // Si el texto original es muy largo (>60 chars), probablemente es una nota/mensaje
+                    if (original.length > 60) return;
+
+                    const raiz = extraerRaiz(norm);
+                    if (!raiz || raiz.length < 3) return;
+
+                    if (!falMap[raiz]) falMap[raiz] = { count: 0, labels: {} };
+                    falMap[raiz].count++;
+                    // Guardar la forma original (con acentos y mayúsculas originales) para mostrar la más común
+                    const labelKey = normalizar(original); // normalizado para agrupar variantes
+                    falMap[raiz].labels[labelKey] = (falMap[raiz].labels[labelKey] || 0) + 1;
+                });
+
+                // Elegir la etiqueta más frecuente de cada raíz como texto a mostrar
+                const items = Object.entries(falMap).map(([raiz, d]) => {
+                    const topLabel = Object.entries(d.labels).sort((a,b) => b[1]-a[1])[0][0];
+                    return { label: topLabel, count: d.count };
+                });
+
+                const sorted = items.sort((a,b) => b.count - a.count).slice(0,12);
+                const maxN = Math.max(...sorted.map(s => s.count), 1);
+
+                container.innerHTML = sorted.length ? sorted.map((it, i) => `
                     <div class="flex items-center gap-3 bg-black/20 rounded-xl p-3">
                         <span class="text-rose-400 font-black text-sm w-5 text-center">${i+1}</span>
                         <div class="flex-1 min-w-0">
-                            <p class="text-[11px] font-bold text-white" style="word-break:break-word;">${escapeHtml(fal)}</p>
+                            <p class="text-[11px] font-bold text-white" style="word-break:break-word;">${escapeHtml(it.label)}</p>
                             <div class="flex items-center gap-2 mt-1">
                                 <div class="bar-track" style="max-width:80px;">
-                                    <div class="bar-fill bg-gradient-to-r from-rose-600 to-rose-400" style="width:${Math.round(n/maxN*100)}%"></div>
+                                    <div class="bar-fill bg-gradient-to-r from-rose-600 to-rose-400" style="width:${Math.round(it.count/maxN*100)}%"></div>
                                 </div>
-                                <span class="text-[10px] text-slate-400">${n} vez${n>1?'es':''}</span>
+                                <span class="text-[10px] text-slate-400">${it.count} ${it.count === 1 ? 'vez' : 'veces'}</span>
                             </div>
                         </div>
                     </div>`).join('')
