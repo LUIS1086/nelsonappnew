@@ -3905,7 +3905,7 @@
                     ? `<span class="bg-amber-500/20 text-amber-400 text-[10px] font-black px-2 py-1 rounded-lg">🔧 ${ordenesActivas} activas</span>`
                     : '';
                 return `
-                <button onclick="showClientHistory('${escapeHtml(nombre).replace(/'/g, "\\'")}')"
+                <button onclick="_selectClientFromSearch('${escapeHtml(nombre).replace(/'/g, "\\'")}')"
                         class="w-full text-left bg-gradient-to-r from-violet-500/10 to-blue-500/10 border border-violet-500/30 p-3 rounded-2xl active:scale-95 transition flex items-center justify-between gap-2">
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2">
@@ -3929,6 +3929,17 @@
             `;
             hits.style.display = 'block';
         }
+
+        // Al tocar una tarjeta de cliente: filtra órdenes por su nombre exacto Y abre su ficha
+        window._selectClientFromSearch = function(nombre) {
+            // 1. Filtrar la lista de órdenes con el nombre exacto (sobrescribe el filtro de texto)
+            const input = document.getElementById('search-orders');
+            if (input) input.value = nombre;
+            filters.text = nombre.toUpperCase();
+            renderOrders();
+            // 2. Abrir la ficha del cliente
+            showClientHistory(nombre);
+        };
 
         async function renderOrders() {
             // Mostrar sugerencias de clientes en paralelo (no bloquea)
