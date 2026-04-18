@@ -10135,19 +10135,21 @@
                         }))
                 };
 
-                // ═══════ INVENTARIO (stock: n=nombre, p=precio, c=cantidad, min=minimo) ═══════
-                const stockBajo    = stock.filter(s => (s.c || 0) <= (s.min || 3) && (s.c || 0) > 0);
-                const stockAgotado = stock.filter(s => (s.c || 0) <= 0);
+                // ═══════ INVENTARIO (stock real: n=nombre, p=precio, q=cantidad, minStock=minimo) ═══════
+                const umbralGlobal = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
+                const stockBajo    = stock.filter(s => (s.q || 0) <= (s.minStock || umbralGlobal) && (s.q || 0) > 0);
+                const stockAgotado = stock.filter(s => (s.q || 0) <= 0);
                 ctx.inventario = {
                     totalProductos: stock.length,
-                    valorInventarioAProducto: stock.reduce((s,i) => s + ((i.c||0) * (i.p||0)), 0),
+                    umbralStockBajoGlobal: umbralGlobal,
+                    valorInventarioAProducto: stock.reduce((s,i) => s + ((i.q||0) * (i.p||0)), 0),
                     productosStockBajo: stockBajo.length,
                     productosAgotados: stockAgotado.length,
                     itemsStockBajo: stockBajo.slice(0, 15).map(s => ({
-                        nombre: s.n, cantidad: s.c, minimo: s.min, precio: s.p, codigo: s.codigo
+                        nombre: s.n, cantidad: s.q, minimo: s.minStock || umbralGlobal, precio: s.p, codigo: s.code
                     })),
                     itemsAgotados: stockAgotado.slice(0, 10).map(s => ({
-                        nombre: s.n, precio: s.p, codigo: s.codigo
+                        nombre: s.n, precio: s.p, codigo: s.code
                     }))
                 };
 
