@@ -812,6 +812,12 @@
                 <button class="numpad-btn enter" onclick="pinPad('ok')">OK</button>
             </div>
 
+            <!-- Botón de huella (solo visible si está configurada) -->
+            <button id="pin-fingerprint-btn" onclick="loginWithFingerprint()" class="hidden" style="margin-top:20px;width:100%;padding:14px;border-radius:16px;background:linear-gradient(135deg,rgba(16,185,129,0.15),rgba(5,150,105,0.1));border:1px solid rgba(16,185,129,0.3);color:#34d399;font-size:13px;font-weight:900;letter-spacing:1px;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+                <span style="font-size:20px;">👆</span>
+                <span>Usar huella</span>
+            </button>
+
             <input type="password" id="pin-input" class="hidden" maxlength="6">
         </div>
     </div>
@@ -1253,6 +1259,11 @@
 
                 <button onclick="openChangePinModal()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
                     <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#92400e,#f59e0b);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(245,158,11,0.35);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#fcd34d;margin:0;">Cambiar PIN</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Actualizar contraseña de acceso</p></div></div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+
+                <button onclick="openFingerprintModal()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
+                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#065f46,#10b981);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(16,185,129,0.35);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M12 11c1.7 0 3 1.3 3 3 0 2.8-2 5.5-3 6.5-1-1-3-3.7-3-6.5 0-1.7 1.3-3 3-3z"/><path d="M17 14c0 3.5-2.5 7-5 9-2.5-2-5-5.5-5-9 0-2.8 2.2-5 5-5s5 2.2 5 5z"/><path d="M21 14c0 5-3 10-9 12-6-2-9-7-9-12 0-4.4 3.6-8 8-8"/><circle cx="12" cy="14" r="1"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#34d399;margin:0;">Huella Dactilar</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;" id="fingerprint-status-subtitle">Acceso rápido con tu huella</p></div></div>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
 
@@ -1971,6 +1982,31 @@
                 </div>
             </div><!-- /ios-scroll-area -->
         </div><!-- /ios-modal-wrap -->
+    </div>
+
+    <!-- Modal Configuración de Huella -->
+    <div id="modal-fingerprint" class="hidden fixed inset-0 z-[3000] modal-custom flex flex-col items-center justify-center p-4">
+        <div class="bg-[#111827] border border-white/10 w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl">
+            <div class="bg-gradient-to-r from-emerald-600 to-emerald-500 p-4 flex justify-between items-center">
+                <h3 class="text-white font-black">👆 HUELLA DACTILAR</h3>
+                <button onclick="document.getElementById('modal-fingerprint').classList.add('hidden')" class="text-white/80 hover:text-white text-xl leading-none active:scale-90 transition">✕</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div id="fingerprint-status-box" class="text-center">
+                    <div style="font-size:64px;margin-bottom:8px;">👆</div>
+                    <p id="fingerprint-state-text" class="text-slate-300 text-sm">Cargando...</p>
+                </div>
+                <div id="fingerprint-not-supported" class="hidden bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 text-[11px] text-amber-200">
+                    ⚠️ Tu dispositivo o navegador no soporta huella dactilar. Necesitas un celular con lector de huella y Chrome/Edge actualizado.
+                </div>
+                <div id="fingerprint-actions" class="space-y-2">
+                    <!-- se llena dinámicamente -->
+                </div>
+                <div class="bg-slate-800/50 rounded-xl p-3 text-[11px] text-slate-400 leading-relaxed">
+                    💡 La huella es un atajo adicional. El PIN siempre funciona como respaldo. Si cambias de dispositivo, debes reconfigurar la huella ahí.
+                </div>
+            </div>
+        </div>
     </div>
 
 
@@ -3042,6 +3078,202 @@
         async function put(store, item) { await openDB(); return new Promise((resolve) => { const tx = db.transaction(store, 'readwrite'); tx.objectStore(store).put(item).onsuccess = resolve; }); }
         async function del(store, id) { await openDB(); return new Promise((resolve) => { const tx = db.transaction(store, 'readwrite'); tx.objectStore(store).delete(id).onsuccess = resolve; }); }
         async function clearStore(store) { await openDB(); return new Promise((resolve) => { const tx = db.transaction(store, 'readwrite'); tx.objectStore(store).clear().onsuccess = resolve; }); }
+
+        // ==================== HUELLA DACTILAR (WebAuthn) ====================
+        const FP_KEY_CREDENTIAL = 'fingerprint_credential_id';
+        const FP_KEY_USER_ID    = 'fingerprint_user_id';
+
+        async function _fingerprintSupported() {
+            try {
+                if (!window.PublicKeyCredential) return false;
+                if (!window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable) return false;
+                const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+                return !!available;
+            } catch(e) { return false; }
+        }
+
+        function _fingerprintEnabled() {
+            return !!localStorage.getItem(FP_KEY_CREDENTIAL);
+        }
+
+        function _b64urlEncode(buf) {
+            const bytes = new Uint8Array(buf);
+            let str = '';
+            for (let i = 0; i < bytes.length; i++) str += String.fromCharCode(bytes[i]);
+            return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        }
+        function _b64urlDecode(str) {
+            str = str.replace(/-/g, '+').replace(/_/g, '/');
+            while (str.length % 4) str += '=';
+            const bin = atob(str);
+            const buf = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+            return buf.buffer;
+        }
+
+        async function registerFingerprint() {
+            try {
+                if (!await _fingerprintSupported()) {
+                    showAlert('Tu dispositivo no soporta huella dactilar en el navegador.', 'warning');
+                    return false;
+                }
+                let userId = localStorage.getItem(FP_KEY_USER_ID);
+                if (!userId) {
+                    userId = _b64urlEncode(crypto.getRandomValues(new Uint8Array(16)));
+                    localStorage.setItem(FP_KEY_USER_ID, userId);
+                }
+                const userIdBuf = _b64urlDecode(userId);
+                const challenge = crypto.getRandomValues(new Uint8Array(32));
+
+                const publicKey = {
+                    challenge: challenge,
+                    rp: { name: 'NelsonApp Pro' },
+                    user: {
+                        id: userIdBuf,
+                        name: 'nelson_user',
+                        displayName: 'Usuario NelsonApp'
+                    },
+                    pubKeyCredParams: [
+                        { type: 'public-key', alg: -7   },
+                        { type: 'public-key', alg: -257 }
+                    ],
+                    authenticatorSelection: {
+                        authenticatorAttachment: 'platform',
+                        userVerification: 'required',
+                        residentKey: 'preferred'
+                    },
+                    timeout: 60000,
+                    attestation: 'none'
+                };
+
+                const cred = await navigator.credentials.create({ publicKey });
+                if (!cred || !cred.id) throw new Error('No se creó la credencial');
+                localStorage.setItem(FP_KEY_CREDENTIAL, cred.id);
+                showToast('✅ Huella activada correctamente', 'success');
+                return true;
+            } catch(e) {
+                console.warn('registerFingerprint error:', e);
+                if (e.name === 'NotAllowedError') {
+                    showAlert('Cancelaste el registro de huella.', 'warning');
+                } else {
+                    showAlert('No se pudo activar la huella: ' + (e.message || e.name), 'error');
+                }
+                return false;
+            }
+        }
+
+        async function verifyFingerprint() {
+            try {
+                if (!await _fingerprintSupported()) return false;
+                const credId = localStorage.getItem(FP_KEY_CREDENTIAL);
+                if (!credId) return false;
+                const challenge = crypto.getRandomValues(new Uint8Array(32));
+                const publicKey = {
+                    challenge: challenge,
+                    allowCredentials: [{
+                        type: 'public-key',
+                        id: _b64urlDecode(credId),
+                        transports: ['internal']
+                    }],
+                    userVerification: 'required',
+                    timeout: 60000
+                };
+                const assertion = await navigator.credentials.get({ publicKey });
+                return !!assertion;
+            } catch(e) {
+                console.warn('verifyFingerprint error:', e);
+                return false;
+            }
+        }
+
+        function disableFingerprint() {
+            localStorage.removeItem(FP_KEY_CREDENTIAL);
+            showToast('Huella desactivada', 'info');
+        }
+
+        window.loginWithFingerprint = async function() {
+            const ok = await verifyFingerprint();
+            if (ok) {
+                document.getElementById('pin-modal').classList.add('hidden');
+                document.getElementById('app-header').classList.remove('hidden');
+                document.querySelectorAll('nav').forEach(el => el.classList.remove('hidden'));
+                if (typeof initApp === 'function') initApp();
+                if (typeof tab === 'function') tab('taller');
+            } else {
+                showToast('Huella no reconocida. Usa tu PIN.', 'warning');
+            }
+        };
+
+        async function _updateFingerprintButtonVisibility() {
+            const btn = document.getElementById('pin-fingerprint-btn');
+            if (!btn) return;
+            if (_fingerprintEnabled() && await _fingerprintSupported()) {
+                btn.classList.remove('hidden');
+            } else {
+                btn.classList.add('hidden');
+            }
+        }
+
+        window.openFingerprintModal = async function() {
+            const modal = document.getElementById('modal-fingerprint');
+            const stateText = document.getElementById('fingerprint-state-text');
+            const notSupported = document.getElementById('fingerprint-not-supported');
+            const actions = document.getElementById('fingerprint-actions');
+
+            modal.classList.remove('hidden');
+
+            const supported = await _fingerprintSupported();
+            if (!supported) {
+                stateText.innerHTML = '<span class="text-amber-400">❌ No soportado</span>';
+                notSupported.classList.remove('hidden');
+                actions.innerHTML = '';
+                return;
+            }
+            notSupported.classList.add('hidden');
+
+            if (_fingerprintEnabled()) {
+                stateText.innerHTML = '<span class="text-emerald-400 font-bold">✅ Huella activada</span>';
+                actions.innerHTML = `
+                    <button onclick="_testFingerprint()" class="w-full bg-blue-600/20 border border-blue-500/30 text-blue-400 py-3 rounded-xl font-black uppercase text-xs active:scale-95 transition">
+                        🧪 Probar huella
+                    </button>
+                    <button onclick="_disableFingerprintWithConfirm()" class="w-full bg-rose-600/20 border border-rose-500/30 text-rose-400 py-3 rounded-xl font-black uppercase text-xs active:scale-95 transition">
+                        🗑️ Desactivar huella
+                    </button>
+                `;
+            } else {
+                stateText.innerHTML = '<span class="text-slate-400">Huella no configurada</span>';
+                actions.innerHTML = `
+                    <button onclick="_activateFingerprint()" class="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 text-white py-3 rounded-xl font-black uppercase text-xs active:scale-95 transition">
+                        👆 Activar huella
+                    </button>
+                `;
+            }
+        };
+
+        window._activateFingerprint = async function() {
+            const ok = await registerFingerprint();
+            if (ok) {
+                openFingerprintModal();
+                const sub = document.getElementById('fingerprint-status-subtitle');
+                if (sub) sub.innerText = 'Activada ✓';
+            }
+        };
+
+        window._testFingerprint = async function() {
+            const ok = await verifyFingerprint();
+            if (ok) showToast('✅ Huella reconocida correctamente', 'success');
+            else showToast('❌ No se reconoció la huella', 'error');
+        };
+
+        window._disableFingerprintWithConfirm = function() {
+            showConfirm('¿Desactivar la huella dactilar? Tendrás que usar el PIN.', () => {
+                disableFingerprint();
+                openFingerprintModal();
+                const sub = document.getElementById('fingerprint-status-subtitle');
+                if (sub) sub.innerText = 'Acceso rápido con tu huella';
+            });
+        };
 
         // ==================== PIN AUTH ====================
         async function verifyPin() {
@@ -5493,6 +5725,9 @@
         window.onload = async () => {
             await initPinSystem(); // cargar/migrar hash del PIN antes de mostrar el modal
             document.getElementById('pin-modal').classList.remove('hidden');
+            _updateFingerprintButtonVisibility();
+            const sub = document.getElementById('fingerprint-status-subtitle');
+            if (sub && _fingerprintEnabled()) sub.innerText = 'Activada ✓';
         };
 
         // ==================== FOTOS DE ENTREGA ====================
@@ -5935,6 +6170,7 @@
                 setTimeout(() => {
                     splash.style.display = 'none';
                     document.getElementById('pin-modal').classList.remove('hidden');
+                    if (typeof _updateFingerprintButtonVisibility === 'function') _updateFingerprintButtonVisibility();
                 }, 600);
             }, 1800);
         })();
@@ -6083,6 +6319,7 @@
                     document.getElementById('pin-input').value = '';
                     document.getElementById('pin-error').innerText = '';
                     document.getElementById('pin-modal').classList.remove('hidden');
+                    if (typeof _updateFingerprintButtonVisibility === 'function') _updateFingerprintButtonVisibility();
                     document.getElementById('app-header').classList.add('hidden');
                     document.querySelectorAll('.app-view').forEach(v => v.classList.add('hidden'));
                     showToast('Sesión bloqueada por inactividad', 'warning');
