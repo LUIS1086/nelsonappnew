@@ -149,10 +149,6 @@
         .ac-dropdown::-webkit-scrollbar-thumb { background: rgba(249,115,22,0.3); border-radius: 2px; }
         .ac-dropdown::-webkit-scrollbar-track { background: transparent; }
 
-        /* ===== MODAL SELECTOR DE PRODUCTO ===== */
-        .modal-product-picker-wrap { align-items: flex-end; justify-content: center; }
-        .modal-product-picker-wrap:not(.hidden) { display: flex; }
-
         /* ===== LIGHT MODE — crema/papel ===== */
         body.light-mode {
             background: var(--bg-light);
@@ -1551,7 +1547,7 @@
             <div>
                 <label class="text-[10px] text-slate-400 block mb-1 ml-1">🔒 NOTAS INTERNAS <span class="text-slate-600">(no aparece en recibo)</span></label>
                 <div class="relative">
-                    <textarea id="c-notas" placeholder="Observaciones del técnico, Detalles visuales del aparato, accesorios entregados como bolsas, soportes ..." class="h-16 text-xs w-full pr-10"></textarea>
+                    <textarea id="c-notas" placeholder="Observaciones del técnico, contraseña del equipo, accesorios entregados..." class="h-16 text-xs w-full pr-10"></textarea>
                     <button type="button" onclick="startVoiceInput('c-notas')" id="voice-btn-c-notas" class="voice-mic-btn absolute right-2 top-3" title="Dictado por voz">🎤</button>
                 </div>
             </div>
@@ -1645,13 +1641,7 @@
     <main id="view-ventas" class="app-view hidden p-4 space-y-6 max-container">
         <div class="card p-5 space-y-4 bg-gradient-to-br from-emerald-900/20 to-transparent">
             <h3 class="text-center text-[11px] font-black text-emerald-400 uppercase tracking-widest">💵 NUEVA VENTA</h3>
-            <!-- Selector custom de producto (reemplaza el select nativo que se veía feo en WebView) -->
-            <button type="button" id="v-select-btn" onclick="openProductPicker()" class="w-full text-left font-bold uppercase text-sm" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:14px;cursor:pointer;gap:10px;">
-                <span id="v-select-label" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#94a3b8;">-- Seleccionar producto --</span>
-                <span style="color:#64748b;font-size:12px;flex-shrink:0;">▼</span>
-            </button>
-            <!-- Select oculto para compatibilidad con el resto del código -->
-            <select id="v-select" class="hidden" aria-hidden="true"></select>
+            <select id="v-select" class="w-full font-bold uppercase text-sm"></select>
             <div class="flex gap-3">
                 <input type="number" id="v-qty" placeholder="CANT." class="w-24 text-center font-black" min="1">
                 <button onclick="processSale()" class="flex-1 bg-emerald-600 py-3 rounded-xl font-black uppercase text-xs shadow-md active:scale-95 transition">CONFIRMAR VENTA</button>
@@ -2052,33 +2042,6 @@
     </main>
 
     <!-- ===== MODAL CHAT INTERNO DE ORDEN ===== -->
-    <!-- ===== MODAL SELECTOR DE PRODUCTO (reemplaza select nativo) ===== -->
-    <div id="modal-product-picker" class="hidden fixed inset-0 z-[4200] modal-product-picker-wrap" onclick="if(event.target===this)closeProductPicker()" style="background:rgba(5,6,15,0.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);">
-        <div id="pp-sheet" style="width:100%;max-width:560px;background:linear-gradient(180deg,#14172a 0%,#0d0f1a 100%);border-top-left-radius:28px;border-top-right-radius:28px;border:1px solid rgba(16,185,129,0.2);border-bottom:none;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 -20px 60px rgba(0,0,0,0.6);">
-            <!-- Handle decorativo -->
-            <div style="display:flex;justify-content:center;padding:10px 0 4px;">
-                <div style="width:40px;height:4px;border-radius:2px;background:rgba(255,255,255,0.15);"></div>
-            </div>
-            <!-- Header -->
-            <div style="padding:6px 20px 14px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;gap:12px;">
-                <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#059669,#10b981);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 12px rgba(16,185,129,0.4);">📦</div>
-                <div style="flex:1;min-width:0;">
-                    <div style="font-size:9px;font-weight:900;color:#34d399;letter-spacing:2.5px;text-transform:uppercase;">Nueva venta</div>
-                    <div style="font-size:15px;font-weight:900;color:#f1f5f9;">Seleccionar producto</div>
-                </div>
-                <button onclick="closeProductPicker()" style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;font-size:15px;cursor:pointer;flex-shrink:0;">✕</button>
-            </div>
-            <!-- Búsqueda -->
-            <div style="padding:14px 20px 10px;">
-                <div style="position:relative;">
-                    <input type="text" id="pp-search" placeholder="🔍 Buscar producto..." oninput="renderProductPicker()" class="w-full" style="padding:11px 14px 11px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#f1f5f9;font-size:13px;font-weight:600;">
-                </div>
-            </div>
-            <!-- Lista -->
-            <div id="pp-list" style="flex:1;overflow-y:auto;padding:4px 14px 20px;-webkit-overflow-scrolling:touch;"></div>
-        </div>
-    </div>
-
     <!-- ===== MODAL EXPORTAR PDF / EXCEL ===== -->
     <div id="modal-export-panel" class="hidden fixed inset-0 z-[4100] modal-custom flex items-center justify-center p-4">
         <div class="bg-[#111827] border border-white/10 w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl view-enter">
@@ -5988,125 +5951,7 @@
                 stock.filter(s => s.q > 0).sort((a,b)=>a.n.localeCompare(b.n))
                      .map(s=>`<option value="${s.id}">${escapeHtml(s.n)} · ${s.q} uds · ${getCurrency()}${s.p.toLocaleString()}</option>`)
                      .join('');
-            // Si había un producto seleccionado visualmente pero ya no existe, limpiar label
-            const sel = document.getElementById('v-select');
-            const lbl = document.getElementById('v-select-label');
-            if (sel && lbl && sel.value) {
-                const still = stock.find(s => String(s.id) === String(sel.value) && s.q > 0);
-                if (!still) {
-                    sel.value = '';
-                    lbl.innerText = '-- Seleccionar producto --';
-                    lbl.style.color = '#94a3b8';
-                }
-            }
         }
-
-        // ============ SELECTOR CUSTOM DE PRODUCTO (bottom sheet) ============
-        function openProductPicker() {
-            const modal = document.getElementById('modal-product-picker');
-            if (!modal) return;
-            document.getElementById('pp-search').value = '';
-            modal.classList.remove('hidden');
-            renderProductPicker();
-            // Focus al search con leve delay para que se vea la animación
-            setTimeout(() => document.getElementById('pp-search')?.focus(), 280);
-        }
-        function closeProductPicker() {
-            const modal = document.getElementById('modal-product-picker');
-            if (modal) modal.classList.add('hidden');
-        }
-
-        function _ppNormalize(s) {
-            return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-        }
-
-        async function renderProductPicker() {
-            const stock = await getAll('stock');
-            const list = document.getElementById('pp-list');
-            if (!list) return;
-            const q = _ppNormalize((document.getElementById('pp-search')?.value || '').trim());
-            const cur = getCurrency();
-
-            // Filtrar por búsqueda (todos, con y sin stock)
-            let matched = stock;
-            if (q) {
-                matched = matched.filter(s =>
-                    _ppNormalize(s.n).includes(q) ||
-                    _ppNormalize(s.code || '').includes(q)
-                );
-            }
-            const withStock    = matched.filter(s => (Number(s.q) || 0) > 0).sort((a,b) => String(a.n||'').localeCompare(String(b.n||'')));
-            const withoutStock = matched.filter(s => (Number(s.q) || 0) <= 0).sort((a,b) => String(a.n||'').localeCompare(String(b.n||'')));
-
-            if (withStock.length === 0 && withoutStock.length === 0) {
-                list.innerHTML = `<div style="text-align:center;padding:40px 20px;color:#64748b;">
-                    <div style="font-size:38px;opacity:0.4;margin-bottom:10px;">📭</div>
-                    <div style="font-size:13px;font-weight:700;">${q ? 'Sin resultados para tu búsqueda' : 'No hay productos en el inventario'}</div>
-                    <div style="font-size:11px;color:#475569;margin-top:6px;">${q ? 'Prueba con otro nombre o código' : 'Agrega productos desde Caja → Inventario'}</div>
-                </div>`;
-                return;
-            }
-
-            const renderItem = (s, disabled) => {
-                const qNum = Number(s.q) || 0;
-                const outOfStock = qNum <= 0;
-                const low = qNum > 0 && qNum <= (Number(s.minStock) || 3);
-                const stockColor = outOfStock ? '#64748b' : (low ? '#fb923c' : '#34d399');
-                const stockBg    = outOfStock ? 'rgba(100,116,139,0.12)' : (low ? 'rgba(249,115,22,0.15)' : 'rgba(16,185,129,0.12)');
-                const stockBord  = outOfStock ? 'rgba(100,116,139,0.25)' : (low ? 'rgba(249,115,22,0.3)' : 'rgba(16,185,129,0.25)');
-                const stockLabel = outOfStock ? 'AGOTADO' : `${qNum} uds${low ? ' · BAJO' : ''}`;
-                const onClick = disabled ? '' : `onclick="pickProduct(${s.id})"`;
-                const cursorStyle = disabled ? 'cursor:not-allowed;opacity:0.55;' : 'cursor:pointer;';
-                return `<button type="button" ${onClick} style="width:100%;text-align:left;margin:6px 0;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;${cursorStyle}display:flex;align-items:center;gap:12px;transition:all 0.15s ease;">
-                    <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,rgba(16,185,129,0.15),rgba(16,185,129,0.05));border:1px solid rgba(16,185,129,0.2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">📦</div>
-                    <div style="flex:1;min-width:0;">
-                        <div style="font-size:13px;font-weight:800;color:#f1f5f9;line-height:1.2;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase;letter-spacing:0.2px;">${escapeHtml(s.n || 'Sin nombre')}</div>
-                        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                            <span style="font-size:14px;font-weight:900;color:#34d399;font-variant-numeric:tabular-nums;">${cur}${(Number(s.p)||0).toLocaleString()}</span>
-                            <span style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:99px;background:${stockBg};color:${stockColor};border:1px solid ${stockBord};">${stockLabel}</span>
-                            ${s.code ? `<span style="font-size:10px;color:#64748b;font-family:monospace;">#${escapeHtml(s.code)}</span>` : ''}
-                        </div>
-                    </div>
-                    <div style="color:#475569;font-size:14px;flex-shrink:0;">${disabled ? '' : '›'}</div>
-                </button>`;
-            };
-
-            let html = withStock.map(s => renderItem(s, false)).join('');
-
-            if (withoutStock.length > 0) {
-                html += `<div style="padding:16px 4px 6px;font-size:9px;font-weight:900;color:#475569;letter-spacing:2.5px;text-transform:uppercase;border-top:1px solid rgba(255,255,255,0.04);margin-top:10px;">Sin stock (${withoutStock.length})</div>`;
-                html += withoutStock.map(s => renderItem(s, true)).join('');
-            }
-
-            list.innerHTML = html;
-        }
-
-        async function pickProduct(id) {
-            const stock = await getAll('stock');
-            const item = stock.find(s => s.id === id);
-            if (!item) { closeProductPicker(); return; }
-            // Sincronizar con el select oculto para que processSale siga funcionando
-            const sel = document.getElementById('v-select');
-            if (sel) sel.value = String(item.id);
-            // Actualizar label del botón visible
-            const lbl = document.getElementById('v-select-label');
-            if (lbl) {
-                const cur = getCurrency();
-                lbl.innerHTML = `<span style="color:#f1f5f9;">${escapeHtml(item.n)}</span> <span style="color:#34d399;font-weight:900;">· ${cur}${(item.p||0).toLocaleString()}</span> <span style="color:#64748b;font-weight:700;font-size:11px;">· ${item.q} uds</span>`;
-                lbl.style.color = '';
-            }
-            closeProductPicker();
-            // Autofocus en el input de cantidad (UX — casi siempre el siguiente paso)
-            setTimeout(() => document.getElementById('v-qty')?.focus(), 200);
-        }
-
-        // Cerrar picker al presionar Escape
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                const m = document.getElementById('modal-product-picker');
-                if (m && !m.classList.contains('hidden')) closeProductPicker();
-            }
-        });
         async function processSale() {
             const id  = document.getElementById('v-select').value;
             const qty = parseInt(document.getElementById('v-qty').value);
@@ -6122,10 +5967,6 @@
             playBeep();
             await renderStock(); await updateVentaSelect(); await updateTotal();
             document.getElementById('v-qty').value = '';
-            // Reset del selector visible
-            const sel = document.getElementById('v-select'); if (sel) sel.value = '';
-            const lbl = document.getElementById('v-select-label');
-            if (lbl) { lbl.innerText = '-- Seleccionar producto --'; lbl.style.color = '#94a3b8'; }
         }
         async function annulSale(id) {
             showConfirm('¿Anular esta venta y devolver al stock?', async () => {
