@@ -82,73 +82,6 @@
         .suggestion-item { padding: 6px 10px; border-radius: 0.5rem; cursor: pointer; font-size: 12px; font-weight: 700; color: var(--accent); }
         .suggestion-item:hover { background: rgba(249,115,22,0.15); }
 
-        /* ===== AUTOCOMPLETE CUSTOM (reemplaza datalist nativo) ===== */
-        .ac-dropdown {
-            position: absolute;
-            top: calc(100% + 6px);
-            left: 0; right: 0;
-            background: #14172a;
-            border: 1px solid rgba(249,115,22,0.25);
-            border-radius: 14px;
-            max-height: 220px;
-            overflow-y: auto;
-            overflow-x: hidden;
-            z-index: 100;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.05) inset;
-            -webkit-overflow-scrolling: touch;
-            animation: acFadeIn 0.15s ease;
-        }
-        @keyframes acFadeIn {
-            from { opacity: 0; transform: translateY(-4px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        .ac-item {
-            padding: 11px 14px;
-            font-size: 13px;
-            font-weight: 700;
-            color: #e2e8f0;
-            cursor: pointer;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            transition: background 0.12s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            -webkit-tap-highlight-color: transparent;
-            display: flex; align-items: center; gap: 8px;
-        }
-        .ac-item:last-child { border-bottom: none; }
-        .ac-item:hover, .ac-item.ac-active {
-            background: rgba(249,115,22,0.12);
-            color: #fb923c;
-        }
-        .ac-item-icon {
-            font-size: 14px;
-            opacity: 0.6;
-            flex-shrink: 0;
-        }
-        .ac-item-text {
-            flex: 1;
-            min-width: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .ac-item mark {
-            background: rgba(249,115,22,0.25);
-            color: #fb923c;
-            font-weight: 900;
-            padding: 0 1px;
-            border-radius: 2px;
-        }
-        .ac-empty {
-            padding: 14px; text-align: center;
-            font-size: 11px; color: #64748b;
-            font-weight: 600;
-        }
-        /* Scrollbar fino para el dropdown */
-        .ac-dropdown::-webkit-scrollbar { width: 4px; }
-        .ac-dropdown::-webkit-scrollbar-thumb { background: rgba(249,115,22,0.3); border-radius: 2px; }
-        .ac-dropdown::-webkit-scrollbar-track { background: transparent; }
-
         /* ===== LIGHT MODE — crema/papel ===== */
         body.light-mode {
             background: var(--bg-light);
@@ -1459,18 +1392,18 @@
             <h2 class="text-center text-[11px] font-black text-slate-400 uppercase tracking-[3px]">📝 NUEVA RECEPCIÓN</h2>
             <div>
                 <div class="relative">
-                    <input type="text" id="c-nom" placeholder="CLIENTE" class="uppercase font-semibold w-full pr-12" autocomplete="off" onkeyup="checkClient()" oninput="ac_onInput(this,'cliente')" onfocus="ac_onInput(this,'cliente')" onblur="ac_onBlur()">
+                    <input type="text" id="c-nom" placeholder="CLIENTE" class="uppercase font-semibold w-full pr-12" list="clientes-list" onkeyup="checkClient()">
                     <button type="button" onclick="startVoiceInput('c-nom')" id="voice-btn-c-nom" class="voice-mic-btn absolute right-2 top-1/2 -translate-y-1/2" title="Dictado por voz">🎤</button>
-                    <div id="ac-dropdown-cliente" class="ac-dropdown" style="display:none;"></div>
                 </div>
                 <div id="client-alert" class="text-[10px] text-emerald-400 font-bold mt-1 min-h-[15px] ml-2"></div>
             </div>
+            <datalist id="clientes-list"></datalist>
             <input type="tel" id="c-tel" placeholder="WHATSAPP" class="w-full">
             <div class="relative">
-                <input type="text" id="c-equ" placeholder="EQUIPO / MODELO" class="uppercase font-bold text-orange-400 w-full pr-12" autocomplete="off" oninput="ac_onInput(this,'equipo')" onfocus="ac_onInput(this,'equipo')" onblur="ac_onBlur()">
+                <input type="text" id="c-equ" placeholder="EQUIPO / MODELO" class="uppercase font-bold text-orange-400 w-full pr-12" list="equipos-list">
                 <button type="button" onclick="startVoiceInput('c-equ')" id="voice-btn-c-equ" class="voice-mic-btn absolute right-2 top-1/2 -translate-y-1/2" title="Dictado por voz">🎤</button>
-                <div id="ac-dropdown-equipo" class="ac-dropdown" style="display:none;"></div>
             </div>
+            <datalist id="equipos-list"></datalist>
             <div class="relative">
                 <textarea id="c-fal" placeholder="FALLA INICIAL Y ESTADO FÍSICO..." class="h-24 text-xs uppercase w-full pr-10" oninput="suggestDiagnosis()"></textarea>
                 <button type="button" onclick="startVoiceInput('c-fal')" id="voice-btn-c-fal" class="voice-mic-btn absolute right-2 top-3" title="Dictado por voz">🎤</button>
@@ -4527,109 +4460,6 @@
             alertBox.innerText = count > 0 ? `🌟 Cliente Frecuente: ${count} órdenes previas` : '';
         }
 
-        // ============ AUTOCOMPLETE CUSTOM (clientes / equipos) ============
-        // Reemplaza el datalist nativo que se veía feo en WebView/APK
-        let _acBlurTimer = null;
-
-        function _acEscape(s) {
-            return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-        }
-        function _acHighlight(text, query) {
-            if (!query) return _acEscape(text);
-            const t = _acEscape(text);
-            const q = _acEscape(query);
-            try {
-                const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'i');
-                return t.replace(re, '<mark>$1</mark>');
-            } catch(_) { return t; }
-        }
-        function _acNormalize(s) {
-            return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-        }
-
-        function ac_onInput(inputEl, kind) {
-            if (_acBlurTimer) { clearTimeout(_acBlurTimer); _acBlurTimer = null; }
-            const dropdown = document.getElementById('ac-dropdown-' + kind);
-            if (!dropdown) return;
-            const rawQuery = (inputEl.value || '').trim();
-            const q = _acNormalize(rawQuery);
-            const source = _acData[kind] || [];
-
-            // Si no hay query, no mostrar nada (menos distracción)
-            if (!q) {
-                dropdown.style.display = 'none';
-                dropdown.innerHTML = '';
-                return;
-            }
-
-            // Filtrar: prioridad startsWith, luego includes
-            const starts = [], contains = [];
-            for (const item of source) {
-                const n = _acNormalize(item);
-                if (n === q) continue; // exacta: ya lo tipeó
-                if (n.startsWith(q)) starts.push(item);
-                else if (n.includes(q)) contains.push(item);
-            }
-            const results = [...starts, ...contains].slice(0, 8);
-
-            if (results.length === 0) {
-                dropdown.style.display = 'none';
-                dropdown.innerHTML = '';
-                return;
-            }
-
-            const icon = kind === 'cliente' ? '👤' : '🔧';
-            dropdown.innerHTML = results.map(r =>
-                `<div class="ac-item" onmousedown="ac_pick('${_acEscape(inputEl.id)}','${_acEscape(r).replace(/'/g,"&#39;")}','${kind}')">
-                    <span class="ac-item-icon">${icon}</span>
-                    <span class="ac-item-text">${_acHighlight(r, rawQuery)}</span>
-                </div>`
-            ).join('');
-            dropdown.style.display = 'block';
-            dropdown.scrollTop = 0;
-        }
-
-        function ac_pick(inputId, value, kind) {
-            // decode HTML entities que insertamos arriba
-            const tmp = document.createElement('textarea');
-            tmp.innerHTML = value;
-            const clean = tmp.value;
-
-            const input = document.getElementById(inputId);
-            if (input) {
-                input.value = clean;
-                // Disparar el mismo side-effect que el input nativo tendría
-                input.dispatchEvent(new Event('input', { bubbles: true }));
-                input.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-            const dropdown = document.getElementById('ac-dropdown-' + kind);
-            if (dropdown) { dropdown.style.display = 'none'; dropdown.innerHTML = ''; }
-            // checkClient si es cliente
-            if (inputId === 'c-nom' && typeof checkClient === 'function') checkClient();
-            // Actualizar preview del taller (desktop)
-            if (typeof updateTallerPreview === 'function') updateTallerPreview();
-        }
-
-        function ac_onBlur() {
-            // Delay antes de cerrar para permitir el click/tap en un item
-            _acBlurTimer = setTimeout(() => {
-                document.querySelectorAll('.ac-dropdown').forEach(d => {
-                    d.style.display = 'none';
-                    d.innerHTML = '';
-                });
-                _acBlurTimer = null;
-            }, 180);
-        }
-
-        // Cerrar dropdowns al tocar fuera (por si acaso)
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.ac-dropdown') && !e.target.closest('input')) {
-                document.querySelectorAll('.ac-dropdown').forEach(d => {
-                    d.style.display = 'none';
-                });
-            }
-        });
-
         function calcSaldoPreview() {
             const val = Number(document.getElementById('c-val').value) || 0;
             const adelanto = Number(document.getElementById('c-adelanto').value) || 0;
@@ -6098,18 +5928,12 @@
             const ft = document.getElementById('filter-tecnico'); if(ft) ft.value='';
             applyFilters();
         }
-        // Cache de autocomplete (reemplaza los datalist removidos)
-        let _acData = { cliente: [], equipo: [] };
-
         async function updateSuggestions() {
             const orders = await getAll('orders');
-            const cl = [...new Set(orders.map(o=>o.nom).filter(Boolean))];
-            const eq = [...new Set(orders.map(o=>o.equ).filter(Boolean))];
-            _acData.cliente = cl;
-            _acData.equipo  = eq;
-            // search-suggestions todavía es un datalist nativo — el buscador de órdenes lo usa
-            const searchList = document.getElementById('search-suggestions');
-            if (searchList) searchList.innerHTML = [...cl,...eq].map(s=>`<option value="${escapeHtml(s)}">`).join('');
+            const cl = [...new Set(orders.map(o=>o.nom))]; const eq = [...new Set(orders.map(o=>o.equ))];
+            document.getElementById('clientes-list').innerHTML = cl.map(c=>`<option value="${escapeHtml(c)}">`).join('');
+            document.getElementById('equipos-list').innerHTML = eq.map(e=>`<option value="${escapeHtml(e)}">`).join('');
+            document.getElementById('search-suggestions').innerHTML = [...cl,...eq].map(s=>`<option value="${escapeHtml(s)}">`).join('');
         }
 
         async function exportData() {
