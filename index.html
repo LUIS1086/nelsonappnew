@@ -188,6 +188,138 @@
         html.font-large  { font-size: 20px; }
 
         .tab-active { color: var(--accent); font-weight: 700; transform: translateY(-2px); }
+
+        /* ======== BOTTOM NAV PREMIUM (MOBILE) ======== */
+        nav.bottom-nav-mobile {
+            background: rgba(13,15,26,0.85);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow:
+                0 10px 40px rgba(0,0,0,0.5),
+                0 1px 0 rgba(255,255,255,0.05) inset,
+                0 -1px 0 rgba(0,0,0,0.3) inset;
+        }
+        .nav-btn {
+            position: relative;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 10px 4px;
+            border-radius: 20px;
+            color: #64748b;
+            transition: color 0.25s ease, transform 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            min-height: 62px;
+        }
+        .nav-btn:active { transform: scale(0.92); }
+        .nav-btn .nav-icon-wrap {
+            position: relative;
+            width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .nav-btn .nav-icon-wrap svg {
+            width: 28px; height: 28px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: stroke-width 0.2s ease;
+        }
+        .nav-btn .nav-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            transition: font-weight 0.2s ease, opacity 0.2s ease;
+            opacity: 0.85;
+        }
+        /* ACTIVO: pill naranja con glow */
+        .nav-btn.nav-active {
+            color: #fb923c;
+        }
+        .nav-btn.nav-active::before {
+            content: '';
+            position: absolute;
+            top: 5px; left: 50%;
+            width: 66px; height: 38px;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, rgba(249,115,22,0.22), rgba(249,115,22,0.08));
+            border: 1px solid rgba(249,115,22,0.35);
+            border-radius: 16px;
+            box-shadow:
+                0 4px 14px rgba(249,115,22,0.25),
+                0 1px 0 rgba(255,255,255,0.08) inset;
+            z-index: 0;
+            animation: navPillPop 0.35s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        @keyframes navPillPop {
+            0%   { transform: translateX(-50%) scale(0.5); opacity: 0; }
+            100% { transform: translateX(-50%) scale(1); opacity: 1; }
+        }
+        .nav-btn.nav-active .nav-icon-wrap {
+            transform: translateY(-1px) scale(1.08);
+            position: relative; z-index: 1;
+        }
+        .nav-btn.nav-active .nav-icon-wrap svg {
+            stroke-width: 2.3;
+            filter: drop-shadow(0 2px 6px rgba(249,115,22,0.5));
+        }
+        .nav-btn.nav-active .nav-label {
+            font-weight: 900;
+            opacity: 1;
+            position: relative; z-index: 1;
+        }
+
+        /* Badge de notificación (contador) */
+        .nav-badge {
+            position: absolute;
+            top: -2px; right: -6px;
+            min-width: 18px; height: 18px;
+            padding: 0 5px;
+            background: linear-gradient(135deg, #f43f5e, #e11d48);
+            color: #fff;
+            font-size: 10px; font-weight: 900;
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid rgba(13,15,26,0.95);
+            box-shadow: 0 2px 8px rgba(244,63,94,0.5);
+            z-index: 2;
+            line-height: 1;
+            animation: badgePop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        @keyframes badgePop {
+            0%   { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+        /* Badge naranja para stock bajo */
+        .nav-badge.warn {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            box-shadow: 0 2px 8px rgba(249,115,22,0.5);
+        }
+        /* Dot pulsante (indicador sutil sin número) */
+        .nav-dot {
+            position: absolute;
+            top: 2px; right: 2px;
+            width: 8px; height: 8px;
+            background: #f43f5e;
+            border: 2px solid rgba(13,15,26,0.95);
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(244,63,94,0.6);
+            animation: navDotPulse 2s ease-in-out infinite;
+            z-index: 2;
+        }
+        @keyframes navDotPulse {
+            0%,100% { box-shadow: 0 0 0 0 rgba(244,63,94,0.6); }
+            50%     { box-shadow: 0 0 0 6px rgba(244,63,94,0); }
+        }
         .max-container { max-width: 600px; margin: 0 auto; }
         .view-enter { animation: slideUp 0.3s ease; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -241,6 +373,7 @@
             animation: pulse-mic 0.8s ease infinite;
         }
         @keyframes pulse-mic { 0%,100%{box-shadow:0 0 0 0 rgba(244,63,94,0.4)} 50%{box-shadow:0 0 0 6px rgba(244,63,94,0)} }
+        @keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.85)} }
 
         /* ===== MODAL EXPORTAR PDF/EXCEL ===== */
         #modal-export-panel { z-index: 4100; }
@@ -369,91 +502,204 @@
         }
 
         /* ===== SPLASH SCREEN ===== */
+        /* ===== SPLASH SCREEN ===== */
         #splash-screen {
             position: fixed; inset: 0; z-index: 99999;
-            background: #08090f;
+            background:
+                radial-gradient(ellipse 90% 60% at 50% 15%, rgba(249,115,22,0.10) 0%, transparent 65%),
+                radial-gradient(ellipse 60% 40% at 80% 90%, rgba(234,88,12,0.06) 0%, transparent 60%),
+                #06070c;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             gap: 0; transition: opacity 0.7s ease, transform 0.7s ease;
             overflow: hidden;
         }
-        #splash-screen::before {
+        /* Grid sutil de fondo */
+        #splash-screen::after {
             content: ''; position: absolute; inset: 0;
-            background:
-                radial-gradient(ellipse 70% 50% at 50% 20%, rgba(249,115,22,0.12) 0%, transparent 70%),
-                radial-gradient(ellipse 40% 30% at 80% 80%, rgba(234,88,12,0.06) 0%, transparent 60%);
+            background-image:
+                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+            background-size: 40px 40px;
             pointer-events: none;
+            mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 75%);
+            -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 75%);
         }
         #splash-screen.fade-out { opacity: 0; transform: scale(1.05); pointer-events: none; }
-        .splash-logo-ring {
-            width: 96px; height: 96px; border-radius: 28px;
-            background: linear-gradient(145deg, #1a1a2e, #16213e);
-            border: 1.5px solid rgba(249,115,22,0.35);
+
+        /* Ring exterior animado */
+        .splash-logo-wrap {
+            position: relative; z-index: 1; margin-bottom: 36px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 2.8rem;
-            position: relative; z-index: 1; margin-bottom: 32px;
-            box-shadow: 0 0 0 8px rgba(249,115,22,0.05), 0 0 0 20px rgba(249,115,22,0.03), 0 20px 60px rgba(249,115,22,0.2);
+        }
+        .splash-logo-wrap::before {
+            content: '';
+            position: absolute;
+            width: 160px; height: 160px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(249,115,22,0.18);
+            animation: splashRing 2.5s ease-in-out infinite;
+        }
+        .splash-logo-wrap::after {
+            content: '';
+            position: absolute;
+            width: 200px; height: 200px;
+            border-radius: 50%;
+            border: 1px solid rgba(249,115,22,0.08);
+            animation: splashRing 2.5s ease-in-out infinite;
+            animation-delay: 0.4s;
+        }
+        @keyframes splashRing {
+            0%   { transform: scale(0.9); opacity: 0.8; }
+            100% { transform: scale(1.25); opacity: 0; }
+        }
+
+        .splash-logo-ring {
+            width: 108px; height: 108px; border-radius: 30px;
+            background: linear-gradient(145deg, #1a1f35 0%, #12182a 100%);
+            border: 1.5px solid rgba(249,115,22,0.4);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 3rem;
+            position: relative; z-index: 2;
+            box-shadow:
+                0 0 0 8px rgba(249,115,22,0.05),
+                0 0 0 20px rgba(249,115,22,0.03),
+                0 24px 70px rgba(249,115,22,0.25),
+                0 1px 0 rgba(255,255,255,0.08) inset;
             animation: splashFloat 3s ease-in-out infinite;
         }
         @keyframes splashFloat {
             0%,100% { transform: translateY(0px); }
-            50%      { transform: translateY(-6px); box-shadow: 0 0 0 10px rgba(249,115,22,0.07), 0 0 0 26px rgba(249,115,22,0.02), 0 28px 80px rgba(249,115,22,0.28); }
+            50%     { transform: translateY(-7px); box-shadow: 0 0 0 10px rgba(249,115,22,0.07), 0 0 0 26px rgba(249,115,22,0.02), 0 32px 90px rgba(249,115,22,0.32), 0 1px 0 rgba(255,255,255,0.08) inset; }
         }
         .splash-title {
-            font-size: 2.6rem; font-weight: 900; color: #fff; letter-spacing: -1px;
-            text-align: center; line-height: 1; margin-bottom: 8px;
+            font-size: 2.8rem; font-weight: 900;
+            background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1.5px;
+            text-align: center; line-height: 1; margin-bottom: 10px;
+            position: relative; z-index: 1;
+            text-shadow: 0 4px 20px rgba(249,115,22,0.15);
         }
         .splash-sub {
-            font-size: 0.6rem; font-weight: 800; color: rgba(249,115,22,0.7);
-            letter-spacing: 8px; text-transform: uppercase; text-align: center; margin-bottom: 40px;
+            font-size: 0.65rem; font-weight: 800;
+            color: rgba(249,115,22,0.8);
+            letter-spacing: 8px; text-transform: uppercase;
+            text-align: center; margin-bottom: 44px;
+            position: relative; z-index: 1;
         }
         .splash-bar-track {
-            width: 120px; height: 2px; background: rgba(255,255,255,0.06);
+            width: 140px; height: 3px;
+            background: rgba(255,255,255,0.05);
             border-radius: 99px; overflow: hidden;
+            position: relative; z-index: 1;
+            box-shadow: 0 1px 0 rgba(255,255,255,0.03) inset;
         }
         .splash-bar-fill {
             height: 100%; width: 0%;
-            background: linear-gradient(90deg, #f97316, #fbbf24);
+            background: linear-gradient(90deg, #f97316, #fb923c, #fbbf24);
             border-radius: 99px;
+            box-shadow: 0 0 12px rgba(249,115,22,0.5);
             animation: splashBar 2s cubic-bezier(0.16,1,0.3,1) forwards;
         }
         @keyframes splashBar { from { width: 0%; } to { width: 100%; } }
+        .splash-version {
+            font-size: 9px;
+            color: rgba(255,255,255,0.3);
+            letter-spacing: 5px;
+            margin-top: 22px;
+            font-weight: 700;
+            position: relative; z-index: 1;
+        }
 
         /* ===== PIN MEJORADO ===== */
         .pin-dot {
-            width: 13px; height: 13px; border-radius: 50%;
-            background: rgba(255,255,255,0.08);
-            border: 2px solid rgba(255,255,255,0.15);
-            transition: all 0.18s cubic-bezier(0.34,1.56,0.64,1);
+            width: 16px; height: 16px; border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.18);
+            transition: all 0.22s cubic-bezier(0.34,1.56,0.64,1);
+            position: relative;
         }
         .pin-dot.filled {
-            background: #f97316; border-color: #f97316;
-            box-shadow: 0 0 12px rgba(249,115,22,0.6);
-            transform: scale(1.15);
+            background: #f97316;
+            border-color: #f97316;
+            box-shadow: 0 0 16px rgba(249,115,22,0.7), 0 0 0 4px rgba(249,115,22,0.15);
+            transform: scale(1.2);
         }
+        .pin-dot.success {
+            background: #10b981 !important;
+            border-color: #10b981 !important;
+            box-shadow: 0 0 16px rgba(16,185,129,0.7), 0 0 0 4px rgba(16,185,129,0.18) !important;
+            transform: scale(1.2);
+        }
+        .pin-dot.error {
+            background: #ef4444 !important;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 16px rgba(239,68,68,0.7) !important;
+        }
+        /* Shake animation para PIN incorrecto */
+        #pin-dots.shake { animation: pinShake 0.45s cubic-bezier(0.36,0.07,0.19,0.97); }
+        @keyframes pinShake {
+            10%,90% { transform: translateX(-2px); }
+            20%,80% { transform: translateX(4px); }
+            30%,50%,70% { transform: translateX(-8px); }
+            40%,60% { transform: translateX(8px); }
+        }
+
         .numpad-btn {
             aspect-ratio: 1; border-radius: 50%;
-            background: rgba(255,255,255,0.05);
+            background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
             border: 1px solid rgba(255,255,255,0.08);
-            font-size: 1.4rem; font-weight: 600;
+            font-size: 1.55rem; font-weight: 500;
             color: #f1f5f9; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: all 0.12s ease;
+            cursor: pointer; transition: all 0.14s ease;
             user-select: none; -webkit-tap-highlight-color: transparent;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.06) inset;
+            box-shadow:
+                0 4px 12px rgba(0,0,0,0.35),
+                0 1px 0 rgba(255,255,255,0.08) inset,
+                0 -1px 0 rgba(0,0,0,0.2) inset;
+            font-variant-numeric: tabular-nums;
         }
         .numpad-btn:active {
-            background: rgba(249,115,22,0.25);
-            border-color: rgba(249,115,22,0.5);
+            background: linear-gradient(145deg, rgba(249,115,22,0.3), rgba(249,115,22,0.15));
+            border-color: rgba(249,115,22,0.6);
             transform: scale(0.88);
-            box-shadow: 0 0 16px rgba(249,115,22,0.3);
+            box-shadow: 0 0 20px rgba(249,115,22,0.4), 0 1px 0 rgba(255,255,255,0.1) inset;
+            color: #fff;
         }
-        .numpad-btn.delete { font-size: 1rem; color: #f87171; }
+        .numpad-btn.delete {
+            font-size: 1.15rem;
+            color: #f87171;
+            background: linear-gradient(145deg, rgba(239,68,68,0.08), rgba(239,68,68,0.02));
+            border-color: rgba(239,68,68,0.15);
+        }
+        .numpad-btn.delete:active {
+            background: linear-gradient(145deg, rgba(239,68,68,0.3), rgba(239,68,68,0.15));
+            border-color: rgba(239,68,68,0.5);
+            box-shadow: 0 0 20px rgba(239,68,68,0.3);
+        }
         .numpad-btn.enter {
             background: linear-gradient(135deg, #f97316, #ea580c);
             border-color: transparent;
-            font-size: 0.65rem; font-weight: 900; letter-spacing: 1.5px;
-            box-shadow: 0 4px 20px rgba(249,115,22,0.45), 0 1px 0 rgba(255,255,255,0.15) inset;
+            font-size: 0.72rem; font-weight: 900; letter-spacing: 1.5px;
+            color: #fff;
+            box-shadow:
+                0 6px 24px rgba(249,115,22,0.5),
+                0 1px 0 rgba(255,255,255,0.2) inset,
+                0 -2px 0 rgba(0,0,0,0.15) inset;
         }
-        .numpad-btn.enter:active { opacity: 0.85; transform: scale(0.88); }
+        .numpad-btn.enter:active {
+            transform: scale(0.88);
+            box-shadow: 0 2px 10px rgba(249,115,22,0.4), 0 1px 0 rgba(255,255,255,0.15) inset;
+        }
+        /* Estado inactivo del OK cuando no hay PIN suficiente */
+        .numpad-btn.enter.disabled {
+            background: linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.04) inset;
+            color: rgba(255,255,255,0.3);
+            cursor: not-allowed;
+        }
+        .numpad-btn.enter.disabled:active { transform: scale(1); }
 
         /* ===== RESPONSIVE LAYOUT — TABLET & DESKTOP ===== */
         @media (min-width: 768px) {
@@ -653,6 +899,193 @@
             .modal-custom > div {
                 max-width: 520px !important;
             }
+
+            /* ======== ÓRDENES EN GRID ======== */
+            #view-ordenes #orders-list {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 14px;
+                align-items: start;
+            }
+            /* La tarjeta empty-state debe ocupar todo el ancho */
+            #view-ordenes #orders-list > div:only-child:not(.card) {
+                grid-column: 1 / -1;
+            }
+            /* Hover en tarjetas de órdenes */
+            #view-ordenes .card {
+                transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+                cursor: default;
+            }
+            #view-ordenes .card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 12px 32px rgba(0,0,0,0.35), 0 0 0 1px rgba(249,115,22,0.15);
+            }
+
+            /* ======== VISTA TALLER EN 2 COLUMNAS ======== */
+            #view-taller {
+                display: grid;
+                grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+                gap: 24px;
+                align-items: start;
+            }
+            #view-taller .card {
+                max-width: 100% !important;
+                margin: 0 !important;
+            }
+            #taller-preview-panel {
+                position: sticky;
+                top: 88px;
+                display: block !important;
+            }
+
+            /* ======== SIDEBAR: CONTADORES POR ESTADO ======== */
+            .sidebar-nav-item {
+                position: relative;
+            }
+            .sidebar-nav-count {
+                margin-left: auto;
+                min-width: 22px; height: 22px; padding: 0 6px;
+                border-radius: 11px;
+                background: rgba(249,115,22,0.18);
+                color: var(--accent);
+                font-size: 10px; font-weight: 900;
+                display: inline-flex; align-items: center; justify-content: center;
+                line-height: 1;
+            }
+            .sidebar-nav-item.active .sidebar-nav-count {
+                background: rgba(249,115,22,0.3);
+                color: #fff;
+            }
+            body.light-mode .sidebar-nav-count { background: rgba(249,115,22,0.12); }
+
+            #sidebar-status-breakdown {
+                padding: 0 12px 12px;
+            }
+            #sidebar-status-breakdown-title {
+                font-size: 9px; font-weight: 800;
+                color: #475569; letter-spacing: 2px;
+                text-transform: uppercase;
+                padding: 0 4px 8px;
+            }
+            .status-row {
+                display: flex; align-items: center; justify-content: space-between;
+                padding: 6px 12px; border-radius: 10px;
+                cursor: pointer; transition: background 0.15s ease;
+                font-size: 11px; font-weight: 700;
+            }
+            .status-row:hover { background: rgba(255,255,255,0.04); }
+            body.light-mode .status-row:hover { background: rgba(0,0,0,0.04); }
+            .status-row-label { display: flex; align-items: center; gap: 8px; color: #94a3b8; }
+            .status-row-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+            .status-row-count {
+                font-size: 11px; font-weight: 900;
+                color: #cbd5e1;
+                min-width: 20px; text-align: right;
+            }
+            body.light-mode .status-row-label { color: #64748b; }
+            body.light-mode .status-row-count { color: #334155; }
+
+            /* ======== TOPBAR KPIs ======== */
+            #topbar-kpis {
+                display: flex; gap: 18px; align-items: center;
+                padding: 0 20px; margin-right: auto;
+                border-left: 1px solid rgba(255,255,255,0.06);
+                margin-left: 16px;
+            }
+            body.light-mode #topbar-kpis { border-left-color: #ddd8ce; }
+            .topbar-kpi {
+                display: flex; flex-direction: column; gap: 2px;
+                min-width: 68px;
+            }
+            .topbar-kpi-label {
+                font-size: 8px; font-weight: 800; letter-spacing: 1.5px;
+                color: #64748b; text-transform: uppercase;
+            }
+            .topbar-kpi-value {
+                font-size: 18px; font-weight: 900;
+                color: #f1f5f9;
+                line-height: 1;
+            }
+            body.light-mode .topbar-kpi-value { color: #1c1917; }
+            .topbar-kpi-value.success { color: #10b981; }
+            .topbar-kpi-value.warn    { color: #fbbf24; }
+            .topbar-kpi-value.danger  { color: #f43f5e; }
+            .topbar-kpi-value.accent  { color: var(--accent); }
+
+            /* Botón de acción principal en topbar (nueva orden) */
+            #topbar-primary-action {
+                background: linear-gradient(135deg, var(--accent), var(--accent-dark)) !important;
+                color: #fff !important;
+                border: none !important;
+                padding: 10px 18px !important;
+                font-weight: 900 !important;
+                font-size: 11px !important;
+                letter-spacing: 1px !important;
+                box-shadow: 0 4px 14px rgba(249,115,22,0.35) !important;
+                display: flex; align-items: center; gap: 6px;
+                transition: all 0.2s ease !important;
+            }
+            #topbar-primary-action:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 6px 20px rgba(249,115,22,0.5) !important;
+            }
+
+            /* Shortcut hint en topbar (kbd style) */
+            .kbd-hint {
+                display: inline-flex; align-items: center; justify-content: center;
+                min-width: 18px; height: 18px; padding: 0 5px;
+                border-radius: 5px;
+                background: rgba(255,255,255,0.08);
+                border: 1px solid rgba(255,255,255,0.12);
+                border-bottom-width: 2px;
+                font-size: 9px; font-weight: 700;
+                color: #cbd5e1;
+                font-family: monospace;
+                margin-left: 6px;
+            }
+            body.light-mode .kbd-hint { background: #e7e3d8; border-color: #c9c3b4; color: #44403c; }
+        }
+
+        /* ======== ATAJOS OVERLAY — global (afuera de media query para que display:none aplique en móvil) ======== */
+        #shortcuts-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            z-index: 9000;
+            display: none;
+            align-items: center; justify-content: center;
+            padding: 24px;
+        }
+        #shortcuts-overlay.show { display: flex; }
+        #shortcuts-overlay > div {
+            background: var(--card-dark);
+            border: 1px solid rgba(249,115,22,0.2);
+            border-radius: 20px;
+            padding: 28px;
+            max-width: 480px; width: 100%;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+        }
+        body.light-mode #shortcuts-overlay > div { background: var(--card-light); border-color: #e7d8c3; }
+        .shortcut-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .shortcut-row:last-child { border-bottom: none; }
+        body.light-mode .shortcut-row { border-bottom-color: #e7e3d8; }
+
+        /* kbd-hint también debe estar disponible fuera de desktop (por si se usa) */
+        .kbd-hint {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 18px; height: 18px; padding: 0 5px;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-bottom-width: 2px;
+            font-size: 9px; font-weight: 700;
+            color: #cbd5e1;
+            font-family: monospace;
+            margin-left: 6px;
         }
 
         @media (min-width: 1200px) {
@@ -662,6 +1095,11 @@
             #view-ventas > .card:last-child { grid-column: 1 / -1; }
             #view-admin { grid-template-columns: 1fr 1fr 1fr; }
             #view-admin > div:first-child { grid-column: 1 / 2; }
+            /* 3 columnas de órdenes en desktop ancho */
+            #view-ordenes #orders-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+        @media (min-width: 1600px) {
+            #view-ordenes #orders-list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
         }
 
         /* Mobile — mostrar sidebar oculto */
@@ -712,15 +1150,39 @@
             <div class="sidebar-nav-item" id="sidebar-btn-ordenes" onclick="tab('ordenes')">
                 <span class="sidebar-nav-icon">📋</span>
                 <span class="sidebar-nav-label">Órdenes</span>
+                <span class="sidebar-nav-count" id="sidebar-count-ordenes">0</span>
             </div>
             <div class="sidebar-nav-item" id="sidebar-btn-ventas" onclick="tab('ventas')">
                 <span class="sidebar-nav-icon">💰</span>
                 <span class="sidebar-nav-label">Caja &amp; Inventario</span>
+                <span class="sidebar-nav-count" id="sidebar-count-stock" style="display:none;">0</span>
             </div>
             <div class="sidebar-nav-item" id="sidebar-btn-admin" onclick="tab('admin')">
                 <span class="sidebar-nav-icon">⚙️</span>
                 <span class="sidebar-nav-label">Datos &amp; Config</span>
             </div>
+
+            <!-- BREAKDOWN POR ESTADO -->
+            <div id="sidebar-status-breakdown" style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);">
+                <div id="sidebar-status-breakdown-title">Por estado (activas)</div>
+                <div class="status-row" onclick="filterByStatusFromSidebar('recibido')">
+                    <span class="status-row-label"><span class="status-row-dot" style="background:#94a3b8;"></span>Recibido</span>
+                    <span class="status-row-count" id="sb-count-recibido">0</span>
+                </div>
+                <div class="status-row" onclick="filterByStatusFromSidebar('revisión')">
+                    <span class="status-row-label"><span class="status-row-dot" style="background:#fbbf24;"></span>Revisión</span>
+                    <span class="status-row-count" id="sb-count-revision">0</span>
+                </div>
+                <div class="status-row" onclick="filterByStatusFromSidebar('reparado')">
+                    <span class="status-row-label"><span class="status-row-dot" style="background:#10b981;"></span>Reparado</span>
+                    <span class="status-row-count" id="sb-count-reparado">0</span>
+                </div>
+                <div class="status-row" onclick="filterByStatusFromSidebar('no-reparable')">
+                    <span class="status-row-label"><span class="status-row-dot" style="background:#f43f5e;"></span>No reparable</span>
+                    <span class="status-row-count" id="sb-count-noreparable">0</span>
+                </div>
+            </div>
+
             <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);">
                 <div style="font-size:9px;font-weight:800;color:#475569;letter-spacing:2px;text-transform:uppercase;padding:0 4px 8px;">Acciones rápidas</div>
                 <div class="sidebar-nav-item" onclick="window.location.href='./dashboard.html'" style="padding:10px 16px;">
@@ -739,10 +1201,14 @@
                     <span class="sidebar-nav-icon">📊</span>
                     <span class="sidebar-nav-label" style="font-size:12px;">Estadísticas</span>
                 </div>
+                <div class="sidebar-nav-item" onclick="showShortcutsHelp()" style="padding:10px 16px;">
+                    <span class="sidebar-nav-icon">⌨️</span>
+                    <span class="sidebar-nav-label" style="font-size:12px;">Atajos de teclado</span>
+                </div>
             </div>
         </nav>
         <div id="sidebar-footer">
-            <button onclick="toggleTheme()" id="sidebar-theme-btn">🌙 Tema</button>
+            <button onclick="showShortcutsHelp()" style="flex:1;">⌨️ Atajos</button>
             <button onclick="openAdvancedConfig()">⚙️ Config</button>
         </div>
     </aside>
@@ -753,12 +1219,83 @@
             <div id="desktop-topbar-subtitle" style="font-size:9px;color:var(--accent);font-weight:800;letter-spacing:3px;text-transform:uppercase;">TODO REPUESTOS</div>
             <div id="desktop-topbar-title" style="font-size:20px;font-weight:900;font-style:italic;">NELSON</div>
         </div>
+
+        <!-- KPIs rápidos -->
+        <div id="topbar-kpis">
+            <div class="topbar-kpi">
+                <span class="topbar-kpi-label">Hoy</span>
+                <span class="topbar-kpi-value accent" id="topbar-kpi-today">0</span>
+            </div>
+            <div class="topbar-kpi">
+                <span class="topbar-kpi-label">Pendientes</span>
+                <span class="topbar-kpi-value warn" id="topbar-kpi-pending">0</span>
+            </div>
+            <div class="topbar-kpi">
+                <span class="topbar-kpi-label">Por entregar</span>
+                <span class="topbar-kpi-value success" id="topbar-kpi-ready">0</span>
+            </div>
+            <div class="topbar-kpi">
+                <span class="topbar-kpi-label">Vencidas</span>
+                <span class="topbar-kpi-value danger" id="topbar-kpi-overdue">0</span>
+            </div>
+        </div>
+
         <div id="desktop-topbar-right">
-            <button onclick="window.location.href='./dashboard.html'" style="background:rgba(159,122,234,0.15);border:1px solid rgba(159,122,234,0.3);color:#c4b5fd;padding:8px 16px;border-radius:12px;font-size:11px;font-weight:800;cursor:pointer;">📊 DASHBOARD</button>
-            <button onclick="notifyAllReady()" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:8px 16px;border-radius:12px;font-size:11px;font-weight:800;cursor:pointer;">💬 AVISAR LISTOS</button>
-            <button onclick="exportMonthlyReport()" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:8px 16px;border-radius:12px;font-size:11px;font-weight:800;cursor:pointer;">📄 REPORTE MES</button>
-            <button onclick="openExportPanel()" style="background:rgba(249,115,22,0.15);border:1px solid rgba(249,115,22,0.3);color:#fb923c;padding:8px 16px;border-radius:12px;font-size:11px;font-weight:800;cursor:pointer;">⬇️ EXPORTAR</button>
-            <button onclick="toggleTheme()" id="desktop-theme-btn" style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);font-size:1.1rem;cursor:pointer;">🌙</button>
+            <button id="topbar-primary-action" onclick="topbarPrimaryAction()" title="Nueva orden (N)">
+                <span>➕</span> <span id="topbar-primary-label">NUEVA ORDEN</span>
+                <span class="kbd-hint">N</span>
+            </button>
+            <button onclick="document.getElementById('search-orders')?.focus()" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:8px 14px;border-radius:12px;font-size:11px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px;" title="Buscar (/)">
+                🔍 BUSCAR <span class="kbd-hint">/</span>
+            </button>
+            <button onclick="window.location.href='./dashboard.html'" style="background:rgba(159,122,234,0.15);border:1px solid rgba(159,122,234,0.3);color:#c4b5fd;padding:8px 14px;border-radius:12px;font-size:11px;font-weight:800;cursor:pointer;" title="Command Center">📊 DASHBOARD</button>
+            <button onclick="showShortcutsHelp()" style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);font-size:1rem;cursor:pointer;" title="Atajos de teclado (?)">⌨️</button>
+            <button onclick="toggleTheme()" id="desktop-theme-btn" style="display:none;width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);font-size:1.1rem;cursor:pointer;">🌙</button>
+        </div>
+    </div>
+
+    <!-- OVERLAY DE ATAJOS -->
+    <div id="shortcuts-overlay" onclick="if(event.target===this)hideShortcutsHelp()">
+        <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+                <h3 style="font-size:18px;font-weight:900;color:var(--accent);letter-spacing:-0.5px;margin:0;">⌨️ Atajos de teclado</h3>
+                <button onclick="hideShortcutsHelp()" style="background:none;border:none;color:#94a3b8;font-size:20px;cursor:pointer;padding:0 8px;">✕</button>
+            </div>
+            <div style="display:flex;flex-direction:column;">
+                <div class="shortcut-row">
+                    <span style="color:#cbd5e1;font-size:13px;font-weight:600;">Nueva orden / Nueva venta</span>
+                    <span class="kbd-hint">N</span>
+                </div>
+                <div class="shortcut-row">
+                    <span style="color:#cbd5e1;font-size:13px;font-weight:600;">Buscar órdenes</span>
+                    <span class="kbd-hint">/</span>
+                </div>
+                <div class="shortcut-row">
+                    <span style="color:#cbd5e1;font-size:13px;font-weight:600;">Recepción</span>
+                    <span class="kbd-hint">1</span>
+                </div>
+                <div class="shortcut-row">
+                    <span style="color:#cbd5e1;font-size:13px;font-weight:600;">Órdenes</span>
+                    <span class="kbd-hint">2</span>
+                </div>
+                <div class="shortcut-row">
+                    <span style="color:#cbd5e1;font-size:13px;font-weight:600;">Caja &amp; Inventario</span>
+                    <span class="kbd-hint">3</span>
+                </div>
+                <div class="shortcut-row">
+                    <span style="color:#cbd5e1;font-size:13px;font-weight:600;">Datos &amp; Config</span>
+                    <span class="kbd-hint">4</span>
+                </div>
+                <div class="shortcut-row">
+                    <span style="color:#cbd5e1;font-size:13px;font-weight:600;">Cerrar modal / Limpiar búsqueda</span>
+                    <span class="kbd-hint">Esc</span>
+                </div>
+                <div class="shortcut-row">
+                    <span style="color:#cbd5e1;font-size:13px;font-weight:600;">Abrir ayuda de atajos</span>
+                    <span class="kbd-hint">?</span>
+                </div>
+            </div>
+            <p style="font-size:10px;color:#64748b;margin-top:14px;text-align:center;">Los atajos solo funcionan fuera de campos de texto</p>
         </div>
     </div>
 
@@ -767,11 +1304,13 @@
 
     <!-- SPLASH SCREEN -->
     <div id="splash-screen">
-        <div class="splash-logo-ring">🔧</div>
+        <div class="splash-logo-wrap">
+            <div class="splash-logo-ring">🔧</div>
+        </div>
         <div class="splash-title" id="splash-biz-name">NELSON</div>
         <div class="splash-sub">Taller &amp; Repuestos</div>
         <div class="splash-bar-track"><div class="splash-bar-fill"></div></div>
-        <p style="font-size:0.5rem;color:rgba(255,255,255,0.12);letter-spacing:4px;margin-top:20px;font-weight:700;">v3.2.0</p>
+        <div class="splash-version">v3.2.0</div>
     </div>
 
     <!-- PIN MODAL -->
@@ -809,7 +1348,7 @@
                 <button class="numpad-btn" onclick="pinPad(9)" aria-label="9">9</button>
                 <button class="numpad-btn delete" onclick="pinPad('del')" aria-label="Borrar">⌫</button>
                 <button class="numpad-btn" onclick="pinPad(0)" aria-label="0">0</button>
-                <button class="numpad-btn enter" onclick="pinPad('ok')">OK</button>
+                <button class="numpad-btn enter disabled" onclick="pinPad('ok')">OK</button>
             </div>
 
             <input type="password" id="pin-input" class="hidden" maxlength="6">
@@ -836,7 +1375,7 @@
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                <button onclick="toggleTheme()" id="theme-btn" title="Cambiar tema"
+                <button onclick="toggleTheme()" id="theme-btn" title="Cambiar tema" style="display:none;"
                     class="w-10 h-10 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center text-xl hover:bg-orange-500/20 hover:border-orange-500/40 active:scale-90 transition-all">
                     🌙
                 </button>
@@ -946,6 +1485,37 @@
                 </div>
             </div>
             <button onclick="saveOrder()" class="w-full bg-gradient-to-r from-orange-600 to-orange-500 py-4 rounded-2xl font-black uppercase shadow-lg active:scale-95 transition-all">REGISTRAR ENTRADA</button>
+        </div>
+
+        <!-- PANEL LATERAL DESKTOP: preview en vivo + tips -->
+        <div id="taller-preview-panel" class="hidden" style="display:none;">
+            <div class="card p-5 space-y-4">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-dark));display:flex;align-items:center;justify-content:center;font-size:1.1rem;">👁️</div>
+                    <div>
+                        <div style="font-size:9px;font-weight:900;color:var(--accent);letter-spacing:2px;text-transform:uppercase;">Vista previa</div>
+                        <div style="font-size:14px;font-weight:800;">Así se verá la orden</div>
+                    </div>
+                </div>
+                <div id="preview-card-live" style="background:linear-gradient(180deg,rgba(249,115,22,0.04),transparent);border:1px dashed rgba(249,115,22,0.25);border-radius:14px;padding:14px;min-height:180px;">
+                    <div style="text-align:center;color:#64748b;font-size:11px;padding:40px 0;">
+                        ✏️ Completa el formulario para ver la vista previa
+                    </div>
+                </div>
+            </div>
+
+            <div class="card p-5 mt-3" style="background:linear-gradient(135deg,rgba(59,130,246,0.06),transparent);border-color:rgba(59,130,246,0.15);">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                    <span style="font-size:16px;">💡</span>
+                    <div style="font-size:10px;font-weight:900;color:#60a5fa;letter-spacing:2px;text-transform:uppercase;">Tips del día</div>
+                </div>
+                <div id="taller-tips" style="font-size:12px;color:#94a3b8;line-height:1.5;">
+                    <div style="padding:6px 0;">• Presiona <span class="kbd-hint">N</span> para crear una nueva orden rápido</div>
+                    <div style="padding:6px 0;">• Usa <span class="kbd-hint">/</span> para ir directo a buscar</div>
+                    <div style="padding:6px 0;">• Toca la cámara para adjuntar fotos de recepción</div>
+                    <div style="padding:6px 0;">• El botón 🎤 permite dictado por voz en cualquier campo</div>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -1280,41 +1850,104 @@
             </div>
 
             <!-- ===== CRÉDITOS / FIRMA ===== -->
-            <div style="padding:20px 16px 8px;">
-                <button onclick="toggleCredits()" id="credits-card"
-                    style="width:100%;background:linear-gradient(135deg,rgba(249,115,22,0.10) 0%,rgba(56,189,248,0.07) 100%);
-                           border:1px solid rgba(249,115,22,0.22);border-radius:20px;padding:16px 20px;
-                           cursor:pointer;transition:all 0.25s ease;text-align:left;position:relative;overflow:hidden;"
-                    onmouseenter="this.style.borderColor='rgba(249,115,22,0.5)';this.style.background='linear-gradient(135deg,rgba(249,115,22,0.18) 0%,rgba(56,189,248,0.12) 100%)'"
-                    onmouseleave="this.style.borderColor='rgba(249,115,22,0.22)';this.style.background='linear-gradient(135deg,rgba(249,115,22,0.10) 0%,rgba(56,189,248,0.07) 100%)'"
-                    onpointerdown="this.style.transform='scale(0.97)'" onpointerup="this.style.transform='scale(1)'" onpointerleave="this.style.transform='scale(1)'">
-                    <!-- Glow decorativo -->
-                    <div style="position:absolute;top:-30px;right:-20px;width:100px;height:100px;background:radial-gradient(circle,rgba(249,115,22,0.15),transparent 70%);pointer-events:none;"></div>
-                    <div style="display:flex;align-items:center;gap:12px;">
-                        <!-- Avatar / icono -->
-                        <div style="width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#f97316,#ea580c);
-                                    display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;
-                                    box-shadow:0 4px 14px rgba(249,115,22,0.4);">👨‍💻</div>
-                        <div style="flex:1;min-width:0;">
-                            <p style="font-size:9px;font-weight:800;color:rgba(249,115,22,0.7);letter-spacing:3px;text-transform:uppercase;margin:0 0 2px;">Desarrollado por</p>
-                            <p style="font-size:14px;font-weight:900;color:#f1f5f9;margin:0;letter-spacing:-0.3px;">Luis Eduardo Gaviria</p>
-                            <p style="font-size:10px;color:#64748b;margin:2px 0 0;font-weight:600;">NelsonApp Pro · v3.2.0</p>
-                        </div>
-                        <span id="credits-arrow" style="font-size:11px;color:#475569;transition:transform 0.3s ease;flex-shrink:0;">▼</span>
-                    </div>
-                    <!-- Panel expandible -->
-                    <div id="credits-body" style="max-height:0;overflow:hidden;transition:max-height 0.4s cubic-bezier(0.4,0,0.2,1),opacity 0.3s ease;opacity:0;">
-                        <div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.07);">
-                            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
-                                <span style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:4px 10px;border-radius:999px;font-size:10px;font-weight:800;">🗄️ IndexedDB</span>
-                                <span style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:4px 10px;border-radius:999px;font-size:10px;font-weight:800;">☁️ Google Drive</span>
-                                <span style="background:rgba(249,115,22,0.15);border:1px solid rgba(249,115,22,0.3);color:#fb923c;padding:4px 10px;border-radius:999px;font-size:10px;font-weight:800;">📱 PWA</span>
-                                <span style="background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);color:#c4b5fd;padding:4px 10px;border-radius:999px;font-size:10px;font-weight:800;">⚡ Offline First</span>
+            <div style="padding:24px 16px 12px;">
+                <div id="credits-card"
+                    style="position:relative;width:100%;background:linear-gradient(135deg,rgba(249,115,22,0.08) 0%,rgba(56,189,248,0.05) 50%,rgba(139,92,246,0.06) 100%);
+                           border:1px solid rgba(249,115,22,0.2);border-radius:24px;overflow:hidden;
+                           box-shadow:0 8px 32px rgba(0,0,0,0.3),0 1px 0 rgba(255,255,255,0.05) inset;">
+                    <!-- Glow decorativos de fondo -->
+                    <div style="position:absolute;top:-60px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(249,115,22,0.18),transparent 70%);pointer-events:none;"></div>
+                    <div style="position:absolute;bottom:-50px;left:-30px;width:140px;height:140px;background:radial-gradient(circle,rgba(56,189,248,0.1),transparent 70%);pointer-events:none;"></div>
+
+                    <!-- Header tocable -->
+                    <button onclick="toggleCredits()" style="width:100%;background:transparent;border:none;padding:18px 18px;cursor:pointer;text-align:left;position:relative;z-index:1;transition:transform 0.15s ease;"
+                        onpointerdown="this.style.transform='scale(0.98)'" onpointerup="this.style.transform='scale(1)'" onpointerleave="this.style.transform='scale(1)'">
+                        <div style="display:flex;align-items:center;gap:14px;">
+                            <!-- Avatar con iniciales -->
+                            <div style="position:relative;width:52px;height:52px;flex-shrink:0;">
+                                <div style="width:100%;height:100%;border-radius:16px;
+                                            background:linear-gradient(135deg,#f97316 0%,#ea580c 50%,#c2410c 100%);
+                                            display:flex;align-items:center;justify-content:center;
+                                            font-size:18px;font-weight:900;color:#fff;letter-spacing:-0.5px;
+                                            box-shadow:0 6px 20px rgba(249,115,22,0.5),0 1px 0 rgba(255,255,255,0.2) inset;">LE</div>
+                                <!-- Badge de verificado -->
+                                <div style="position:absolute;bottom:-3px;right:-3px;width:20px;height:20px;border-radius:50%;
+                                            background:linear-gradient(135deg,#10b981,#059669);
+                                            display:flex;align-items:center;justify-content:center;
+                                            border:2.5px solid #0d0f1a;box-shadow:0 2px 6px rgba(16,185,129,0.5);">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                </div>
                             </div>
-                            <p style="font-size:10px;color:#475569;margin:0;line-height:1.6;font-style:italic;">"Construido con dedicación para Todo Repuestos Nelson · Neiva, Huila 🇨🇴"</p>
+                            <div style="flex:1;min-width:0;">
+                                <p style="font-size:9px;font-weight:900;color:rgba(249,115,22,0.85);letter-spacing:3px;text-transform:uppercase;margin:0 0 3px;">Desarrollado por</p>
+                                <p style="font-size:15px;font-weight:900;color:#f1f5f9;margin:0;letter-spacing:-0.3px;">Luis Eduardo Gaviria</p>
+                                <p style="font-size:10px;color:#64748b;margin:3px 0 0;font-weight:700;display:flex;align-items:center;gap:6px;">
+                                    <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 6px rgba(16,185,129,0.6);animation:pulseDot 2s ease-in-out infinite;"></span>
+                                    NelsonApp Pro · v3.2.0
+                                </p>
+                            </div>
+                            <span id="credits-arrow" style="font-size:14px;color:#64748b;transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);flex-shrink:0;">▼</span>
+                        </div>
+                    </button>
+
+                    <!-- Panel expandible -->
+                    <div id="credits-body" style="max-height:0;overflow:hidden;transition:max-height 0.45s cubic-bezier(0.4,0,0.2,1),opacity 0.3s ease;opacity:0;position:relative;z-index:1;">
+                        <div style="padding:0 18px 18px;">
+                            <!-- Divisor decorativo -->
+                            <div style="display:flex;align-items:center;gap:10px;margin:4px 0 16px;">
+                                <div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(249,115,22,0.3),transparent);"></div>
+                                <span style="font-size:8px;font-weight:900;color:rgba(249,115,22,0.7);letter-spacing:3px;">STACK</span>
+                                <div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(249,115,22,0.3),transparent);"></div>
+                            </div>
+
+                            <!-- Tecnologías en grid -->
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
+                                <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;">
+                                    <div style="width:26px;height:26px;border-radius:8px;background:rgba(16,185,129,0.18);display:flex;align-items:center;justify-content:center;font-size:13px;">🗄️</div>
+                                    <div style="min-width:0;">
+                                        <p style="font-size:11px;font-weight:800;color:#34d399;margin:0;line-height:1.1;">IndexedDB</p>
+                                        <p style="font-size:8px;color:#64748b;margin:2px 0 0;font-weight:700;">Local DB</p>
+                                    </div>
+                                </div>
+                                <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.25);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;">
+                                    <div style="width:26px;height:26px;border-radius:8px;background:rgba(59,130,246,0.18);display:flex;align-items:center;justify-content:center;font-size:13px;">☁️</div>
+                                    <div style="min-width:0;">
+                                        <p style="font-size:11px;font-weight:800;color:#60a5fa;margin:0;line-height:1.1;">Google Drive</p>
+                                        <p style="font-size:8px;color:#64748b;margin:2px 0 0;font-weight:700;">Respaldo</p>
+                                    </div>
+                                </div>
+                                <div style="background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.25);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;">
+                                    <div style="width:26px;height:26px;border-radius:8px;background:rgba(249,115,22,0.18);display:flex;align-items:center;justify-content:center;font-size:13px;">📱</div>
+                                    <div style="min-width:0;">
+                                        <p style="font-size:11px;font-weight:800;color:#fb923c;margin:0;line-height:1.1;">PWA</p>
+                                        <p style="font-size:8px;color:#64748b;margin:2px 0 0;font-weight:700;">Instalable</p>
+                                    </div>
+                                </div>
+                                <div style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.25);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;">
+                                    <div style="width:26px;height:26px;border-radius:8px;background:rgba(139,92,246,0.18);display:flex;align-items:center;justify-content:center;font-size:13px;">⚡</div>
+                                    <div style="min-width:0;">
+                                        <p style="font-size:11px;font-weight:800;color:#c4b5fd;margin:0;line-height:1.1;">Offline First</p>
+                                        <p style="font-size:8px;color:#64748b;margin:2px 0 0;font-weight:700;">Sin internet</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Mensaje con origen -->
+                            <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.05);border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;">
+                                <div style="font-size:18px;line-height:1;flex-shrink:0;margin-top:-1px;">🇨🇴</div>
+                                <div style="min-width:0;">
+                                    <p style="font-size:11px;font-weight:800;color:#cbd5e1;margin:0;line-height:1.3;">Hecho con dedicación</p>
+                                    <p style="font-size:10px;color:#64748b;margin:3px 0 0;line-height:1.5;font-weight:600;">Para <span style="color:#fb923c;font-weight:800;">Todo Repuestos Nelson</span> · Neiva, Huila</p>
+                                </div>
+                            </div>
+
+                            <!-- Footer -->
+                            <p id="credits-copyright" style="font-size:9px;color:#3a4a6a;text-align:center;margin:14px 0 0;letter-spacing:1px;font-weight:700;">
+                                © <span id="credits-year">2026</span> · TALLER PRO EDITION
+                            </p>
                         </div>
                     </div>
-                </button>
+                </div>
             </div>
             <script>
                 function toggleCredits() {
@@ -1326,11 +1959,16 @@
                         body.style.opacity    = '0';
                         arrow.style.transform = 'rotate(0deg)';
                     } else {
-                        body.style.maxHeight  = '200px';
+                        body.style.maxHeight  = '500px';
                         body.style.opacity    = '1';
                         arrow.style.transform = 'rotate(180deg)';
                     }
                 }
+                // Actualizar año automáticamente
+                (function() {
+                    const y = document.getElementById('credits-year');
+                    if (y) y.textContent = new Date().getFullYear();
+                })();
             </script>
         </div>
 
@@ -2886,11 +3524,38 @@
         </div>
     </div>
 
-    <nav class="bottom-nav-mobile fixed bottom-4 left-4 right-4 max-container bg-black/70 backdrop-blur-xl border border-white/10 rounded-3xl flex justify-around items-center h-16 z-50 shadow-2xl">
-        <button onclick="tab('taller')" id="btn-taller" class="flex flex-col items-center text-slate-400"><span class="text-2xl">🛠️</span><span class="text-[10px] font-bold">Taller</span></button>
-        <button onclick="tab('ordenes')" id="btn-ordenes" class="flex flex-col items-center text-slate-400"><span class="text-2xl">📋</span><span class="text-[10px] font-bold">Órdenes</span></button>
-        <button onclick="tab('ventas')" id="btn-ventas" class="flex flex-col items-center text-slate-400"><span class="text-2xl">💰</span><span class="text-[10px] font-bold">Caja/Stock</span></button>
-        <button onclick="tab('admin')" id="btn-admin" class="flex flex-col items-center text-slate-400"><span class="text-2xl">⚙️</span><span class="text-[10px] font-bold">Datos</span></button>
+    <nav class="bottom-nav-mobile fixed bottom-4 left-4 right-4 max-container flex justify-around items-center z-50 rounded-3xl" style="padding:0 8px;height:72px;">
+        <button onclick="tab('taller')" id="btn-taller" class="nav-btn nav-active">
+            <div class="nav-icon-wrap">
+                <!-- Llave inglesa -->
+                <svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.3 2.3-2.1-.3-.3-2.1 2.3-2.3z"/></svg>
+            </div>
+            <span class="nav-label">Taller</span>
+        </button>
+        <button onclick="tab('ordenes')" id="btn-ordenes" class="nav-btn">
+            <div class="nav-icon-wrap">
+                <!-- Clipboard con check -->
+                <svg viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><path d="M9 14l2 2 4-4"/></svg>
+                <span id="nav-badge-ordenes" class="nav-badge" style="display:none;">0</span>
+            </div>
+            <span class="nav-label">Órdenes</span>
+        </button>
+        <button onclick="tab('ventas')" id="btn-ventas" class="nav-btn">
+            <div class="nav-icon-wrap">
+                <!-- Billetera -->
+                <svg viewBox="0 0 24 24"><path d="M20 6H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-3"/><path d="M21 12V9a1 1 0 0 0-1-1H5a2 2 0 0 1 0-4h13v4"/><circle cx="17" cy="14" r="1.3" fill="currentColor" stroke="none"/></svg>
+                <span id="nav-badge-stock" class="nav-badge warn" style="display:none;">0</span>
+            </div>
+            <span class="nav-label">Caja</span>
+        </button>
+        <button onclick="tab('admin')" id="btn-admin" class="nav-btn">
+            <div class="nav-icon-wrap">
+                <!-- Engranaje más limpio -->
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+                <span id="nav-dot-admin" class="nav-dot" style="display:none;"></span>
+            </div>
+            <span class="nav-label">Datos</span>
+        </button>
     </nav>
 
     </div><!-- /main-content-area -->
@@ -3048,11 +3713,11 @@
             const input = document.getElementById('pin-input').value;
             const inputHash = await _hashPin(input);
             if (inputHash === _pinHash) {
-                // Animación de éxito en dots
+                // Animación de éxito en dots + pequeña vibración positiva
                 document.querySelectorAll('#pin-dots .pin-dot').forEach(d => {
-                    d.style.background = '#10b981';
-                    d.style.borderColor = '#10b981';
+                    d.classList.add('success');
                 });
+                if (navigator.vibrate) { try { navigator.vibrate(25); } catch(_) {} }
                 setTimeout(() => {
                     document.getElementById('pin-modal').classList.add('hidden');
                     document.getElementById('app-header').classList.remove('hidden');
@@ -3087,18 +3752,25 @@
                     }
                 }, 300);
             } else {
-                // Vibrar dots en rojo
+                // PIN incorrecto: shake + vibración + dots en rojo
+                const dotsContainer = document.getElementById('pin-dots');
+                dotsContainer.classList.add('shake');
                 document.querySelectorAll('#pin-dots .pin-dot').forEach(d => {
-                    d.style.background = '#ef4444';
-                    d.style.borderColor = '#ef4444';
+                    d.classList.add('error');
                 });
+                // Vibración háptica en móviles compatibles
+                if (navigator.vibrate) {
+                    try { navigator.vibrate([60, 40, 60]); } catch(_) {}
+                }
                 setTimeout(() => {
+                    dotsContainer.classList.remove('shake');
                     document.querySelectorAll('#pin-dots .pin-dot').forEach(d => {
+                        d.classList.remove('error', 'filled');
                         d.style.background = '';
                         d.style.borderColor = '';
-                        d.classList.remove('filled');
                     });
-                }, 500);
+                    updatePinOkState();
+                }, 550);
                 document.getElementById('pin-input').value = '';
                 document.getElementById('pin-error').innerText = '⚠️ PIN incorrecto';
                 pinBuffer = '';
@@ -3120,28 +3792,21 @@
         function closePinChangeModal() { document.getElementById('modal-pin-change').classList.add('hidden'); }
 
         // ==================== TEMA CLARO / OSCURO ====================
+        // NOTA: modo claro desactivado por ahora. La app mantiene su identidad "Taller Pro"
+        // oscura de forma consistente. Muchas tarjetas (Menú Datos, Nelson IA, Google Drive,
+        // modales) usan colores hardcoded que no respetan light-mode. Cuando queramos
+        // retomar el tema claro, hay que pasar esas cards a variables CSS.
         function toggleTheme() {
-            const body = document.body;
-            const isLight = body.classList.toggle('light-mode');
-            body.classList.toggle('dark-mode', !isLight);
-            const icon = isLight ? '☀️' : '🌙';
-            const btn1 = document.getElementById('theme-btn'); if(btn1) btn1.innerText = icon;
-            const btn2 = document.getElementById('sidebar-theme-btn'); if(btn2) btn2.innerText = icon + ' Tema';
-            const btn3 = document.getElementById('desktop-theme-btn'); if(btn3) btn3.innerText = icon;
-            localStorage.setItem('appTheme', isLight ? 'light' : 'dark');
+            // Desactivado — si se llama, simplemente asegurar modo oscuro
+            document.body.classList.remove('light-mode');
+            document.body.classList.add('dark-mode');
+            localStorage.setItem('appTheme', 'dark');
         }
         function applyStoredTheme() {
-            const saved = localStorage.getItem('appTheme');
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const useLight = saved === 'light' || (!saved && !prefersDark);
-            const icon = useLight ? '☀️' : '🌙';
-            if (useLight) {
-                document.body.classList.add('light-mode');
-                ['theme-btn','sidebar-theme-btn','desktop-theme-btn'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.innerText = id === 'sidebar-theme-btn' ? '☀️ Tema' : '☀️';
-                });
-            }
+            // Siempre forzar modo oscuro
+            document.body.classList.remove('light-mode');
+            document.body.classList.add('dark-mode');
+            localStorage.setItem('appTheme', 'dark');
         }
 
         // (sidebar sync is embedded in tab() and syncSidebarCash() above)
@@ -3440,13 +4105,32 @@
                             <div class="dup-bar-fill" id="dup-bar" style="height:100%;width:0%;background:linear-gradient(90deg,${accent} 0%,${accentLite} 50%,${accent} 100%);background-size:200% 100%;animation:dup-shimmer 2s linear infinite;border-radius:999px;box-shadow:0 0 12px ${accent}99;"></div>
                         </div>
                     </div>
-                    <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#64748b;">
+                    <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#64748b;margin-bottom:14px;">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                         <span id="dup-filename" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:monospace;">${fileName || ''}</span>
                     </div>
+                    <!-- Botón de cancelar -->
+                    <button id="dup-cancel-btn" onclick="cancelDriveOperation()" style="
+                        width:100%;padding:12px;border-radius:12px;
+                        background:rgba(255,255,255,0.04);
+                        border:1px solid rgba(255,255,255,0.1);
+                        color:#94a3b8;font-size:11px;font-weight:900;letter-spacing:1.5px;
+                        text-transform:uppercase;cursor:pointer;
+                        transition:all 0.2s ease;
+                    " ontouchstart="this.style.transform='scale(0.97)'" ontouchend="this.style.transform='scale(1)'">
+                        ✕ CANCELAR
+                    </button>
                 </div>
             `;
             document.body.appendChild(overlay);
+            // Escape para cancelar
+            const escHandler = (e) => {
+                if (e.key === 'Escape' && document.getElementById('drive-upload-overlay')) {
+                    cancelDriveOperation();
+                    document.removeEventListener('keydown', escHandler);
+                }
+            };
+            document.addEventListener('keydown', escHandler);
             return overlay;
         }
 
@@ -3458,6 +4142,7 @@
             const pctEl = overlay.querySelector('#dup-percent');
             const sizeEl = overlay.querySelector('#dup-size');
             const statusEl = overlay.querySelector('#dup-status');
+            const cancelBtn = overlay.querySelector('#dup-cancel-btn');
             if (bar) bar.style.width = pct + '%';
             if (pctEl) pctEl.textContent = pct + '%';
             if (sizeEl && loaded != null && total != null) {
@@ -3469,6 +4154,12 @@
                 sizeEl.textContent = `${fmt(loaded)} / ${fmt(total)}`;
             }
             if (status && statusEl) statusEl.textContent = status;
+            // Al 100% deshabilitar el cancelar para evitar confusión
+            if (cancelBtn && pct >= 100) {
+                cancelBtn.style.opacity = '0.4';
+                cancelBtn.style.pointerEvents = 'none';
+                cancelBtn.innerHTML = '✓ LISTO';
+            }
         }
 
         function hideDriveProgress(delay = 0) {
@@ -3481,20 +4172,55 @@
             }, delay);
         }
 
+        // XHR activo actual (para poder cancelar desde el overlay)
+        let _activeDriveXhr = null;
+        let _driveProgressTimeout = null; // detecta si se queda sin avance
+
+        function cancelDriveOperation() {
+            try {
+                if (_activeDriveXhr) {
+                    _activeDriveXhr.abort();
+                    _activeDriveXhr = null;
+                }
+            } catch(_) {}
+            if (_driveProgressTimeout) { clearTimeout(_driveProgressTimeout); _driveProgressTimeout = null; }
+            hideDriveProgress();
+            showToast('Operación cancelada', 'warning');
+        }
+
         // Sube un FormData a Drive con progreso real usando XHR
         function uploadToDriveWithProgress(url, method, form, token, onProgress) {
             return new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
+                _activeDriveXhr = xhr;
                 xhr.open(method, url, true);
                 xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                let lastProgressAt = Date.now();
                 if (xhr.upload && typeof onProgress === 'function') {
                     xhr.upload.onprogress = (e) => {
+                        lastProgressAt = Date.now();
                         if (e.lengthComputable) {
                             onProgress((e.loaded / e.total) * 100, e.loaded, e.total);
                         }
                     };
                 }
+                // Watchdog: si pasan más de 45s sin progreso, mostrar botón "Cancelar" prominente
+                const watchdog = setInterval(() => {
+                    if (Date.now() - lastProgressAt > 45000) {
+                        const cancelBtn = document.getElementById('dup-cancel-btn');
+                        if (cancelBtn) {
+                            cancelBtn.style.background = 'rgba(244,63,94,0.2)';
+                            cancelBtn.style.borderColor = 'rgba(244,63,94,0.5)';
+                            cancelBtn.style.color = '#fb7185';
+                            cancelBtn.innerHTML = '⚠️ PARECE COLGADO · CANCELAR';
+                        }
+                        const statusEl = document.getElementById('dup-status');
+                        if (statusEl) statusEl.textContent = 'Sin respuesta de Drive...';
+                    }
+                }, 5000);
                 xhr.onload = () => {
+                    clearInterval(watchdog);
+                    _activeDriveXhr = null;
                     if (xhr.status >= 200 && xhr.status < 300) {
                         try { resolve(JSON.parse(xhr.responseText)); }
                         catch(_) { resolve({}); }
@@ -3504,8 +4230,8 @@
                         reject(err);
                     }
                 };
-                xhr.onerror = () => reject(new Error('Error de red al subir a Drive'));
-                xhr.onabort = () => reject(new Error('Subida cancelada'));
+                xhr.onerror = () => { clearInterval(watchdog); _activeDriveXhr = null; reject(new Error('Error de red al subir a Drive')); };
+                xhr.onabort = () => { clearInterval(watchdog); _activeDriveXhr = null; reject(new Error('Subida cancelada')); };
                 xhr.send(form);
             });
         }
@@ -5405,30 +6131,20 @@
             } catch(e) { showAlert("Error al iniciar cámara: " + e.message, "error"); }
         }
 
-        // Swipe entre tabs
-        let touchStartX = 0, touchEndX = 0;
-        document.body.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; });
-        document.body.addEventListener('touchend', e => {
-            touchEndX = e.changedTouches[0].screenX;
-            const diff = touchEndX - touchStartX;
-            if (Math.abs(diff) < 50) return;
-            // No hacer swipe si hay algún modal visible
-            const modalAbierto = document.querySelector('.fixed.inset-0:not(.hidden):not(#splash-screen):not(#pin-modal)');
-            if (modalAbierto) return;
-            const tabs = ['taller', 'ordenes', 'ventas', 'admin'];
-            const current = tabs.find(t => !document.getElementById(`view-${t}`).classList.contains('hidden'));
-            const idx = tabs.indexOf(current);
-            if (diff > 0 && idx > 0) tab(tabs[idx-1]);
-            else if (diff < 0 && idx < tabs.length-1) tab(tabs[idx+1]);
-        });
+        // Swipe entre tabs — DESACTIVADO
+        // Razón: en una app de trabajo con 4 modos muy distintos (formulario, lista,
+        // transaccional, config), el swipe horizontal genera cambios accidentales
+        // mientras scrolleás vertical. Es preferible la navegación explícita con los
+        // botones de abajo (mobile), el sidebar (desktop/tablet) o los atajos 1-4.
 
         async function tab(t) {
             if (cameraMode !== 'entrega') closeCamera();
             document.querySelectorAll('.app-view').forEach(v => v.classList.add('hidden'));
             document.getElementById(`view-${t}`).classList.remove('hidden');
-            document.querySelectorAll('nav button').forEach(b => { b.classList.remove('tab-active','text-orange-500'); b.classList.add('text-slate-400'); });
+            // Sync nav bar inferior mobile (nueva estructura con .nav-btn / .nav-active)
+            document.querySelectorAll('nav.bottom-nav-mobile .nav-btn').forEach(b => b.classList.remove('nav-active'));
             const mobileBtn = document.getElementById(`btn-${t}`);
-            if (mobileBtn) mobileBtn.classList.add('tab-active','text-orange-500');
+            if (mobileBtn) mobileBtn.classList.add('nav-active');
             if(t === 'ordenes') await renderOrders();
             if(t === 'ventas') { await renderStock(); await renderMovimientos(); await updateVentaSelect(); await renderCartera(); }
             window.scrollTo(0,0);
@@ -5489,6 +6205,378 @@
             }, 5000);
         }
         startSidebarSync();
+
+        // ==================== DESKTOP/TABLET UX ENHANCEMENTS ====================
+
+        // Detectar si estamos en vista desktop/tablet (>= 768px)
+        function isDesktopView() { return window.matchMedia('(min-width: 768px)').matches; }
+
+        // --- KPIs del topbar + contadores del sidebar + badges nav mobile ---
+        async function updateDesktopStats() {
+            try {
+                const orders = await getAll('orders');
+                const today = new Date();
+                const todayYMD = today.toISOString().slice(0,10);
+
+                let todayCount = 0;
+                let pendingCount = 0;  // recibido + revisión (no entregadas)
+                let readyCount = 0;    // reparado (listas para entregar)
+                let overdueCount = 0;  // vencidas
+                const byStatus = { 'recibido':0, 'revisión':0, 'reparado':0, 'no-reparable':0 };
+
+                for (const o of orders) {
+                    const oDate = new Date(o.fecha);
+                    const oYMD = oDate.toISOString().slice(0,10);
+                    if (oYMD === todayYMD) todayCount++;
+
+                    if (o.sta && o.sta !== 'entregado') {
+                        if (byStatus[o.sta] !== undefined) byStatus[o.sta]++;
+
+                        if (o.sta === 'recibido' || o.sta === 'revisión') pendingCount++;
+                        if (o.sta === 'reparado') readyCount++;
+
+                        // Vencidas: fecha estimada pasada
+                        if (o.fechaEstimada) {
+                            const deadline = new Date(o.fechaEstimada + 'T23:59:59').getTime();
+                            if (deadline < Date.now()) overdueCount++;
+                        }
+                    }
+                }
+
+                // Total órdenes activas (no entregadas)
+                const activeTotal = orders.filter(o => o.sta !== 'entregado').length;
+
+                // Stock bajo
+                const stock = await getAll('stock');
+                const lowStock = stock.filter(s => (Number(s.cant) || 0) <= (Number(s.minStock) || 3)).length;
+
+                // ========== BADGES NAV MOBILE (siempre) ==========
+                const badgeOrd = document.getElementById('nav-badge-ordenes');
+                if (badgeOrd) {
+                    // Mostrar total activas, pero resaltar si hay vencidas
+                    if (activeTotal > 0) {
+                        badgeOrd.innerText = activeTotal > 99 ? '99+' : activeTotal;
+                        badgeOrd.style.display = 'flex';
+                        if (overdueCount > 0) {
+                            badgeOrd.classList.remove('warn');
+                            badgeOrd.title = `${activeTotal} órdenes activas · ${overdueCount} vencidas`;
+                        } else {
+                            badgeOrd.title = `${activeTotal} órdenes activas`;
+                        }
+                    } else {
+                        badgeOrd.style.display = 'none';
+                    }
+                }
+                const badgeStock = document.getElementById('nav-badge-stock');
+                if (badgeStock) {
+                    if (lowStock > 0) {
+                        badgeStock.innerText = lowStock > 99 ? '99+' : lowStock;
+                        badgeStock.style.display = 'flex';
+                        badgeStock.title = `${lowStock} productos con stock bajo`;
+                    } else {
+                        badgeStock.style.display = 'none';
+                    }
+                }
+                // Dot en "Datos" si hay backup pendiente (ejemplo simple: si hay muchas órdenes nuevas desde el último backup)
+                // Por ahora lo dejamos oculto — se puede activar con lógica específica después
+
+                // ========== KPIs + sidebar (solo si es desktop) ==========
+                if (!isDesktopView()) return;
+
+                // Top KPIs
+                const elToday   = document.getElementById('topbar-kpi-today');
+                const elPending = document.getElementById('topbar-kpi-pending');
+                const elReady   = document.getElementById('topbar-kpi-ready');
+                const elOverdue = document.getElementById('topbar-kpi-overdue');
+                if (elToday)   elToday.innerText   = todayCount;
+                if (elPending) elPending.innerText = pendingCount;
+                if (elReady)   elReady.innerText   = readyCount;
+                if (elOverdue) elOverdue.innerText = overdueCount;
+
+                // Contador en nav "Órdenes" (sidebar)
+                const navCount = document.getElementById('sidebar-count-ordenes');
+                if (navCount) {
+                    navCount.innerText = activeTotal;
+                    navCount.style.display = activeTotal > 0 ? 'inline-flex' : 'none';
+                }
+
+                // Breakdown por estado
+                const setCount = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
+                setCount('sb-count-recibido', byStatus['recibido']);
+                setCount('sb-count-revision', byStatus['revisión']);
+                setCount('sb-count-reparado', byStatus['reparado']);
+                setCount('sb-count-noreparable', byStatus['no-reparable']);
+
+                // Stock badge en sidebar
+                const stockBadge = document.getElementById('sidebar-count-stock');
+                if (stockBadge) {
+                    if (lowStock > 0) {
+                        stockBadge.innerText = lowStock;
+                        stockBadge.style.display = 'inline-flex';
+                        stockBadge.style.background = 'rgba(244,63,94,0.2)';
+                        stockBadge.style.color = '#f43f5e';
+                        stockBadge.title = `${lowStock} productos con stock bajo`;
+                    } else {
+                        stockBadge.style.display = 'none';
+                    }
+                }
+            } catch (e) { console.warn('updateDesktopStats error:', e); }
+        }
+
+        // Llamar cuando las órdenes cambien (envolver renderOrders)
+        const _origRenderOrders = window.renderOrders || renderOrders;
+        window.renderOrders = async function() {
+            const r = await _origRenderOrders.apply(this, arguments);
+            updateDesktopStats();
+            return r;
+        };
+
+        // Refrescar KPIs cada minuto (para que "vencidas" se actualice con el paso del tiempo)
+        setInterval(() => { if (!document.hidden) updateDesktopStats(); }, 60000);
+
+        // --- Filtro por estado desde sidebar ---
+        function filterByStatusFromSidebar(status) {
+            // Ir a órdenes
+            tab('ordenes');
+            // Limpiar filtros de estado y marcar solo el elegido
+            document.querySelectorAll('.status-filter').forEach(cb => {
+                cb.checked = (cb.value === status);
+            });
+            // Asegurar que el panel de filtros esté visible para que el usuario vea el cambio
+            const panel = document.getElementById('filter-panel');
+            const arrow = document.querySelector('#filterToggleBtn .arrow');
+            if (panel && !panel.classList.contains('open')) {
+                panel.classList.add('open');
+                if (arrow) arrow.style.transform = 'rotate(180deg)';
+            }
+            // Aplicar
+            if (typeof applyFilters === 'function') applyFilters();
+        }
+
+        // --- Acción primaria del topbar, contextual según tab activa ---
+        function topbarPrimaryAction() {
+            const active = document.querySelector('.app-view:not(.hidden)');
+            const activeId = active ? active.id : '';
+            if (activeId === 'view-taller') {
+                // Ya estoy en recepción → focus primer campo
+                document.getElementById('c-nom')?.focus();
+            } else if (activeId === 'view-ventas') {
+                // Foco en nueva venta
+                tab('ventas');
+                setTimeout(() => document.getElementById('v-select')?.focus(), 150);
+            } else if (activeId === 'view-ordenes') {
+                // Ir a crear nueva orden
+                tab('taller');
+                setTimeout(() => document.getElementById('c-nom')?.focus(), 200);
+            } else {
+                tab('taller');
+                setTimeout(() => document.getElementById('c-nom')?.focus(), 200);
+            }
+        }
+
+        // Actualizar label del botón primario según tab
+        function updateTopbarPrimaryLabel() {
+            const label = document.getElementById('topbar-primary-label');
+            if (!label) return;
+            const active = document.querySelector('.app-view:not(.hidden)');
+            const activeId = active ? active.id : '';
+            if (activeId === 'view-ventas')      label.innerText = 'NUEVA VENTA';
+            else if (activeId === 'view-taller') label.innerText = 'GUARDAR ORDEN';
+            else                                  label.innerText = 'NUEVA ORDEN';
+        }
+
+        // --- Overlay de atajos ---
+        function showShortcutsHelp() {
+            document.getElementById('shortcuts-overlay')?.classList.add('show');
+        }
+        function hideShortcutsHelp() {
+            document.getElementById('shortcuts-overlay')?.classList.remove('show');
+        }
+
+        // --- Atajos de teclado ---
+        function isTypingInInput(e) {
+            const t = e.target;
+            if (!t) return false;
+            const tag = (t.tagName || '').toUpperCase();
+            if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
+            if (t.isContentEditable) return true;
+            return false;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            // Solo atajos en desktop/tablet
+            if (!isDesktopView()) return;
+
+            // Esc siempre funciona (cerrar modales, limpiar búsqueda)
+            if (e.key === 'Escape') {
+                const overlay = document.getElementById('shortcuts-overlay');
+                if (overlay && overlay.classList.contains('show')) { hideShortcutsHelp(); return; }
+                // Limpiar búsqueda si está enfocada
+                const search = document.getElementById('search-orders');
+                if (search && document.activeElement === search && search.value) {
+                    search.value = '';
+                    if (typeof onSearchInput === 'function') onSearchInput();
+                    return;
+                }
+                // Cerrar cualquier modal-custom visible
+                const openModal = document.querySelector('.modal-custom:not(.hidden)');
+                if (openModal) {
+                    // Intentar click en botón cerrar
+                    const closeBtn = openModal.querySelector('[onclick*="close"], [onclick*="hidden"]');
+                    if (closeBtn) closeBtn.click();
+                    else openModal.classList.add('hidden');
+                }
+                return;
+            }
+
+            // El resto solo fuera de inputs
+            if (isTypingInInput(e)) return;
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+            switch (e.key) {
+                case '/':
+                    e.preventDefault();
+                    tab('ordenes');
+                    setTimeout(() => document.getElementById('search-orders')?.focus(), 100);
+                    break;
+                case 'n': case 'N':
+                    e.preventDefault();
+                    topbarPrimaryAction();
+                    break;
+                case '?':
+                    e.preventDefault();
+                    showShortcutsHelp();
+                    break;
+                case '1': tab('taller'); break;
+                case '2': tab('ordenes'); break;
+                case '3': tab('ventas'); break;
+                case '4': tab('admin'); break;
+            }
+        });
+
+        // --- Preview en vivo del formulario de recepción ---
+        function updateTallerPreview() {
+            if (!isDesktopView()) return;
+            const panel = document.getElementById('preview-card-live');
+            if (!panel) return;
+            const nom = (document.getElementById('c-nom')?.value || '').trim();
+            const tel = (document.getElementById('c-tel')?.value || '').trim();
+            const equ = (document.getElementById('c-equ')?.value || '').trim();
+            const fal = (document.getElementById('c-fal')?.value || '').trim();
+            const val = Number(document.getElementById('c-val')?.value || 0);
+            const adel = Number(document.getElementById('c-adelanto')?.value || 0);
+            const garantia = document.getElementById('c-garantia')?.value || '';
+            const tecnico = document.getElementById('c-tecnico')?.value || '';
+            const fechaEst = document.getElementById('c-fecha-estimada')?.value || '';
+            const presupuesto = document.getElementById('c-presupuesto')?.value || 'pendiente';
+            const saldo = Math.max(0, val - adel);
+
+            // Si no hay nada, placeholder
+            if (!nom && !equ && !fal && !val) {
+                panel.innerHTML = `<div style="text-align:center;color:#64748b;font-size:11px;padding:40px 0;">
+                    ✏️ Completa el formulario para ver la vista previa
+                </div>`;
+                return;
+            }
+
+            const cur = (typeof getCurrency === 'function') ? getCurrency() : '$';
+            const presLabels = { pendiente:'⏳ Presup. pendiente', enviado:'📤 Enviado', aprobado:'✅ Aprobado', rechazado:'❌ Rechazado' };
+
+            // Escape helper defensivo
+            const esc = (typeof escapeHtml === 'function') ? escapeHtml : (s => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])));
+
+            let html = `<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px;">
+                <div style="flex:1;min-width:0;">
+                    <div style="font-size:16px;font-weight:900;color:#f1f5f9;line-height:1.2;">${esc(nom) || '<span style="color:#64748b;">Cliente...</span>'}</div>
+                    ${tel ? `<div style="font-size:11px;color:#94a3b8;margin-top:2px;">📱 ${esc(tel)}</div>` : ''}
+                </div>
+                <span style="font-size:9px;padding:3px 8px;border-radius:99px;background:rgba(148,163,184,0.15);color:#94a3b8;font-weight:900;letter-spacing:1px;">RECIBIDO</span>
+            </div>`;
+
+            if (equ) html += `<div style="font-size:13px;font-weight:800;color:var(--accent);margin-bottom:6px;text-transform:uppercase;">🔧 ${esc(equ)}</div>`;
+            if (fal) html += `<div style="font-size:11px;color:#cbd5e1;line-height:1.4;padding:8px;background:rgba(255,255,255,0.03);border-radius:8px;margin-bottom:8px;">${esc(fal)}</div>`;
+
+            const badges = [];
+            if (tecnico) badges.push(`<span style="font-size:9px;background:rgba(255,255,255,0.06);color:#cbd5e1;padding:3px 7px;border-radius:99px;font-weight:700;">👷 ${esc(tecnico)}</span>`);
+            if (fechaEst) {
+                const fmt = new Date(fechaEst + 'T00:00:00').toLocaleDateString('es-ES',{day:'2-digit',month:'short'});
+                badges.push(`<span style="font-size:9px;background:rgba(59,130,246,0.15);color:#60a5fa;padding:3px 7px;border-radius:99px;font-weight:700;">📅 ${fmt}</span>`);
+            }
+            if (garantia && Number(garantia) > 0) badges.push(`<span style="font-size:9px;background:rgba(249,115,22,0.15);color:#fb923c;padding:3px 7px;border-radius:99px;font-weight:700;">🛡️ ${garantia}d</span>`);
+            badges.push(`<span style="font-size:9px;padding:3px 7px;border-radius:99px;font-weight:700;${presupuesto==='aprobado'?'background:rgba(16,185,129,0.15);color:#34d399;':presupuesto==='rechazado'?'background:rgba(244,63,94,0.15);color:#fb7185;':presupuesto==='enviado'?'background:rgba(59,130,246,0.15);color:#60a5fa;':'background:rgba(148,163,184,0.12);color:#94a3b8;'}">${presLabels[presupuesto]}</span>`);
+            if (badges.length) html += `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;">${badges.join('')}</div>`;
+
+            if (val > 0) {
+                html += `<div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid rgba(255,255,255,0.05);">
+                    <div>
+                        <div style="font-size:9px;color:#64748b;font-weight:700;letter-spacing:1px;">VALOR</div>
+                        <div style="font-size:15px;font-weight:900;color:#34d399;">${cur}${val.toLocaleString()}</div>
+                    </div>
+                    ${adel > 0 ? `<div style="text-align:right;">
+                        <div style="font-size:9px;color:#64748b;font-weight:700;letter-spacing:1px;">${saldo > 0 ? 'SALDO' : 'PAGADO'}</div>
+                        <div style="font-size:15px;font-weight:900;color:${saldo > 0 ? '#fb7185' : '#34d399'};">${cur}${saldo.toLocaleString()}</div>
+                    </div>` : ''}
+                </div>`;
+            }
+
+            panel.innerHTML = html;
+        }
+
+        // Enganchar listeners de preview a los campos del formulario de taller
+        function wireTallerPreview() {
+            const ids = ['c-nom','c-tel','c-equ','c-fal','c-val','c-adelanto','c-garantia','c-tecnico','c-fecha-estimada','c-presupuesto'];
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && !el.dataset.previewWired) {
+                    el.addEventListener('input', updateTallerPreview);
+                    el.addEventListener('change', updateTallerPreview);
+                    el.dataset.previewWired = '1';
+                }
+            });
+        }
+
+        // Mostrar/ocultar panel preview en taller según viewport
+        function toggleTallerPreviewPanel() {
+            const panel = document.getElementById('taller-preview-panel');
+            if (!panel) return;
+            if (isDesktopView()) {
+                panel.classList.remove('hidden');
+                panel.style.display = 'block';
+                wireTallerPreview();
+                updateTallerPreview();
+            } else {
+                panel.classList.add('hidden');
+                panel.style.display = 'none';
+            }
+        }
+
+        // Envolver tab() para disparar updates desktop
+        const _origTab = window.tab || tab;
+        window.tab = async function(t) {
+            const r = await _origTab.apply(this, arguments);
+            updateDesktopStats();
+            updateTopbarPrimaryLabel();
+            toggleTallerPreviewPanel();
+            return r;
+        };
+
+        // Primer disparo al cargar + listeners globales
+        window.addEventListener('resize', () => {
+            toggleTallerPreviewPanel();
+            updateDesktopStats();
+        });
+
+        // Inicializar tras un delay para que DB esté lista
+        setTimeout(() => {
+            updateDesktopStats();
+            updateTopbarPrimaryLabel();
+            toggleTallerPreviewPanel();
+        }, 1500);
+
+        // Refresco periódico de stats cuando la app está visible (mobile + desktop)
+        setInterval(() => { if (!document.hidden) updateDesktopStats(); }, 15000);
+
+        // ==================== FIN DESKTOP/TABLET UX ====================
 
         window.onload = async () => {
             await initPinSystem(); // cargar/migrar hash del PIN antes de mostrar el modal
@@ -5941,28 +7029,43 @@
 
         // ==================== NUMPAD PIN ====================
         const PIN_MAX = 6;
+        const PIN_MIN = 4;
+
+        function updatePinOkState() {
+            const okBtn = document.querySelector('.numpad-btn.enter');
+            if (!okBtn) return;
+            if (pinBuffer.length >= PIN_MIN) {
+                okBtn.classList.remove('disabled');
+            } else {
+                okBtn.classList.add('disabled');
+            }
+        }
 
         function pinPad(val) {
             const dots = document.querySelectorAll('#pin-dots .pin-dot');
             if (val === 'del') {
                 pinBuffer = pinBuffer.slice(0, -1);
+                if (navigator.vibrate) { try { navigator.vibrate(15); } catch(_) {} }
             } else if (val === 'ok') {
+                if (pinBuffer.length < PIN_MIN) return; // no hacer nada si está "disabled"
                 document.getElementById('pin-input').value = pinBuffer;
                 verifyPinConBloqueo();
                 return;
             } else {
                 if (pinBuffer.length >= PIN_MAX) return;
                 pinBuffer += String(val);
+                if (navigator.vibrate) { try { navigator.vibrate(12); } catch(_) {} }
                 if (pinBuffer.length === 4) {
                     setTimeout(() => {
                         document.getElementById('pin-input').value = pinBuffer;
                         verifyPinConBloqueo();
-                    }, 180);
+                    }, 200);
                 }
             }
             dots.forEach((dot, i) => {
                 dot.classList.toggle('filled', i < pinBuffer.length);
             });
+            updatePinOkState();
             document.getElementById('pin-error').innerText = '';
         }
 
@@ -6362,20 +7465,37 @@
         function downloadFromDriveWithProgress(fileId, token, onProgress) {
             return new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
+                _activeDriveXhr = xhr;
                 xhr.open('GET', `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, true);
                 xhr.setRequestHeader('Authorization', 'Bearer ' + token);
                 xhr.responseType = 'text';
+                let lastProgressAt = Date.now();
                 if (typeof onProgress === 'function') {
                     xhr.onprogress = (e) => {
+                        lastProgressAt = Date.now();
                         if (e.lengthComputable) {
                             onProgress((e.loaded / e.total) * 100, e.loaded, e.total);
                         } else {
-                            // Drive a veces no envía Content-Length; reportamos solo bytes descargados
                             onProgress(-1, e.loaded, 0);
                         }
                     };
                 }
+                const watchdog = setInterval(() => {
+                    if (Date.now() - lastProgressAt > 45000) {
+                        const cancelBtn = document.getElementById('dup-cancel-btn');
+                        if (cancelBtn) {
+                            cancelBtn.style.background = 'rgba(244,63,94,0.2)';
+                            cancelBtn.style.borderColor = 'rgba(244,63,94,0.5)';
+                            cancelBtn.style.color = '#fb7185';
+                            cancelBtn.innerHTML = '⚠️ PARECE COLGADO · CANCELAR';
+                        }
+                        const statusEl = document.getElementById('dup-status');
+                        if (statusEl) statusEl.textContent = 'Sin respuesta de Drive...';
+                    }
+                }, 5000);
                 xhr.onload = () => {
+                    clearInterval(watchdog);
+                    _activeDriveXhr = null;
                     if (xhr.status >= 200 && xhr.status < 300) {
                         resolve(xhr.responseText);
                     } else {
@@ -6384,8 +7504,8 @@
                         reject(err);
                     }
                 };
-                xhr.onerror = () => reject(new Error('Error de red al descargar desde Drive'));
-                xhr.onabort = () => reject(new Error('Descarga cancelada'));
+                xhr.onerror = () => { clearInterval(watchdog); _activeDriveXhr = null; reject(new Error('Error de red al descargar desde Drive')); };
+                xhr.onabort = () => { clearInterval(watchdog); _activeDriveXhr = null; reject(new Error('Descarga cancelada')); };
                 xhr.send();
             });
         }
