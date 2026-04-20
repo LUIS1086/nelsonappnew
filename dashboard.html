@@ -688,6 +688,339 @@ body.light-mode .kpi-val {
   .bottom-grid { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 780px) { body { display: none !important; } }
+
+/* ══════════════════════════════════════
+   ★ PANEL "HOY" — HEADLINE DEL DÍA
+══════════════════════════════════════ */
+.today-panel {
+  margin-bottom: 22px;
+  background: linear-gradient(135deg, rgba(249,115,22,0.06) 0%, rgba(61,184,245,0.04) 100%);
+  border: 1px solid rgba(249,115,22,0.18);
+  border-radius: var(--r-lg);
+  padding: 18px 22px;
+  position: relative;
+  overflow: hidden;
+}
+.today-panel::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 10% 0%, rgba(249,115,22,0.08), transparent 40%);
+  pointer-events: none;
+}
+.today-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px; position: relative; z-index: 1;
+}
+.today-title {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.95rem; font-weight: 800; letter-spacing: 0.4px;
+  text-transform: uppercase; color: var(--text);
+}
+.today-title .dot-live {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--green); box-shadow: 0 0 10px var(--green);
+  animation: livePulse 1.8s ease infinite;
+}
+@keyframes livePulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.2); }
+}
+.today-date {
+  font-size: 0.78rem; color: var(--text2); font-weight: 600;
+}
+.today-stats {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 14px; position: relative; z-index: 1;
+}
+.today-stat {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.today-stat:hover {
+  background: rgba(255,255,255,0.05);
+  border-color: var(--border-hi);
+  transform: translateY(-2px);
+}
+.today-stat-label {
+  font-size: 0.68rem; color: var(--text2);
+  font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.today-stat-val {
+  font-size: 1.35rem; font-weight: 800; color: var(--text);
+  line-height: 1.1; font-family: 'JetBrains Mono', monospace;
+}
+.today-stat-sub {
+  font-size: 0.7rem; color: var(--text2); margin-top: 3px;
+  font-weight: 500;
+}
+.today-stat.alert { border-color: rgba(255,61,92,0.35); background: rgba(255,61,92,0.05); }
+.today-stat.alert .today-stat-val { color: var(--red); }
+.today-stat.success { border-color: rgba(16,217,126,0.3); background: rgba(16,217,126,0.04); }
+.today-stat.success .today-stat-val { color: var(--green); }
+.today-stat-arrow {
+  position: absolute; top: 10px; right: 12px;
+  font-size: 0.7rem; color: var(--text3);
+  transition: transform 0.2s, color 0.2s;
+}
+.today-stat:hover .today-stat-arrow { transform: translateX(3px); color: var(--accent); }
+
+/* ══════════════════════════════════════
+   ★ SMART INSIGHTS
+══════════════════════════════════════ */
+.insights-row {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 12px; margin-bottom: 22px;
+}
+.insight-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--r-sm);
+  padding: 12px 14px;
+  display: flex; align-items: center; gap: 12px;
+  transition: all 0.2s;
+}
+.insight-card:hover { background: var(--panel2); border-color: var(--border-hi); }
+.insight-card.positive { border-left-color: var(--green); }
+.insight-card.warning  { border-left-color: var(--amber); }
+.insight-card.info     { border-left-color: var(--blue); }
+.insight-icon {
+  font-size: 1.4rem; flex-shrink: 0;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.04);
+  border-radius: 10px;
+}
+.insight-text { font-size: 0.78rem; color: var(--text); line-height: 1.4; }
+.insight-text strong { color: var(--accent); font-weight: 700; }
+.insight-card.positive .insight-text strong { color: var(--green); }
+.insight-card.warning  .insight-text strong { color: var(--amber); }
+.insight-card.info     .insight-text strong { color: var(--blue); }
+
+/* ══════════════════════════════════════
+   ★ CLICKABLE ITEMS (drilldown hint)
+══════════════════════════════════════ */
+.kpi, .bar-col, .status-row, .order-item, .deuda-item, .stock-item, .garantia-item, .mov-item, .top-item {
+  cursor: pointer;
+}
+.kpi::after {
+  content: '↗';
+  position: absolute; top: 14px; right: 16px;
+  font-size: 0.7rem; color: var(--text3);
+  opacity: 0; transition: opacity 0.2s, transform 0.2s;
+}
+.kpi:hover::after { opacity: 1; transform: translate(2px, -2px); color: var(--accent); }
+
+/* ══════════════════════════════════════
+   ★ RANGE TOGGLE
+══════════════════════════════════════ */
+.range-toggle {
+  display: inline-flex;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 3px;
+  gap: 2px;
+}
+.range-btn {
+  background: transparent; border: none;
+  color: var(--text2);
+  font-size: 0.72rem; font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.range-btn:hover { color: var(--text); }
+.range-btn.active {
+  background: var(--accent); color: #fff;
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+/* ══════════════════════════════════════
+   ★ MODAL SYSTEM (drilldown + acciones)
+══════════════════════════════════════ */
+.dash-modal-backdrop {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(4,5,12,0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: none; align-items: center; justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.dash-modal-backdrop.open { display: flex; opacity: 1; }
+.dash-modal {
+  background: linear-gradient(180deg, var(--panel2) 0%, var(--panel) 100%);
+  border: 1px solid var(--border-hi);
+  border-radius: var(--r-lg);
+  max-width: 640px; width: 100%;
+  max-height: 85vh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 40px rgba(249,115,22,0.08);
+  transform: scale(0.95) translateY(10px);
+  transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+  overflow: hidden;
+}
+.dash-modal-backdrop.open .dash-modal { transform: scale(1) translateY(0); }
+.dash-modal-head {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.dash-modal-title {
+  display: flex; align-items: center; gap: 12px;
+}
+.dash-modal-icon {
+  width: 40px; height: 40px; border-radius: 12px;
+  background: var(--accent-dim);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+}
+.dash-modal-h1 { font-size: 1.05rem; font-weight: 800; color: var(--text); margin-bottom: 2px; }
+.dash-modal-sub { font-size: 0.75rem; color: var(--text2); }
+.dash-modal-close {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  width: 32px; height: 32px;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.dash-modal-close:hover { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+.dash-modal-body { padding: 18px 24px; overflow-y: auto; flex: 1; }
+.dash-modal-foot {
+  padding: 14px 24px 18px;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 10px; flex-wrap: wrap;
+  flex-shrink: 0;
+  background: rgba(0,0,0,0.15);
+}
+.dash-modal-foot .btn {
+  flex: 1; min-width: 130px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.78rem; font-weight: 700;
+  border: 1px solid var(--border-hi);
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.dash-modal-foot .btn:hover { background: rgba(255,255,255,0.08); transform: translateY(-1px); }
+.dash-modal-foot .btn.primary {
+  background: linear-gradient(135deg, #25d366, #128c7e);
+  border-color: transparent; color: #fff;
+}
+.dash-modal-foot .btn.primary:hover { filter: brightness(1.1); }
+.dash-modal-foot .btn.accent {
+  background: linear-gradient(135deg, var(--accent), #c2410c);
+  border-color: transparent; color: #fff;
+}
+.dash-modal-foot .btn.danger { color: var(--red); border-color: rgba(255,61,92,0.3); }
+.dash-modal-foot .btn.danger:hover { background: var(--red-dim); }
+
+/* Modal content elements */
+.dd-section { margin-bottom: 18px; }
+.dd-section:last-child { margin-bottom: 0; }
+.dd-section-title {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.6px;
+  text-transform: uppercase; color: var(--text2);
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+.dd-list { display: flex; flex-direction: column; gap: 6px; }
+.dd-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.8rem;
+}
+.dd-row-left { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
+.dd-row-ico { font-size: 1rem; flex-shrink: 0; }
+.dd-row-text { min-width: 0; flex: 1; }
+.dd-row-name { font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dd-row-sub { font-size: 0.7rem; color: var(--text2); margin-top: 1px; }
+.dd-row-val { font-weight: 700; color: var(--text); font-family: 'JetBrains Mono', monospace; flex-shrink: 0; font-size: 0.78rem; }
+.dd-row-val.pos { color: var(--green); }
+.dd-row-val.neg { color: var(--red); }
+.dd-summary {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+  margin-bottom: 18px;
+}
+.dd-summary-box {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  text-align: center;
+}
+.dd-summary-label { font-size: 0.65rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: 4px; }
+.dd-summary-val { font-size: 1.05rem; font-weight: 800; color: var(--text); font-family: 'JetBrains Mono', monospace; }
+.dd-summary-val.green { color: var(--green); }
+.dd-summary-val.red { color: var(--red); }
+.dd-summary-val.accent { color: var(--accent); }
+.dd-empty { padding: 20px; text-align: center; color: var(--text2); font-size: 0.8rem; }
+.dd-client-card {
+  background: linear-gradient(135deg, rgba(249,115,22,0.08), rgba(249,115,22,0.02));
+  border: 1px solid rgba(249,115,22,0.2);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 18px;
+}
+.dd-client-avatar {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--accent-dim);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; flex-shrink: 0;
+}
+.dd-client-name { font-weight: 800; font-size: 1rem; color: var(--text); }
+.dd-client-phone { font-size: 0.78rem; color: var(--text2); font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
+.dd-field {
+  display: flex; justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.82rem;
+}
+.dd-field:last-child { border-bottom: none; }
+.dd-field-label { color: var(--text2); font-weight: 500; }
+.dd-field-val { color: var(--text); font-weight: 600; text-align: right; max-width: 60%; }
+
+/* Responsive modal */
+@media (max-width: 640px) {
+  .dash-modal-foot { flex-direction: column; }
+  .dash-modal-foot .btn { width: 100%; }
+  .dd-summary { grid-template-columns: 1fr 1fr; }
+}
+
+/* Range toggle + chart head alignment */
+.chart-head-actions {
+  display: flex; align-items: center; gap: 10px;
+}
+
+/* Better spacing for today's new section */
+.today-stats.three { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 1100px) {
+  .today-stats { grid-template-columns: repeat(2, 1fr); }
+  .insights-row { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
@@ -782,12 +1115,29 @@ body.light-mode .kpi-val {
 <!-- ══ MAIN ══ -->
 <main class="main" id="main-content">
 
+  <!-- ★ PANEL HOY ★ -->
+  <div class="today-panel">
+    <div class="today-head">
+      <div class="today-title">
+        <span class="dot-live"></span>
+        <span>Estado del Taller · Hoy</span>
+      </div>
+      <div class="today-date" id="today-date-label">—</div>
+    </div>
+    <div class="today-stats" id="today-stats">
+      <div class="today-stat"><div class="today-stat-label">Cargando...</div></div>
+    </div>
+  </div>
+
+  <!-- ★ SMART INSIGHTS ★ -->
+  <div class="insights-row" id="insights-row"></div>
+
   <!-- ALERTAS -->
   <div class="alert-banner" id="alert-banner"></div>
 
   <!-- KPIs -->
   <div class="kpi-row">
-    <div class="kpi" style="--kpi-glow:rgba(16,217,126,0.12)">
+    <div class="kpi" style="--kpi-glow:rgba(16,217,126,0.12)" onclick="openKpiModal('caja')">
       <div class="kpi-accent-line" style="background:linear-gradient(to right,var(--green),transparent)"></div>
       <div class="kpi-icon" style="background:var(--green-dim);">💵</div>
       <div class="kpi-label">Caja Neta</div>
@@ -798,7 +1148,7 @@ body.light-mode .kpi-val {
       </div>
       <div class="kpi-vs" id="kpi-caja-vs"></div>
     </div>
-    <div class="kpi" style="--kpi-glow:rgba(61,184,245,0.1)">
+    <div class="kpi" style="--kpi-glow:rgba(61,184,245,0.1)" onclick="openKpiModal('activas')">
       <div class="kpi-accent-line" style="background:linear-gradient(to right,var(--blue),transparent)"></div>
       <div class="kpi-icon" style="background:var(--blue-dim);">📋</div>
       <div class="kpi-label">Órdenes Activas</div>
@@ -809,7 +1159,7 @@ body.light-mode .kpi-val {
       </div>
       <div class="kpi-vs" id="kpi-activas-vs"></div>
     </div>
-    <div class="kpi" style="--kpi-glow:rgba(249,115,22,0.1)">
+    <div class="kpi" style="--kpi-glow:rgba(249,115,22,0.1)" onclick="openKpiModal('ingresos')">
       <div class="kpi-accent-line" style="background:linear-gradient(to right,var(--accent),transparent)"></div>
       <div class="kpi-icon" style="background:var(--accent-dim);">🔧</div>
       <div class="kpi-label">Ingresos del Mes</div>
@@ -820,7 +1170,7 @@ body.light-mode .kpi-val {
       </div>
       <div class="kpi-vs" id="kpi-ingresos-vs"></div>
     </div>
-    <div class="kpi" style="--kpi-glow:rgba(159,122,234,0.1)">
+    <div class="kpi" style="--kpi-glow:rgba(159,122,234,0.1)" onclick="openKpiModal('inventario')">
       <div class="kpi-accent-line" style="background:linear-gradient(to right,var(--violet),transparent)"></div>
       <div class="kpi-icon" style="background:var(--violet-dim);">📦</div>
       <div class="kpi-label">Valor Inventario</div>
@@ -860,8 +1210,15 @@ body.light-mode .kpi-val {
         <div class="panel-head-left">
           <div class="panel-icon" style="background:rgba(249,115,22,0.12);">📈</div>
           <div>
-            <div class="panel-head-title">Ingresos — Últimos 7 días</div>
+            <div class="panel-head-title" id="chart-head-title">Ingresos — Últimos 7 días</div>
             <div class="panel-head-sub" id="chart-total-label">Cargando...</div>
+          </div>
+        </div>
+        <div class="chart-head-actions">
+          <div class="range-toggle" id="range-toggle">
+            <button class="range-btn active" data-range="7">7d</button>
+            <button class="range-btn" data-range="30">30d</button>
+            <button class="range-btn" data-range="90">90d</button>
           </div>
         </div>
       </div>
@@ -1004,6 +1361,24 @@ body.light-mode .kpi-val {
 </main>
 </div><!-- /shell -->
 
+<!-- ★ DASH MODAL ★ -->
+<div class="dash-modal-backdrop" id="dash-modal" onclick="if(event.target===this)closeDashModal()">
+  <div class="dash-modal">
+    <div class="dash-modal-head">
+      <div class="dash-modal-title">
+        <div class="dash-modal-icon" id="dm-icon">📊</div>
+        <div>
+          <div class="dash-modal-h1" id="dm-title">Detalle</div>
+          <div class="dash-modal-sub" id="dm-sub">—</div>
+        </div>
+      </div>
+      <button class="dash-modal-close" onclick="closeDashModal()">✕</button>
+    </div>
+    <div class="dash-modal-body" id="dm-body"></div>
+    <div class="dash-modal-foot" id="dm-foot"></div>
+  </div>
+</div>
+
 <script>
 // ════════════════════════════════════════
 //  SIDEBAR COLLAPSE
@@ -1043,7 +1418,7 @@ function dashSearch(q) {
   el.innerHTML = filtered.slice(0,8).map(o => {
     const dias = daysDiff2(o.fecha, now2);
     const dc = dias > 30 ? 'old' : dias > 7 ? 'medium' : 'fresh';
-    return `<div class="order-item">
+    return `<div class="order-item" onclick="openOrdenModal('${o.num}')">
       <div class="order-status-pip ${dotClass[o.sta]||'pip-recibido'}"></div>
       <div class="order-num">${prefix}${o.num||'—'}</div>
       <div class="order-info">
@@ -1191,6 +1566,14 @@ async function loadDashboard() {
     getAll('orders'), getAll('stock'), getAll('sales'), getAll('gastos'), getAll('clientes')
   ]);
   _dashOrders = orders;
+  _dashSales = sales;
+  _dashGastos = gastos;
+  _dashStock = stock;
+  _dashClientes = clientes;
+
+  // ★ Panel Hoy + Insights
+  buildTodayPanel(orders, sales, gastos);
+  buildInsights(orders, sales, gastos, stock);
 
   const now        = Date.now();
   const lastCierre = Number(localStorage.getItem('lastCierreCaja')) || 0;
@@ -1326,29 +1709,36 @@ function buildAlerts(orders, stock, threshold) {
 
 // ────────────────────────────────────────
 function buildBarChart(orders, sales, gastos) {
+  const range = _chartRange || 7;
   const days = [];
-  for (let i = 6; i >= 0; i--) {
+  for (let i = range - 1; i >= 0; i--) {
     const d = new Date(); d.setDate(d.getDate() - i);
     const start = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
     const end   = start + 86400000;
     const rep = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= start && (o.fechaEntrega||o.fecha) < end).reduce((a,b)=>a+(b.val||0),0);
     const vta = sales.filter(s => s.fecha >= start && s.fecha < end).reduce((a,b)=>a+(b.val||0),0);
     const gas = gastos.filter(g => g.fecha >= start && g.fecha < end).reduce((a,b)=>a+(b.val||0),0);
-    days.push({ label: fmtDay(start).slice(0,3), val: rep+vta, isToday: i===0, net: rep+vta-gas });
+    days.push({ label: fmtDay(start).slice(0,3), val: rep+vta, isToday: i===0, net: rep+vta-gas, start, end, fullLabel: new Date(start).toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'}) });
   }
   const maxVal = Math.max(...days.map(d => d.val), 1);
-  const totalSem = days.reduce((a,b) => a+b.val, 0);
-  document.getElementById('chart-total-label').textContent = `Total semana: ${fmt(totalSem)}`;
+  const totalPeriodo = days.reduce((a,b) => a+b.val, 0);
+  document.getElementById('chart-total-label').textContent = `Total período: ${fmt(totalPeriodo)}`;
   const chart = document.getElementById('bar-chart');
-  chart.innerHTML = days.map(d => {
+  // Si el rango es grande, mostrar labels cada N barras para no saturar
+  const showLabelEvery = range <= 7 ? 1 : range <= 30 ? 5 : 10;
+  // Si son solo valores grandes, ocultar los valores individuales para limpieza visual
+  const hideValues = range > 7;
+  chart.innerHTML = days.map((d, idx) => {
     const h = Math.max(4, Math.round((d.val / maxVal) * 80));
-    return `<div class="bar-col">
-      <div class="bar-val">${d.val > 0 ? fmt(d.val).replace(C(),'') : ''}</div>
+    const showLabel = idx === days.length - 1 || idx % showLabelEvery === 0;
+    const valStr = d.val > 0 ? fmt(d.val).replace(C(),'') : '';
+    return `<div class="bar-col" onclick="openBarDayModal(${d.start},${d.end},'${d.fullLabel}')">
+      <div class="bar-val" style="${hideValues?'visibility:hidden;':''}">${valStr}</div>
       <div class="bar-fill-wrap">
-        <div class="bar-fill ${d.isToday ? 'today' : ''}" data-tip="${fmt(d.val)}"
+        <div class="bar-fill ${d.isToday ? 'today' : ''}" data-tip="${d.fullLabel}: ${fmt(d.val)}"
              style="height:${h}px;"></div>
       </div>
-      <div class="bar-label">${d.label}</div>
+      <div class="bar-label" style="${showLabel?'':'visibility:hidden;'}">${d.label}</div>
     </div>`;
   }).join('');
 }
@@ -1368,7 +1758,7 @@ function buildStatusChart(orders) {
   document.getElementById('status-chart').innerHTML = estados.map(e => {
     const n = counts[e.key] || 0;
     const pct = Math.round((n / total) * 100);
-    return `<div class="status-row">
+    return `<div class="status-row" onclick="openStatusModal('${e.key}')">
       <div class="status-row-head">
         <div class="status-row-label">
           <div class="status-pip" style="background:${e.color};box-shadow:0 0 6px ${e.color};"></div>
@@ -1395,7 +1785,7 @@ function buildOrdersPanel(orders, prefix, now) {
     let daysClass = 'fresh', daysLabel = `${dias}d`;
     if (dias > 30) daysClass = 'old';
     else if (dias > 7) daysClass = 'medium';
-    return `<div class="order-item">
+    return `<div class="order-item" onclick="openOrdenModal('${o.num}')">
       <div class="order-status-pip ${dotClass[o.sta]||'pip-recibido'}"></div>
       <div class="order-num">${prefix}${o.num||'—'}</div>
       <div class="order-info">
@@ -1485,7 +1875,7 @@ function buildDeudaPanel(clientes) {
   const el = document.getElementById('deuda-panel');
   if (!deudores.length) { el.innerHTML='<div class="empty">✅ Sin deudas pendientes</div>'; return; }
   el.innerHTML = deudores.map((c,i) =>
-    `<div class="deuda-item">
+    `<div class="deuda-item" onclick="openClienteDeudaModal(${i})">
       <div class="deuda-rank">${i+1}</div>
       <div class="deuda-avatar">👤</div>
       <div class="deuda-info">
@@ -1542,7 +1932,7 @@ function buildStockPanel(stock, threshold) {
     const isOut = s.q === 0;
     const pct   = isOut ? 100 : Math.min(100, Math.round((s.q / Math.max((s.minStock||threshold)*2,1))*100));
     const bar   = isOut ? 'var(--red)' : 'var(--amber)';
-    return `<div class="stock-item">
+    return `<div class="stock-item" onclick="openStockCriticoModal()">
       <div class="stock-ico">${catIcons[s.cat]||'📦'}</div>
       <div class="stock-info">
         <div class="stock-name">${esc(s.n)}</div>
@@ -1619,6 +2009,825 @@ function goAction(action) {
 }
 
 // ════════════════════════════════════════
+//  ★ PANEL HOY (Estado del taller)
+// ════════════════════════════════════════
+function buildTodayPanel(orders, sales, gastos) {
+  // Fecha bonita
+  const d = new Date();
+  document.getElementById('today-date-label').textContent =
+    d.toLocaleDateString('es-ES', { weekday:'long', day:'numeric', month:'long' }).toUpperCase();
+
+  const hoyStart = new Date(); hoyStart.setHours(0,0,0,0);
+  const hoyStartTs = hoyStart.getTime();
+  const ayerStartTs = hoyStartTs - 86400000;
+
+  // Ingresos hoy
+  const ingHoyRep = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= hoyStartTs).reduce((a,b)=>a+(b.val||0),0);
+  const ingHoyVta = sales.filter(s => s.fecha >= hoyStartTs).reduce((a,b)=>a+(b.val||0),0);
+  const gastosHoy = gastos.filter(g => g.fecha >= hoyStartTs).reduce((a,b)=>a+(b.val||0),0);
+  const ingHoy = ingHoyRep + ingHoyVta;
+  const netoHoy = ingHoy - gastosHoy;
+
+  // Ingresos ayer (para comparar)
+  const ingAyerRep = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= ayerStartTs && (o.fechaEntrega||o.fecha) < hoyStartTs).reduce((a,b)=>a+(b.val||0),0);
+  const ingAyerVta = sales.filter(s => s.fecha >= ayerStartTs && s.fecha < hoyStartTs).reduce((a,b)=>a+(b.val||0),0);
+  const ingAyer = ingAyerRep + ingAyerVta;
+
+  // Listas para avisar
+  const listas = orders.filter(o => o.sta === 'reparado');
+
+  // Vencidas (+60d sin entregar)
+  const vencidas = orders.filter(o => o.sta !== 'entregado' && daysDiff(o.fecha, Date.now()) > 60);
+
+  // Órdenes nuevas hoy
+  const nuevasHoy = orders.filter(o => o.fecha >= hoyStartTs).length;
+
+  // Entregas hoy
+  const entregasHoy = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= hoyStartTs).length;
+
+  // Construir las stat cards
+  const vs = ingAyer > 0 ? Math.round(((ingHoy - ingAyer) / ingAyer) * 100) : null;
+  const vsLabel = vs === null ? 'sin datos ayer' : (vs >= 0 ? `▲ ${vs}% vs ayer` : `▼ ${Math.abs(vs)}% vs ayer`);
+
+  const cards = [
+    {
+      cls: listas.length ? 'success' : '',
+      label: 'Listos para avisar',
+      val: listas.length,
+      sub: listas.length ? 'Click para WhatsApp' : 'Ninguno pendiente',
+      action: "openListosModal()"
+    },
+    {
+      cls: vencidas.length ? 'alert' : '',
+      label: 'Con +60 días',
+      val: vencidas.length,
+      sub: vencidas.length ? 'Requieren atención' : 'Todo en orden',
+      action: "openVencidasModal()"
+    },
+    {
+      cls: '',
+      label: 'Ingresos hoy',
+      val: fmt(ingHoy),
+      sub: vsLabel,
+      action: "openHoyIngresosModal()"
+    },
+    {
+      cls: '',
+      label: 'Movimiento hoy',
+      val: `${nuevasHoy}/${entregasHoy}`,
+      sub: 'nuevas / entregadas',
+      action: "openHoyMovModal()"
+    },
+  ];
+
+  document.getElementById('today-stats').innerHTML = cards.map(c =>
+    `<div class="today-stat ${c.cls}" onclick="${c.action}">
+      <div class="today-stat-arrow">→</div>
+      <div class="today-stat-label">${c.label}</div>
+      <div class="today-stat-val">${c.val}</div>
+      <div class="today-stat-sub">${c.sub}</div>
+    </div>`
+  ).join('');
+}
+
+// ════════════════════════════════════════
+//  ★ SMART INSIGHTS
+// ════════════════════════════════════════
+function buildInsights(orders, sales, gastos, stock) {
+  const insights = [];
+  const now = Date.now();
+  const hoyStart = new Date(); hoyStart.setHours(0,0,0,0);
+  const startWeek = hoyStart.getTime() - 6 * 86400000;
+  const startPrevWeek = startWeek - 7 * 86400000;
+  const startMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
+
+  // 1. Semana actual vs semana anterior
+  const semActual = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= startWeek).reduce((a,b)=>a+(b.val||0),0)
+                  + sales.filter(s => s.fecha >= startWeek).reduce((a,b)=>a+(b.val||0),0);
+  const semAnterior = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= startPrevWeek && (o.fechaEntrega||o.fecha) < startWeek).reduce((a,b)=>a+(b.val||0),0)
+                    + sales.filter(s => s.fecha >= startPrevWeek && s.fecha < startWeek).reduce((a,b)=>a+(b.val||0),0);
+  if (semAnterior > 0) {
+    const pct = Math.round(((semActual - semAnterior) / semAnterior) * 100);
+    if (pct >= 10) insights.push({ type:'positive', icon:'🚀', text:`Esta semana vas <strong>${pct}% arriba</strong> vs la anterior` });
+    else if (pct <= -10) insights.push({ type:'warning', icon:'📉', text:`Esta semana vas <strong>${Math.abs(pct)}% abajo</strong> vs la anterior` });
+  }
+
+  // 2. Equipo más rentable del mes
+  const entMes = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= startMonth);
+  if (entMes.length >= 3) {
+    const byEq = {};
+    entMes.forEach(o => {
+      const k = (o.equ||'Sin especificar').trim();
+      byEq[k] = byEq[k] || { total:0, count:0 };
+      byEq[k].total += (o.val||0);
+      byEq[k].count++;
+    });
+    const ranked = Object.entries(byEq).sort((a,b) => b[1].total - a[1].total);
+    if (ranked.length) {
+      const [topName, topData] = ranked[0];
+      insights.push({ type:'info', icon:'🏆', text:`<strong>${esc(topName)}</strong> es tu equipo más rentable este mes · ${fmt(topData.total)} en ${topData.count} repar.` });
+    }
+  }
+
+  // 3. Mejor día de la semana
+  const last30 = now - 30 * 86400000;
+  const entRec = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= last30);
+  if (entRec.length >= 5) {
+    const byDay = [0,0,0,0,0,0,0];
+    entRec.forEach(o => { byDay[new Date(o.fechaEntrega||o.fecha).getDay()] += (o.val||0); });
+    const names = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+    const maxIdx = byDay.indexOf(Math.max(...byDay));
+    if (byDay[maxIdx] > 0) {
+      insights.push({ type:'info', icon:'📅', text:`Tu mejor día suele ser <strong>${names[maxIdx]}</strong> (últimos 30d)` });
+    }
+  }
+
+  // 4. Racha de entregas
+  const entregasHoy = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= hoyStart.getTime()).length;
+  if (entregasHoy >= 3) {
+    insights.push({ type:'positive', icon:'🔥', text:`Hoy llevas <strong>${entregasHoy} entregas</strong> — gran ritmo` });
+  }
+
+  // 5. Alerta de stock agotado que se vende mucho
+  const agotados = stock.filter(s => s.q === 0);
+  const mesVentas = sales.filter(s => s.fecha >= startMonth);
+  if (agotados.length && mesVentas.length) {
+    const counts = {};
+    mesVentas.forEach(s => { counts[s.item] = (counts[s.item]||0) + (s.qty||1); });
+    const agotadoCaliente = agotados.find(s => counts[s.n] && counts[s.n] >= 2);
+    if (agotadoCaliente) {
+      insights.push({ type:'warning', icon:'⚠️', text:`<strong>${esc(agotadoCaliente.n)}</strong> está agotado y vendiste ${counts[agotadoCaliente.n]} este mes` });
+    }
+  }
+
+  // 6. Cartera alta (si hay deudas grandes acumuladas)
+  // (el panel de deuda ya lo muestra, skip)
+
+  // Mostrar máximo 3 insights
+  const el = document.getElementById('insights-row');
+  if (!insights.length) { el.style.display = 'none'; return; }
+  el.style.display = 'grid';
+  el.innerHTML = insights.slice(0, 3).map(i =>
+    `<div class="insight-card ${i.type}">
+      <div class="insight-icon">${i.icon}</div>
+      <div class="insight-text">${i.text}</div>
+    </div>`
+  ).join('');
+}
+
+// ════════════════════════════════════════
+//  ★ MODAL SYSTEM
+// ════════════════════════════════════════
+function openDashModal(opts) {
+  const m = document.getElementById('dash-modal');
+  document.getElementById('dm-icon').textContent = opts.icon || '📊';
+  document.getElementById('dm-title').textContent = opts.title || 'Detalle';
+  document.getElementById('dm-sub').textContent = opts.sub || '';
+  document.getElementById('dm-body').innerHTML = opts.body || '';
+  document.getElementById('dm-foot').innerHTML = opts.foot || '';
+  m.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDashModal() {
+  document.getElementById('dash-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDashModal(); });
+
+// ════════════════════════════════════════
+//  ★ WHATSAPP HELPERS
+// ════════════════════════════════════════
+function cleanPhone(p) {
+  if (!p) return '';
+  let c = String(p).replace(/[^\d+]/g, '');
+  if (c.startsWith('+')) c = c.slice(1);
+  // Si no tiene código país y es de Colombia (10 dígitos móviles), agregar 57
+  if (c.length === 10 && !c.startsWith('57')) c = '57' + c;
+  return c;
+}
+function openWhatsApp(phone, message) {
+  const p = cleanPhone(phone);
+  if (!p) { alert('⚠️ Este cliente no tiene teléfono registrado.'); return; }
+  const url = `https://wa.me/${p}?text=${encodeURIComponent(message)}`;
+  window.open(url, '_blank');
+}
+function buildAvisoListoMsg(order) {
+  const cfg = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+  const neg = cfg.name || 'Todo Repuestos Nelson';
+  const prefix = cfg.orderPrefix || '#';
+  const saludo = cfg.saludoCliente || 'Hola';
+  return `${saludo} ${order.nom}! 👋\n\nTu ${order.equ || 'equipo'} (orden ${prefix}${order.num}) ya está *listo para recoger* ✅\n\nValor: ${fmt(order.val||0)}\n${order.garantia ? `Garantía: ${order.garantia} días\n` : ''}\nTe esperamos. Gracias por confiar en *${neg}* 🛠️`;
+}
+function buildRecordatorioDeudaMsg(cliente) {
+  const cfg = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+  const neg = cfg.name || 'Todo Repuestos Nelson';
+  return `Hola ${cliente.nombre} 👋\n\nUn recordatorio amistoso: tienes un saldo pendiente de *${fmt(cliente.deuda)}* con nosotros.\n\nCualquier inconveniente avísame por aquí. ¡Gracias!\n\n— ${neg}`;
+}
+function buildOrdenCompraMsg(items) {
+  const lines = items.map(s => `• ${s.n}${s.cat?' ('+s.cat+')':''} — ${s.q === 0 ? 'AGOTADO' : s.q+' uds'}`).join('\n');
+  return `🛒 *Solicitud de pedido*\n\nNecesito estos repuestos:\n\n${lines}\n\nConfírmame disponibilidad y precios. Gracias!`;
+}
+
+// ════════════════════════════════════════
+//  ★ HELPERS PARA BOTONES DE ACCIÓN
+//  (evitan template literals anidados en onclick)
+// ════════════════════════════════════════
+function avisarListoAction(numStr) {
+  const o = _dashOrders.find(x => String(x.num) === String(numStr));
+  if (!o) return;
+  openWhatsApp(o.tel || '', buildAvisoListoMsg(o));
+}
+function contactarClienteOrden(numStr) {
+  const o = _dashOrders.find(x => String(x.num) === String(numStr));
+  if (!o) return;
+  const prefix = (JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix)||'#';
+  const msg = `Hola ${o.nom}, te escribo sobre tu ${o.equ||'equipo'} (orden ${prefix}${o.num}) que tenemos pendiente. ¿Podríamos coordinar?`;
+  openWhatsApp(o.tel || '', msg);
+}
+function recordarDeudaAction(clienteIdx) {
+  const deudores = (_dashClientes || []).filter(x => x.deuda > 0).sort((a,b) => b.deuda - a.deuda);
+  const c = deudores[clienteIdx];
+  if (!c) return;
+  openWhatsApp(c.telefono || '', buildRecordatorioDeudaMsg(c));
+}
+function enviarPedidoStockAction() {
+  const threshold = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
+  const critical = (_dashStock || []).filter(s => s.q <= threshold).sort((a,b) => a.q - b.q);
+  if (!critical.length) return;
+  openWhatsApp('', buildOrdenCompraMsg(critical));
+}
+
+// ════════════════════════════════════════
+//  ★ MODAL: LISTOS PARA AVISAR
+// ════════════════════════════════════════
+function openListosModal() {
+  const listas = _dashOrders.filter(o => o.sta === 'reparado').sort((a,b) => a.fecha - b.fecha);
+  const cfg = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+  const prefix = cfg.orderPrefix || '#';
+  const body = listas.length ? `
+    <div class="dd-section">
+      <div class="dd-section-title">📱 ${listas.length} equipo${listas.length!==1?'s':''} listo${listas.length!==1?'s':''} para avisar</div>
+      <div class="dd-list">
+        ${listas.map(o => `
+          <div class="dd-row">
+            <div class="dd-row-left">
+              <div class="dd-row-ico">🛠️</div>
+              <div class="dd-row-text">
+                <div class="dd-row-name">${esc(o.nom)} · ${prefix}${o.num||'—'}</div>
+                <div class="dd-row-sub">${esc(o.equ||'Sin equipo')} · hace ${daysDiff(o.fecha, Date.now())} días</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <div class="dd-row-val pos">${fmt(o.val||0)}</div>
+              <button class="btn primary" style="padding:6px 10px;font-size:0.7rem;flex:none;min-width:auto;"
+                onclick="event.stopPropagation();avisarListoAction('${esc(o.num)}')">💬 Avisar</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  ` : `<div class="dd-empty">✅ No hay equipos listos pendientes de avisar</div>`;
+
+  openDashModal({
+    icon: '✅',
+    title: 'Equipos listos',
+    sub: `${listas.length} pendiente${listas.length!==1?'s':''} de avisar al cliente`,
+    body,
+    foot: listas.length ? `
+      <button class="btn" onclick="closeDashModal()">Cerrar</button>
+      <button class="btn accent" onclick="goApp('ordenes')">Abrir en la app →</button>
+    ` : `<button class="btn" onclick="closeDashModal()">Cerrar</button>`
+  });
+}
+
+// ════════════════════════════════════════
+//  ★ MODAL: ÓRDENES VENCIDAS (+60d)
+// ════════════════════════════════════════
+function openVencidasModal() {
+  const vencidas = _dashOrders.filter(o => o.sta !== 'entregado' && daysDiff(o.fecha, Date.now()) > 60)
+    .sort((a,b) => a.fecha - b.fecha);
+  const cfg = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+  const prefix = cfg.orderPrefix || '#';
+
+  const body = vencidas.length ? `
+    <div class="dd-section">
+      <div class="dd-section-title">⏰ Órdenes con más de 60 días sin entregar</div>
+      <div class="dd-list">
+        ${vencidas.map(o => {
+          const dias = daysDiff(o.fecha, Date.now());
+          return `
+          <div class="dd-row">
+            <div class="dd-row-left">
+              <div class="dd-row-ico">⚠️</div>
+              <div class="dd-row-text">
+                <div class="dd-row-name">${esc(o.nom)} · ${prefix}${o.num||'—'}</div>
+                <div class="dd-row-sub">${esc(o.equ||'Sin equipo')} · <span style="color:var(--red)">${dias} días</span> · ${o.sta}</div>
+              </div>
+            </div>
+            ${o.tel ? `<button class="btn primary" style="padding:6px 10px;font-size:0.7rem;flex:none;min-width:auto;"
+              onclick="event.stopPropagation();contactarClienteOrden('${esc(o.num)}')">💬</button>` : '<span style="color:var(--text3);font-size:0.7rem;">sin tel.</span>'}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  ` : `<div class="dd-empty">✅ Ninguna orden con más de 60 días</div>`;
+
+  openDashModal({
+    icon: '⏰',
+    title: 'Órdenes vencidas',
+    sub: `${vencidas.length} con más de 60 días sin entrega`,
+    body,
+    foot: `<button class="btn" onclick="closeDashModal()">Cerrar</button>
+           <button class="btn accent" onclick="goApp('ordenes')">Abrir en la app →</button>`
+  });
+}
+
+// ════════════════════════════════════════
+//  ★ MODAL: INGRESOS DE HOY (desglose)
+// ════════════════════════════════════════
+function openHoyIngresosModal() {
+  const hoyStart = new Date(); hoyStart.setHours(0,0,0,0);
+  const hoyStartTs = hoyStart.getTime();
+  openIngresosDesgloseModal(hoyStartTs, Date.now(), 'Ingresos de hoy');
+}
+
+function openIngresosDesgloseModal(startTs, endTs, titleText) {
+  const orders = _dashOrders;
+  const sales = _dashSales || [];
+  const gastos = _dashGastos || [];
+
+  const reps = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= startTs && (o.fechaEntrega||o.fecha) < endTs);
+  const vtas = sales.filter(s => s.fecha >= startTs && s.fecha < endTs);
+  const gts  = gastos.filter(g => g.fecha >= startTs && g.fecha < endTs);
+
+  const totRep = reps.reduce((a,b)=>a+(b.val||0),0);
+  const totVta = vtas.reduce((a,b)=>a+(b.val||0),0);
+  const totGas = gts.reduce((a,b)=>a+(b.val||0),0);
+  const neto = totRep + totVta - totGas;
+
+  const prefix = (JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix)||'#';
+
+  const body = `
+    <div class="dd-summary">
+      <div class="dd-summary-box">
+        <div class="dd-summary-label">Reparaciones</div>
+        <div class="dd-summary-val green">${fmt(totRep)}</div>
+      </div>
+      <div class="dd-summary-box">
+        <div class="dd-summary-label">Ventas</div>
+        <div class="dd-summary-val accent">${fmt(totVta)}</div>
+      </div>
+      <div class="dd-summary-box">
+        <div class="dd-summary-label">Gastos</div>
+        <div class="dd-summary-val red">${totGas > 0 ? '-'+fmt(totGas) : fmt(0)}</div>
+      </div>
+    </div>
+    <div class="dd-summary" style="grid-template-columns:1fr;margin-bottom:18px;">
+      <div class="dd-summary-box" style="background:linear-gradient(135deg,rgba(16,217,126,0.08),transparent);border-color:rgba(16,217,126,0.25);">
+        <div class="dd-summary-label">Neto</div>
+        <div class="dd-summary-val ${neto>=0?'green':'red'}">${neto >= 0 ? fmt(neto) : '-'+fmt(Math.abs(neto))}</div>
+      </div>
+    </div>
+    ${reps.length ? `
+      <div class="dd-section">
+        <div class="dd-section-title">🔧 Reparaciones entregadas (${reps.length})</div>
+        <div class="dd-list">
+          ${reps.map(o => `
+            <div class="dd-row">
+              <div class="dd-row-left">
+                <div class="dd-row-ico">🔧</div>
+                <div class="dd-row-text">
+                  <div class="dd-row-name">${esc(o.nom)} · ${prefix}${o.num||'—'}</div>
+                  <div class="dd-row-sub">${esc(o.equ||'')}</div>
+                </div>
+              </div>
+              <div class="dd-row-val pos">${fmt(o.val||0)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
+    ${vtas.length ? `
+      <div class="dd-section">
+        <div class="dd-section-title">🛒 Ventas (${vtas.length})</div>
+        <div class="dd-list">
+          ${vtas.map(s => `
+            <div class="dd-row">
+              <div class="dd-row-left">
+                <div class="dd-row-ico">🛒</div>
+                <div class="dd-row-text">
+                  <div class="dd-row-name">${esc(s.item||'Venta')}</div>
+                  <div class="dd-row-sub">${s.qty||1} unid · ${fmtTime(s.fecha)}</div>
+                </div>
+              </div>
+              <div class="dd-row-val pos">${fmt(s.val||0)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
+    ${gts.length ? `
+      <div class="dd-section">
+        <div class="dd-section-title">💸 Gastos (${gts.length})</div>
+        <div class="dd-list">
+          ${gts.map(g => `
+            <div class="dd-row">
+              <div class="dd-row-left">
+                <div class="dd-row-ico">💸</div>
+                <div class="dd-row-text">
+                  <div class="dd-row-name">${esc(g.det||'Gasto')}</div>
+                  <div class="dd-row-sub">${fmtTime(g.fecha)}</div>
+                </div>
+              </div>
+              <div class="dd-row-val neg">-${fmt(g.val||0)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
+    ${!reps.length && !vtas.length && !gts.length ? `<div class="dd-empty">Sin movimientos en este período</div>` : ''}
+  `;
+
+  openDashModal({
+    icon: '💵',
+    title: titleText,
+    sub: `${reps.length + vtas.length} transacciones · ${gts.length} gastos`,
+    body,
+    foot: `<button class="btn" onclick="closeDashModal()">Cerrar</button>
+           <button class="btn accent" onclick="goApp('ventas')">Ir a caja →</button>`
+  });
+}
+
+// ════════════════════════════════════════
+//  ★ MODAL: MOVIMIENTO HOY (nuevas + entregas)
+// ════════════════════════════════════════
+function openHoyMovModal() {
+  const hoyStart = new Date(); hoyStart.setHours(0,0,0,0);
+  const ts = hoyStart.getTime();
+  const nuevas = _dashOrders.filter(o => o.fecha >= ts).sort((a,b) => b.fecha - a.fecha);
+  const entregadas = _dashOrders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= ts).sort((a,b) => (b.fechaEntrega||b.fecha) - (a.fechaEntrega||a.fecha));
+  const prefix = (JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix)||'#';
+
+  const body = `
+    ${nuevas.length ? `
+      <div class="dd-section">
+        <div class="dd-section-title">📥 Órdenes nuevas de hoy (${nuevas.length})</div>
+        <div class="dd-list">
+          ${nuevas.map(o => `
+            <div class="dd-row" onclick="closeDashModal();openOrdenModal('${o.num}')">
+              <div class="dd-row-left">
+                <div class="dd-row-ico">📥</div>
+                <div class="dd-row-text">
+                  <div class="dd-row-name">${esc(o.nom)} · ${prefix}${o.num}</div>
+                  <div class="dd-row-sub">${esc(o.equ||'')} · ${new Date(o.fecha).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}</div>
+                </div>
+              </div>
+              <div class="dd-row-val">${fmt(o.val||0)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
+    ${entregadas.length ? `
+      <div class="dd-section">
+        <div class="dd-section-title">🚚 Entregadas hoy (${entregadas.length})</div>
+        <div class="dd-list">
+          ${entregadas.map(o => `
+            <div class="dd-row">
+              <div class="dd-row-left">
+                <div class="dd-row-ico">🚚</div>
+                <div class="dd-row-text">
+                  <div class="dd-row-name">${esc(o.nom)} · ${prefix}${o.num}</div>
+                  <div class="dd-row-sub">${esc(o.equ||'')}</div>
+                </div>
+              </div>
+              <div class="dd-row-val pos">${fmt(o.val||0)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
+    ${!nuevas.length && !entregadas.length ? `<div class="dd-empty">Aún no hay actividad hoy</div>` : ''}
+  `;
+
+  openDashModal({
+    icon: '📊',
+    title: 'Movimiento del día',
+    sub: `${nuevas.length} nuevas · ${entregadas.length} entregadas`,
+    body,
+    foot: `<button class="btn" onclick="closeDashModal()">Cerrar</button>
+           <button class="btn accent" onclick="goApp('ordenes')">Ver todas →</button>`
+  });
+}
+
+// ════════════════════════════════════════
+//  ★ MODAL: ORDEN INDIVIDUAL
+// ════════════════════════════════════════
+function openOrdenModal(numStr) {
+  const num = String(numStr);
+  const o = _dashOrders.find(x => String(x.num) === num);
+  if (!o) return;
+  const prefix = (JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix)||'#';
+  const dias = daysDiff(o.fecha, Date.now());
+  const statusLabels = { recibido:'📥 Recibido', 'revisión':'🔍 En revisión', reparado:'✅ Listo', entregado:'🚚 Entregado' };
+
+  const body = `
+    <div class="dd-client-card">
+      <div class="dd-client-avatar">🛠️</div>
+      <div style="flex:1;min-width:0;">
+        <div class="dd-client-name">${esc(o.nom)}</div>
+        <div class="dd-client-phone">${esc(o.tel||'Sin teléfono')}</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:0.7rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">Valor</div>
+        <div style="font-size:1.2rem;font-weight:800;color:var(--green);font-family:'JetBrains Mono',monospace;">${fmt(o.val||0)}</div>
+      </div>
+    </div>
+    <div class="dd-section">
+      <div class="dd-section-title">📋 Datos de la orden</div>
+      <div class="dd-field"><div class="dd-field-label">Número</div><div class="dd-field-val">${prefix}${o.num}</div></div>
+      <div class="dd-field"><div class="dd-field-label">Equipo</div><div class="dd-field-val">${esc(o.equ||'—')}</div></div>
+      <div class="dd-field"><div class="dd-field-label">Estado</div><div class="dd-field-val">${statusLabels[o.sta]||o.sta}</div></div>
+      <div class="dd-field"><div class="dd-field-label">Recibido</div><div class="dd-field-val">${fmtTime(o.fecha)} · hace ${dias}d</div></div>
+      ${o.fechaEntrega ? `<div class="dd-field"><div class="dd-field-label">Entregado</div><div class="dd-field-val">${fmtTime(o.fechaEntrega)}</div></div>` : ''}
+      ${o.diag ? `<div class="dd-field"><div class="dd-field-label">Diagnóstico</div><div class="dd-field-val">${esc(o.diag)}</div></div>` : ''}
+      ${o.tec ? `<div class="dd-field"><div class="dd-field-label">Técnico</div><div class="dd-field-val">${esc(o.tec)}</div></div>` : ''}
+      ${o.garantia ? `<div class="dd-field"><div class="dd-field-label">Garantía</div><div class="dd-field-val">${o.garantia} días</div></div>` : ''}
+    </div>
+  `;
+
+  let foot = `<button class="btn" onclick="closeDashModal()">Cerrar</button>`;
+  if (o.sta === 'reparado' && o.tel) {
+    foot += `<button class="btn primary" onclick="avisarListoAction('${esc(o.num)}')">💬 Avisar listo</button>`;
+  } else if (o.tel) {
+    foot += `<button class="btn primary" onclick="contactarClienteOrden('${esc(o.num)}')">💬 WhatsApp</button>`;
+  }
+  foot += `<button class="btn accent" onclick="goApp('ordenes')">Ver en app →</button>`;
+
+  openDashModal({
+    icon: '🛠️',
+    title: `Orden ${prefix}${o.num}`,
+    sub: `${esc(o.equ||'Equipo')} · ${statusLabels[o.sta]||o.sta}`,
+    body,
+    foot
+  });
+}
+
+// ════════════════════════════════════════
+//  ★ MODAL: CLIENTE CON DEUDA
+// ════════════════════════════════════════
+function openClienteDeudaModal(idx) {
+  const c = (_dashClientes || []).filter(x => x.deuda > 0).sort((a,b) => b.deuda - a.deuda)[idx];
+  if (!c) return;
+  // Historial: órdenes de este cliente
+  const ordenes = _dashOrders.filter(o => (o.nom||'').toLowerCase() === (c.nombre||'').toLowerCase());
+  const totalFacturado = ordenes.filter(o => o.sta==='entregado').reduce((a,b) => a+(b.val||0), 0);
+  const prefix = (JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix)||'#';
+
+  const body = `
+    <div class="dd-client-card">
+      <div class="dd-client-avatar">👤</div>
+      <div style="flex:1;min-width:0;">
+        <div class="dd-client-name">${esc(c.nombre)}</div>
+        <div class="dd-client-phone">${esc(c.telefono||'Sin teléfono')}</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:0.7rem;color:var(--red);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">Debe</div>
+        <div style="font-size:1.3rem;font-weight:800;color:var(--red);font-family:'JetBrains Mono',monospace;">${fmt(c.deuda)}</div>
+      </div>
+    </div>
+    <div class="dd-summary">
+      <div class="dd-summary-box">
+        <div class="dd-summary-label">Órdenes</div>
+        <div class="dd-summary-val">${ordenes.length}</div>
+      </div>
+      <div class="dd-summary-box">
+        <div class="dd-summary-label">Facturado</div>
+        <div class="dd-summary-val green">${fmt(totalFacturado)}</div>
+      </div>
+      <div class="dd-summary-box">
+        <div class="dd-summary-label">Pendiente</div>
+        <div class="dd-summary-val red">${fmt(c.deuda)}</div>
+      </div>
+    </div>
+    ${ordenes.length ? `
+      <div class="dd-section">
+        <div class="dd-section-title">📋 Historial de órdenes</div>
+        <div class="dd-list">
+          ${ordenes.slice(0,8).map(o => `
+            <div class="dd-row" onclick="closeDashModal();openOrdenModal('${o.num}')">
+              <div class="dd-row-left">
+                <div class="dd-row-ico">🛠️</div>
+                <div class="dd-row-text">
+                  <div class="dd-row-name">${prefix}${o.num} · ${esc(o.equ||'—')}</div>
+                  <div class="dd-row-sub">${new Date(o.fecha).toLocaleDateString('es-ES')} · ${o.sta}</div>
+                </div>
+              </div>
+              <div class="dd-row-val">${fmt(o.val||0)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
+  `;
+
+  const foot = `
+    <button class="btn" onclick="closeDashModal()">Cerrar</button>
+    ${c.telefono ? `<button class="btn primary" onclick="recordarDeudaAction(${idx})">💬 Recordar deuda</button>` : ''}
+    <button class="btn accent" onclick="goApp('ventas')">Gestionar →</button>
+  `;
+
+  openDashModal({
+    icon: '💳',
+    title: esc(c.nombre),
+    sub: `Cliente con deuda pendiente`,
+    body,
+    foot
+  });
+}
+
+// ════════════════════════════════════════
+//  ★ MODAL: STOCK CRÍTICO (orden de compra)
+// ════════════════════════════════════════
+function openStockCriticoModal() {
+  const threshold = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
+  const critical = (_dashStock || []).filter(s => s.q <= threshold).sort((a,b) => a.q - b.q);
+  const agotados = critical.filter(s => s.q === 0);
+  const bajos    = critical.filter(s => s.q > 0);
+
+  const body = critical.length ? `
+    <div class="dd-summary">
+      <div class="dd-summary-box">
+        <div class="dd-summary-label">Agotados</div>
+        <div class="dd-summary-val red">${agotados.length}</div>
+      </div>
+      <div class="dd-summary-box">
+        <div class="dd-summary-label">Bajos</div>
+        <div class="dd-summary-val accent">${bajos.length}</div>
+      </div>
+      <div class="dd-summary-box">
+        <div class="dd-summary-label">Total</div>
+        <div class="dd-summary-val">${critical.length}</div>
+      </div>
+    </div>
+    <div class="dd-section">
+      <div class="dd-section-title">📦 Items a reponer</div>
+      <div class="dd-list">
+        ${critical.map(s => `
+          <div class="dd-row">
+            <div class="dd-row-left">
+              <div class="dd-row-ico">${s.q===0?'❌':'⚠️'}</div>
+              <div class="dd-row-text">
+                <div class="dd-row-name">${esc(s.n)}</div>
+                <div class="dd-row-sub">${esc(s.cat||'Sin categoría')} · ${fmt(s.p||0)}</div>
+              </div>
+            </div>
+            <div class="dd-row-val ${s.q===0?'neg':''}">${s.q === 0 ? 'AGOTADO' : s.q + ' uds'}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  ` : `<div class="dd-empty">✅ Inventario en buen estado</div>`;
+
+  const foot = critical.length ? `
+    <button class="btn" onclick="closeDashModal()">Cerrar</button>
+    <button class="btn primary" onclick="enviarPedidoStockAction()">💬 Enviar pedido</button>
+    <button class="btn accent" onclick="goApp('ventas')">Inventario →</button>
+  ` : `<button class="btn" onclick="closeDashModal()">Cerrar</button>`;
+
+  openDashModal({
+    icon: '📦',
+    title: 'Stock crítico',
+    sub: `${critical.length} producto${critical.length!==1?'s':''} para reponer`,
+    body,
+    foot
+  });
+}
+// Override openWhatsApp behavior when no phone: let user copy message
+const _origOpenWhatsApp = openWhatsApp;
+openWhatsApp = function(phone, message) {
+  const p = cleanPhone(phone);
+  if (!p) {
+    // No phone — open wa.me sin número, con el mensaje pre-cargado
+    const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+    return;
+  }
+  const url = `https://wa.me/${p}?text=${encodeURIComponent(message)}`;
+  window.open(url, '_blank');
+};
+
+// ════════════════════════════════════════
+//  ★ MODAL: KPI DRILLDOWN
+// ════════════════════════════════════════
+function openKpiModal(kpiType) {
+  const orders = _dashOrders;
+  const sales = _dashSales || [];
+  const gastos = _dashGastos || [];
+  const lastCierre = Number(localStorage.getItem('lastCierreCaja')) || 0;
+  const startMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
+
+  if (kpiType === 'caja') {
+    openIngresosDesgloseModal(lastCierre, Date.now(), 'Caja · desde último cierre');
+  } else if (kpiType === 'activas') {
+    const activas = orders.filter(o => o.sta !== 'entregado').sort((a,b) => a.fecha - b.fecha);
+    const prefix = (JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix)||'#';
+    const byStatus = { recibido:[], 'revisión':[], reparado:[] };
+    activas.forEach(o => { if (byStatus[o.sta]) byStatus[o.sta].push(o); });
+    const statusIcons = { recibido:'📥', 'revisión':'🔍', reparado:'✅' };
+    const statusLabels = { recibido:'Recibido', 'revisión':'En revisión', reparado:'Listo para entregar' };
+    const body = activas.length ? Object.entries(byStatus).filter(([k,v]) => v.length).map(([k,list]) => `
+      <div class="dd-section">
+        <div class="dd-section-title">${statusIcons[k]} ${statusLabels[k]} (${list.length})</div>
+        <div class="dd-list">
+          ${list.map(o => `
+            <div class="dd-row" onclick="closeDashModal();openOrdenModal('${o.num}')">
+              <div class="dd-row-left">
+                <div class="dd-row-ico">🛠️</div>
+                <div class="dd-row-text">
+                  <div class="dd-row-name">${esc(o.nom)} · ${prefix}${o.num}</div>
+                  <div class="dd-row-sub">${esc(o.equ||'')} · hace ${daysDiff(o.fecha,Date.now())}d</div>
+                </div>
+              </div>
+              <div class="dd-row-val">${fmt(o.val||0)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `).join('') : `<div class="dd-empty">Sin órdenes activas</div>`;
+    openDashModal({
+      icon:'📋', title:'Órdenes activas', sub:`${activas.length} en proceso`, body,
+      foot:`<button class="btn" onclick="closeDashModal()">Cerrar</button><button class="btn accent" onclick="goApp('ordenes')">Abrir en app →</button>`
+    });
+  } else if (kpiType === 'ingresos') {
+    openIngresosDesgloseModal(startMonth, Date.now(), 'Ingresos del mes');
+  } else if (kpiType === 'inventario') {
+    openStockCriticoModal();
+  }
+}
+
+// ════════════════════════════════════════
+//  ★ MODAL: BARRA DE GRÁFICA (día específico)
+// ════════════════════════════════════════
+function openBarDayModal(startTs, endTs, label) {
+  openIngresosDesgloseModal(startTs, endTs, label);
+}
+
+// ════════════════════════════════════════
+//  ★ MODAL: STATUS ROW (órdenes por estado)
+// ════════════════════════════════════════
+function openStatusModal(statusKey) {
+  const orders = _dashOrders.filter(o => o.sta === statusKey).sort((a,b) => b.fecha - a.fecha);
+  const prefix = (JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix)||'#';
+  const labels = { recibido:'📥 Recibidos', 'revisión':'🔍 En revisión', reparado:'✅ Listos', entregado:'🚚 Entregados' };
+
+  const body = orders.length ? `
+    <div class="dd-section">
+      <div class="dd-section-title">${orders.length} órdenes</div>
+      <div class="dd-list">
+        ${orders.slice(0,30).map(o => `
+          <div class="dd-row" onclick="closeDashModal();openOrdenModal('${o.num}')">
+            <div class="dd-row-left">
+              <div class="dd-row-ico">🛠️</div>
+              <div class="dd-row-text">
+                <div class="dd-row-name">${esc(o.nom)} · ${prefix}${o.num}</div>
+                <div class="dd-row-sub">${esc(o.equ||'')} · hace ${daysDiff(o.fecha,Date.now())}d</div>
+              </div>
+            </div>
+            <div class="dd-row-val">${fmt(o.val||0)}</div>
+          </div>
+        `).join('')}
+        ${orders.length > 30 ? `<div class="dd-empty" style="padding:10px;font-size:0.72rem;">Mostrando primeras 30 de ${orders.length}</div>` : ''}
+      </div>
+    </div>
+  ` : `<div class="dd-empty">Sin órdenes en este estado</div>`;
+
+  openDashModal({
+    icon:'📊', title: labels[statusKey] || statusKey, sub:`${orders.length} total`, body,
+    foot:`<button class="btn" onclick="closeDashModal()">Cerrar</button><button class="btn accent" onclick="goApp('ordenes')">Abrir en app →</button>`
+  });
+}
+
+// ════════════════════════════════════════
+//  ★ RANGO DE GRÁFICA (7/30/90)
+// ════════════════════════════════════════
+let _chartRange = 7;
+function setChartRange(days) {
+  _chartRange = days;
+  document.querySelectorAll('#range-toggle .range-btn').forEach(b => {
+    b.classList.toggle('active', Number(b.dataset.range) === days);
+  });
+  document.getElementById('chart-head-title').textContent = `Ingresos — Últimos ${days} días`;
+  buildBarChart(_dashOrders, _dashSales || [], _dashGastos || []);
+}
+
+// Buckets globales (declaradas al top para evitar TDZ issues)
+let _dashSales = [];
+let _dashGastos = [];
+let _dashStock = [];
+let _dashClientes = [];
+
+// ════════════════════════════════════════
 //  INIT
 // ════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', async () => {
@@ -1646,6 +2855,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   // Arrancar el reloj
   tick();
   setInterval(tick, 1000);
+
+  // ★ Range toggle listener
+  document.getElementById('range-toggle').addEventListener('click', e => {
+    const btn = e.target.closest('.range-btn');
+    if (!btn) return;
+    setChartRange(Number(btn.dataset.range));
+  });
+
   await loadDashboard();
   // Auto-refresh cada 30s
   setInterval(loadDashboard, 30000);
@@ -1653,5 +2870,3 @@ window.addEventListener('DOMContentLoaded', async () => {
 </script>
 </body>
 </html>
-
-</body></html>
