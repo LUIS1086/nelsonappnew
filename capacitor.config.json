@@ -1,0 +1,21 @@
+{
+  "appId": "com.nelsonapp.pro",
+  "appName": "Nelson App Pro",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#0d0f1a",
+      "androidSplashResourceName": "splash",
+      "showSpinner": false
+    }
+  }
+}

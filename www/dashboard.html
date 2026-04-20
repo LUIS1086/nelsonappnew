@@ -1,0 +1,2884 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NelsonApp — Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════
+   TOKENS
+══════════════════════════════════════ */
+:root {
+  --bg:          #07080f;
+  --bg2:         #0c0e1a;
+  --panel:       #0f1120;
+  --panel2:      #141629;
+  --panel3:      #1a1d35;
+  --border:      rgba(255,255,255,0.055);
+  --border-hi:   rgba(255,255,255,0.12);
+  --accent:      #f97316;
+  --accent-glow: rgba(249,115,22,0.22);
+  --accent-dim:  rgba(249,115,22,0.09);
+  --green:       #10d97e;
+  --green-dim:   rgba(16,217,126,0.09);
+  --red:         #ff3d5c;
+  --red-dim:     rgba(255,61,92,0.09);
+  --blue:        #3db8f5;
+  --blue-dim:    rgba(61,184,245,0.09);
+  --violet:      #9f7aea;
+  --violet-dim:  rgba(159,122,234,0.09);
+  --amber:       #f59e0b;
+  --amber-dim:   rgba(245,158,11,0.09);
+  --text:        #e2e8f8;
+  --text2:       #6b7a9e;
+  --text3:       #353d5a;
+  --r:           16px;
+  --r-sm:        10px;
+  --r-lg:        22px;
+}
+
+/* ══════════════════════════════════════
+   BASE
+══════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+/* Subtle noise */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  opacity: 0.022;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  pointer-events: none;
+}
+/* Grid lines */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.014) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.014) 1px, transparent 1px);
+  background-size: 44px 44px;
+  pointer-events: none;
+}
+
+/* Ambient orbs */
+.glow-orb { position: fixed; border-radius: 50%; filter: blur(130px); pointer-events: none; z-index: 0; }
+.glow-1 { width:800px;height:600px;top:-15%;left:-10%;background:rgba(249,115,22,0.05); }
+.glow-2 { width:600px;height:500px;bottom:-10%;right:-8%;background:rgba(61,184,245,0.04); }
+.glow-3 { width:500px;height:400px;top:45%;left:38%;background:rgba(159,122,234,0.025); }
+
+/* ══════════════════════════════════════
+   LAYOUT
+══════════════════════════════════════ */
+.shell {
+  position: relative; z-index: 1;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  grid-template-rows: 58px 1fr;
+  min-height: 100vh;
+  transition: grid-template-columns 0.3s ease;
+}
+
+/* ══════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════ */
+.sidebar {
+  grid-row: 1 / 3;
+  background: linear-gradient(180deg, rgba(10,11,22,0.98) 0%, rgba(8,9,18,0.98) 100%);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  position: sticky; top: 0; height: 100vh;
+  overflow: hidden;
+}
+
+.sb-brand {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sb-logo-row {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px;
+}
+.sb-logo-icon {
+  width: 38px; height: 38px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent) 0%, #c2410c 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.15rem; flex-shrink: 0;
+  box-shadow: 0 0 20px var(--accent-glow);
+  animation: logoPulse 4s ease-in-out infinite;
+}
+@keyframes logoPulse {
+  0%,100% { box-shadow: 0 0 16px var(--accent-glow); }
+  50%      { box-shadow: 0 0 30px rgba(249,115,22,0.38); }
+}
+.sb-biz-short { font-size: 8px; font-weight: 700; color: var(--accent); letter-spacing: 3.5px; text-transform: uppercase; margin-bottom: 2px; }
+.sb-biz-name  { font-size: 18px; font-weight: 900; color: #fff; letter-spacing: -0.3px; line-height: 1; }
+
+/* caja card */
+.sb-caja {
+  background: linear-gradient(135deg, rgba(16,217,126,0.08), rgba(16,217,126,0.03));
+  border: 1px solid rgba(16,217,126,0.16);
+  border-radius: 13px; padding: 11px 13px;
+  position: relative; overflow: hidden;
+}
+.sb-caja::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1.5px;
+  background: linear-gradient(to right, var(--green), transparent);
+}
+.sb-caja-label { font-size: 8px; font-weight: 700; color: var(--text2); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 3px; }
+.sb-caja-value { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 600; color: var(--green); text-shadow: 0 0 18px rgba(16,217,126,0.35); }
+.sb-caja-sub   { font-size: 9px; color: var(--text2); margin-top: 2px; }
+
+/* nav */
+.sb-nav { flex: 1; padding: 12px 10px; overflow-y: auto; }
+.sb-nav::-webkit-scrollbar { width: 0; }
+.sb-section-label {
+  font-size: 8px; font-weight: 700; color: var(--text3);
+  letter-spacing: 3.5px; text-transform: uppercase;
+  padding: 13px 10px 6px;
+  display: flex; align-items: center; gap: 8px;
+}
+.sb-section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: 10px;
+  cursor: pointer; transition: all 0.15s ease;
+  color: var(--text2); font-size: 12.5px; font-weight: 500;
+  border: 1px solid transparent; margin-bottom: 1px;
+  position: relative; overflow: hidden;
+}
+.nav-item::before {
+  content: ''; position: absolute; left: 0; top: 25%; bottom: 25%;
+  width: 0; background: var(--accent); border-radius: 0 3px 3px 0;
+  transition: width 0.2s ease;
+}
+.nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+.nav-item.active {
+  background: var(--accent-dim); color: var(--accent);
+  border-color: rgba(249,115,22,0.18); font-weight: 700;
+}
+.nav-item.active::before { width: 3px; }
+.nav-icon { font-size: 0.95rem; width: 18px; text-align: center; flex-shrink: 0; }
+.nav-badge {
+  margin-left: auto; font-size: 9px; font-weight: 800;
+  background: var(--red-dim); color: var(--red);
+  border: 1px solid rgba(255,61,92,0.22);
+  padding: 1px 6px; border-radius: 99px;
+}
+.nav-badge.green { background: var(--green-dim); color: var(--green); border-color: rgba(16,217,126,0.22); }
+
+.sb-footer {
+  padding: 11px 10px; border-top: 1px solid var(--border);
+  flex-shrink: 0; display: flex; flex-direction: column; gap: 5px;
+}
+.sb-btn {
+  width: 100%; padding: 8px 12px; border-radius: 10px;
+  border: 1px solid var(--border-hi);
+  background: rgba(255,255,255,0.03);
+  color: var(--text2); font-size: 11.5px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s; font-family: 'Inter', sans-serif;
+  display: flex; align-items: center; gap: 7px;
+}
+.sb-btn:hover { background: var(--accent-dim); color: var(--accent); border-color: rgba(249,115,22,0.28); }
+.sb-btn.primary { background: var(--accent-dim); color: var(--accent); border-color: rgba(249,115,22,0.28); }
+.sb-btn.primary:hover { background: rgba(249,115,22,0.18); }
+.sb-version { text-align: center; font-size: 9px; color: var(--text3); padding: 4px 0; font-family: monospace; }
+
+/* collapse */
+.sb-collapse-btn {
+  position: absolute; top: 16px; right: -12px; z-index: 10;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--panel2); border: 1px solid var(--border-hi);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; cursor: pointer; transition: all 0.2s; color: var(--text2);
+}
+.sb-collapse-btn:hover { background: var(--accent-dim); color: var(--accent); }
+.shell.sb-collapsed { grid-template-columns: 52px 1fr; }
+.shell.sb-collapsed .sb-biz-short,
+.shell.sb-collapsed .sb-biz-name,
+.shell.sb-collapsed .sb-caja,
+.shell.sb-collapsed .sb-section-label,
+.shell.sb-collapsed .nav-item span:not(.nav-icon):not(.nav-badge),
+.shell.sb-collapsed .sb-btn span,
+.shell.sb-collapsed .sb-version { display: none; }
+.shell.sb-collapsed .nav-item { justify-content: center; padding: 9px; }
+.shell.sb-collapsed .nav-badge { position: absolute; top: 3px; right: 3px; padding: 1px 4px; font-size: 7px; }
+.shell.sb-collapsed .sb-btn { justify-content: center; padding: 8px; }
+.shell.sb-collapsed .sb-logo-icon { margin: 0 auto; }
+.shell.sb-collapsed .sb-logo-row { justify-content: center; margin-bottom: 0; }
+.shell.sb-collapsed .sb-brand { padding: 12px 6px; }
+.shell.sb-collapsed .sb-collapse-btn { transform: rotate(180deg); right: -12px; }
+
+/* ══════════════════════════════════════
+   TOPBAR
+══════════════════════════════════════ */
+.topbar {
+  grid-column: 2;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px;
+  background: rgba(7,8,15,0.92);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+  position: sticky; top: 0; z-index: 50;
+}
+.tb-left { display: flex; align-items: center; gap: 16px; }
+.tb-breadcrumb {
+  font-size: 9px; font-weight: 700; color: var(--text3);
+  letter-spacing: 3px; text-transform: uppercase;
+  display: flex; align-items: center; gap: 5px;
+}
+.tb-breadcrumb span { color: var(--accent); }
+.tb-title { font-size: 17px; font-weight: 800; color: white; letter-spacing: -0.3px; }
+.tb-right { display: flex; align-items: center; gap: 8px; }
+.tb-clock {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: var(--text2);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border-hi);
+  padding: 5px 12px; border-radius: 99px; letter-spacing: 1px;
+}
+.tb-date { font-size: 10.5px; color: var(--text3); font-weight: 500; }
+.tb-action {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 9px;
+  font-size: 11px; font-weight: 700;
+  cursor: pointer; transition: all 0.15s; border: 1px solid;
+  font-family: 'Inter', sans-serif; letter-spacing: 0.2px;
+}
+.tb-action.green  { background: var(--green-dim);  border-color: rgba(16,217,126,0.25);  color: var(--green); }
+.tb-action.green:hover  { background: rgba(16,217,126,0.16); }
+.tb-action.blue   { background: var(--blue-dim);   border-color: rgba(61,184,245,0.25);  color: var(--blue); }
+.tb-action.blue:hover   { background: rgba(61,184,245,0.16); }
+.tb-action.accent { background: linear-gradient(135deg, rgba(249,115,22,0.2), rgba(249,115,22,0.1)); border-color: rgba(249,115,22,0.35); color: var(--accent); }
+.tb-action.accent:hover { background: rgba(249,115,22,0.28); }
+.tb-icon-btn {
+  width: 34px; height: 34px; border-radius: 9px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border-hi);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem; cursor: pointer; transition: all 0.15s;
+}
+.tb-icon-btn:hover { background: var(--accent-dim); border-color: rgba(249,115,22,0.28); }
+.tb-search {
+  display: flex; align-items: center; gap: 7px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border-hi);
+  border-radius: 9px; padding: 5px 11px; transition: all 0.2s;
+}
+.tb-search:focus-within { border-color: rgba(249,115,22,0.38); background: rgba(249,115,22,0.05); }
+.tb-search input {
+  background: none; border: none; outline: none;
+  color: var(--text); font-size: 11.5px; font-family: 'Inter', sans-serif; width: 155px;
+}
+.tb-search input::placeholder { color: var(--text3); }
+.tb-search-icon { color: var(--text3); font-size: 11px; }
+
+/* ══════════════════════════════════════
+   MAIN
+══════════════════════════════════════ */
+.main {
+  grid-column: 2;
+  padding: 22px 24px 48px;
+  overflow-y: auto;
+  display: flex; flex-direction: column; gap: 18px;
+}
+.main::-webkit-scrollbar { width: 4px; }
+.main::-webkit-scrollbar-thumb { background: var(--text3); border-radius: 99px; }
+
+/* ══════════════════════════════════════
+   ALERT CHIPS
+══════════════════════════════════════ */
+.alert-banner {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  animation: fadeDown 0.4s ease both;
+}
+.alert-chip {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 13px; border-radius: 99px;
+  font-size: 11.5px; font-weight: 700;
+  border: 1px solid; cursor: pointer; transition: all 0.15s;
+}
+.alert-chip.red   { background: var(--red-dim);   border-color: rgba(255,61,92,0.3);   color: var(--red); }
+.alert-chip.amber { background: var(--amber-dim); border-color: rgba(245,158,11,0.3);  color: var(--amber); }
+.alert-chip.green { background: var(--green-dim); border-color: rgba(16,217,126,0.3);  color: var(--green); }
+.alert-chip.red:hover   { background: rgba(255,61,92,0.17); }
+.alert-chip.amber:hover { background: rgba(245,158,11,0.17); }
+.alert-chip.green:hover { background: rgba(16,217,126,0.17); }
+.alert-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: blink 1.6s ease infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+/* ══════════════════════════════════════
+   KPI CARDS
+══════════════════════════════════════ */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.kpi {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 20px 20px 16px;
+  position: relative; overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  animation: riseUp 0.5s ease both;
+  cursor: default;
+}
+.kpi:hover { transform: translateY(-2px); box-shadow: 0 14px 44px rgba(0,0,0,0.45); }
+.kpi-accent-line {
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+}
+/* inner glow */
+.kpi::after {
+  content: ''; position: absolute; top: -60px; right: -30px;
+  width: 130px; height: 130px; border-radius: 50%;
+  background: var(--kpi-glow, transparent);
+  filter: blur(40px); pointer-events: none;
+}
+.kpi-label {
+  font-size: 9px; font-weight: 700; color: var(--text2);
+  letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 10px;
+}
+.kpi-icon {
+  position: absolute; right: 16px; top: 16px;
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; opacity: 0.9;
+  transition: opacity 0.2s;
+}
+.kpi:hover .kpi-icon { opacity: 1; }
+.kpi-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 28px; font-weight: 600; line-height: 1;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, #fff 20%, rgba(255,255,255,0.65) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.kpi-footer { display: flex; align-items: center; justify-content: space-between; }
+.kpi-sub { font-size: 10.5px; color: var(--text2); }
+.kpi-trend {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 600;
+  padding: 2px 8px; border-radius: 99px;
+}
+.kpi-trend.up      { background: var(--green-dim);  color: var(--green);  border: 1px solid rgba(16,217,126,0.22); }
+.kpi-trend.down    { background: var(--red-dim);    color: var(--red);    border: 1px solid rgba(255,61,92,0.22); }
+.kpi-trend.warn    { background: var(--amber-dim);  color: var(--amber);  border: 1px solid rgba(245,158,11,0.22); }
+.kpi-trend.neutral { background: rgba(255,255,255,0.05); color: var(--text2); border: 1px solid var(--border); }
+.kpi-vs { font-size: 10px; color: var(--text3); margin-top: 5px; }
+
+/* ══════════════════════════════════════
+   META CARD
+══════════════════════════════════════ */
+.meta-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 20px 24px;
+  position: relative; overflow: hidden;
+  animation: riseUp 0.5s 0.1s ease both;
+}
+.meta-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 120% at 90% 50%, rgba(16,217,126,0.04) 0%, transparent 65%);
+  pointer-events: none;
+}
+.meta-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.meta-title { font-size: 11px; font-weight: 800; color: var(--green); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+.meta-subtitle { font-size: 11px; color: var(--text2); }
+.meta-pct { font-family: 'JetBrains Mono', monospace; font-size: 36px; font-weight: 600; line-height: 1; }
+.meta-pct-label { font-size: 10px; color: var(--text2); margin-top: 2px; text-align: right; }
+.meta-track { height: 10px; background: rgba(255,255,255,0.05); border-radius: 99px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.3); }
+.meta-fill { height: 100%; border-radius: 99px; transition: width 1.5s cubic-bezier(0.16,1,0.3,1); position: relative; }
+.meta-fill::after { content: ''; position: absolute; right: -1px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; border-radius: 50%; background: inherit; filter: brightness(1.4); box-shadow: 0 0 12px currentColor; }
+.meta-amounts { display: flex; justify-content: space-between; margin-top: 11px; }
+.meta-amounts-left { font-size: 12.5px; font-weight: 600; }
+.meta-amounts-right { font-size: 11px; color: var(--text2); font-family: 'JetBrains Mono', monospace; }
+.meta-milestones { display: flex; gap: 7px; margin-top: 10px; flex-wrap: wrap; }
+.meta-milestone { font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 99px; border: 1px solid; }
+.meta-milestone.done    { background: var(--green-dim); color: var(--green);  border-color: rgba(16,217,126,0.28); }
+.meta-milestone.pending { background: rgba(255,255,255,0.04); color: var(--text3); border-color: var(--border); }
+
+/* ══════════════════════════════════════
+   GRIDS
+══════════════════════════════════════ */
+.mid-grid    { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; }
+.bottom-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+/* ══════════════════════════════════════
+   PANEL CARDS
+══════════════════════════════════════ */
+.panel-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg); overflow: hidden;
+  animation: riseUp 0.5s ease both;
+  display: flex; flex-direction: column;
+  transition: box-shadow 0.2s;
+}
+.panel-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.35); }
+
+.panel-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 15px 18px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.panel-head-left { display: flex; align-items: center; gap: 10px; }
+.panel-icon {
+  width: 32px; height: 32px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; flex-shrink: 0;
+}
+.panel-head-title { font-size: 11px; font-weight: 800; color: var(--text); letter-spacing: 1.5px; text-transform: uppercase; }
+.panel-head-sub   { font-size: 10px; color: var(--text2); margin-top: 2px; }
+.panel-link { font-size: 11px; font-weight: 700; color: var(--accent); cursor: pointer; opacity: 0.7; transition: opacity 0.15s; white-space: nowrap; }
+.panel-link:hover { opacity: 1; }
+.panel-body { padding: 0 18px 14px; flex: 1; overflow-y: auto; }
+.panel-body::-webkit-scrollbar { width: 0; }
+
+/* ══════════════════════════════════════
+   ÓRDENES
+══════════════════════════════════════ */
+.order-item {
+  display: flex; align-items: center; gap: 11px;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+  transition: all 0.12s; position: relative; cursor: pointer;
+}
+.order-item:last-child { border-bottom: none; }
+.order-item:hover { background: rgba(255,255,255,0.02); margin: 0 -18px; padding-left: 18px; padding-right: 18px; border-radius: 10px; }
+.order-status-pip { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.pip-recibido  { background: var(--blue);   box-shadow: 0 0 7px var(--blue); }
+.pip-revision  { background: var(--amber);  box-shadow: 0 0 7px var(--amber); }
+.pip-reparado  { background: var(--violet); box-shadow: 0 0 7px var(--violet); }
+.pip-entregado { background: var(--green);  box-shadow: 0 0 7px var(--green); }
+.order-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 600;
+  color: var(--accent); background: var(--accent-dim);
+  border: 1px solid rgba(249,115,22,0.18);
+  padding: 2px 7px; border-radius: 6px; flex-shrink: 0;
+}
+.order-info { flex: 1; min-width: 0; }
+.order-client { font-weight: 700; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.order-device { font-size: 10.5px; color: var(--text2); margin-top: 1px; display: flex; align-items: center; gap: 5px; }
+.order-days { font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 99px; }
+.order-days.fresh  { background: var(--green-dim); color: var(--green); }
+.order-days.medium { background: var(--amber-dim); color: var(--amber); }
+.order-days.old    { background: var(--red-dim);   color: var(--red); }
+.order-val { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 600; color: var(--green); flex-shrink: 0; }
+
+/* ══════════════════════════════════════
+   STATUS BREAKDOWN
+══════════════════════════════════════ */
+.status-chart { padding: 14px 18px; display: flex; flex-direction: column; gap: 15px; }
+.status-row-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.status-row-label { font-size: 11.5px; font-weight: 600; color: var(--text2); display: flex; align-items: center; gap: 7px; }
+.status-pip { width: 6px; height: 6px; border-radius: 50%; }
+.status-row-count { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; color: var(--text); }
+.status-track { height: 5px; background: rgba(255,255,255,0.05); border-radius: 99px; overflow: hidden; }
+.status-fill  { height: 100%; border-radius: 99px; transition: width 1.3s cubic-bezier(0.16,1,0.3,1); }
+.status-pct   { font-size: 9.5px; color: var(--text3); margin-top: 3px; text-align: right; font-family: monospace; }
+
+/* ══════════════════════════════════════
+   BAR CHART
+══════════════════════════════════════ */
+.chart-wrap { padding: 10px 18px 14px; }
+.bar-chart   { display: flex; align-items: flex-end; gap: 5px; height: 88px; margin-bottom: 8px; }
+.bar-col     { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.bar-fill-wrap { flex: 1; width: 100%; display: flex; align-items: flex-end; }
+.bar-fill {
+  width: 100%; border-radius: 6px 6px 0 0;
+  background: linear-gradient(to top, var(--accent), rgba(249,115,22,0.4));
+  transition: height 1.3s cubic-bezier(0.16,1,0.3,1);
+  min-height: 2px; position: relative; cursor: pointer;
+}
+.bar-fill.today {
+  background: linear-gradient(to top, var(--green), rgba(16,217,126,0.4));
+  box-shadow: 0 0 12px rgba(16,217,126,0.35);
+}
+.bar-fill:hover::after {
+  content: attr(data-tip);
+  position: absolute; bottom: calc(100% + 5px); left: 50%;
+  transform: translateX(-50%);
+  background: var(--panel2); border: 1px solid var(--border-hi);
+  color: var(--text); font-size: 9.5px; font-weight: 700;
+  padding: 3px 8px; border-radius: 6px; white-space: nowrap;
+  font-family: 'JetBrains Mono', monospace; z-index: 99;
+}
+.bar-label { font-size: 8.5px; color: var(--text3); font-family: monospace; text-transform: uppercase; }
+.bar-val   { font-size: 8.5px; color: var(--text2); font-family: monospace; }
+.chart-legend { display: flex; gap: 12px; margin-top: 4px; font-size: 10px; color: var(--text2); }
+.chart-legend-item { display: flex; align-items: center; gap: 5px; }
+.chart-legend-dot  { width: 7px; height: 7px; border-radius: 2px; }
+
+/* ══════════════════════════════════════
+   EFICIENCIA
+══════════════════════════════════════ */
+.efic-grid { padding: 14px 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.efic-item {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 13px;
+  position: relative; overflow: hidden;
+}
+.efic-item::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1.5px; background: var(--efic-color, var(--accent)); }
+.efic-label { font-size: 8px; font-weight: 700; color: var(--text3); letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 6px; }
+.efic-val   { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 600; color: white; }
+.efic-sub   { font-size: 9.5px; color: var(--text2); margin-top: 4px; }
+
+/* ══════════════════════════════════════
+   MOVIMIENTOS
+══════════════════════════════════════ */
+.mov-item { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.mov-item:last-child { border-bottom: none; }
+.mov-icon-wrap {
+  width: 32px; height: 32px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0;
+}
+.mov-icon-wrap.sale   { background: var(--green-dim); }
+.mov-icon-wrap.repair { background: var(--blue-dim); }
+.mov-icon-wrap.gasto  { background: var(--red-dim); }
+.mov-info { flex: 1; min-width: 0; }
+.mov-name { font-weight: 600; font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mov-date { font-size: 9.5px; color: var(--text3); margin-top: 2px; font-family: monospace; }
+.mov-val  { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 600; flex-shrink: 0; }
+.mov-val.pos { color: var(--green); }
+.mov-val.neg { color: var(--red); }
+
+/* ══════════════════════════════════════
+   STOCK CRÍTICO
+══════════════════════════════════════ */
+.stock-item { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.stock-item:last-child { border-bottom: none; }
+.stock-ico  { width: 32px; height: 32px; border-radius: 9px; background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; font-size: 1.05rem; flex-shrink: 0; }
+.stock-info { flex: 1; min-width: 0; }
+.stock-name { font-weight: 600; font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stock-mini-bar  { width: 100%; height: 3px; background: rgba(255,255,255,0.05); border-radius: 99px; margin-top: 5px; overflow: hidden; }
+.stock-mini-fill { height: 100%; border-radius: 99px; transition: width 1s ease; }
+.stock-right  { text-align: right; flex-shrink: 0; }
+.stock-price  { font-family: monospace; font-size: 11.5px; color: var(--green); }
+.stock-qty    { font-family: monospace; font-size: 10.5px; font-weight: 700; margin-top: 2px; }
+
+/* ══════════════════════════════════════
+   DEUDA / CARTERA
+══════════════════════════════════════ */
+.deuda-item { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.deuda-item:last-child { border-bottom: none; }
+.deuda-rank   { font-family: monospace; font-size: 10px; font-weight: 600; color: var(--text3); width: 16px; text-align: center; flex-shrink: 0; }
+.deuda-avatar { width: 32px; height: 32px; border-radius: 9px; background: rgba(255,61,92,0.1); display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+.deuda-info   { flex: 1; min-width: 0; }
+.deuda-name   { font-weight: 600; font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.deuda-since  { font-size: 9.5px; color: var(--text3); margin-top: 2px; }
+.deuda-val    { font-family: monospace; font-size: 12.5px; font-weight: 600; color: var(--red); flex-shrink: 0; }
+
+/* ══════════════════════════════════════
+   TOP REPUESTOS
+══════════════════════════════════════ */
+.top-item  { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.top-item:last-child { border-bottom: none; }
+.top-rank  { font-size: 16px; width: 26px; flex-shrink: 0; text-align: center; }
+.top-rank.gold   { filter: drop-shadow(0 0 8px rgba(251,191,36,0.5)); }
+.top-rank.silver { filter: drop-shadow(0 0 5px rgba(148,163,184,0.4)); }
+.top-rank.bronze { filter: drop-shadow(0 0 5px rgba(194,119,58,0.4)); }
+.top-info  { flex: 1; min-width: 0; }
+.top-name  { font-weight: 600; font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.top-sub   { font-size: 9.5px; color: var(--text3); margin-top: 2px; }
+.top-count { font-family: monospace; font-size: 14px; font-weight: 600; color: var(--text); }
+
+/* ══════════════════════════════════════
+   GARANTÍAS
+══════════════════════════════════════ */
+.garantia-item  { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.garantia-item:last-child { border-bottom: none; }
+.garantia-days  { font-family: monospace; font-size: 16px; font-weight: 600; width: 38px; text-align: center; flex-shrink: 0; }
+.garantia-info  { flex: 1; min-width: 0; }
+.garantia-client { font-weight: 700; font-size: 11.5px; }
+.garantia-device { font-size: 10px; color: var(--text2); }
+.garantia-badge { font-size: 9.5px; font-weight: 700; padding: 2px 9px; border-radius: 99px; flex-shrink: 0; }
+.garantia-badge.vence-hoy    { background: var(--red-dim);   color: var(--red);   border: 1px solid rgba(255,61,92,0.28); }
+.garantia-badge.vence-pronto { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,158,11,0.28); }
+
+/* ══════════════════════════════════════
+   FEED ACTIVIDAD
+══════════════════════════════════════ */
+.feed-item { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.feed-item:last-child { border-bottom: none; }
+.feed-time    { font-family: monospace; font-size: 9.5px; color: var(--text3); flex-shrink: 0; width: 40px; padding-top: 2px; }
+.feed-dot-col { display: flex; flex-direction: column; align-items: center; padding-top: 5px; flex-shrink: 0; }
+.feed-dot     { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+.feed-line    { flex: 1; width: 1px; background: var(--border); margin-top: 4px; }
+.feed-text    { font-size: 11.5px; color: var(--text2); line-height: 1.45; }
+.feed-text strong { color: var(--text); font-weight: 700; }
+.feed-text .chip {
+  display: inline-block; font-size: 9.5px; font-weight: 700;
+  padding: 1px 6px; border-radius: 99px;
+  background: var(--accent-dim); color: var(--accent);
+  border: 1px solid rgba(249,115,22,0.22);
+}
+
+/* ══════════════════════════════════════
+   SEP + EMPTY + SKELETON
+══════════════════════════════════════ */
+.sep {
+  font-size: 9px; font-weight: 800; letter-spacing: 4px; color: var(--text3);
+  text-transform: uppercase;
+  display: flex; align-items: center; gap: 12px; margin: 2px 0;
+}
+.sep::before, .sep::after { content:''; flex:1; height:1px; background:var(--border); }
+.empty { text-align: center; padding: 26px 0; color: var(--text3); font-size: 12.5px; }
+.skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.035) 25%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.035) 75%);
+  background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px;
+}
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+.skel-line { height: 11px; margin-bottom: 9px; }
+.skel-line.w80 { width:80%; } .skel-line.w60 { width:60%; } .skel-line.w40 { width:40%; }
+
+/* ══════════════════════════════════════
+   ANIMATIONS
+══════════════════════════════════════ */
+@keyframes riseUp  { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeDown { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+.kpi:nth-child(1){animation-delay:0.04s} .kpi:nth-child(2){animation-delay:0.08s}
+.kpi:nth-child(3){animation-delay:0.12s} .kpi:nth-child(4){animation-delay:0.16s}
+.panel-card:nth-child(1){animation-delay:0.06s} .panel-card:nth-child(2){animation-delay:0.10s}
+.panel-card:nth-child(3){animation-delay:0.14s}
+
+/* ══════════════════════════════════════
+   LIGHT MODE
+══════════════════════════════════════ */
+body.light-mode {
+  --bg:     #f0f2f8; --bg2: #e8eaf4;
+  --panel:  #ffffff; --panel2: #f5f6fc; --panel3: #eef0fa;
+  --border: rgba(0,0,0,0.07); --border-hi: rgba(0,0,0,0.12);
+  --text: #1a1d2e; --text2: #5a6380; --text3: #9aa0b8;
+}
+body.light-mode .glow-1 { background: rgba(249,115,22,0.07); }
+body.light-mode .sidebar { background: rgba(255,255,255,0.97); }
+body.light-mode .topbar  { background: rgba(248,249,255,0.94); }
+body.light-mode .kpi-val {
+  background: linear-gradient(135deg, #1a1d2e 0%, rgba(26,29,46,0.65) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE TABLET
+══════════════════════════════════════ */
+@media (max-width: 1100px) and (min-width: 780px) {
+  .shell { grid-template-columns: 52px 1fr; }
+  .sb-biz-short,.sb-biz-name,.sb-caja,.sb-section-label,.sb-version { display: none; }
+  .nav-item span:not(.nav-icon):not(.nav-badge) { display: none; }
+  .nav-item { justify-content: center; padding: 9px; }
+  .sb-btn span { display: none; }
+  .sb-btn { justify-content: center; padding: 8px; }
+  .sb-logo-icon { margin: 0 auto; }
+  .sb-logo-row { justify-content: center; margin-bottom: 0; }
+  .sb-brand { padding: 12px 6px; }
+  .bottom-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 780px) { body { display: none !important; } }
+
+/* ══════════════════════════════════════
+   ★ PANEL "HOY" — HEADLINE DEL DÍA
+══════════════════════════════════════ */
+.today-panel {
+  margin-bottom: 22px;
+  background: linear-gradient(135deg, rgba(249,115,22,0.06) 0%, rgba(61,184,245,0.04) 100%);
+  border: 1px solid rgba(249,115,22,0.18);
+  border-radius: var(--r-lg);
+  padding: 18px 22px;
+  position: relative;
+  overflow: hidden;
+}
+.today-panel::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 10% 0%, rgba(249,115,22,0.08), transparent 40%);
+  pointer-events: none;
+}
+.today-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px; position: relative; z-index: 1;
+}
+.today-title {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.95rem; font-weight: 800; letter-spacing: 0.4px;
+  text-transform: uppercase; color: var(--text);
+}
+.today-title .dot-live {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--green); box-shadow: 0 0 10px var(--green);
+  animation: livePulse 1.8s ease infinite;
+}
+@keyframes livePulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.2); }
+}
+.today-date {
+  font-size: 0.78rem; color: var(--text2); font-weight: 600;
+}
+.today-stats {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 14px; position: relative; z-index: 1;
+}
+.today-stat {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.today-stat:hover {
+  background: rgba(255,255,255,0.05);
+  border-color: var(--border-hi);
+  transform: translateY(-2px);
+}
+.today-stat-label {
+  font-size: 0.68rem; color: var(--text2);
+  font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.today-stat-val {
+  font-size: 1.35rem; font-weight: 800; color: var(--text);
+  line-height: 1.1; font-family: 'JetBrains Mono', monospace;
+}
+.today-stat-sub {
+  font-size: 0.7rem; color: var(--text2); margin-top: 3px;
+  font-weight: 500;
+}
+.today-stat.alert { border-color: rgba(255,61,92,0.35); background: rgba(255,61,92,0.05); }
+.today-stat.alert .today-stat-val { color: var(--red); }
+.today-stat.success { border-color: rgba(16,217,126,0.3); background: rgba(16,217,126,0.04); }
+.today-stat.success .today-stat-val { color: var(--green); }
+.today-stat-arrow {
+  position: absolute; top: 10px; right: 12px;
+  font-size: 0.7rem; color: var(--text3);
+  transition: transform 0.2s, color 0.2s;
+}
+.today-stat:hover .today-stat-arrow { transform: translateX(3px); color: var(--accent); }
+
+/* ══════════════════════════════════════
+   ★ SMART INSIGHTS
+══════════════════════════════════════ */
+.insights-row {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 12px; margin-bottom: 22px;
+}
+.insight-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--r-sm);
+  padding: 12px 14px;
+  display: flex; align-items: center; gap: 12px;
+  transition: all 0.2s;
+}
+.insight-card:hover { background: var(--panel2); border-color: var(--border-hi); }
+.insight-card.positive { border-left-color: var(--green); }
+.insight-card.warning  { border-left-color: var(--amber); }
+.insight-card.info     { border-left-color: var(--blue); }
+.insight-icon {
+  font-size: 1.4rem; flex-shrink: 0;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.04);
+  border-radius: 10px;
+}
+.insight-text { font-size: 0.78rem; color: var(--text); line-height: 1.4; }
+.insight-text strong { color: var(--accent); font-weight: 700; }
+.insight-card.positive .insight-text strong { color: var(--green); }
+.insight-card.warning  .insight-text strong { color: var(--amber); }
+.insight-card.info     .insight-text strong { color: var(--blue); }
+
+/* ══════════════════════════════════════
+   ★ CLICKABLE ITEMS (drilldown hint)
+══════════════════════════════════════ */
+.kpi, .bar-col, .status-row, .order-item, .deuda-item, .stock-item, .garantia-item, .mov-item, .top-item {
+  cursor: pointer;
+}
+.kpi::after {
+  content: '↗';
+  position: absolute; top: 14px; right: 16px;
+  font-size: 0.7rem; color: var(--text3);
+  opacity: 0; transition: opacity 0.2s, transform 0.2s;
+}
+.kpi:hover::after { opacity: 1; transform: translate(2px, -2px); color: var(--accent); }
+
+/* ══════════════════════════════════════
+   ★ RANGE TOGGLE
+══════════════════════════════════════ */
+.range-toggle {
+  display: inline-flex;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 3px;
+  gap: 2px;
+}
+.range-btn {
+  background: transparent; border: none;
+  color: var(--text2);
+  font-size: 0.72rem; font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.range-btn:hover { color: var(--text); }
+.range-btn.active {
+  background: var(--accent); color: #fff;
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+/* ══════════════════════════════════════
+   ★ MODAL SYSTEM (drilldown + acciones)
+══════════════════════════════════════ */
+.dash-modal-backdrop {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(4,5,12,0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: none; align-items: center; justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.dash-modal-backdrop.open { display: flex; opacity: 1; }
+.dash-modal {
+  background: linear-gradient(180deg, var(--panel2) 0%, var(--panel) 100%);
+  border: 1px solid var(--border-hi);
+  border-radius: var(--r-lg);
+  max-width: 640px; width: 100%;
+  max-height: 85vh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 40px rgba(249,115,22,0.08);
+  transform: scale(0.95) translateY(10px);
+  transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+  overflow: hidden;
+}
+.dash-modal-backdrop.open .dash-modal { transform: scale(1) translateY(0); }
+.dash-modal-head {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.dash-modal-title {
+  display: flex; align-items: center; gap: 12px;
+}
+.dash-modal-icon {
+  width: 40px; height: 40px; border-radius: 12px;
+  background: var(--accent-dim);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+}
+.dash-modal-h1 { font-size: 1.05rem; font-weight: 800; color: var(--text); margin-bottom: 2px; }
+.dash-modal-sub { font-size: 0.75rem; color: var(--text2); }
+.dash-modal-close {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  width: 32px; height: 32px;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.dash-modal-close:hover { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+.dash-modal-body { padding: 18px 24px; overflow-y: auto; flex: 1; }
+.dash-modal-foot {
+  padding: 14px 24px 18px;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 10px; flex-wrap: wrap;
+  flex-shrink: 0;
+  background: rgba(0,0,0,0.15);
+}
+.dash-modal-foot .btn {
+  flex: 1; min-width: 130px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.78rem; font-weight: 700;
+  border: 1px solid var(--border-hi);
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.dash-modal-foot .btn:hover { background: rgba(255,255,255,0.08); transform: translateY(-1px); }
+.dash-modal-foot .btn.primary {
+  background: linear-gradient(135deg, #25d366, #128c7e);
+  border-color: transparent; color: #fff;
+}
+.dash-modal-foot .btn.primary:hover { filter: brightness(1.1); }
+.dash-modal-foot .btn.accent {
+  background: linear-gradient(135deg, var(--accent), #c2410c);
+  border-color: transparent; color: #fff;
+}
+.dash-modal-foot .btn.danger { color: var(--red); border-color: rgba(255,61,92,0.3); }
+.dash-modal-foot .btn.danger:hover { background: var(--red-dim); }
+
+/* Modal content elements */
+.dd-section { margin-bottom: 18px; }
+.dd-section:last-child { margin-bottom: 0; }
+.dd-section-title {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.6px;
+  text-transform: uppercase; color: var(--text2);
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+.dd-list { display: flex; flex-direction: column; gap: 6px; }
+.dd-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.8rem;
+}
+.dd-row-left { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
+.dd-row-ico { font-size: 1rem; flex-shrink: 0; }
+.dd-row-text { min-width: 0; flex: 1; }
+.dd-row-name { font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dd-row-sub { font-size: 0.7rem; color: var(--text2); margin-top: 1px; }
+.dd-row-val { font-weight: 700; color: var(--text); font-family: 'JetBrains Mono', monospace; flex-shrink: 0; font-size: 0.78rem; }
+.dd-row-val.pos { color: var(--green); }
+.dd-row-val.neg { color: var(--red); }
+.dd-summary {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+  margin-bottom: 18px;
+}
+.dd-summary-box {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  text-align: center;
+}
+.dd-summary-label { font-size: 0.65rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: 4px; }
+.dd-summary-val { font-size: 1.05rem; font-weight: 800; color: var(--text); font-family: 'JetBrains Mono', monospace; }
+.dd-summary-val.green { color: var(--green); }
+.dd-summary-val.red { color: var(--red); }
+.dd-summary-val.accent { color: var(--accent); }
+.dd-empty { padding: 20px; text-align: center; color: var(--text2); font-size: 0.8rem; }
+.dd-client-card {
+  background: linear-gradient(135deg, rgba(249,115,22,0.08), rgba(249,115,22,0.02));
+  border: 1px solid rgba(249,115,22,0.2);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 18px;
+}
+.dd-client-avatar {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--accent-dim);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; flex-shrink: 0;
+}
+.dd-client-name { font-weight: 800; font-size: 1rem; color: var(--text); }
+.dd-client-phone { font-size: 0.78rem; color: var(--text2); font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
+.dd-field {
+  display: flex; justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.82rem;
+}
+.dd-field:last-child { border-bottom: none; }
+.dd-field-label { color: var(--text2); font-weight: 500; }
+.dd-field-val { color: var(--text); font-weight: 600; text-align: right; max-width: 60%; }
+
+/* Responsive modal */
+@media (max-width: 640px) {
+  .dash-modal-foot { flex-direction: column; }
+  .dash-modal-foot .btn { width: 100%; }
+  .dd-summary { grid-template-columns: 1fr 1fr; }
+}
+
+/* Range toggle + chart head alignment */
+.chart-head-actions {
+  display: flex; align-items: center; gap: 10px;
+}
+
+/* Better spacing for today's new section */
+.today-stats.three { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 1100px) {
+  .today-stats { grid-template-columns: repeat(2, 1fr); }
+  .insights-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="glow-orb glow-1"></div>
+<div class="glow-orb glow-2"></div>
+<div class="glow-orb glow-3"></div>
+
+<div class="shell">
+
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-collapse-btn" onclick="toggleSidebar()" title="Colapsar">◀</div>
+  <div class="sb-brand">
+    <div class="sb-logo-row">
+      <div class="sb-logo-icon">🔧</div>
+      <div>
+        <div class="sb-biz-short" id="sb-short">TODO REPUESTOS</div>
+        <div class="sb-biz-name"  id="sb-name">NELSON</div>
+      </div>
+    </div>
+    <div class="sb-caja">
+      <div class="sb-caja-label">Caja Neta</div>
+      <div class="sb-caja-value" id="sb-cash">$0</div>
+      <div class="sb-caja-sub"   id="sb-cash-sub">Desde último cierre</div>
+    </div>
+  </div>
+
+  <nav class="sb-nav">
+    <div class="nav-item active" onclick="void(0)">
+      <span class="nav-icon">🏠</span><span>Dashboard</span>
+    </div>
+    <div class="nav-item" onclick="goApp('taller')">
+      <span class="nav-icon">🛠️</span><span>Nueva Recepción</span>
+    </div>
+    <div class="nav-item" onclick="goApp('ordenes')">
+      <span class="nav-icon">📋</span><span>Órdenes</span>
+      <span class="nav-badge" id="sb-badge-activas">—</span>
+    </div>
+    <div class="nav-item" onclick="goApp('ventas')">
+      <span class="nav-icon">💰</span><span>Caja &amp; Stock</span>
+    </div>
+    <div class="nav-item" onclick="goApp('admin')">
+      <span class="nav-icon">⚙️</span><span>Config</span>
+    </div>
+
+    <div class="sb-section-label">Acciones rápidas</div>
+    <div class="nav-item" onclick="goAction('notify')">
+      <span class="nav-icon">💬</span><span>Avisar listos</span>
+      <span class="nav-badge green" id="sb-badge-listos">0</span>
+    </div>
+    <div class="nav-item" onclick="goAction('report')">
+      <span class="nav-icon">📄</span><span>Reporte mes</span>
+    </div>
+    <div class="nav-item" onclick="goAction('stats')">
+      <span class="nav-icon">📊</span><span>Estadísticas</span>
+    </div>
+    <div class="nav-item" onclick="goAction('caja')">
+      <span class="nav-icon">💵</span><span>Cierre de caja</span>
+    </div>
+  </nav>
+
+  <div class="sb-footer">
+    <button class="sb-btn" onclick="toggleDashTheme()">🌙 <span>Cambiar tema</span></button>
+    <button class="sb-btn primary" onclick="goApp('taller')">← <span>Volver a la app</span></button>
+    <div class="sb-version" id="sb-version">v3.2.0 · NelsonApp Pro</div>
+  </div>
+</aside>
+
+<!-- ══ TOPBAR ══ -->
+<header class="topbar">
+  <div class="tb-left">
+    <div>
+      <div class="tb-breadcrumb">TODO REPUESTOS <span>/ Dashboard</span></div>
+      <div class="tb-title" id="tb-title">COMMAND CENTER</div>
+    </div>
+  </div>
+  <div class="tb-right">
+    <div class="tb-search">
+      <span class="tb-search-icon">🔍</span>
+      <input type="text" id="tb-search-input" placeholder="Buscar cliente u orden..." oninput="dashSearch(this.value)">
+    </div>
+    <div class="tb-date"  id="tb-date">—</div>
+    <div class="tb-clock" id="tb-clock">00:00:00</div>
+    <button class="tb-action green"  onclick="goAction('notify')">💬 Avisar</button>
+    <button class="tb-action blue"   onclick="goAction('report')">📄 Reporte</button>
+    <button class="tb-action accent" onclick="goApp('taller')">+ Nueva orden</button>
+    <div class="tb-icon-btn" onclick="toggleDashTheme()" id="theme-btn" title="Tema">🌙</div>
+  </div>
+</header>
+
+<!-- ══ MAIN ══ -->
+<main class="main" id="main-content">
+
+  <!-- ★ PANEL HOY ★ -->
+  <div class="today-panel">
+    <div class="today-head">
+      <div class="today-title">
+        <span class="dot-live"></span>
+        <span>Estado del Taller · Hoy</span>
+      </div>
+      <div class="today-date" id="today-date-label">—</div>
+    </div>
+    <div class="today-stats" id="today-stats">
+      <div class="today-stat"><div class="today-stat-label">Cargando...</div></div>
+    </div>
+  </div>
+
+  <!-- ★ SMART INSIGHTS ★ -->
+  <div class="insights-row" id="insights-row"></div>
+
+  <!-- ALERTAS -->
+  <div class="alert-banner" id="alert-banner"></div>
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi" style="--kpi-glow:rgba(16,217,126,0.12)" onclick="openKpiModal('caja')">
+      <div class="kpi-accent-line" style="background:linear-gradient(to right,var(--green),transparent)"></div>
+      <div class="kpi-icon" style="background:var(--green-dim);">💵</div>
+      <div class="kpi-label">Caja Neta</div>
+      <div class="kpi-val" id="kpi-caja">$0</div>
+      <div class="kpi-footer">
+        <div class="kpi-sub"   id="kpi-caja-sub">Desde último cierre</div>
+        <div class="kpi-trend neutral" id="kpi-caja-trend">—</div>
+      </div>
+      <div class="kpi-vs" id="kpi-caja-vs"></div>
+    </div>
+    <div class="kpi" style="--kpi-glow:rgba(61,184,245,0.1)" onclick="openKpiModal('activas')">
+      <div class="kpi-accent-line" style="background:linear-gradient(to right,var(--blue),transparent)"></div>
+      <div class="kpi-icon" style="background:var(--blue-dim);">📋</div>
+      <div class="kpi-label">Órdenes Activas</div>
+      <div class="kpi-val" id="kpi-activas">0</div>
+      <div class="kpi-footer">
+        <div class="kpi-sub"   id="kpi-activas-sub">—</div>
+        <div class="kpi-trend neutral" id="kpi-activas-trend">—</div>
+      </div>
+      <div class="kpi-vs" id="kpi-activas-vs"></div>
+    </div>
+    <div class="kpi" style="--kpi-glow:rgba(249,115,22,0.1)" onclick="openKpiModal('ingresos')">
+      <div class="kpi-accent-line" style="background:linear-gradient(to right,var(--accent),transparent)"></div>
+      <div class="kpi-icon" style="background:var(--accent-dim);">🔧</div>
+      <div class="kpi-label">Ingresos del Mes</div>
+      <div class="kpi-val" id="kpi-ingresos">$0</div>
+      <div class="kpi-footer">
+        <div class="kpi-sub"   id="kpi-ingresos-sub">—</div>
+        <div class="kpi-trend neutral" id="kpi-ingresos-trend">—</div>
+      </div>
+      <div class="kpi-vs" id="kpi-ingresos-vs"></div>
+    </div>
+    <div class="kpi" style="--kpi-glow:rgba(159,122,234,0.1)" onclick="openKpiModal('inventario')">
+      <div class="kpi-accent-line" style="background:linear-gradient(to right,var(--violet),transparent)"></div>
+      <div class="kpi-icon" style="background:var(--violet-dim);">📦</div>
+      <div class="kpi-label">Valor Inventario</div>
+      <div class="kpi-val" id="kpi-inventario">$0</div>
+      <div class="kpi-footer">
+        <div class="kpi-sub"   id="kpi-inventario-sub">—</div>
+        <div class="kpi-trend neutral" id="kpi-inventario-trend">—</div>
+      </div>
+      <div class="kpi-vs" id="kpi-inventario-vs"></div>
+    </div>
+  </div>
+
+  <!-- META MENSUAL -->
+  <div class="meta-card" id="meta-card" style="display:none;">
+    <div class="meta-top">
+      <div>
+        <div class="meta-title">🎯 Meta del Mes</div>
+        <div class="meta-subtitle" id="meta-subtitle">Cargando...</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="meta-pct" id="meta-pct">0%</div>
+        <div class="meta-pct-label">completado</div>
+      </div>
+    </div>
+    <div class="meta-track"><div class="meta-fill" id="meta-fill" style="width:0%;background:var(--green);"></div></div>
+    <div class="meta-amounts">
+      <div class="meta-amounts-left"  id="meta-done">$0 logrado</div>
+      <div class="meta-amounts-right" id="meta-goal">Meta: $0</div>
+    </div>
+    <div class="meta-milestones" id="meta-milestones"></div>
+  </div>
+
+  <!-- GRÁFICA + STATUS -->
+  <div class="mid-grid">
+    <div class="panel-card">
+      <div class="panel-head">
+        <div class="panel-head-left">
+          <div class="panel-icon" style="background:rgba(249,115,22,0.12);">📈</div>
+          <div>
+            <div class="panel-head-title" id="chart-head-title">Ingresos — Últimos 7 días</div>
+            <div class="panel-head-sub" id="chart-total-label">Cargando...</div>
+          </div>
+        </div>
+        <div class="chart-head-actions">
+          <div class="range-toggle" id="range-toggle">
+            <button class="range-btn active" data-range="7">7d</button>
+            <button class="range-btn" data-range="30">30d</button>
+            <button class="range-btn" data-range="90">90d</button>
+          </div>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <div class="bar-chart" id="bar-chart"></div>
+        <div class="chart-legend">
+          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--accent)"></div>Días anteriores</div>
+          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--green)"></div>Hoy</div>
+        </div>
+      </div>
+    </div>
+    <div class="panel-card">
+      <div class="panel-head">
+        <div class="panel-head-left">
+          <div class="panel-icon" style="background:rgba(61,184,245,0.12);">📊</div>
+          <div>
+            <div class="panel-head-title">Estado Órdenes</div>
+            <div class="panel-head-sub" id="status-total-label">—</div>
+          </div>
+        </div>
+      </div>
+      <div class="status-chart" id="status-chart"></div>
+    </div>
+  </div>
+
+  <!-- ÓRDENES + EFICIENCIA -->
+  <div class="sep">Operaciones</div>
+  <div class="mid-grid">
+    <div class="panel-card">
+      <div class="panel-head">
+        <div class="panel-head-left">
+          <div class="panel-icon" style="background:rgba(249,115,22,0.1);">📋</div>
+          <div>
+            <div class="panel-head-title">Órdenes Recientes</div>
+            <div class="panel-head-sub">Última actividad del taller</div>
+          </div>
+        </div>
+        <div class="panel-link" onclick="goApp('ordenes')">Ver todas →</div>
+      </div>
+      <div class="panel-body" id="orders-panel"><div class="empty">Cargando...</div></div>
+    </div>
+    <div class="panel-card">
+      <div class="panel-head">
+        <div class="panel-head-left">
+          <div class="panel-icon" style="background:rgba(159,122,234,0.12);">⚡</div>
+          <div>
+            <div class="panel-head-title">Eficiencia</div>
+            <div class="panel-head-sub">Métricas de rendimiento</div>
+          </div>
+        </div>
+      </div>
+      <div class="efic-grid" id="efic-grid"></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM GRID 1 -->
+  <div class="sep">Análisis</div>
+  <div class="bottom-grid">
+    <div class="panel-card">
+      <div class="panel-head">
+        <div class="panel-head-left">
+          <div class="panel-icon" style="background:rgba(16,217,126,0.1);">💸</div>
+          <div>
+            <div class="panel-head-title">Movimientos</div>
+            <div class="panel-head-sub">Caja actual</div>
+          </div>
+        </div>
+        <div class="panel-link" onclick="goApp('ventas')">Ver todo →</div>
+      </div>
+      <div class="panel-body" id="mov-panel"><div class="empty">Cargando...</div></div>
+    </div>
+    <div class="panel-card">
+      <div class="panel-head">
+        <div class="panel-head-left">
+          <div class="panel-icon" style="background:rgba(245,158,11,0.1);">🏆</div>
+          <div>
+            <div class="panel-head-title">Top Repuestos</div>
+            <div class="panel-head-sub">Más vendidos del mes</div>
+          </div>
+        </div>
+      </div>
+      <div class="panel-body" id="top-panel"><div class="empty">Cargando...</div></div>
+    </div>
+    <div class="panel-card">
+      <div class="panel-head">
+        <div class="panel-head-left">
+          <div class="panel-icon" style="background:rgba(255,61,92,0.1);">💳</div>
+          <div>
+            <div class="panel-head-title">Cartera</div>
+            <div class="panel-head-sub">Clientes con deuda</div>
+          </div>
+        </div>
+        <div class="panel-link" onclick="goApp('ventas')">Gestionar →</div>
+      </div>
+      <div class="panel-body" id="deuda-panel"><div class="empty">Cargando...</div></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM GRID 2 -->
+  <div class="bottom-grid">
+    <div class="panel-card">
+      <div class="panel-head">
+        <div class="panel-head-left">
+          <div class="panel-icon" style="background:rgba(255,61,92,0.1);">🛡️</div>
+          <div>
+            <div class="panel-head-title">Garantías</div>
+            <div class="panel-head-sub">Próximas a vencer</div>
+          </div>
+        </div>
+      </div>
+      <div class="panel-body" id="garantia-panel"><div class="empty">Sin garantías por vencer</div></div>
+    </div>
+    <div class="panel-card">
+      <div class="panel-head">
+        <div class="panel-head-left">
+          <div class="panel-icon" style="background:rgba(255,61,92,0.1);">📦</div>
+          <div>
+            <div class="panel-head-title">Stock Crítico</div>
+            <div class="panel-head-sub">Agotados y bajos</div>
+          </div>
+        </div>
+        <div class="panel-link" onclick="goApp('ventas')">Inventario →</div>
+      </div>
+      <div class="panel-body" id="stock-panel"><div class="empty">Cargando...</div></div>
+    </div>
+    <div class="panel-card">
+      <div class="panel-head">
+        <div class="panel-head-left">
+          <div class="panel-icon" style="background:rgba(16,217,126,0.1);">⏱️</div>
+          <div>
+            <div class="panel-head-title">Actividad Reciente</div>
+            <div class="panel-head-sub">Feed en tiempo real</div>
+          </div>
+        </div>
+      </div>
+      <div class="panel-body" id="feed-panel"><div class="empty">Cargando...</div></div>
+    </div>
+  </div>
+
+</main>
+</div><!-- /shell -->
+
+<!-- ★ DASH MODAL ★ -->
+<div class="dash-modal-backdrop" id="dash-modal" onclick="if(event.target===this)closeDashModal()">
+  <div class="dash-modal">
+    <div class="dash-modal-head">
+      <div class="dash-modal-title">
+        <div class="dash-modal-icon" id="dm-icon">📊</div>
+        <div>
+          <div class="dash-modal-h1" id="dm-title">Detalle</div>
+          <div class="dash-modal-sub" id="dm-sub">—</div>
+        </div>
+      </div>
+      <button class="dash-modal-close" onclick="closeDashModal()">✕</button>
+    </div>
+    <div class="dash-modal-body" id="dm-body"></div>
+    <div class="dash-modal-foot" id="dm-foot"></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+//  SIDEBAR COLLAPSE
+// ════════════════════════════════════════
+function toggleSidebar() {
+  const shell = document.querySelector('.shell');
+  const collapsed = shell.classList.toggle('sb-collapsed');
+  localStorage.setItem('sbCollapsed', collapsed ? '1' : '0');
+}
+function applySidebarState() {
+  if (localStorage.getItem('sbCollapsed') === '1') {
+    document.querySelector('.shell').classList.add('sb-collapsed');
+  }
+}
+
+// ════════════════════════════════════════
+//  BÚSQUEDA RÁPIDA EN DASHBOARD
+// ════════════════════════════════════════
+let _dashOrders = [];
+function dashSearch(q) {
+  q = q.trim().toLowerCase();
+  if (!q) { document.getElementById('orders-panel').innerHTML && buildOrdersPanel(_dashOrders, JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix||'#', Date.now()); return; }
+  const filtered = _dashOrders.filter(o =>
+    (o.nom||'').toLowerCase().includes(q) ||
+    (o.equ||'').toLowerCase().includes(q) ||
+    String(o.num||'').includes(q)
+  );
+  const el = document.getElementById('orders-panel');
+  const C2 = () => localStorage.getItem('appCurrency') || '$';
+  const fmt2 = v => C2() + Number(v||0).toLocaleString('es-CO');
+  const esc2 = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const daysDiff2 = (a,b) => Math.floor((b-a)/86400000);
+  const prefix = JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix||'#';
+  const now2 = Date.now();
+  if (!filtered.length) { el.innerHTML = '<div class="empty">Sin resultados para "'+q+'"</div>'; return; }
+  const dotClass = { recibido:'pip-recibido','revisión':'pip-revision', reparado:'pip-reparado', entregado:'pip-entregado' };
+  el.innerHTML = filtered.slice(0,8).map(o => {
+    const dias = daysDiff2(o.fecha, now2);
+    const dc = dias > 30 ? 'old' : dias > 7 ? 'medium' : 'fresh';
+    return `<div class="order-item" onclick="openOrdenModal('${o.num}')">
+      <div class="order-status-pip ${dotClass[o.sta]||'pip-recibido'}"></div>
+      <div class="order-num">${prefix}${o.num||'—'}</div>
+      <div class="order-info">
+        <div class="order-client">${esc2(o.nom)}</div>
+        <div class="order-device">${esc2(o.equ)} <span class="order-days ${dc}">${dias}d</span></div>
+      </div>
+      <div class="order-val">${fmt2(o.val||0)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════
+//  SKELETON LOADERS
+// ════════════════════════════════════════
+function showSkeletons() {
+  ['orders-panel','mov-panel','top-panel','deuda-panel','garantia-panel','stock-panel','feed-panel'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = `
+      <div style="padding:12px 0;">
+        <div class="skeleton skel-line w80"></div>
+        <div class="skeleton skel-line w60"></div>
+        <div class="skeleton skel-line w80"></div>
+        <div class="skeleton skel-line w40"></div>
+        <div class="skeleton skel-line w60"></div>
+      </div>`;
+  });
+}
+
+// ════════════════════════════════════════
+//  CONTADOR ANIMADO KPI
+// ════════════════════════════════════════
+function animateCount(el, target, isMoney) {
+  const cur = () => localStorage.getItem('appCurrency') || '$';
+  const fmt2 = v => cur() + Math.round(v).toLocaleString('es-CO');
+  const start = 0; const duration = 900;
+  const startTime = performance.now();
+  function step(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    const value = start + (target - start) * ease;
+    el.textContent = isMoney ? fmt2(value) : Math.round(value);
+    if (progress < 1) requestAnimationFrame(step);
+    else el.textContent = isMoney ? fmt2(target) : target;
+  }
+  requestAnimationFrame(step);
+}
+
+// ════════════════════════════════════════
+//  COMPARACIÓN VS MES ANTERIOR
+// ════════════════════════════════════════
+function calcPrevMonthIngresos(orders, sales) {
+  const now = new Date();
+  const startPrev = new Date(now.getFullYear(), now.getMonth() - 1, 1).getTime();
+  const endPrev   = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+  const rep = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= startPrev && (o.fechaEntrega||o.fecha) < endPrev).reduce((a,b)=>a+(b.val||0),0);
+  const vta = sales.filter(s => s.fecha >= startPrev && s.fecha < endPrev).reduce((a,b)=>a+(b.val||0),0);
+  return rep + vta;
+}
+function renderVs(elId, current, prev) {
+  const el = document.getElementById(elId);
+  if (!el || !prev) return;
+  const diff = current - prev;
+  const pct  = Math.round((diff / prev) * 100);
+  const sign = diff >= 0 ? '▲' : '▼';
+  const color = diff >= 0 ? 'var(--green)' : 'var(--red)';
+  el.innerHTML = `<span style="color:${color};font-size:10px;font-weight:700;">${sign} ${Math.abs(pct)}%</span> <span style="color:var(--text3);font-size:10px;">vs mes anterior</span>`;
+}
+
+// ════════════════════════════════════════
+//  INDEXED DB
+// ════════════════════════════════════════
+const DB_NAME = 'NelsonAppPro';
+let _db = null;
+function openDB() {
+  return new Promise((res, rej) => {
+    if (_db) return res(_db);
+    // Abre la DB sin forzar versión — usa la que ya exista en la app principal.
+    // Esto evita conflictos si el index.html migra a versiones mayores.
+    const r = indexedDB.open(DB_NAME);
+    r.onerror = () => { console.warn('[Dashboard] Error abriendo DB:', r.error); rej(r.error); };
+    r.onsuccess = () => {
+      _db = r.result;
+      console.log('[Dashboard] DB abierta v' + _db.version + ' · stores:', Array.from(_db.objectStoreNames));
+      res(_db);
+    };
+    r.onblocked = () => console.warn('[Dashboard] DB bloqueada');
+    // No definimos onupgradeneeded — el dashboard es solo lectura, no debe crear ni migrar stores.
+  });
+}
+async function getAll(store) {
+  try {
+    await openDB();
+    // Si el store no existe (porque la app aún no lo creó), devolvemos vacío sin lanzar error
+    if (!_db.objectStoreNames.contains(store)) {
+      console.warn('[Dashboard] Store no existe:', store);
+      return [];
+    }
+    return new Promise(res => {
+      const tx = _db.transaction(store, 'readonly');
+      const req = tx.objectStore(store).getAll();
+      req.onsuccess = () => res(req.result || []);
+      req.onerror = () => { console.warn('[Dashboard] Error leyendo', store, req.error); res([]); };
+    });
+  } catch (e) { console.warn('[Dashboard] getAll falló:', store, e); return []; }
+}
+
+// ════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════
+const C = () => localStorage.getItem('appCurrency') || '$';
+const fmt = v => C() + Number(v||0).toLocaleString('es-CO');
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const daysDiff = (ts1, ts2) => Math.floor((ts2 - ts1) / 86400000);
+
+function fmtTime(ts) {
+  return new Date(ts).toLocaleString('es-ES', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+}
+function fmtDay(ts) {
+  return new Date(ts).toLocaleDateString('es-ES', { weekday:'short', day:'numeric' }).toUpperCase();
+}
+
+// ════════════════════════════════════════
+//  RELOJ + FECHA
+// ════════════════════════════════════════
+function tick() {
+  const n = new Date();
+  const pad = x => String(x).padStart(2,'0');
+  document.getElementById('tb-clock').textContent =
+    `${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
+  document.getElementById('tb-date').textContent =
+    n.toLocaleDateString('es-ES', { weekday:'long', day:'numeric', month:'long' });
+}
+tick(); setInterval(tick, 1000);
+
+// ════════════════════════════════════════
+//  NOMBRES NEGOCIO
+// ════════════════════════════════════════
+function loadBiz() {
+  try {
+    const c = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+    const name  = c.name  || 'NELSON';
+    const short = c.shortName || 'TODO REPUESTOS';
+    document.getElementById('sb-short').textContent = short;
+    document.getElementById('sb-name').textContent  = name;
+    document.getElementById('tb-title').textContent = name + ' — COMMAND CENTER';
+    document.title = `${name} — Dashboard`;
+  } catch {}
+}
+
+// ════════════════════════════════════════
+//  DASHBOARD PRINCIPAL
+// ════════════════════════════════════════
+async function loadDashboard() {
+  showSkeletons();
+  const [orders, stock, sales, gastos, clientes] = await Promise.all([
+    getAll('orders'), getAll('stock'), getAll('sales'), getAll('gastos'), getAll('clientes')
+  ]);
+  _dashOrders = orders;
+  _dashSales = sales;
+  _dashGastos = gastos;
+  _dashStock = stock;
+  _dashClientes = clientes;
+
+  // ★ Panel Hoy + Insights
+  buildTodayPanel(orders, sales, gastos);
+  buildInsights(orders, sales, gastos, stock);
+
+  const now        = Date.now();
+  const lastCierre = Number(localStorage.getItem('lastCierreCaja')) || 0;
+  const startMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
+  const threshold  = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
+  const cfg        = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+  const prefix     = cfg.orderPrefix || '#';
+
+  // ── CAJA ──
+  const tOrdCaja  = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) > lastCierre).reduce((a,b) => a+(b.val||0), 0);
+  const tSalesCaja= sales.filter(s => s.fecha > lastCierre).reduce((a,b) => a+(b.val||0), 0);
+  const tGastos   = gastos.filter(g => g.fecha > lastCierre).reduce((a,b) => a+(b.val||0), 0);
+  const caja      = tOrdCaja + tSalesCaja - tGastos;
+  animateCount(document.getElementById('kpi-caja'), caja, true);
+  document.getElementById('sb-cash').textContent     = fmt(caja);
+  document.getElementById('kpi-caja-sub').textContent = `+${fmt(tOrdCaja+tSalesCaja)} ingresos · -${fmt(tGastos)} gastos`;
+  const cajaT = document.getElementById('kpi-caja-trend');
+  cajaT.textContent = caja >= 0 ? '▲ Positiva' : '▼ Negativa';
+  cajaT.className = 'kpi-trend ' + (caja >= 0 ? 'up' : 'down');
+
+  // ── ACTIVAS ──
+  const activas = orders.filter(o => o.sta !== 'entregado');
+  const listas  = activas.filter(o => o.sta === 'reparado');
+  animateCount(document.getElementById('kpi-activas'), activas.length, false);
+  document.getElementById('kpi-activas-sub').textContent = `${listas.length} listas para entregar`;
+  document.getElementById('kpi-activas-trend').textContent = `${activas.length} en proceso`;
+  document.getElementById('kpi-activas-trend').className = 'kpi-trend ' + (listas.length > 0 ? 'up' : 'neutral');
+  document.getElementById('sb-badge-activas').textContent = activas.length;
+  document.getElementById('sb-badge-listos').textContent  = listas.length;
+
+  // ── INGRESOS MES ──
+  const entMes  = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= startMonth);
+  const ingRep  = entMes.reduce((a,b) => a+(b.val||0), 0);
+  const ingVta  = sales.filter(s => s.fecha >= startMonth).reduce((a,b) => a+(b.val||0), 0);
+  const ingMes  = ingRep + ingVta;
+  animateCount(document.getElementById('kpi-ingresos'), ingMes, true);
+  document.getElementById('kpi-ingresos-sub').textContent = `${entMes.length} reparaciones · ${sales.filter(s=>s.fecha>=startMonth).length} ventas`;
+  const trendEl = document.getElementById('kpi-ingresos-trend');
+  trendEl.textContent = fmt(ingRep) + ' reparac.';
+  trendEl.className = 'kpi-trend up';
+  // Comparación mes anterior
+  const prevIng = calcPrevMonthIngresos(orders, sales);
+  renderVs('kpi-ingresos-vs', ingMes, prevIng);
+
+  // ── INVENTARIO ──
+  const valInv  = stock.reduce((a,b) => a+(b.p||0)*(b.q||0), 0);
+  const bajos   = stock.filter(s => s.q <= threshold && s.q > 0).length;
+  const agotados= stock.filter(s => s.q === 0).length;
+  animateCount(document.getElementById('kpi-inventario'), valInv, true);
+  document.getElementById('kpi-inventario-sub').textContent = `${stock.length} productos`;
+  const invTrend = document.getElementById('kpi-inventario-trend');
+  if (agotados > 0) { invTrend.textContent = `⚠ ${agotados} agotados`; invTrend.className = 'kpi-trend down'; }
+  else if (bajos > 0) { invTrend.textContent = `${bajos} bajos`; invTrend.className = 'kpi-trend warn'; }
+  else { invTrend.textContent = '✓ Stock OK'; invTrend.className = 'kpi-trend up'; }
+
+  // ── META ──
+  const meta    = parseFloat(localStorage.getItem('metaMensual')) || 0;
+  const visible = localStorage.getItem('metaVisible') === 'true';
+  if (meta && visible) {
+    const pct = Math.min(100, Math.round((ingMes / meta) * 100));
+    const card = document.getElementById('meta-card');
+    card.style.display = 'block';
+    document.getElementById('meta-pct').textContent = pct + '%';
+    document.getElementById('meta-pct').style.color = pct >= 100 ? 'var(--green)' : pct >= 60 ? 'var(--amber)' : 'var(--red)';
+    document.getElementById('meta-subtitle').textContent =
+      new Date().toLocaleDateString('es-ES', { month:'long', year:'numeric' });
+    document.getElementById('meta-done').textContent = fmt(ingMes) + ' logrado';
+    document.getElementById('meta-goal').textContent = 'Meta: ' + fmt(meta);
+    const fill = document.getElementById('meta-fill');
+    const fillColor = pct >= 100 ? 'linear-gradient(to right,#0fd77a,#34d399)' : pct >= 60 ? 'linear-gradient(to right,#fbbf24,#f59e0b)' : 'linear-gradient(to right,#ff4060,#fb7185)';
+    setTimeout(() => { fill.style.width = pct + '%'; fill.style.background = fillColor; }, 300);
+    // milestones
+    const milestones = [25,50,75,100];
+    document.getElementById('meta-milestones').innerHTML = milestones.map(m =>
+      `<div class="meta-milestone ${pct >= m ? 'done' : 'pending'}">${pct >= m ? '✓' : ''} ${m}%</div>`
+    ).join('');
+  }
+
+  // ── ALERTAS ──
+  buildAlerts(orders, stock, threshold);
+
+  // ── GRÁFICA 7 DÍAS ──
+  buildBarChart(orders, sales, gastos);
+
+  // ── STATUS ──
+  buildStatusChart(orders);
+
+  // ── ÓRDENES RECIENTES ──
+  buildOrdersPanel(orders, prefix, now);
+
+  // ── EFICIENCIA ──
+  buildEficiencia(orders, now);
+
+  // ── MOVIMIENTOS ──
+  buildMovPanel(orders, sales, gastos, lastCierre);
+
+  // ── TOP REPUESTOS ──
+  buildTopPanel(sales, startMonth);
+
+  // ── DEUDA ──
+  buildDeudaPanel(clientes);
+
+  // ── GARANTÍAS ──
+  buildGarantiaPanel(orders, now);
+
+  // ── STOCK CRÍTICO ──
+  buildStockPanel(stock, threshold);
+
+  // ── FEED ──
+  buildFeed(orders, sales, gastos);
+}
+
+// ────────────────────────────────────────
+function buildAlerts(orders, stock, threshold) {
+  const alerts = [];
+  const activas = orders.filter(o => o.sta !== 'entregado');
+  const listas  = activas.filter(o => o.sta === 'reparado');
+  const vencidas = activas.filter(o => daysDiff(o.fecha, Date.now()) > 60);
+  const agotados = stock.filter(s => s.q === 0);
+  const bajos    = stock.filter(s => s.q <= threshold && s.q > 0);
+  if (listas.length)   alerts.push({ type:'green', icon:'✅', msg:`${listas.length} equipos listos para entregar` });
+  if (vencidas.length) alerts.push({ type:'red',   icon:'⏰', msg:`${vencidas.length} órdenes con +60 días sin entrega` });
+  if (agotados.length) alerts.push({ type:'red',   icon:'📦', msg:`${agotados.length} productos agotados en inventario` });
+  if (bajos.length)    alerts.push({ type:'amber',  icon:'⚠️', msg:`${bajos.length} productos cerca del mínimo` });
+  const el = document.getElementById('alert-banner');
+  if (!alerts.length) { el.style.display = 'none'; return; }
+  el.innerHTML = alerts.map(a =>
+    `<div class="alert-chip ${a.type}" onclick="goApp('${a.type==='green'?'ordenes':'ventas'}')">
+      <div class="alert-dot"></div>${a.icon} ${a.msg}
+    </div>`
+  ).join('');
+}
+
+// ────────────────────────────────────────
+function buildBarChart(orders, sales, gastos) {
+  const range = _chartRange || 7;
+  const days = [];
+  for (let i = range - 1; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const start = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    const end   = start + 86400000;
+    const rep = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= start && (o.fechaEntrega||o.fecha) < end).reduce((a,b)=>a+(b.val||0),0);
+    const vta = sales.filter(s => s.fecha >= start && s.fecha < end).reduce((a,b)=>a+(b.val||0),0);
+    const gas = gastos.filter(g => g.fecha >= start && g.fecha < end).reduce((a,b)=>a+(b.val||0),0);
+    days.push({ label: fmtDay(start).slice(0,3), val: rep+vta, isToday: i===0, net: rep+vta-gas, start, end, fullLabel: new Date(start).toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'}) });
+  }
+  const maxVal = Math.max(...days.map(d => d.val), 1);
+  const totalPeriodo = days.reduce((a,b) => a+b.val, 0);
+  document.getElementById('chart-total-label').textContent = `Total período: ${fmt(totalPeriodo)}`;
+  const chart = document.getElementById('bar-chart');
+  // Si el rango es grande, mostrar labels cada N barras para no saturar
+  const showLabelEvery = range <= 7 ? 1 : range <= 30 ? 5 : 10;
+  // Si son solo valores grandes, ocultar los valores individuales para limpieza visual
+  const hideValues = range > 7;
+  chart.innerHTML = days.map((d, idx) => {
+    const h = Math.max(4, Math.round((d.val / maxVal) * 80));
+    const showLabel = idx === days.length - 1 || idx % showLabelEvery === 0;
+    const valStr = d.val > 0 ? fmt(d.val).replace(C(),'') : '';
+    return `<div class="bar-col" onclick="openBarDayModal(${d.start},${d.end},'${d.fullLabel}')">
+      <div class="bar-val" style="${hideValues?'visibility:hidden;':''}">${valStr}</div>
+      <div class="bar-fill-wrap">
+        <div class="bar-fill ${d.isToday ? 'today' : ''}" data-tip="${d.fullLabel}: ${fmt(d.val)}"
+             style="height:${h}px;"></div>
+      </div>
+      <div class="bar-label" style="${showLabel?'':'visibility:hidden;'}">${d.label}</div>
+    </div>`;
+  }).join('');
+}
+
+// ────────────────────────────────────────
+function buildStatusChart(orders) {
+  const total = orders.length || 1;
+  const estados = [
+    { key:'recibido',  label:'Recibido',   color:'var(--blue)',   icon:'📥' },
+    { key:'revisión',  label:'En revisión',color:'var(--amber)',  icon:'🔍' },
+    { key:'reparado',  label:'Listo',      color:'var(--violet)', icon:'✅' },
+    { key:'entregado', label:'Entregado',  color:'var(--green)',  icon:'🚚' },
+  ];
+  const counts = {};
+  orders.forEach(o => { counts[o.sta] = (counts[o.sta]||0) + 1; });
+  document.getElementById('status-total-label').textContent = `${orders.length} órdenes en total`;
+  document.getElementById('status-chart').innerHTML = estados.map(e => {
+    const n = counts[e.key] || 0;
+    const pct = Math.round((n / total) * 100);
+    return `<div class="status-row" onclick="openStatusModal('${e.key}')">
+      <div class="status-row-head">
+        <div class="status-row-label">
+          <div class="status-pip" style="background:${e.color};box-shadow:0 0 6px ${e.color};"></div>
+          ${e.label}
+        </div>
+        <div class="status-row-count">${n}</div>
+      </div>
+      <div class="status-track">
+        <div class="status-fill" style="width:${pct}%;background:${e.color};"></div>
+      </div>
+      <div class="status-pct">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+// ────────────────────────────────────────
+function buildOrdersPanel(orders, prefix, now) {
+  const recent = [...orders].sort((a,b) => b.fecha - a.fecha).slice(0, 8);
+  const el = document.getElementById('orders-panel');
+  if (!recent.length) { el.innerHTML = '<div class="empty">Sin órdenes</div>'; return; }
+  const dotClass = { recibido:'pip-recibido','revisión':'pip-revision', reparado:'pip-reparado', entregado:'pip-entregado' };
+  el.innerHTML = recent.map(o => {
+    const dias = daysDiff(o.fecha, now);
+    let daysClass = 'fresh', daysLabel = `${dias}d`;
+    if (dias > 30) daysClass = 'old';
+    else if (dias > 7) daysClass = 'medium';
+    return `<div class="order-item" onclick="openOrdenModal('${o.num}')">
+      <div class="order-status-pip ${dotClass[o.sta]||'pip-recibido'}"></div>
+      <div class="order-num">${prefix}${o.num||'—'}</div>
+      <div class="order-info">
+        <div class="order-client">${esc(o.nom)}</div>
+        <div class="order-device">
+          ${esc(o.equ)}
+          <span class="order-days ${daysClass}">${daysLabel}</span>
+        </div>
+      </div>
+      <div class="order-val">${fmt(o.val||0)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ────────────────────────────────────────
+function buildEficiencia(orders, now) {
+  const entregadas = orders.filter(o => o.sta === 'entregado');
+  const total = orders.length || 1;
+  const tasa  = Math.round((entregadas.length / total) * 100);
+
+  // tiempo promedio de reparación (días)
+  const tiempos = entregadas.filter(o => o.fechaEntrega).map(o => daysDiff(o.fecha, o.fechaEntrega));
+  const promTiempo = tiempos.length ? Math.round(tiempos.reduce((a,b)=>a+b,0)/tiempos.length) : 0;
+
+  // ticket promedio
+  const ticketProm = entregadas.length ? Math.round(entregadas.reduce((a,b)=>a+(b.val||0),0)/entregadas.length) : 0;
+
+  // órdenes hoy
+  const hoyStart = new Date(); hoyStart.setHours(0,0,0,0);
+  const hoy = orders.filter(o => o.fecha >= hoyStart.getTime()).length;
+
+  const items = [
+    { label:'TASA ENTREGA', val: tasa + '%', sub:'vs total órdenes', color:'var(--green)' },
+    { label:'TIEMPO PROM.',  val: promTiempo + 'd', sub:'días por reparación', color:'var(--blue)' },
+    { label:'TICKET PROM.', val: fmt(ticketProm), sub:'por reparación', color:'var(--accent)' },
+    { label:'ÓRDENES HOY',  val: hoy, sub:'registradas hoy', color:'var(--violet)' },
+  ];
+  document.getElementById('efic-grid').innerHTML = items.map(i =>
+    `<div class="efic-item" style="--efic-color:${i.color};">
+      <div class="efic-label">${i.label}</div>
+      <div class="efic-val">${i.val}</div>
+      <div class="efic-sub">${i.sub}</div>
+    </div>`
+  ).join('');
+}
+
+// ────────────────────────────────────────
+function buildMovPanel(orders, sales, gastos, lastCierre) {
+  const mSales  = sales.filter(s=>s.fecha>lastCierre).map(s=>({...s,_t:'sale',_f:s.fecha}));
+  const mGastos = gastos.filter(g=>g.fecha>lastCierre).map(g=>({...g,_t:'gasto',_f:g.fecha}));
+  const mOrd    = orders.filter(o=>o.sta==='entregado'&&(o.fechaEntrega||o.fecha)>lastCierre)
+                        .map(o=>({...o,_t:'repair',_f:o.fechaEntrega||o.fecha}));
+  const all = [...mSales,...mGastos,...mOrd].sort((a,b)=>b._f-a._f).slice(0,7);
+  const el = document.getElementById('mov-panel');
+  if (!all.length) { el.innerHTML='<div class="empty">Sin movimientos</div>'; return; }
+  el.innerHTML = all.map(m => {
+    if (m._t==='sale')   return `<div class="mov-item"><div class="mov-icon-wrap sale">🛒</div><div class="mov-info"><div class="mov-name">${esc(m.item||'Venta')}</div><div class="mov-date">${fmtTime(m._f)}</div></div><div class="mov-val pos">+${fmt(m.val||0)}</div></div>`;
+    if (m._t==='repair') return `<div class="mov-item"><div class="mov-icon-wrap repair">🔧</div><div class="mov-info"><div class="mov-name">${esc(m.nom||'')} · ${esc(m.equ||'')}</div><div class="mov-date">${fmtTime(m._f)}</div></div><div class="mov-val pos">+${fmt(m.val||0)}</div></div>`;
+    return `<div class="mov-item"><div class="mov-icon-wrap gasto">💸</div><div class="mov-info"><div class="mov-name">${esc(m.det||'Gasto')}</div><div class="mov-date">${fmtTime(m._f)}</div></div><div class="mov-val neg">-${fmt(m.val||0)}</div></div>`;
+  }).join('');
+}
+
+// ────────────────────────────────────────
+function buildTopPanel(sales, startMonth) {
+  const mesSales = sales.filter(s => s.fecha >= startMonth);
+  const counts = {};
+  mesSales.forEach(s => { counts[s.item] = (counts[s.item]||0) + (s.qty||1); });
+  const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const el = document.getElementById('top-panel');
+  if (!sorted.length) { el.innerHTML='<div class="empty">Sin ventas este mes</div>'; return; }
+  const rankClass = ['gold','silver','bronze','',''];
+  el.innerHTML = sorted.map(([name,qty], i) =>
+    `<div class="top-item">
+      <div class="top-rank ${rankClass[i]}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div>
+      <div class="top-info">
+        <div class="top-name">${esc(name)}</div>
+        <div class="top-sub">${qty} unidades vendidas</div>
+      </div>
+      <div class="top-count">${qty}</div>
+    </div>`
+  ).join('');
+}
+
+// ────────────────────────────────────────
+function buildDeudaPanel(clientes) {
+  const deudores = clientes.filter(c=>c.deuda>0).sort((a,b)=>b.deuda-a.deuda).slice(0,6);
+  const el = document.getElementById('deuda-panel');
+  if (!deudores.length) { el.innerHTML='<div class="empty">✅ Sin deudas pendientes</div>'; return; }
+  el.innerHTML = deudores.map((c,i) =>
+    `<div class="deuda-item" onclick="openClienteDeudaModal(${i})">
+      <div class="deuda-rank">${i+1}</div>
+      <div class="deuda-avatar">👤</div>
+      <div class="deuda-info">
+        <div class="deuda-name">${esc(c.nombre)}</div>
+        <div class="deuda-since">${c.telefono||'Sin teléfono'}</div>
+      </div>
+      <div class="deuda-val">${fmt(c.deuda)}</div>
+    </div>`
+  ).join('');
+}
+
+// ────────────────────────────────────────
+function buildGarantiaPanel(orders, now) {
+  const warrantyDays = parseInt(localStorage.getItem('warrantyAlertDays')) || 5;
+  const upcoming = orders
+    .filter(o => {
+      if (!o.garantia || o.garantia <= 0) return false;
+      if (o.sta !== 'entregado' || !o.fechaEntrega) return false;
+      const vence = o.fechaEntrega + (o.garantia * 86400000);
+      const diasRestantes = daysDiff(now, vence);
+      return diasRestantes >= 0 && diasRestantes <= (warrantyDays + 5);
+    })
+    .map(o => {
+      const vence = o.fechaEntrega + (o.garantia * 86400000);
+      return { ...o, diasRestantes: daysDiff(now, vence) };
+    })
+    .sort((a,b) => a.diasRestantes - b.diasRestantes)
+    .slice(0, 6);
+
+  const el = document.getElementById('garantia-panel');
+  if (!upcoming.length) { el.innerHTML='<div class="empty">✅ Sin garantías próximas a vencer</div>'; return; }
+  el.innerHTML = upcoming.map(o => {
+    const isHoy = o.diasRestantes === 0;
+    const cls   = isHoy ? 'vence-hoy' : 'vence-pronto';
+    const label = isHoy ? '¡HOY!' : `${o.diasRestantes}d`;
+    return `<div class="garantia-item">
+      <div class="garantia-days" style="color:${isHoy?'var(--red)':'var(--amber)'}">${label}</div>
+      <div class="garantia-info">
+        <div class="garantia-client">${esc(o.nom)}</div>
+        <div class="garantia-device">${esc(o.equ)}</div>
+      </div>
+      <div class="garantia-badge ${cls}">${o.garantia}d garantía</div>
+    </div>`;
+  }).join('');
+}
+
+// ────────────────────────────────────────
+function buildStockPanel(stock, threshold) {
+  const critical = stock.filter(s=>s.q<=threshold).sort((a,b)=>a.q-b.q).slice(0,6);
+  const el = document.getElementById('stock-panel');
+  const catIcons = {'Motores ventilador':'🌀','Motores licuadora':'⚙️','Acoples Samurái':'🔩','Élices':'🌊','Empaques olla':'🍲','Cuchillas licuadora':'🔪','Cuadrantes':'📐','Acoples Oster':'🔩','Suiches':'🔘','Tapones olla':'🔒','Otros':'📦'};
+  if (!critical.length) { el.innerHTML='<div class="empty">✅ Inventario en buen estado</div>'; return; }
+  el.innerHTML = critical.map(s => {
+    const isOut = s.q === 0;
+    const pct   = isOut ? 100 : Math.min(100, Math.round((s.q / Math.max((s.minStock||threshold)*2,1))*100));
+    const bar   = isOut ? 'var(--red)' : 'var(--amber)';
+    return `<div class="stock-item" onclick="openStockCriticoModal()">
+      <div class="stock-ico">${catIcons[s.cat]||'📦'}</div>
+      <div class="stock-info">
+        <div class="stock-name">${esc(s.n)}</div>
+        <div class="stock-mini-bar"><div class="stock-mini-fill" style="width:${pct}%;background:${bar};"></div></div>
+      </div>
+      <div class="stock-right">
+        <div class="stock-price">${fmt(s.p)}</div>
+        <div class="stock-qty" style="color:${isOut?'var(--red)':'var(--amber)'};">${isOut?'AGOTADO':s.q+' uds'}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ────────────────────────────────────────
+function buildFeed(orders, sales, gastos) {
+  const events = [
+    ...orders.map(o => ({ ts: o.fecha, type:'order', data:o })),
+    ...sales.map(s  => ({ ts: s.fecha, type:'sale',  data:s })),
+    ...gastos.map(g => ({ ts: g.fecha, type:'gasto', data:g })),
+    ...orders.filter(o=>o.sta==='entregado'&&o.fechaEntrega).map(o=>({ ts:o.fechaEntrega, type:'entrega', data:o })),
+  ].sort((a,b)=>b.ts-a.ts).slice(0,8);
+
+  const el = document.getElementById('feed-panel');
+  if (!events.length) { el.innerHTML='<div class="empty">Sin actividad</div>'; return; }
+
+  const pad = x => String(x).padStart(2,'0');
+  el.innerHTML = events.map((e, i) => {
+    const d = new Date(e.ts);
+    const t = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    let text = '';
+    if (e.type==='order')   text = `Nueva orden — <strong>${esc(e.data.nom)}</strong> · <span class="chip">${esc(e.data.equ)}</span>`;
+    if (e.type==='sale')    text = `Venta de <strong>${esc(e.data.item)}</strong> · ${e.data.qty} unid · <strong>${fmt(e.data.val)}</strong>`;
+    if (e.type==='gasto')   text = `Gasto registrado — <strong>${esc(e.data.det)}</strong> · <span style="color:var(--red)">${fmt(e.data.val)}</span>`;
+    if (e.type==='entrega') text = `Equipo entregado — <strong>${esc(e.data.nom)}</strong> · <span style="color:var(--green)">${fmt(e.data.val)}</span>`;
+    return `<div class="feed-item">
+      <div class="feed-time">${t}</div>
+      <div class="feed-dot-col">
+        <div class="feed-dot" style="background:${e.type==='gasto'?'var(--red)':e.type==='entrega'?'var(--green)':e.type==='sale'?'var(--blue)':'var(--accent)'};"></div>
+        ${i < events.length-1 ? '<div class="feed-line"></div>' : ''}
+      </div>
+      <div class="feed-text">${text}</div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════
+//  TEMA
+// ════════════════════════════════════════
+function toggleDashTheme() {
+  const light = document.body.classList.toggle('light-mode');
+  localStorage.setItem('appTheme', light ? 'light' : 'dark');
+  const icon = light ? '☀️' : '🌙';
+  document.getElementById('theme-btn').textContent = icon;
+}
+function applyTheme() {
+  const saved = localStorage.getItem('appTheme');
+  const dark  = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (saved === 'light' || (!saved && !dark)) {
+    document.body.classList.add('light-mode');
+    document.getElementById('theme-btn').textContent = '☀️';
+  }
+}
+
+// ════════════════════════════════════════
+//  NAVEGACIÓN
+// ════════════════════════════════════════
+function goApp(tab) {
+  sessionStorage.setItem('dashGoTab', tab);
+  window.location.href = './index.html';
+}
+function goAction(action) {
+  sessionStorage.setItem('dashAction', action);
+  window.location.href = './index.html';
+}
+
+// ════════════════════════════════════════
+//  ★ PANEL HOY (Estado del taller)
+// ════════════════════════════════════════
+function buildTodayPanel(orders, sales, gastos) {
+  // Fecha bonita
+  const d = new Date();
+  document.getElementById('today-date-label').textContent =
+    d.toLocaleDateString('es-ES', { weekday:'long', day:'numeric', month:'long' }).toUpperCase();
+
+  const hoyStart = new Date(); hoyStart.setHours(0,0,0,0);
+  const hoyStartTs = hoyStart.getTime();
+  const ayerStartTs = hoyStartTs - 86400000;
+
+  // Ingresos hoy
+  const ingHoyRep = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= hoyStartTs).reduce((a,b)=>a+(b.val||0),0);
+  const ingHoyVta = sales.filter(s => s.fecha >= hoyStartTs).reduce((a,b)=>a+(b.val||0),0);
+  const gastosHoy = gastos.filter(g => g.fecha >= hoyStartTs).reduce((a,b)=>a+(b.val||0),0);
+  const ingHoy = ingHoyRep + ingHoyVta;
+  const netoHoy = ingHoy - gastosHoy;
+
+  // Ingresos ayer (para comparar)
+  const ingAyerRep = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= ayerStartTs && (o.fechaEntrega||o.fecha) < hoyStartTs).reduce((a,b)=>a+(b.val||0),0);
+  const ingAyerVta = sales.filter(s => s.fecha >= ayerStartTs && s.fecha < hoyStartTs).reduce((a,b)=>a+(b.val||0),0);
+  const ingAyer = ingAyerRep + ingAyerVta;
+
+  // Listas para avisar
+  const listas = orders.filter(o => o.sta === 'reparado');
+
+  // Vencidas (+60d sin entregar)
+  const vencidas = orders.filter(o => o.sta !== 'entregado' && daysDiff(o.fecha, Date.now()) > 60);
+
+  // Órdenes nuevas hoy
+  const nuevasHoy = orders.filter(o => o.fecha >= hoyStartTs).length;
+
+  // Entregas hoy
+  const entregasHoy = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= hoyStartTs).length;
+
+  // Construir las stat cards
+  const vs = ingAyer > 0 ? Math.round(((ingHoy - ingAyer) / ingAyer) * 100) : null;
+  const vsLabel = vs === null ? 'sin datos ayer' : (vs >= 0 ? `▲ ${vs}% vs ayer` : `▼ ${Math.abs(vs)}% vs ayer`);
+
+  const cards = [
+    {
+      cls: listas.length ? 'success' : '',
+      label: 'Listos para avisar',
+      val: listas.length,
+      sub: listas.length ? 'Click para WhatsApp' : 'Ninguno pendiente',
+      action: "openListosModal()"
+    },
+    {
+      cls: vencidas.length ? 'alert' : '',
+      label: 'Con +60 días',
+      val: vencidas.length,
+      sub: vencidas.length ? 'Requieren atención' : 'Todo en orden',
+      action: "openVencidasModal()"
+    },
+    {
+      cls: '',
+      label: 'Ingresos hoy',
+      val: fmt(ingHoy),
+      sub: vsLabel,
+      action: "openHoyIngresosModal()"
+    },
+    {
+      cls: '',
+      label: 'Movimiento hoy',
+      val: `${nuevasHoy}/${entregasHoy}`,
+      sub: 'nuevas / entregadas',
+      action: "openHoyMovModal()"
+    },
+  ];
+
+  document.getElementById('today-stats').innerHTML = cards.map(c =>
+    `<div class="today-stat ${c.cls}" onclick="${c.action}">
+      <div class="today-stat-arrow">→</div>
+      <div class="today-stat-label">${c.label}</div>
+      <div class="today-stat-val">${c.val}</div>
+      <div class="today-stat-sub">${c.sub}</div>
+    </div>`
+  ).join('');
+}
+
+// ════════════════════════════════════════
+//  ★ SMART INSIGHTS
+// ════════════════════════════════════════
+function buildInsights(orders, sales, gastos, stock) {
+  const insights = [];
+  const now = Date.now();
+  const hoyStart = new Date(); hoyStart.setHours(0,0,0,0);
+  const startWeek = hoyStart.getTime() - 6 * 86400000;
+  const startPrevWeek = startWeek - 7 * 86400000;
+  const startMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
+
+  // 1. Semana actual vs semana anterior
+  const semActual = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= startWeek).reduce((a,b)=>a+(b.val||0),0)
+                  + sales.filter(s => s.fecha >= startWeek).reduce((a,b)=>a+(b.val||0),0);
+  const semAnterior = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= startPrevWeek && (o.fechaEntrega||o.fecha) < startWeek).reduce((a,b)=>a+(b.val||0),0)
+                    + sales.filter(s => s.fecha >= startPrevWeek && s.fecha < startWeek).reduce((a,b)=>a+(b.val||0),0);
+  if (semAnterior > 0) {
+    const pct = Math.round(((semActual - semAnterior) / semAnterior) * 100);
+    if (pct >= 10) insights.push({ type:'positive', icon:'🚀', text:`Esta semana vas <strong>${pct}% arriba</strong> vs la anterior` });
+    else if (pct <= -10) insights.push({ type:'warning', icon:'📉', text:`Esta semana vas <strong>${Math.abs(pct)}% abajo</strong> vs la anterior` });
+  }
+
+  // 2. Equipo más rentable del mes
+  const entMes = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= startMonth);
+  if (entMes.length >= 3) {
+    const byEq = {};
+    entMes.forEach(o => {
+      const k = (o.equ||'Sin especificar').trim();
+      byEq[k] = byEq[k] || { total:0, count:0 };
+      byEq[k].total += (o.val||0);
+      byEq[k].count++;
+    });
+    const ranked = Object.entries(byEq).sort((a,b) => b[1].total - a[1].total);
+    if (ranked.length) {
+      const [topName, topData] = ranked[0];
+      insights.push({ type:'info', icon:'🏆', text:`<strong>${esc(topName)}</strong> es tu equipo más rentable este mes · ${fmt(topData.total)} en ${topData.count} repar.` });
+    }
+  }
+
+  // 3. Mejor día de la semana
+  const last30 = now - 30 * 86400000;
+  const entRec = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= last30);
+  if (entRec.length >= 5) {
+    const byDay = [0,0,0,0,0,0,0];
+    entRec.forEach(o => { byDay[new Date(o.fechaEntrega||o.fecha).getDay()] += (o.val||0); });
+    const names = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+    const maxIdx = byDay.indexOf(Math.max(...byDay));
+    if (byDay[maxIdx] > 0) {
+      insights.push({ type:'info', icon:'📅', text:`Tu mejor día suele ser <strong>${names[maxIdx]}</strong> (últimos 30d)` });
+    }
+  }
+
+  // 4. Racha de entregas
+  const entregasHoy = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= hoyStart.getTime()).length;
+  if (entregasHoy >= 3) {
+    insights.push({ type:'positive', icon:'🔥', text:`Hoy llevas <strong>${entregasHoy} entregas</strong> — gran ritmo` });
+  }
+
+  // 5. Alerta de stock agotado que se vende mucho
+  const agotados = stock.filter(s => s.q === 0);
+  const mesVentas = sales.filter(s => s.fecha >= startMonth);
+  if (agotados.length && mesVentas.length) {
+    const counts = {};
+    mesVentas.forEach(s => { counts[s.item] = (counts[s.item]||0) + (s.qty||1); });
+    const agotadoCaliente = agotados.find(s => counts[s.n] && counts[s.n] >= 2);
+    if (agotadoCaliente) {
+      insights.push({ type:'warning', icon:'⚠️', text:`<strong>${esc(agotadoCaliente.n)}</strong> está agotado y vendiste ${counts[agotadoCaliente.n]} este mes` });
+    }
+  }
+
+  // 6. Cartera alta (si hay deudas grandes acumuladas)
+  // (el panel de deuda ya lo muestra, skip)
+
+  // Mostrar máximo 3 insights
+  const el = document.getElementById('insights-row');
+  if (!insights.length) { el.style.display = 'none'; return; }
+  el.style.display = 'grid';
+  el.innerHTML = insights.slice(0, 3).map(i =>
+    `<div class="insight-card ${i.type}">
+      <div class="insight-icon">${i.icon}</div>
+      <div class="insight-text">${i.text}</div>
+    </div>`
+  ).join('');
+}
+
+// ════════════════════════════════════════
+//  ★ MODAL SYSTEM
+// ════════════════════════════════════════
+function openDashModal(opts) {
+  const m = document.getElementById('dash-modal');
+  document.getElementById('dm-icon').textContent = opts.icon || '📊';
+  document.getElementById('dm-title').textContent = opts.title || 'Detalle';
+  document.getElementById('dm-sub').textContent = opts.sub || '';
+  document.getElementById('dm-body').innerHTML = opts.body || '';
+  document.getElementById('dm-foot').innerHTML = opts.foot || '';
+  m.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDashModal() {
+  document.getElementById('dash-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDashModal(); });
+
+// ════════════════════════════════════════
+//  ★ WHATSAPP HELPERS
+// ════════════════════════════════════════
+function cleanPhone(p) {
+  if (!p) return '';
+  let c = String(p).replace(/[^\d+]/g, '');
+  if (c.startsWith('+')) c = c.slice(1);
+  // Si no tiene código país y es de Colombia (10 dígitos móviles), agregar 57
+  if (c.length === 10 && !c.startsWith('57')) c = '57' + c;
+  return c;
+}
+function openWhatsApp(phone, message) {
+  const p = cleanPhone(phone);
+  if (!p) { alert('⚠️ Este cliente no tiene teléfono registrado.'); return; }
+  const url = `https://wa.me/${p}?text=${encodeURIComponent(message)}`;
+  window.open(url, '_blank');
+}
+function buildAvisoListoMsg(order) {
+  const cfg = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+  const neg = cfg.name || 'Todo Repuestos Nelson';
+  const prefix = cfg.orderPrefix || '#';
+  const saludo = cfg.saludoCliente || 'Hola';
+  return `${saludo} ${order.nom}! 👋\n\nTu ${order.equ || 'equipo'} (orden ${prefix}${order.num}) ya está *listo para recoger* ✅\n\nValor: ${fmt(order.val||0)}\n${order.garantia ? `Garantía: ${order.garantia} días\n` : ''}\nTe esperamos. Gracias por confiar en *${neg}* 🛠️`;
+}
+function buildRecordatorioDeudaMsg(cliente) {
+  const cfg = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+  const neg = cfg.name || 'Todo Repuestos Nelson';
+  return `Hola ${cliente.nombre} 👋\n\nUn recordatorio amistoso: tienes un saldo pendiente de *${fmt(cliente.deuda)}* con nosotros.\n\nCualquier inconveniente avísame por aquí. ¡Gracias!\n\n— ${neg}`;
+}
+function buildOrdenCompraMsg(items) {
+  const lines = items.map(s => `• ${s.n}${s.cat?' ('+s.cat+')':''} — ${s.q === 0 ? 'AGOTADO' : s.q+' uds'}`).join('\n');
+  return `🛒 *Solicitud de pedido*\n\nNecesito estos repuestos:\n\n${lines}\n\nConfírmame disponibilidad y precios. Gracias!`;
+}
+
+// ════════════════════════════════════════
+//  ★ HELPERS PARA BOTONES DE ACCIÓN
+//  (evitan template literals anidados en onclick)
+// ════════════════════════════════════════
+function avisarListoAction(numStr) {
+  const o = _dashOrders.find(x => String(x.num) === String(numStr));
+  if (!o) return;
+  openWhatsApp(o.tel || '', buildAvisoListoMsg(o));
+}
+function contactarClienteOrden(numStr) {
+  const o = _dashOrders.find(x => String(x.num) === String(numStr));
+  if (!o) return;
+  const prefix = (JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix)||'#';
+  const msg = `Hola ${o.nom}, te escribo sobre tu ${o.equ||'equipo'} (orden ${prefix}${o.num}) que tenemos pendiente. ¿Podríamos coordinar?`;
+  openWhatsApp(o.tel || '', msg);
+}
+function recordarDeudaAction(clienteIdx) {
+  const deudores = (_dashClientes || []).filter(x => x.deuda > 0).sort((a,b) => b.deuda - a.deuda);
+  const c = deudores[clienteIdx];
+  if (!c) return;
+  openWhatsApp(c.telefono || '', buildRecordatorioDeudaMsg(c));
+}
+function enviarPedidoStockAction() {
+  const threshold = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
+  const critical = (_dashStock || []).filter(s => s.q <= threshold).sort((a,b) => a.q - b.q);
+  if (!critical.length) return;
+  openWhatsApp('', buildOrdenCompraMsg(critical));
+}
+
+// ════════════════════════════════════════
+//  ★ MODAL: LISTOS PARA AVISAR
+// ════════════════════════════════════════
+function openListosModal() {
+  const listas = _dashOrders.filter(o => o.sta === 'reparado').sort((a,b) => a.fecha - b.fecha);
+  const cfg = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+  const prefix = cfg.orderPrefix || '#';
+  const body = listas.length ? `
+    <div class="dd-section">
+      <div class="dd-section-title">📱 ${listas.length} equipo${listas.length!==1?'s':''} listo${listas.length!==1?'s':''} para avisar</div>
+      <div class="dd-list">
+        ${listas.map(o => `
+          <div class="dd-row">
+            <div class="dd-row-left">
+              <div class="dd-row-ico">🛠️</div>
+              <div class="dd-row-text">
+                <div class="dd-row-name">${esc(o.nom)} · ${prefix}${o.num||'—'}</div>
+                <div class="dd-row-sub">${esc(o.equ||'Sin equipo')} · hace ${daysDiff(o.fecha, Date.now())} días</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <div class="dd-row-val pos">${fmt(o.val||0)}</div>
+              <button class="btn primary" style="padding:6px 10px;font-size:0.7rem;flex:none;min-width:auto;"
+                onclick="event.stopPropagation();avisarListoAction('${esc(o.num)}')">💬 Avisar</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  ` : `<div class="dd-empty">✅ No hay equipos listos pendientes de avisar</div>`;
+
+  openDashModal({
+    icon: '✅',
+    title: 'Equipos listos',
+    sub: `${listas.length} pendiente${listas.length!==1?'s':''} de avisar al cliente`,
+    body,
+    foot: listas.length ? `
+      <button class="btn" onclick="closeDashModal()">Cerrar</button>
+      <button class="btn accent" onclick="goApp('ordenes')">Abrir en la app →</button>
+    ` : `<button class="btn" onclick="closeDashModal()">Cerrar</button>`
+  });
+}
+
+// ════════════════════════════════════════
+//  ★ MODAL: ÓRDENES VENCIDAS (+60d)
+// ════════════════════════════════════════
+function openVencidasModal() {
+  const vencidas = _dashOrders.filter(o => o.sta !== 'entregado' && daysDiff(o.fecha, Date.now()) > 60)
+    .sort((a,b) => a.fecha - b.fecha);
+  const cfg = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+  const prefix = cfg.orderPrefix || '#';
+
+  const body = vencidas.length ? `
+    <div class="dd-section">
+      <div class="dd-section-title">⏰ Órdenes con más de 60 días sin entregar</div>
+      <div class="dd-list">
+        ${vencidas.map(o => {
+          const dias = daysDiff(o.fecha, Date.now());
+          return `
+          <div class="dd-row">
+            <div class="dd-row-left">
+              <div class="dd-row-ico">⚠️</div>
+              <div class="dd-row-text">
+                <div class="dd-row-name">${esc(o.nom)} · ${prefix}${o.num||'—'}</div>
+                <div class="dd-row-sub">${esc(o.equ||'Sin equipo')} · <span style="color:var(--red)">${dias} días</span> · ${o.sta}</div>
+              </div>
+            </div>
+            ${o.tel ? `<button class="btn primary" style="padding:6px 10px;font-size:0.7rem;flex:none;min-width:auto;"
+              onclick="event.stopPropagation();contactarClienteOrden('${esc(o.num)}')">💬</button>` : '<span style="color:var(--text3);font-size:0.7rem;">sin tel.</span>'}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  ` : `<div class="dd-empty">✅ Ninguna orden con más de 60 días</div>`;
+
+  openDashModal({
+    icon: '⏰',
+    title: 'Órdenes vencidas',
+    sub: `${vencidas.length} con más de 60 días sin entrega`,
+    body,
+    foot: `<button class="btn" onclick="closeDashModal()">Cerrar</button>
+           <button class="btn accent" onclick="goApp('ordenes')">Abrir en la app →</button>`
+  });
+}
+
+// ════════════════════════════════════════
+//  ★ MODAL: INGRESOS DE HOY (desglose)
+// ════════════════════════════════════════
+function openHoyIngresosModal() {
+  const hoyStart = new Date(); hoyStart.setHours(0,0,0,0);
+  const hoyStartTs = hoyStart.getTime();
+  openIngresosDesgloseModal(hoyStartTs, Date.now(), 'Ingresos de hoy');
+}
+
+function openIngresosDesgloseModal(startTs, endTs, titleText) {
+  const orders = _dashOrders;
+  const sales = _dashSales || [];
+  const gastos = _dashGastos || [];
+
+  const reps = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= startTs && (o.fechaEntrega||o.fecha) < endTs);
+  const vtas = sales.filter(s => s.fecha >= startTs && s.fecha < endTs);
+  const gts  = gastos.filter(g => g.fecha >= startTs && g.fecha < endTs);
+
+  const totRep = reps.reduce((a,b)=>a+(b.val||0),0);
+  const totVta = vtas.reduce((a,b)=>a+(b.val||0),0);
+  const totGas = gts.reduce((a,b)=>a+(b.val||0),0);
+  const neto = totRep + totVta - totGas;
+
+  const prefix = (JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix)||'#';
+
+  const body = `
+    <div class="dd-summary">
+      <div class="dd-summary-box">
+        <div class="dd-summary-label">Reparaciones</div>
+        <div class="dd-summary-val green">${fmt(totRep)}</div>
+      </div>
+      <div class="dd-summary-box">
+        <div class="dd-summary-label">Ventas</div>
+        <div class="dd-summary-val accent">${fmt(totVta)}</div>
+      </div>
+      <div class="dd-summary-box">
+        <div class="dd-summary-label">Gastos</div>
+        <div class="dd-summary-val red">${totGas > 0 ? '-'+fmt(totGas) : fmt(0)}</div>
+      </div>
+    </div>
+    <div class="dd-summary" style="grid-template-columns:1fr;margin-bottom:18px;">
+      <div class="dd-summary-box" style="background:linear-gradient(135deg,rgba(16,217,126,0.08),transparent);border-color:rgba(16,217,126,0.25);">
+        <div class="dd-summary-label">Neto</div>
+        <div class="dd-summary-val ${neto>=0?'green':'red'}">${neto >= 0 ? fmt(neto) : '-'+fmt(Math.abs(neto))}</div>
+      </div>
+    </div>
+    ${reps.length ? `
+      <div class="dd-section">
+        <div class="dd-section-title">🔧 Reparaciones entregadas (${reps.length})</div>
+        <div class="dd-list">
+          ${reps.map(o => `
+            <div class="dd-row">
+              <div class="dd-row-left">
+                <div class="dd-row-ico">🔧</div>
+                <div class="dd-row-text">
+                  <div class="dd-row-name">${esc(o.nom)} · ${prefix}${o.num||'—'}</div>
+                  <div class="dd-row-sub">${esc(o.equ||'')}</div>
+                </div>
+              </div>
+              <div class="dd-row-val pos">${fmt(o.val||0)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
+    ${vtas.length ? `
+      <div class="dd-section">
+        <div class="dd-section-title">🛒 Ventas (${vtas.length})</div>
+        <div class="dd-list">
+          ${vtas.map(s => `
+            <div class="dd-row">
+              <div class="dd-row-left">
+                <div class="dd-row-ico">🛒</div>
+                <div class="dd-row-text">
+                  <div class="dd-row-name">${esc(s.item||'Venta')}</div>
+                  <div class="dd-row-sub">${s.qty||1} unid · ${fmtTime(s.fecha)}</div>
+                </div>
+              </div>
+              <div class="dd-row-val pos">${fmt(s.val||0)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
+    ${gts.length ? `
+      <div class="dd-section">
+        <div class="dd-section-title">💸 Gastos (${gts.length})</div>
+        <div class="dd-list">
+          ${gts.map(g => `
+            <div class="dd-row">
+              <div class="dd-row-left">
+                <div class="dd-row-ico">💸</div>
+                <div class="dd-row-text">
+                  <div class="dd-row-name">${esc(g.det||'Gasto')}</div>
+                  <div class="dd-row-sub">${fmtTime(g.fecha)}</div>
+                </div>
+              </div>
+              <div class="dd-row-val neg">-${fmt(g.val||0)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
+    ${!reps.length && !vtas.length && !gts.length ? `<div class="dd-empty">Sin movimientos en este período</div>` : ''}
+  `;
+
+  openDashModal({
+    icon: '💵',
+    title: titleText,
+    sub: `${reps.length + vtas.length} transacciones · ${gts.length} gastos`,
+    body,
+    foot: `<button class="btn" onclick="closeDashModal()">Cerrar</button>
+           <button class="btn accent" onclick="goApp('ventas')">Ir a caja →</button>`
+  });
+}
+
+// ════════════════════════════════════════
+//  ★ MODAL: MOVIMIENTO HOY (nuevas + entregas)
+// ════════════════════════════════════════
+function openHoyMovModal() {
+  const hoyStart = new Date(); hoyStart.setHours(0,0,0,0);
+  const ts = hoyStart.getTime();
+  const nuevas = _dashOrders.filter(o => o.fecha >= ts).sort((a,b) => b.fecha - a.fecha);
+  const entregadas = _dashOrders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= ts).sort((a,b) => (b.fechaEntrega||b.fecha) - (a.fechaEntrega||a.fecha));
+  const prefix = (JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix)||'#';
+
+  const body = `
+    ${nuevas.length ? `
+      <div class="dd-section">
+        <div class="dd-section-title">📥 Órdenes nuevas de hoy (${nuevas.length})</div>
+        <div class="dd-list">
+          ${nuevas.map(o => `
+            <div class="dd-row" onclick="closeDashModal();openOrdenModal('${o.num}')">
+              <div class="dd-row-left">
+                <div class="dd-row-ico">📥</div>
+                <div class="dd-row-text">
+                  <div class="dd-row-name">${esc(o.nom)} · ${prefix}${o.num}</div>
+                  <div class="dd-row-sub">${esc(o.equ||'')} · ${new Date(o.fecha).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}</div>
+                </div>
+              </div>
+              <div class="dd-row-val">${fmt(o.val||0)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
+    ${entregadas.length ? `
+      <div class="dd-section">
+        <div class="dd-section-title">🚚 Entregadas hoy (${entregadas.length})</div>
+        <div class="dd-list">
+          ${entregadas.map(o => `
+            <div class="dd-row">
+              <div class="dd-row-left">
+                <div class="dd-row-ico">🚚</div>
+                <div class="dd-row-text">
+                  <div class="dd-row-name">${esc(o.nom)} · ${prefix}${o.num}</div>
+                  <div class="dd-row-sub">${esc(o.equ||'')}</div>
+                </div>
+              </div>
+              <div class="dd-row-val pos">${fmt(o.val||0)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
+    ${!nuevas.length && !entregadas.length ? `<div class="dd-empty">Aún no hay actividad hoy</div>` : ''}
+  `;
+
+  openDashModal({
+    icon: '📊',
+    title: 'Movimiento del día',
+    sub: `${nuevas.length} nuevas · ${entregadas.length} entregadas`,
+    body,
+    foot: `<button class="btn" onclick="closeDashModal()">Cerrar</button>
+           <button class="btn accent" onclick="goApp('ordenes')">Ver todas →</button>`
+  });
+}
+
+// ════════════════════════════════════════
+//  ★ MODAL: ORDEN INDIVIDUAL
+// ════════════════════════════════════════
+function openOrdenModal(numStr) {
+  const num = String(numStr);
+  const o = _dashOrders.find(x => String(x.num) === num);
+  if (!o) return;
+  const prefix = (JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix)||'#';
+  const dias = daysDiff(o.fecha, Date.now());
+  const statusLabels = { recibido:'📥 Recibido', 'revisión':'🔍 En revisión', reparado:'✅ Listo', entregado:'🚚 Entregado' };
+
+  const body = `
+    <div class="dd-client-card">
+      <div class="dd-client-avatar">🛠️</div>
+      <div style="flex:1;min-width:0;">
+        <div class="dd-client-name">${esc(o.nom)}</div>
+        <div class="dd-client-phone">${esc(o.tel||'Sin teléfono')}</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:0.7rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">Valor</div>
+        <div style="font-size:1.2rem;font-weight:800;color:var(--green);font-family:'JetBrains Mono',monospace;">${fmt(o.val||0)}</div>
+      </div>
+    </div>
+    <div class="dd-section">
+      <div class="dd-section-title">📋 Datos de la orden</div>
+      <div class="dd-field"><div class="dd-field-label">Número</div><div class="dd-field-val">${prefix}${o.num}</div></div>
+      <div class="dd-field"><div class="dd-field-label">Equipo</div><div class="dd-field-val">${esc(o.equ||'—')}</div></div>
+      <div class="dd-field"><div class="dd-field-label">Estado</div><div class="dd-field-val">${statusLabels[o.sta]||o.sta}</div></div>
+      <div class="dd-field"><div class="dd-field-label">Recibido</div><div class="dd-field-val">${fmtTime(o.fecha)} · hace ${dias}d</div></div>
+      ${o.fechaEntrega ? `<div class="dd-field"><div class="dd-field-label">Entregado</div><div class="dd-field-val">${fmtTime(o.fechaEntrega)}</div></div>` : ''}
+      ${o.diag ? `<div class="dd-field"><div class="dd-field-label">Diagnóstico</div><div class="dd-field-val">${esc(o.diag)}</div></div>` : ''}
+      ${o.tec ? `<div class="dd-field"><div class="dd-field-label">Técnico</div><div class="dd-field-val">${esc(o.tec)}</div></div>` : ''}
+      ${o.garantia ? `<div class="dd-field"><div class="dd-field-label">Garantía</div><div class="dd-field-val">${o.garantia} días</div></div>` : ''}
+    </div>
+  `;
+
+  let foot = `<button class="btn" onclick="closeDashModal()">Cerrar</button>`;
+  if (o.sta === 'reparado' && o.tel) {
+    foot += `<button class="btn primary" onclick="avisarListoAction('${esc(o.num)}')">💬 Avisar listo</button>`;
+  } else if (o.tel) {
+    foot += `<button class="btn primary" onclick="contactarClienteOrden('${esc(o.num)}')">💬 WhatsApp</button>`;
+  }
+  foot += `<button class="btn accent" onclick="goApp('ordenes')">Ver en app →</button>`;
+
+  openDashModal({
+    icon: '🛠️',
+    title: `Orden ${prefix}${o.num}`,
+    sub: `${esc(o.equ||'Equipo')} · ${statusLabels[o.sta]||o.sta}`,
+    body,
+    foot
+  });
+}
+
+// ════════════════════════════════════════
+//  ★ MODAL: CLIENTE CON DEUDA
+// ════════════════════════════════════════
+function openClienteDeudaModal(idx) {
+  const c = (_dashClientes || []).filter(x => x.deuda > 0).sort((a,b) => b.deuda - a.deuda)[idx];
+  if (!c) return;
+  // Historial: órdenes de este cliente
+  const ordenes = _dashOrders.filter(o => (o.nom||'').toLowerCase() === (c.nombre||'').toLowerCase());
+  const totalFacturado = ordenes.filter(o => o.sta==='entregado').reduce((a,b) => a+(b.val||0), 0);
+  const prefix = (JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix)||'#';
+
+  const body = `
+    <div class="dd-client-card">
+      <div class="dd-client-avatar">👤</div>
+      <div style="flex:1;min-width:0;">
+        <div class="dd-client-name">${esc(c.nombre)}</div>
+        <div class="dd-client-phone">${esc(c.telefono||'Sin teléfono')}</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:0.7rem;color:var(--red);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">Debe</div>
+        <div style="font-size:1.3rem;font-weight:800;color:var(--red);font-family:'JetBrains Mono',monospace;">${fmt(c.deuda)}</div>
+      </div>
+    </div>
+    <div class="dd-summary">
+      <div class="dd-summary-box">
+        <div class="dd-summary-label">Órdenes</div>
+        <div class="dd-summary-val">${ordenes.length}</div>
+      </div>
+      <div class="dd-summary-box">
+        <div class="dd-summary-label">Facturado</div>
+        <div class="dd-summary-val green">${fmt(totalFacturado)}</div>
+      </div>
+      <div class="dd-summary-box">
+        <div class="dd-summary-label">Pendiente</div>
+        <div class="dd-summary-val red">${fmt(c.deuda)}</div>
+      </div>
+    </div>
+    ${ordenes.length ? `
+      <div class="dd-section">
+        <div class="dd-section-title">📋 Historial de órdenes</div>
+        <div class="dd-list">
+          ${ordenes.slice(0,8).map(o => `
+            <div class="dd-row" onclick="closeDashModal();openOrdenModal('${o.num}')">
+              <div class="dd-row-left">
+                <div class="dd-row-ico">🛠️</div>
+                <div class="dd-row-text">
+                  <div class="dd-row-name">${prefix}${o.num} · ${esc(o.equ||'—')}</div>
+                  <div class="dd-row-sub">${new Date(o.fecha).toLocaleDateString('es-ES')} · ${o.sta}</div>
+                </div>
+              </div>
+              <div class="dd-row-val">${fmt(o.val||0)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
+  `;
+
+  const foot = `
+    <button class="btn" onclick="closeDashModal()">Cerrar</button>
+    ${c.telefono ? `<button class="btn primary" onclick="recordarDeudaAction(${idx})">💬 Recordar deuda</button>` : ''}
+    <button class="btn accent" onclick="goApp('ventas')">Gestionar →</button>
+  `;
+
+  openDashModal({
+    icon: '💳',
+    title: esc(c.nombre),
+    sub: `Cliente con deuda pendiente`,
+    body,
+    foot
+  });
+}
+
+// ════════════════════════════════════════
+//  ★ MODAL: STOCK CRÍTICO (orden de compra)
+// ════════════════════════════════════════
+function openStockCriticoModal() {
+  const threshold = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
+  const critical = (_dashStock || []).filter(s => s.q <= threshold).sort((a,b) => a.q - b.q);
+  const agotados = critical.filter(s => s.q === 0);
+  const bajos    = critical.filter(s => s.q > 0);
+
+  const body = critical.length ? `
+    <div class="dd-summary">
+      <div class="dd-summary-box">
+        <div class="dd-summary-label">Agotados</div>
+        <div class="dd-summary-val red">${agotados.length}</div>
+      </div>
+      <div class="dd-summary-box">
+        <div class="dd-summary-label">Bajos</div>
+        <div class="dd-summary-val accent">${bajos.length}</div>
+      </div>
+      <div class="dd-summary-box">
+        <div class="dd-summary-label">Total</div>
+        <div class="dd-summary-val">${critical.length}</div>
+      </div>
+    </div>
+    <div class="dd-section">
+      <div class="dd-section-title">📦 Items a reponer</div>
+      <div class="dd-list">
+        ${critical.map(s => `
+          <div class="dd-row">
+            <div class="dd-row-left">
+              <div class="dd-row-ico">${s.q===0?'❌':'⚠️'}</div>
+              <div class="dd-row-text">
+                <div class="dd-row-name">${esc(s.n)}</div>
+                <div class="dd-row-sub">${esc(s.cat||'Sin categoría')} · ${fmt(s.p||0)}</div>
+              </div>
+            </div>
+            <div class="dd-row-val ${s.q===0?'neg':''}">${s.q === 0 ? 'AGOTADO' : s.q + ' uds'}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  ` : `<div class="dd-empty">✅ Inventario en buen estado</div>`;
+
+  const foot = critical.length ? `
+    <button class="btn" onclick="closeDashModal()">Cerrar</button>
+    <button class="btn primary" onclick="enviarPedidoStockAction()">💬 Enviar pedido</button>
+    <button class="btn accent" onclick="goApp('ventas')">Inventario →</button>
+  ` : `<button class="btn" onclick="closeDashModal()">Cerrar</button>`;
+
+  openDashModal({
+    icon: '📦',
+    title: 'Stock crítico',
+    sub: `${critical.length} producto${critical.length!==1?'s':''} para reponer`,
+    body,
+    foot
+  });
+}
+// Override openWhatsApp behavior when no phone: let user copy message
+const _origOpenWhatsApp = openWhatsApp;
+openWhatsApp = function(phone, message) {
+  const p = cleanPhone(phone);
+  if (!p) {
+    // No phone — open wa.me sin número, con el mensaje pre-cargado
+    const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+    return;
+  }
+  const url = `https://wa.me/${p}?text=${encodeURIComponent(message)}`;
+  window.open(url, '_blank');
+};
+
+// ════════════════════════════════════════
+//  ★ MODAL: KPI DRILLDOWN
+// ════════════════════════════════════════
+function openKpiModal(kpiType) {
+  const orders = _dashOrders;
+  const sales = _dashSales || [];
+  const gastos = _dashGastos || [];
+  const lastCierre = Number(localStorage.getItem('lastCierreCaja')) || 0;
+  const startMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
+
+  if (kpiType === 'caja') {
+    openIngresosDesgloseModal(lastCierre, Date.now(), 'Caja · desde último cierre');
+  } else if (kpiType === 'activas') {
+    const activas = orders.filter(o => o.sta !== 'entregado').sort((a,b) => a.fecha - b.fecha);
+    const prefix = (JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix)||'#';
+    const byStatus = { recibido:[], 'revisión':[], reparado:[] };
+    activas.forEach(o => { if (byStatus[o.sta]) byStatus[o.sta].push(o); });
+    const statusIcons = { recibido:'📥', 'revisión':'🔍', reparado:'✅' };
+    const statusLabels = { recibido:'Recibido', 'revisión':'En revisión', reparado:'Listo para entregar' };
+    const body = activas.length ? Object.entries(byStatus).filter(([k,v]) => v.length).map(([k,list]) => `
+      <div class="dd-section">
+        <div class="dd-section-title">${statusIcons[k]} ${statusLabels[k]} (${list.length})</div>
+        <div class="dd-list">
+          ${list.map(o => `
+            <div class="dd-row" onclick="closeDashModal();openOrdenModal('${o.num}')">
+              <div class="dd-row-left">
+                <div class="dd-row-ico">🛠️</div>
+                <div class="dd-row-text">
+                  <div class="dd-row-name">${esc(o.nom)} · ${prefix}${o.num}</div>
+                  <div class="dd-row-sub">${esc(o.equ||'')} · hace ${daysDiff(o.fecha,Date.now())}d</div>
+                </div>
+              </div>
+              <div class="dd-row-val">${fmt(o.val||0)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `).join('') : `<div class="dd-empty">Sin órdenes activas</div>`;
+    openDashModal({
+      icon:'📋', title:'Órdenes activas', sub:`${activas.length} en proceso`, body,
+      foot:`<button class="btn" onclick="closeDashModal()">Cerrar</button><button class="btn accent" onclick="goApp('ordenes')">Abrir en app →</button>`
+    });
+  } else if (kpiType === 'ingresos') {
+    openIngresosDesgloseModal(startMonth, Date.now(), 'Ingresos del mes');
+  } else if (kpiType === 'inventario') {
+    openStockCriticoModal();
+  }
+}
+
+// ════════════════════════════════════════
+//  ★ MODAL: BARRA DE GRÁFICA (día específico)
+// ════════════════════════════════════════
+function openBarDayModal(startTs, endTs, label) {
+  openIngresosDesgloseModal(startTs, endTs, label);
+}
+
+// ════════════════════════════════════════
+//  ★ MODAL: STATUS ROW (órdenes por estado)
+// ════════════════════════════════════════
+function openStatusModal(statusKey) {
+  const orders = _dashOrders.filter(o => o.sta === statusKey).sort((a,b) => b.fecha - a.fecha);
+  const prefix = (JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix)||'#';
+  const labels = { recibido:'📥 Recibidos', 'revisión':'🔍 En revisión', reparado:'✅ Listos', entregado:'🚚 Entregados' };
+
+  const body = orders.length ? `
+    <div class="dd-section">
+      <div class="dd-section-title">${orders.length} órdenes</div>
+      <div class="dd-list">
+        ${orders.slice(0,30).map(o => `
+          <div class="dd-row" onclick="closeDashModal();openOrdenModal('${o.num}')">
+            <div class="dd-row-left">
+              <div class="dd-row-ico">🛠️</div>
+              <div class="dd-row-text">
+                <div class="dd-row-name">${esc(o.nom)} · ${prefix}${o.num}</div>
+                <div class="dd-row-sub">${esc(o.equ||'')} · hace ${daysDiff(o.fecha,Date.now())}d</div>
+              </div>
+            </div>
+            <div class="dd-row-val">${fmt(o.val||0)}</div>
+          </div>
+        `).join('')}
+        ${orders.length > 30 ? `<div class="dd-empty" style="padding:10px;font-size:0.72rem;">Mostrando primeras 30 de ${orders.length}</div>` : ''}
+      </div>
+    </div>
+  ` : `<div class="dd-empty">Sin órdenes en este estado</div>`;
+
+  openDashModal({
+    icon:'📊', title: labels[statusKey] || statusKey, sub:`${orders.length} total`, body,
+    foot:`<button class="btn" onclick="closeDashModal()">Cerrar</button><button class="btn accent" onclick="goApp('ordenes')">Abrir en app →</button>`
+  });
+}
+
+// ════════════════════════════════════════
+//  ★ RANGO DE GRÁFICA (7/30/90)
+// ════════════════════════════════════════
+let _chartRange = 7;
+function setChartRange(days) {
+  _chartRange = days;
+  document.querySelectorAll('#range-toggle .range-btn').forEach(b => {
+    b.classList.toggle('active', Number(b.dataset.range) === days);
+  });
+  document.getElementById('chart-head-title').textContent = `Ingresos — Últimos ${days} días`;
+  buildBarChart(_dashOrders, _dashSales || [], _dashGastos || []);
+}
+
+// Buckets globales (declaradas al top para evitar TDZ issues)
+let _dashSales = [];
+let _dashGastos = [];
+let _dashStock = [];
+let _dashClientes = [];
+
+// ════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  // ── Redirección amigable en móvil (< 780px) ──
+  if (window.innerWidth < 780) {
+    document.body.style.cssText = 'display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:#060810;color:#dde3f0;font-family:sans-serif;padding:32px;text-align:center;min-height:100vh;';
+    document.body.innerHTML = `
+      <div style="font-size:3.5rem;">📊</div>
+      <h2 style="font-size:1.3rem;font-weight:900;color:#f97316;margin:0;">Command Center</h2>
+      <p style="font-size:0.85rem;color:#7c8aab;max-width:280px;line-height:1.5;margin:0;">
+        Esta vista está optimizada para tablet y escritorio.<br>Redirigiendo a la app…
+      </p>
+      <div style="width:220px;height:5px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;margin-top:4px;">
+        <div style="height:100%;width:0%;background:linear-gradient(90deg,#f97316,#fbbf24);border-radius:99px;animation:mbar 1.8s ease forwards;"></div>
+      </div>
+      <style>@keyframes mbar{from{width:0%}to{width:100%}}</style>
+    `;
+    setTimeout(() => { window.location.href = './index.html'; }, 1900);
+    return;
+  }
+
+  applyTheme();
+  applySidebarState();
+  loadBiz();
+  // Arrancar el reloj
+  tick();
+  setInterval(tick, 1000);
+
+  // ★ Range toggle listener
+  document.getElementById('range-toggle').addEventListener('click', e => {
+    const btn = e.target.closest('.range-btn');
+    if (!btn) return;
+    setChartRange(Number(btn.dataset.range));
+  });
+
+  await loadDashboard();
+  // Auto-refresh cada 30s
+  setInterval(loadDashboard, 30000);
+});
+</script>
+</body>
+</html>
