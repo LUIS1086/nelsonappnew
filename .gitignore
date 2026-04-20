@@ -1,5 +1,0 @@
-node_modules/
-*.keystore
-*.jks
-keystore.properties
-android/local.properties
