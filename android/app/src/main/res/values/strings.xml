@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">Nelson App Pro</string>
-    <string name="title_activity_main">Nelson App Pro</string>
-    <string name="package_name">com.nelsonapp.pro</string>
-    <string name="custom_url_scheme">com.nelsonapp.pro</string>
-</resources>
