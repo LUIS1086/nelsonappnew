@@ -36,11 +36,13 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Accept Android SDK licenses
-        run: yes | sdkmanager --licenses || true
+      - name: Configure Android SDK (pre-installed on ubuntu-latest)
+        run: |
+          ANDROID_SDK_ROOT=$ANDROID_HOME
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
+          echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0" > /dev/null 2>&1 || true
 
       - name: Sync Capacitor to Android
         run: npx cap sync android
@@ -54,15 +56,15 @@ jobs:
         run: |
           if [ -n "$KEYSTORE_BASE64" ]; then
             echo "$KEYSTORE_BASE64" | base64 --decode > android/nelsonapp-release.keystore
-            cat > android/keystore.properties << EOF
+            cat > android/keystore.properties <<EOF
           storeFile=nelsonapp-release.keystore
           storePassword=$KEYSTORE_PASSWORD
           keyAlias=$KEY_ALIAS
           keyPassword=$KEY_PASSWORD
           EOF
-            echo "✅ Keystore configurado desde secrets"
+            echo "✅ Keystore desde secrets"
           else
-            echo "⚠️  Sin secrets: generando keystore de prueba"
+            echo "⚠️  Generando keystore de prueba"
             keytool -genkeypair -noprompt \
               -keystore android/nelsonapp-release.keystore \
               -alias nelsonapp \
@@ -71,7 +73,7 @@ jobs:
               -storepass testpassword \
               -keypass testpassword \
               -dname "CN=NelsonApp, OU=Dev, O=NelsonApp, L=CO, S=CO, C=CO"
-            cat > android/keystore.properties << EOF
+            cat > android/keystore.properties <<EOF
           storeFile=nelsonapp-release.keystore
           storePassword=testpassword
           keyAlias=nelsonapp
@@ -83,15 +85,16 @@ jobs:
         run: chmod +x android/gradlew
 
       - name: Build Release APK
-        run: |
-          cd android
-          ./gradlew assembleRelease --stacktrace
+        run: cd android && ./gradlew assembleRelease --stacktrace
+        env:
+          ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
 
       - name: Rename APK
         run: |
-          VERSION=${{ github.event.inputs.version_name || '1.0.0' }}
+          VERSION="${{ github.event.inputs.version_name || '1.0.0' }}"
           cp android/app/build/outputs/apk/release/app-release.apk \
              nelson-app-pro-v${VERSION}.apk
+          echo "APK lista: nelson-app-pro-v${VERSION}.apk"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
