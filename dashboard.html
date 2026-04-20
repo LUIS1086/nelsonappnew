@@ -1496,22 +1496,34 @@ let _db = null;
 function openDB() {
   return new Promise((res, rej) => {
     if (_db) return res(_db);
-    const r = indexedDB.open(DB_NAME, 14);
-    r.onerror = () => rej(r.error);
-    r.onsuccess = () => { _db = r.result; res(_db); };
-    r.onupgradeneeded = () => {};
+    // Abre la DB sin forzar versión — usa la que ya exista en la app principal.
+    // Esto evita conflictos si el index.html migra a versiones mayores.
+    const r = indexedDB.open(DB_NAME);
+    r.onerror = () => { console.warn('[Dashboard] Error abriendo DB:', r.error); rej(r.error); };
+    r.onsuccess = () => {
+      _db = r.result;
+      console.log('[Dashboard] DB abierta v' + _db.version + ' · stores:', Array.from(_db.objectStoreNames));
+      res(_db);
+    };
+    r.onblocked = () => console.warn('[Dashboard] DB bloqueada');
+    // No definimos onupgradeneeded — el dashboard es solo lectura, no debe crear ni migrar stores.
   });
 }
 async function getAll(store) {
   try {
     await openDB();
+    // Si el store no existe (porque la app aún no lo creó), devolvemos vacío sin lanzar error
+    if (!_db.objectStoreNames.contains(store)) {
+      console.warn('[Dashboard] Store no existe:', store);
+      return [];
+    }
     return new Promise(res => {
       const tx = _db.transaction(store, 'readonly');
       const req = tx.objectStore(store).getAll();
       req.onsuccess = () => res(req.result || []);
-      req.onerror = () => res([]);
+      req.onerror = () => { console.warn('[Dashboard] Error leyendo', store, req.error); res([]); };
     });
-  } catch { return []; }
+  } catch (e) { console.warn('[Dashboard] getAll falló:', store, e); return []; }
 }
 
 // ════════════════════════════════════════
