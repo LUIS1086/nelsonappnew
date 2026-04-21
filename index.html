@@ -5563,8 +5563,6 @@
             showToast(cobro > 0 ? `✅ Entregado · Cobrado ${getCurrency()}${cobro.toLocaleString()}${o.saldo > 0 ? ` · Saldo ${getCurrency()}${o.saldo.toLocaleString()}` : ''}` : '✅ Equipo entregado', 'success');
             // Ofrecer WhatsApp si tiene tel
             if (o.tel) setTimeout(() => _mostrarAvisoReparado({ ...o, sta: 'entregado' }), 400);
-            // Pedir calificación del servicio
-            setTimeout(() => promptCalificacion(o), 1200);
         }
         async function editOrderValue(id) {
             editOrder(id);
