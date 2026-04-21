@@ -1510,103 +1510,151 @@
     </header>
 
     <main id="view-taller" class="app-view hidden p-4 space-y-4 max-container">
-        <div class="card p-6 space-y-5">
-            <h2 class="text-center text-[11px] font-black text-slate-400 uppercase tracking-[3px]">📝 NUEVA RECEPCIÓN</h2>
-            <div>
-                <div class="relative">
-                    <input type="text" id="c-nom" placeholder="CLIENTE" class="uppercase font-semibold w-full pr-12" autocomplete="off" onkeyup="checkClient()" oninput="ac_onInput(this,'cliente')" onfocus="ac_onInput(this,'cliente')" onblur="ac_onBlur()">
-                    <button type="button" onclick="startVoiceInput('c-nom')" id="voice-btn-c-nom" class="voice-mic-btn absolute right-2 top-1/2 -translate-y-1/2" title="Dictado por voz">🎤</button>
-                    <div id="ac-dropdown-cliente" class="ac-dropdown" style="display:none;"></div>
-                </div>
-                <div id="client-alert" class="text-[10px] text-emerald-400 font-bold mt-1 min-h-[15px] ml-2"></div>
-            </div>
-            <input type="tel" id="c-tel" placeholder="WHATSAPP" class="w-full">
-            <div class="relative">
-                <input type="text" id="c-equ" placeholder="EQUIPO / MODELO" class="uppercase font-bold text-orange-400 w-full pr-12" autocomplete="off" oninput="ac_onInput(this,'equipo')" onfocus="ac_onInput(this,'equipo')" onblur="ac_onBlur()">
-                <button type="button" onclick="startVoiceInput('c-equ')" id="voice-btn-c-equ" class="voice-mic-btn absolute right-2 top-1/2 -translate-y-1/2" title="Dictado por voz">🎤</button>
-                <div id="ac-dropdown-equipo" class="ac-dropdown" style="display:none;"></div>
-            </div>
-            <div class="relative">
-                <textarea id="c-fal" placeholder="FALLA INICIAL Y ESTADO FÍSICO..." class="h-24 text-xs uppercase w-full pr-10" oninput="suggestDiagnosis()"></textarea>
-                <button type="button" onclick="startVoiceInput('c-fal')" id="voice-btn-c-fal" class="voice-mic-btn absolute right-2 top-3" title="Dictado por voz">🎤</button>
-            </div>
-            <div id="diagnosis-suggestions" class="suggestion-box"></div>
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="text-[10px] text-slate-400 block mb-1 ml-1">GARANTÍA (días)</label>
-                    <input type="number" id="c-garantia" placeholder="Ej: 30" class="w-full text-center font-bold" min="0" value="30">
-                </div>
-                <div>
-                    <label class="text-[10px] text-slate-400 block mb-1 ml-1">PRESUPUESTO</label>
-                    <select id="c-presupuesto" class="w-full font-bold text-xs">
-                        <option value="pendiente">⏳ Pendiente</option>
-                        <option value="enviado">📤 Enviado</option>
-                        <option value="aprobado">✅ Aprobado</option>
-                        <option value="rechazado">❌ Rechazado</option>
-                    </select>
+        <div class="card p-0 overflow-hidden" style="border:1px solid rgba(249,115,22,0.15);">
+            <!-- HERO header con gradiente -->
+            <div style="position:relative;padding:20px 20px 18px;background:linear-gradient(135deg,rgba(249,115,22,0.16) 0%,rgba(234,88,12,0.08) 50%,transparent 100%);border-bottom:1px solid rgba(255,255,255,0.04);overflow:hidden;">
+                <div style="position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(249,115,22,0.18),transparent 70%);pointer-events:none;"></div>
+                <div style="position:relative;display:flex;align-items:center;gap:14px;">
+                    <div style="width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#ea580c,#f97316);display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 10px 24px rgba(249,115,22,0.4);flex-shrink:0;">📝</div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-size:9px;font-weight:900;color:#fb923c;letter-spacing:3px;text-transform:uppercase;">Nueva recepción</div>
+                        <div style="font-size:18px;font-weight:900;color:#f1f5f9;letter-spacing:-0.3px;">Registrar entrada de equipo</div>
+                    </div>
+                    <div id="taller-order-preview-num" style="flex-shrink:0;padding:6px 12px;border-radius:10px;background:rgba(15,23,42,0.6);border:1px solid rgba(249,115,22,0.25);font-size:11px;font-weight:900;color:#fb923c;font-family:ui-monospace,monospace;letter-spacing:1px;">#PRÓX.</div>
                 </div>
             </div>
-            <!-- Técnico asignado -->
-            <div>
-                <label class="text-[10px] text-slate-400 block mb-1 ml-1">👷 TÉCNICO ASIGNADO</label>
-                <select id="c-tecnico" class="w-full font-bold text-sm">
-                    <option value="">Sin asignar</option>
-                </select>
-            </div>
-            <!-- Fecha estimada de entrega -->
-            <div>
-                <label class="text-[10px] text-slate-400 block mb-1 ml-1">📅 FECHA ESTIMADA DE ENTREGA</label>
-                <input type="date" id="c-fecha-estimada" class="w-full text-sm font-bold text-blue-400">
-            </div>
-            <!-- Cómo nos conoció -->
-            <div>
-                <label class="text-[10px] text-slate-400 block mb-1 ml-1">📣 ¿CÓMO NOS CONOCIÓ?</label>
-                <select id="c-origen" class="w-full font-bold text-xs">
-                    <option value="">Sin especificar</option>
-                    <option value="recomendacion">🗣️ Recomendación</option>
-                    <option value="redes">📱 Redes sociales</option>
-                    <option value="cliente_frecuente">⭐ Cliente frecuente</option>
-                    <option value="google">🔍 Google</option>
-                    <option value="local">🏠 Pasó por el local</option>
-                    <option value="whatsapp">💬 WhatsApp</option>
-                    <option value="otro">📌 Otro</option>
-                </select>
-            </div>
-            <!-- Valor y adelanto -->
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="text-[10px] text-slate-400 block mb-1 ml-1">💰 VALOR ESTIMADO</label>
-                    <input type="number" id="c-val" placeholder="$0" class="text-emerald-400 font-black text-center text-lg w-full" min="0" step="1000" oninput="calcSaldoPreview()">
-                </div>
-                <div>
-                    <label class="text-[10px] text-slate-400 block mb-1 ml-1">💵 ADELANTO</label>
-                    <input type="number" id="c-adelanto" placeholder="$0" class="text-blue-400 font-black text-center text-lg w-full" min="0" step="1000" oninput="calcSaldoPreview()">
-                </div>
-            </div>
-            <div id="val-error" class="text-[10px] text-rose-400 font-bold min-h-[15px]"></div>
-            <!-- Saldo calculado -->
-            <div id="saldo-preview" class="hidden bg-slate-800/60 rounded-xl px-4 py-2 flex justify-between items-center text-xs font-bold">
-                <span class="text-slate-400">Saldo pendiente:</span>
-                <span id="saldo-preview-val" class="text-rose-400 font-black text-base"></span>
-            </div>
-            <div class="flex flex-col items-center gap-2">
-                <div class="flex gap-4">
-                    <div class="flex flex-col items-center gap-1">
-                        <button onclick="openCamera('recepcion')" class="camera-btn">📸</button>
-                        <span class="text-[9px] text-slate-400 font-bold">RECEPCIÓN</span>
+
+            <div class="p-5 space-y-5">
+                <!-- SECCIÓN 1: CLIENTE -->
+                <div style="position:relative;padding:14px;background:rgba(59,130,246,0.04);border:1px solid rgba(59,130,246,0.12);border-radius:16px;">
+                    <div style="position:absolute;top:-10px;left:14px;padding:3px 10px;background:#0b0f1e;border:1px solid rgba(59,130,246,0.3);border-radius:99px;font-size:9px;font-weight:900;color:#60a5fa;letter-spacing:2px;">👤 CLIENTE</div>
+                    <div class="space-y-3" style="margin-top:8px;">
+                        <div>
+                            <div class="relative">
+                                <input type="text" id="c-nom" placeholder="Nombre completo del cliente" class="uppercase font-semibold w-full pr-12" autocomplete="off" onkeyup="checkClient()" oninput="ac_onInput(this,'cliente')" onfocus="ac_onInput(this,'cliente')" onblur="ac_onBlur()">
+                                <button type="button" onclick="startVoiceInput('c-nom')" id="voice-btn-c-nom" class="voice-mic-btn absolute right-2 top-1/2 -translate-y-1/2" title="Dictado por voz">🎤</button>
+                                <div id="ac-dropdown-cliente" class="ac-dropdown" style="display:none;"></div>
+                            </div>
+                            <div id="client-alert" class="text-[10px] text-emerald-400 font-bold mt-1 min-h-[15px] ml-2"></div>
+                        </div>
+                        <div style="position:relative;">
+                            <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:13px;pointer-events:none;z-index:2;">📱</span>
+                            <input type="tel" id="c-tel" placeholder="Número de WhatsApp" class="w-full" style="padding-left:38px;">
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div id="previews" class="flex gap-2 overflow-x-auto py-2 no-scrollbar"></div>
-            <!-- Notas internas (solo para el taller, no aparece en recibo) -->
-            <div>
-                <label class="text-[10px] text-slate-400 block mb-1 ml-1">🔒 NOTAS INTERNAS <span class="text-slate-600">(no aparece en recibo)</span></label>
-                <div class="relative">
-                    <textarea id="c-notas" placeholder="Observaciones del técnico, Detalles visuales del aparato, accesorios entregados como bolsas, soportes ..." class="h-16 text-xs w-full pr-10"></textarea>
-                    <button type="button" onclick="startVoiceInput('c-notas')" id="voice-btn-c-notas" class="voice-mic-btn absolute right-2 top-3" title="Dictado por voz">🎤</button>
+
+                <!-- SECCIÓN 2: EQUIPO -->
+                <div style="position:relative;padding:14px;background:rgba(249,115,22,0.04);border:1px solid rgba(249,115,22,0.12);border-radius:16px;">
+                    <div style="position:absolute;top:-10px;left:14px;padding:3px 10px;background:#0b0f1e;border:1px solid rgba(249,115,22,0.3);border-radius:99px;font-size:9px;font-weight:900;color:#fb923c;letter-spacing:2px;">🔧 EQUIPO</div>
+                    <div class="space-y-3" style="margin-top:8px;">
+                        <div class="relative">
+                            <input type="text" id="c-equ" placeholder="Marca · modelo · tipo (ej: LG WM3900 Lavadora)" class="uppercase font-bold text-orange-400 w-full pr-12" autocomplete="off" oninput="ac_onInput(this,'equipo')" onfocus="ac_onInput(this,'equipo')" onblur="ac_onBlur()">
+                            <button type="button" onclick="startVoiceInput('c-equ')" id="voice-btn-c-equ" class="voice-mic-btn absolute right-2 top-1/2 -translate-y-1/2" title="Dictado por voz">🎤</button>
+                            <div id="ac-dropdown-equipo" class="ac-dropdown" style="display:none;"></div>
+                        </div>
+                        <div class="relative">
+                            <textarea id="c-fal" placeholder="Falla reportada por el cliente · estado físico al recibir · accesorios entregados..." class="h-24 text-xs uppercase w-full pr-10" oninput="suggestDiagnosis()"></textarea>
+                            <button type="button" onclick="startVoiceInput('c-fal')" id="voice-btn-c-fal" class="voice-mic-btn absolute right-2 top-3" title="Dictado por voz">🎤</button>
+                        </div>
+                        <div id="diagnosis-suggestions" class="suggestion-box"></div>
+                        <!-- Fotos -->
+                        <div style="display:flex;align-items:center;gap:12px;padding:10px;background:rgba(15,23,42,0.4);border:1px dashed rgba(249,115,22,0.2);border-radius:12px;">
+                            <button onclick="openCamera('recepcion')" class="camera-btn" style="width:48px;height:48px;font-size:20px;">📸</button>
+                            <div style="flex:1;min-width:0;">
+                                <div style="font-size:10px;font-weight:900;color:#fb923c;letter-spacing:1px;text-transform:uppercase;">Fotos de recepción</div>
+                                <div style="font-size:10px;color:#94a3b8;margin-top:2px;">Documenta el estado del equipo</div>
+                            </div>
+                        </div>
+                        <div id="previews" class="flex gap-2 overflow-x-auto py-1 no-scrollbar"></div>
+                    </div>
                 </div>
+
+                <!-- SECCIÓN 3: GESTIÓN INTERNA -->
+                <div style="position:relative;padding:14px;background:rgba(139,92,246,0.04);border:1px solid rgba(139,92,246,0.12);border-radius:16px;">
+                    <div style="position:absolute;top:-10px;left:14px;padding:3px 10px;background:#0b0f1e;border:1px solid rgba(139,92,246,0.3);border-radius:99px;font-size:9px;font-weight:900;color:#a78bfa;letter-spacing:2px;">⚙️ GESTIÓN</div>
+                    <div class="space-y-3" style="margin-top:8px;">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">🛡️ GARANTÍA (días)</label>
+                                <input type="number" id="c-garantia" placeholder="30" class="w-full text-center font-bold" min="0" value="30">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">📋 PRESUPUESTO</label>
+                                <select id="c-presupuesto" class="w-full font-bold text-xs">
+                                    <option value="pendiente">⏳ Pendiente</option>
+                                    <option value="enviado">📤 Enviado</option>
+                                    <option value="aprobado">✅ Aprobado</option>
+                                    <option value="rechazado">❌ Rechazado</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">👷 TÉCNICO ASIGNADO</label>
+                            <select id="c-tecnico" class="w-full font-bold text-sm">
+                                <option value="">Sin asignar</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">📅 FECHA ESTIMADA DE ENTREGA</label>
+                            <input type="date" id="c-fecha-estimada" class="w-full text-sm font-bold text-blue-400">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">📣 ¿CÓMO NOS CONOCIÓ?</label>
+                            <select id="c-origen" class="w-full font-bold text-xs">
+                                <option value="">Sin especificar</option>
+                                <option value="recomendacion">🗣️ Recomendación</option>
+                                <option value="redes">📱 Redes sociales</option>
+                                <option value="cliente_frecuente">⭐ Cliente frecuente</option>
+                                <option value="google">🔍 Google</option>
+                                <option value="local">🏠 Pasó por el local</option>
+                                <option value="whatsapp">💬 WhatsApp</option>
+                                <option value="otro">📌 Otro</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 4: DINERO -->
+                <div style="position:relative;padding:14px;background:rgba(16,185,129,0.04);border:1px solid rgba(16,185,129,0.12);border-radius:16px;">
+                    <div style="position:absolute;top:-10px;left:14px;padding:3px 10px;background:#0b0f1e;border:1px solid rgba(16,185,129,0.3);border-radius:99px;font-size:9px;font-weight:900;color:#34d399;letter-spacing:2px;">💰 DINERO</div>
+                    <div class="space-y-3" style="margin-top:8px;">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">💰 VALOR ESTIMADO</label>
+                                <input type="number" id="c-val" placeholder="$0" class="text-emerald-400 font-black text-center text-lg w-full" min="0" step="1000" oninput="calcSaldoPreview()">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">💵 ADELANTO</label>
+                                <input type="number" id="c-adelanto" placeholder="$0" class="text-blue-400 font-black text-center text-lg w-full" min="0" step="1000" oninput="calcSaldoPreview()">
+                            </div>
+                        </div>
+                        <div id="val-error" class="text-[10px] text-rose-400 font-bold min-h-[15px]"></div>
+                        <div id="saldo-preview" class="hidden bg-slate-800/60 rounded-xl px-4 py-2 flex justify-between items-center text-xs font-bold">
+                            <span class="text-slate-400">Saldo pendiente:</span>
+                            <span id="saldo-preview-val" class="text-rose-400 font-black text-base"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 5: NOTAS INTERNAS -->
+                <div style="position:relative;padding:14px;background:rgba(234,179,8,0.04);border:1px solid rgba(234,179,8,0.12);border-radius:16px;">
+                    <div style="position:absolute;top:-10px;left:14px;padding:3px 10px;background:#0b0f1e;border:1px solid rgba(234,179,8,0.3);border-radius:99px;font-size:9px;font-weight:900;color:#facc15;letter-spacing:2px;">🔒 NOTAS INTERNAS</div>
+                    <div style="margin-top:8px;">
+                        <div class="relative">
+                            <textarea id="c-notas" placeholder="Observaciones del técnico, detalles que no van en el recibo..." class="h-16 text-xs w-full pr-10"></textarea>
+                            <button type="button" onclick="startVoiceInput('c-notas')" id="voice-btn-c-notas" class="voice-mic-btn absolute right-2 top-3" title="Dictado por voz">🎤</button>
+                        </div>
+                        <div style="font-size:9px;color:#64748b;margin-top:4px;text-align:center;">Estas notas no aparecen en el recibo del cliente</div>
+                    </div>
+                </div>
+
+                <!-- CTA -->
+                <button onclick="saveOrder()" style="width:100%;padding:18px;background:linear-gradient(135deg,#ea580c 0%,#f97316 60%,#fb923c 100%);border:none;border-radius:18px;color:#fff;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;box-shadow:0 12px 28px rgba(249,115,22,0.35),inset 0 1px 0 rgba(255,255,255,0.25);cursor:pointer;transition:all 0.15s ease;display:flex;align-items:center;justify-content:center;gap:10px;" class="active:scale-[0.98]">
+                    <span style="font-size:18px;">✓</span>
+                    <span>Registrar entrada</span>
+                </button>
             </div>
-            <button onclick="saveOrder()" class="w-full bg-gradient-to-r from-orange-600 to-orange-500 py-4 rounded-2xl font-black uppercase shadow-lg active:scale-95 transition-all">REGISTRAR ENTRADA</button>
         </div>
 
         <!-- PANEL LATERAL DESKTOP: preview en vivo + tips -->
@@ -1741,7 +1789,7 @@
 
         <div class="card p-5">
             <h3 class="text-[11px] font-black text-slate-400 uppercase mb-3 flex items-center gap-2">💳 CARTERA (Clientes con Deuda)</h3>
-            <div id="cartera-list" class="space-y-2 max-h-48 overflow-y-auto no-scrollbar"></div>
+            <div id="cartera-list" class="space-y-2 overflow-y-auto no-scrollbar" style="max-height:360px;"></div>
         </div>
 
         <div class="card p-5">
@@ -2884,10 +2932,20 @@
 
 
     <div id="modal-client-history" class="hidden fixed inset-0 z-[3000] modal-custom flex flex-col items-center justify-center p-4">
-        <div class="bg-[#111827] border border-white/10 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl">
-            <div class="bg-gradient-to-r from-orange-600 to-orange-500 p-4 flex justify-between"><h3 class="text-white font-black">📜 HISTORIAL DEL CLIENTE</h3><button onclick="closeClientHistory()">✕</button></div>
-            <div class="p-4 max-h-[55vh] overflow-y-auto no-scrollbar" id="client-history-list"></div>
-            <div class="p-4 border-t border-white/10"><input type="number" id="payment-amount" placeholder="Monto a pagar" class="w-full mb-2"><button onclick="recordPayment()" class="w-full bg-emerald-600 py-2 rounded-xl">REGISTRAR PAGO</button></div>
+        <div class="w-full max-w-md view-enter" style="background:linear-gradient(180deg,#14172a 0%,#0d0f1a 100%);border:1px solid rgba(249,115,22,0.25);border-radius:24px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.7);max-height:90vh;display:flex;flex-direction:column;">
+            <!-- HEADER con avatar, nombre y botón cerrar -->
+            <div id="client-history-header" style="position:relative;padding:18px 18px 16px;background:linear-gradient(135deg,rgba(249,115,22,0.2) 0%,rgba(234,88,12,0.1) 50%,transparent 100%);border-bottom:1px solid rgba(255,255,255,0.04);overflow:hidden;">
+                <!-- Contenido del header se llena dinámicamente -->
+            </div>
+            <div class="overflow-y-auto no-scrollbar" id="client-history-list" style="flex:1;padding:18px;-webkit-overflow-scrolling:touch;"></div>
+            <!-- Footer registrar pago -->
+            <div style="padding:14px 18px;border-top:1px solid rgba(255,255,255,0.06);background:rgba(5,6,15,0.4);">
+                <div style="font-size:9px;font-weight:900;color:#64748b;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">💵 Registrar pago</div>
+                <div style="display:flex;gap:8px;">
+                    <input type="number" id="payment-amount" placeholder="Monto" class="flex-1 text-center font-black" style="background:rgba(15,23,42,0.6);">
+                    <button onclick="recordPayment()" style="padding:10px 16px;background:linear-gradient(135deg,#059669,#10b981);border:none;border-radius:12px;color:#fff;font-size:11px;font-weight:900;letter-spacing:1px;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 12px rgba(16,185,129,0.3);" class="active:scale-95 transition">✓ Registrar</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -3091,17 +3149,25 @@
         </div>
     </div>
 
-    <!-- MODAL REPORTE MENSUAL (mejora 7) -->
+    <!-- MODAL REPORTE MENSUAL -->
     <div id="modal-monthly-report" class="hidden fixed inset-0 z-[3600] modal-custom flex flex-col items-center justify-center p-4">
-        <div class="bg-[#111827] border border-white/10 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl view-enter">
-            <div class="bg-gradient-to-r from-blue-600 to-cyan-600 p-4 flex justify-between items-center">
-                <h3 class="text-white font-black text-lg">📈 REPORTE DEL MES</h3>
-                <button onclick="closeMonthlyReportModal()" class="text-white bg-black/30 w-8 h-8 rounded-full font-bold">✕</button>
+        <div class="w-full max-w-md view-enter" style="background:linear-gradient(180deg,#14172a 0%,#0d0f1a 100%);border:1px solid rgba(96,165,250,0.22);border-radius:24px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.7);max-height:92vh;display:flex;flex-direction:column;">
+            <!-- Header limpio -->
+            <div style="position:relative;padding:16px 18px;background:linear-gradient(135deg,rgba(59,130,246,0.18) 0%,rgba(14,165,233,0.08) 60%,transparent 100%);border-bottom:1px solid rgba(255,255,255,0.04);overflow:hidden;">
+                <div style="position:absolute;top:-30px;right:-30px;width:140px;height:140px;background:radial-gradient(circle,rgba(59,130,246,0.2),transparent 70%);pointer-events:none;"></div>
+                <div style="position:relative;display:flex;align-items:center;gap:12px;">
+                    <div style="width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#2563eb,#60a5fa);display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 8px 20px rgba(59,130,246,0.4);flex-shrink:0;">📊</div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-size:9px;font-weight:900;color:#60a5fa;letter-spacing:2.5px;text-transform:uppercase;">Análisis de desempeño</div>
+                        <div style="font-size:16px;font-weight:900;color:#f1f5f9;">Reporte ejecutivo</div>
+                    </div>
+                    <button onclick="closeMonthlyReportModal()" style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;font-size:14px;cursor:pointer;flex-shrink:0;">✕</button>
+                </div>
             </div>
-            <div class="p-4 max-h-[65vh] overflow-y-auto no-scrollbar" id="monthly-report-content"></div>
-            <div class="p-4 border-t border-white/10 flex gap-3">
-                <button onclick="saveMonthlyReportAsImage()" class="flex-1 bg-orange-600 py-3 rounded-xl font-black uppercase text-sm active:scale-95 transition">📸 Guardar imagen</button>
-                <button onclick="closeMonthlyReportModal()" class="flex-1 bg-slate-700 py-3 rounded-xl font-black uppercase text-sm active:scale-95 transition">CERRAR</button>
+            <div style="flex:1;overflow-y:auto;padding:16px;background:radial-gradient(ellipse at top,rgba(59,130,246,0.04),transparent 60%);" class="no-scrollbar" id="monthly-report-content"></div>
+            <div style="padding:14px 16px;border-top:1px solid rgba(255,255,255,0.06);background:rgba(5,6,15,0.5);display:flex;gap:10px;">
+                <button onclick="saveMonthlyReportAsImage()" style="flex:2;padding:13px;background:linear-gradient(135deg,#2563eb,#3b82f6);border:none;border-radius:14px;color:#fff;font-size:11px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;box-shadow:0 6px 16px rgba(37,99,235,0.35);" class="active:scale-[0.97] transition">📸 Guardar imagen</button>
+                <button onclick="closeMonthlyReportModal()" style="flex:1;padding:13px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;color:#94a3b8;font-size:11px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;" class="active:scale-[0.97] transition">Cerrar</button>
             </div>
         </div>
     </div>
@@ -4136,8 +4202,57 @@
             const clientes = await getAll('clientes');
             const deudores = clientes.filter(c => c.deuda > 0).sort((a,b) => b.deuda - a.deuda);
             const container = document.getElementById('cartera-list');
-            if (!deudores.length) { container.innerHTML = '<div class="text-center py-4 text-slate-500">✅ No hay deudas pendientes</div>'; return; }
-            container.innerHTML = deudores.map(c => `<div class="flex justify-between items-center bg-rose-500/10 p-2 rounded-xl"><div><p class="font-bold">${escapeHtml(c.nombre)}</p><p class="text-xs">Tel: ${c.telefono || '—'}</p></div><div><span class="text-rose-400 font-black">${cur}${c.deuda.toLocaleString()}</span><button onclick="showClientHistory('${escapeHtml(c.nombre)}')" class="ml-2 text-xs bg-slate-700 px-2 py-1 rounded">📜</button></div></div>`).join('');
+            if (!deudores.length) {
+                container.innerHTML = `<div style="text-align:center;padding:28px 16px;">
+                    <div style="font-size:36px;margin-bottom:8px;">🎉</div>
+                    <div style="font-size:12px;font-weight:800;color:#34d399;letter-spacing:1px;">Sin deudas pendientes</div>
+                    <div style="font-size:10px;color:#64748b;margin-top:4px;">Todos los clientes al día</div>
+                </div>`;
+                return;
+            }
+            const avatarHues = [12, 35, 145, 200, 260, 320];
+            const totalDeuda = deudores.reduce((a, c) => a + (c.deuda || 0), 0);
+            // Resumen superior
+            let html = `<div style="padding:10px 12px;margin-bottom:10px;background:linear-gradient(135deg,rgba(244,63,94,0.08),rgba(15,23,42,0.4));border:1px solid rgba(244,63,94,0.2);border-radius:12px;display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                    <div style="font-size:9px;font-weight:900;color:#fb7185;letter-spacing:1.5px;text-transform:uppercase;">Por cobrar</div>
+                    <div style="font-size:17px;font-weight:900;color:#f87171;font-variant-numeric:tabular-nums;letter-spacing:-0.3px;">${cur}${totalDeuda.toLocaleString()}</div>
+                </div>
+                <div style="padding:6px 12px;border-radius:99px;background:rgba(244,63,94,0.15);border:1px solid rgba(244,63,94,0.3);font-size:10px;font-weight:900;color:#fb7185;letter-spacing:1px;">${deudores.length} ${deudores.length === 1 ? 'cliente' : 'clientes'}</div>
+            </div>`;
+            html += deudores.map((c, idx) => {
+                const nameInitials = (c.nombre || 'C').split(/\s+/).filter(Boolean).slice(0,2).map(w => w[0]?.toUpperCase() || '').join('') || 'C';
+                let hashVal = 0;
+                for (let i = 0; i < (c.nombre || '').length; i++) hashVal = (hashVal + (c.nombre || '').charCodeAt(i)) % avatarHues.length;
+                const hue = avatarHues[hashVal];
+                const pct = deudores[0].deuda > 0 ? Math.round((c.deuda / deudores[0].deuda) * 100) : 0;
+                const safeName = escapeHtml(c.nombre).replace(/'/g, "&#39;");
+                const tel = c.telefono || '';
+                const waUrl = tel ? `https://wa.me/${tel.replace(/\D/g,'')}?text=${encodeURIComponent('Hola ' + c.nombre + ', cómo estás? Te escribo por el saldo pendiente de ' + cur + c.deuda.toLocaleString() + ' en Todo Repuestos Nelson. Quedo atento a tu respuesta.')}` : '';
+                return `<div style="position:relative;padding:12px;background:rgba(15,23,42,0.5);border:1px solid rgba(244,63,94,0.12);border-left:3px solid hsl(${hue},70%,55%);border-radius:14px;margin-bottom:8px;transition:all 0.15s ease;" onmouseenter="this.style.background='rgba(15,23,42,0.7)'" onmouseleave="this.style.background='rgba(15,23,42,0.5)'">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="flex-shrink:0;width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,hsl(${hue},70%,55%),hsl(${hue},70%,40%));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff;box-shadow:0 4px 10px hsla(${hue},70%,50%,0.3);letter-spacing:-0.3px;">${nameInitials}</div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:3px;">
+                                <span style="font-size:13px;font-weight:900;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(c.nombre)}</span>
+                                <span style="font-size:14px;font-weight:900;color:#f87171;font-variant-numeric:tabular-nums;flex-shrink:0;letter-spacing:-0.2px;">${cur}${c.deuda.toLocaleString()}</span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                                <span style="font-size:10px;color:#94a3b8;font-weight:600;">📱 ${tel || 'Sin teléfono'}</span>
+                                ${idx === 0 ? '<span style="font-size:8px;font-weight:900;color:#f87171;padding:1px 6px;background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.3);border-radius:99px;letter-spacing:1px;">MAYOR</span>' : ''}
+                            </div>
+                            <div style="height:3px;background:rgba(15,23,42,0.8);border-radius:99px;overflow:hidden;">
+                                <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#f43f5e,#fb7185);border-radius:99px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:6px;margin-top:10px;">
+                        <button onclick="showClientHistory('${safeName}')" style="flex:1;padding:7px;background:rgba(148,163,184,0.1);border:1px solid rgba(148,163,184,0.2);border-radius:9px;color:#cbd5e1;font-size:10px;font-weight:800;cursor:pointer;letter-spacing:0.5px;">📜 Historial</button>
+                        ${tel ? `<a href="${waUrl}" target="_blank" style="flex:1;padding:7px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);border-radius:9px;color:#34d399;font-size:10px;font-weight:800;text-align:center;text-decoration:none;letter-spacing:0.5px;">💬 WhatsApp</a>` : ''}
+                    </div>
+                </div>`;
+            }).join('');
+            container.innerHTML = html;
         }
         async function showClientHistory(nombre) {
             currentClientHistory = nombre;
@@ -4148,66 +4263,159 @@
             const clientData = await getOne('clientes', nombre);
             const cur = getCurrency();
 
-            // Calcular métricas
+            // Métricas
             const completadas  = clientOrders.filter(o => o.sta === 'entregado');
+            const activas      = clientOrders.filter(o => o.sta !== 'entregado' && o.sta !== 'no-reparable');
             const totalGastado = completadas.reduce((a,b) => a + (b.val||0), 0);
-            const tiempos      = completadas
-                .filter(o => o.fechaEntrega && o.fecha)
-                .map(o => Math.round((o.fechaEntrega - o.fecha) / 86400000));
-            const diasProm = tiempos.length
-                ? Math.round(tiempos.reduce((a,b) => a+b, 0) / tiempos.length) : null;
-            const deuda = clientData?.deuda || 0;
+            const tiempos      = completadas.filter(o => o.fechaEntrega && o.fecha).map(o => Math.round((o.fechaEntrega - o.fecha) / 86400000));
+            const diasProm     = tiempos.length ? Math.round(tiempos.reduce((a,b) => a+b, 0) / tiempos.length) : null;
+            const deuda        = clientData?.deuda || 0;
+            const telefono     = clientData?.telefono || clientOrders[0]?.tel || '';
+            const primeraFecha = clientOrders.length ? clientOrders[clientOrders.length-1].fecha : null;
+            const ultimaFecha  = clientOrders.length ? clientOrders[0].fecha : null;
+            const diasDesdeUltima = ultimaFecha ? Math.floor((Date.now() - ultimaFecha) / 86400000) : 0;
 
-            // Colores por estado
-            const staColor = { recibido:'#94a3b8', 'revisión':'#fbbf24', reparado:'#34d399', entregado:'#60a5fa', 'no-reparable':'#f87171' };
+            // Equipos más traídos
+            const eqCount = {};
+            clientOrders.forEach(o => { const k = (o.equ || '').toUpperCase().trim(); if (k) eqCount[k] = (eqCount[k]||0)+1; });
+            const topEquipo = Object.entries(eqCount).sort((a,b) => b[1]-a[1])[0];
 
-            // Tarjetas de resumen
-            let html = `
-            <div class="grid grid-cols-3 gap-2 mb-4">
-                <div class="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-2xl text-center">
-                    <p class="text-[8px] text-slate-400 font-bold uppercase">Total gastado</p>
-                    <p class="text-base font-black text-emerald-400">${cur}${totalGastado.toLocaleString()}</p>
+            // Tier del cliente según gasto total
+            let tier, tierColor, tierBg, tierIcon;
+            if (totalGastado >= 2000000) { tier = 'VIP'; tierIcon = '💎'; tierColor = '#a78bfa'; tierBg = 'rgba(139,92,246,0.15)'; }
+            else if (totalGastado >= 500000) { tier = 'FRECUENTE'; tierIcon = '⭐'; tierColor = '#fbbf24'; tierBg = 'rgba(251,191,36,0.15)'; }
+            else if (clientOrders.length >= 3) { tier = 'RECURRENTE'; tierIcon = '🔁'; tierColor = '#60a5fa'; tierBg = 'rgba(96,165,250,0.15)'; }
+            else { tier = 'NUEVO'; tierIcon = '🆕'; tierColor = '#34d399'; tierBg = 'rgba(16,185,129,0.15)'; }
+
+            // Avatar
+            const nameInitials = (nombre || 'C').split(/\s+/).filter(Boolean).slice(0,2).map(w => w[0]?.toUpperCase() || '').join('') || 'C';
+            const avatarHues = [12, 35, 145, 200, 260, 320];
+            let hashVal = 0;
+            for (let i = 0; i < nombre.length; i++) hashVal = (hashVal + nombre.charCodeAt(i)) % avatarHues.length;
+            const hue = avatarHues[hashVal];
+
+            // HEADER del modal con avatar + identidad + tier
+            const waUrl = telefono ? `https://wa.me/${telefono.replace(/\D/g,'')}` : '';
+            document.getElementById('client-history-header').innerHTML = `
+                <div style="position:absolute;top:-50px;right:-50px;width:180px;height:180px;background:radial-gradient(circle,hsla(${hue},70%,55%,0.25),transparent 70%);pointer-events:none;"></div>
+                <div style="position:relative;display:flex;align-items:flex-start;gap:14px;">
+                    <div style="flex-shrink:0;width:62px;height:62px;border-radius:18px;background:linear-gradient(135deg,hsl(${hue},70%,55%),hsl(${hue},70%,40%));display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;box-shadow:0 10px 24px hsla(${hue},70%,50%,0.4);letter-spacing:-0.8px;">${nameInitials}</div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-size:9px;font-weight:900;color:#fb923c;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:2px;">Ficha del cliente</div>
+                        <div style="font-size:18px;font-weight:900;color:#f1f5f9;line-height:1.15;margin-bottom:6px;word-break:break-word;">${escapeHtml(nombre)}</div>
+                        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                            <span style="padding:3px 10px;border-radius:99px;background:${tierBg};border:1px solid ${tierColor}44;color:${tierColor};font-size:9px;font-weight:900;letter-spacing:1.5px;">${tierIcon} ${tier}</span>
+                            ${telefono ? `<span style="font-size:10px;color:#94a3b8;font-weight:600;">📱 ${telefono}</span>` : '<span style="font-size:10px;color:#64748b;font-weight:600;">Sin teléfono</span>'}
+                        </div>
+                    </div>
+                    <button onclick="closeClientHistory()" style="flex-shrink:0;width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;font-size:14px;cursor:pointer;">✕</button>
                 </div>
-                <div class="bg-${deuda > 0 ? 'rose' : 'slate'}-500/10 border border-${deuda > 0 ? 'rose' : 'slate'}-500/20 p-3 rounded-2xl text-center">
-                    <p class="text-[8px] text-slate-400 font-bold uppercase">Deuda</p>
-                    <p class="text-base font-black text-${deuda > 0 ? 'rose' : 'slate'}-400">${cur}${deuda.toLocaleString()}</p>
+                ${telefono ? `<div style="margin-top:12px;display:flex;gap:6px;">
+                    <a href="${waUrl}" target="_blank" style="flex:1;padding:8px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);border-radius:10px;color:#34d399;font-size:10px;font-weight:900;text-align:center;text-decoration:none;letter-spacing:1px;text-transform:uppercase;">💬 WhatsApp</a>
+                    <a href="tel:${telefono}" style="flex:1;padding:8px;background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.3);border-radius:10px;color:#60a5fa;font-size:10px;font-weight:900;text-align:center;text-decoration:none;letter-spacing:1px;text-transform:uppercase;">📞 Llamar</a>
+                </div>` : ''}
+            `;
+
+            // ═══ Contenido scrolleable ═══
+            let html = '';
+
+            // KPIs principales en grid 2x2
+            html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+                <div style="padding:12px;background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(15,23,42,0.3));border:1px solid rgba(16,185,129,0.2);border-radius:14px;">
+                    <div style="font-size:8px;font-weight:900;color:#34d399;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;">💰 Total gastado</div>
+                    <div style="font-size:16px;font-weight:900;color:#f1f5f9;font-variant-numeric:tabular-nums;letter-spacing:-0.3px;">${cur}${totalGastado.toLocaleString()}</div>
                 </div>
-                <div class="bg-blue-500/10 border border-blue-500/20 p-3 rounded-2xl text-center">
-                    <p class="text-[8px] text-slate-400 font-bold uppercase">Prom. días</p>
-                    <p class="text-base font-black text-blue-400">${diasProm !== null ? diasProm + 'd' : '--'}</p>
+                <div style="padding:12px;background:linear-gradient(135deg,${deuda > 0 ? 'rgba(244,63,94,0.08)' : 'rgba(148,163,184,0.05)'},rgba(15,23,42,0.3));border:1px solid ${deuda > 0 ? 'rgba(244,63,94,0.25)' : 'rgba(148,163,184,0.1)'};border-radius:14px;">
+                    <div style="font-size:8px;font-weight:900;color:${deuda > 0 ? '#fb7185' : '#64748b'};letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;">${deuda > 0 ? '⚠️ Debe' : '✅ Al día'}</div>
+                    <div style="font-size:16px;font-weight:900;color:${deuda > 0 ? '#f87171' : '#94a3b8'};font-variant-numeric:tabular-nums;letter-spacing:-0.3px;">${cur}${deuda.toLocaleString()}</div>
+                </div>
+                <div style="padding:12px;background:linear-gradient(135deg,rgba(96,165,250,0.06),rgba(15,23,42,0.3));border:1px solid rgba(96,165,250,0.15);border-radius:14px;">
+                    <div style="font-size:8px;font-weight:900;color:#60a5fa;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;">🔧 Órdenes</div>
+                    <div style="display:flex;align-items:baseline;gap:6px;">
+                        <span style="font-size:16px;font-weight:900;color:#f1f5f9;font-variant-numeric:tabular-nums;">${clientOrders.length}</span>
+                        ${activas.length > 0 ? `<span style="font-size:9px;font-weight:800;color:#fb923c;">· ${activas.length} activa${activas.length!==1?'s':''}</span>` : ''}
+                    </div>
+                </div>
+                <div style="padding:12px;background:linear-gradient(135deg,rgba(139,92,246,0.06),rgba(15,23,42,0.3));border:1px solid rgba(139,92,246,0.15);border-radius:14px;">
+                    <div style="font-size:8px;font-weight:900;color:#a78bfa;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;">⚡ Prom. reparación</div>
+                    <div style="font-size:16px;font-weight:900;color:#f1f5f9;font-variant-numeric:tabular-nums;">${diasProm !== null ? diasProm + 'd' : '—'}</div>
                 </div>
             </div>`;
 
-            // Lista de órdenes
-            html += `<p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">📋 Órdenes (${clientOrders.length})</p>`;
+            // Insights destacados
+            if (clientOrders.length > 0) {
+                html += `<div style="padding:12px;background:linear-gradient(135deg,rgba(234,179,8,0.06),rgba(15,23,42,0.3));border:1px solid rgba(234,179,8,0.15);border-radius:14px;margin-bottom:14px;">
+                    <div style="font-size:9px;font-weight:900;color:#facc15;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">🔍 Perfil del cliente</div>
+                    <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;color:#cbd5e1;font-weight:600;">`;
+                if (primeraFecha) {
+                    const añosCliente = ((Date.now() - primeraFecha) / (365.25 * 86400000));
+                    const tiempoTexto = añosCliente >= 1 ? `hace ${añosCliente.toFixed(1)} años` : `hace ${Math.round((Date.now() - primeraFecha) / (30 * 86400000))} meses`;
+                    html += `<div>📆 <span style="color:#94a3b8;">Cliente desde</span> <strong style="color:#f1f5f9;">${new Date(primeraFecha).toLocaleDateString('es-ES', {month:'short', year:'numeric'})}</strong> <span style="color:#64748b;">· ${tiempoTexto}</span></div>`;
+                }
+                if (ultimaFecha) {
+                    const ultimaColor = diasDesdeUltima > 180 ? '#f87171' : (diasDesdeUltima > 90 ? '#fbbf24' : '#34d399');
+                    html += `<div>⏱️ <span style="color:#94a3b8;">Última visita:</span> <strong style="color:${ultimaColor};">hace ${diasDesdeUltima} día${diasDesdeUltima!==1?'s':''}</strong></div>`;
+                }
+                if (topEquipo && topEquipo[1] > 1) {
+                    html += `<div>🔧 <span style="color:#94a3b8;">Equipo más frecuente:</span> <strong style="color:#fb923c;">${escapeHtml(topEquipo[0])}</strong> <span style="color:#64748b;">(${topEquipo[1]} veces)</span></div>`;
+                }
+                if (clientOrders.length >= 5) {
+                    const gastoProm = Math.round(totalGastado / completadas.length) || 0;
+                    if (gastoProm > 0) html += `<div>💵 <span style="color:#94a3b8;">Gasto promedio:</span> <strong style="color:#34d399;">${cur}${gastoProm.toLocaleString()}</strong> por visita</div>`;
+                }
+                html += `</div></div>`;
+            }
+
+            // Colores por estado
+            const staColor = { recibido:'#94a3b8', 'revisión':'#fbbf24', reparado:'#34d399', entregado:'#60a5fa', 'no-reparable':'#f87171' };
+            const staIcon  = { recibido:'📥', 'revisión':'🔍', reparado:'✅', entregado:'📦', 'no-reparable':'🚫' };
+
+            // Timeline de órdenes
             if (clientOrders.length) {
-                html += '<div class="space-y-2 mb-4">';
+                html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                    <span style="font-size:10px;font-weight:900;color:#94a3b8;letter-spacing:2px;text-transform:uppercase;">📋 Historial de órdenes</span>
+                    <span style="font-size:9px;color:#64748b;font-weight:700;">${Math.min(clientOrders.length, 10)} de ${clientOrders.length}</span>
+                </div>`;
+                html += '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">';
                 clientOrders.slice(0, 10).forEach(o => {
                     const fecha = new Date(o.fecha).toLocaleDateString('es-ES', {day:'2-digit', month:'short', year:'2-digit'});
                     const color = staColor[o.sta] || '#94a3b8';
-                    html += `<div class="bg-slate-800/60 rounded-xl p-3 flex justify-between items-center">
-                        <div class="flex-1 min-w-0">
-                            <p class="text-xs font-bold truncate">${escapeHtml(o.equ)}</p>
-                            <p class="text-[10px] text-slate-500">${fecha} &middot; <span style="color:${color};font-weight:700;">${o.sta}</span></p>
-                            ${o.notas ? `<p class="text-[9px] text-yellow-400/70 mt-0.5">🔒 ${escapeHtml(o.notas.substring(0,40))}</p>` : ''}
+                    const icon = staIcon[o.sta] || '📄';
+                    const numLabel = o.orderNum ? formatOrderNum(o.orderNum) : '';
+                    html += `<div onclick="closeClientHistory();setTimeout(()=>editOrder(${o.id}),120);" style="padding:10px 12px;background:rgba(15,23,42,0.5);border:1px solid rgba(255,255,255,0.04);border-left:3px solid ${color};border-radius:10px;cursor:pointer;transition:all 0.12s ease;" onmouseenter="this.style.background='rgba(15,23,42,0.8)'" onmouseleave="this.style.background='rgba(15,23,42,0.5)'">
+                        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px;">
+                            <div style="flex:1;min-width:0;">
+                                <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;flex-wrap:wrap;">
+                                    ${numLabel ? `<span style="font-size:9px;font-weight:900;color:#64748b;font-family:ui-monospace,monospace;">${numLabel}</span>` : ''}
+                                    <span style="font-size:9px;font-weight:900;padding:1px 6px;border-radius:99px;background:${color}22;color:${color};letter-spacing:0.5px;text-transform:uppercase;">${icon} ${o.sta}</span>
+                                </div>
+                                <div style="font-size:12px;font-weight:800;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(o.equ)}</div>
+                                <div style="font-size:10px;color:#64748b;font-weight:600;margin-top:2px;">📅 ${fecha}</div>
+                            </div>
+                            <div style="text-align:right;flex-shrink:0;">
+                                <div style="font-size:13px;font-weight:900;color:#34d399;font-variant-numeric:tabular-nums;">${cur}${(o.val||0).toLocaleString()}</div>
+                            </div>
                         </div>
-                        <span class="text-sm font-black text-emerald-400 ml-2 flex-shrink-0">${cur}${(o.val||0).toLocaleString()}</span>
+                        ${o.notas ? `<div style="font-size:10px;color:#facc15;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">🔒 ${escapeHtml(o.notas.substring(0,50))}${o.notas.length > 50 ? '…' : ''}</div>` : ''}
                     </div>`;
                 });
                 html += '</div>';
             } else {
-                html += '<p class="text-xs text-slate-500 text-center py-2 mb-4">Sin órdenes</p>';
+                html += '<div style="text-align:center;padding:20px;color:#64748b;font-size:11px;">Sin órdenes registradas</div>';
             }
 
             // Pagos
             if (clientPayments.length) {
-                html += `<p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">💵 Pagos (${clientPayments.length})</p>`;
-                html += '<div class="space-y-1">';
+                html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                    <span style="font-size:10px;font-weight:900;color:#94a3b8;letter-spacing:2px;text-transform:uppercase;">💵 Pagos recientes</span>
+                    <span style="font-size:9px;color:#64748b;font-weight:700;">${Math.min(clientPayments.length, 5)} de ${clientPayments.length}</span>
+                </div>`;
+                html += '<div style="display:flex;flex-direction:column;gap:4px;">';
                 clientPayments.slice(0,5).forEach(p => {
-                    const fecha = new Date(p.fecha).toLocaleDateString('es-ES', {day:'2-digit', month:'short'});
-                    html += `<div class="flex justify-between bg-slate-800/40 rounded-lg px-3 py-2">
-                        <span class="text-[10px] text-slate-400">${fecha}</span>
-                        <span class="text-[10px] font-black text-blue-400">${cur}${p.monto.toLocaleString()}</span>
+                    const fecha = new Date(p.fecha).toLocaleDateString('es-ES', {day:'2-digit', month:'short', year:'2-digit'});
+                    html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(96,165,250,0.05);border:1px solid rgba(96,165,250,0.12);border-radius:10px;">
+                        <span style="font-size:10px;color:#94a3b8;font-weight:700;">📅 ${fecha}</span>
+                        <span style="font-size:12px;font-weight:900;color:#60a5fa;font-variant-numeric:tabular-nums;">+${cur}${p.monto.toLocaleString()}</span>
                     </div>`;
                 });
                 html += '</div>';
@@ -5270,12 +5478,7 @@
                 const tecnicoBadge = o.tecnico ? `<span class="text-[9px] bg-slate-700/60 text-slate-300 px-2 py-0.5 rounded-full font-bold">👷 ${escapeHtml(o.tecnico)}</span>` : '';
                 const adelanto = Number(o.adelanto) || 0;
                 const saldo = Number(o.saldo != null ? o.saldo : o.val) || 0;
-                const saldoBadge = adelanto > 0
-                    ? `<div class="flex gap-2 text-[10px] font-bold mt-1">
-                        <span class="text-blue-400">💵 Adelanto: ${cur}${adelanto.toLocaleString()}</span>
-                        <span class="${saldo > 0 ? 'text-rose-400' : 'text-emerald-400'}">· Saldo: ${cur}${saldo.toLocaleString()}</span>
-                       </div>`
-                    : '';
+
                 // Días en estado actual
                 const fechaEstado = o.fechaEstado || o.fecha;
                 const daysInStatus = getBusinessDaysDiff(new Date(fechaEstado), today);
@@ -5296,20 +5499,53 @@
                 const origenBadge = o.origen && origenLabels[o.origen]
                     ? `<span class="text-[9px] bg-slate-700/60 text-slate-400 px-2 py-0.5 rounded-full font-bold">${origenLabels[o.origen]}</span>` : '';
 
-                return `<div class="card p-4 border-l-4 ${isOverdue ? 'border-red-500' : (o.sta === 'entregado' ? 'border-emerald-500' : 'border-orange-500')}">
-                    <div class="flex justify-between items-start mb-1">
-                        <div class="flex-1 min-w-0 pr-2">
-                            <div class="flex items-center gap-2 mb-0.5 flex-wrap">
-                                <span class="order-num">${numLabel}</span>
+                // Avatar con iniciales
+                const nameInitials = (o.nom || 'C').split(/\s+/).filter(Boolean).slice(0,2).map(w => w[0]?.toUpperCase() || '').join('') || 'C';
+                const avatarHues = [12, 35, 145, 200, 260, 320];
+                let hashVal = 0;
+                for (let i = 0; i < (o.nom || '').length; i++) hashVal = (hashVal + (o.nom || '').charCodeAt(i)) % avatarHues.length;
+                const avatarHue = avatarHues[hashVal];
+
+                // Status meta
+                const statusMeta = {
+                    recibido:       { accent:'#94a3b8', glow:'rgba(148,163,184,0.15)', icon:'📥' },
+                    'revisión':     { accent:'#fbbf24', glow:'rgba(251,191,36,0.18)',  icon:'🔍' },
+                    reparado:       { accent:'#34d399', glow:'rgba(52,211,153,0.18)',  icon:'✅' },
+                    entregado:      { accent:'#60a5fa', glow:'rgba(96,165,250,0.18)',  icon:'📦' },
+                    'no-reparable': { accent:'#f87171', glow:'rgba(248,113,113,0.18)', icon:'🚫' },
+                };
+                const sm = statusMeta[o.sta] || statusMeta.recibido;
+                const cardAccent = isOverdue ? '#ef4444' : sm.accent;
+                const cardGlow = isOverdue ? 'rgba(239,68,68,0.2)' : sm.glow;
+
+                // Progreso de pago
+                const totalVal = Number(o.val) || 0;
+                const pagadoVal = Math.max(0, totalVal - saldo);
+                const pctPagado = totalVal > 0 ? Math.min(100, Math.round((pagadoVal / totalVal) * 100)) : 0;
+                const saldoStatus = saldo <= 0 && totalVal > 0
+                    ? { label: '✅ PAGADO', color: '#34d399', bg: 'rgba(52,211,153,0.12)', border: 'rgba(52,211,153,0.3)' }
+                    : adelanto > 0
+                        ? { label: `💳 PARCIAL ${pctPagado}%`, color: '#60a5fa', bg: 'rgba(96,165,250,0.12)', border: 'rgba(96,165,250,0.3)' }
+                        : { label: '⏳ PENDIENTE', color: '#fb923c', bg: 'rgba(251,146,60,0.12)', border: 'rgba(251,146,60,0.3)' };
+
+                return `<div class="card order-card-pro" style="position:relative;padding:0;overflow:hidden;border-left:4px solid ${cardAccent};box-shadow:0 4px 12px rgba(0,0,0,0.2),0 0 0 1px ${cardGlow};">
+                    <div style="position:absolute;top:-40px;right:-40px;width:140px;height:140px;background:radial-gradient(circle,${cardGlow},transparent 70%);pointer-events:none;"></div>
+
+                    <!-- HEADER: avatar + cliente + estado -->
+                    <div style="position:relative;padding:14px 14px 10px;display:flex;align-items:flex-start;gap:12px;">
+                        <div onclick="editOrder(${o.id})" style="flex-shrink:0;width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,hsl(${avatarHue},70%,55%),hsl(${avatarHue},70%,40%));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#fff;box-shadow:0 4px 12px hsla(${avatarHue},70%,50%,0.35);cursor:pointer;letter-spacing:-0.5px;">${nameInitials}</div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;flex-wrap:wrap;">
+                                <span class="order-num" style="font-size:9px;">${numLabel}</span>
                                 ${garantiaBadge}
-                                ${tecnicoBadge}
-                                ${origenBadge}
                             </div>
-                            <h3 class="font-black text-lg cursor-pointer hover:text-orange-400" onclick="editOrder(${o.id})">${escapeHtml(o.nom)} ✏️</h3>
-                            <p class="text-xs text-orange-400">${escapeHtml(o.equ)}</p>
-                            ${saldoBadge}
+                            <h3 onclick="editOrder(${o.id})" style="font-size:15px;font-weight:900;color:#f1f5f9;cursor:pointer;line-height:1.2;margin:0;display:flex;align-items:center;gap:6px;" class="hover:text-orange-400">
+                                ${escapeHtml(o.nom)} <span style="font-size:10px;opacity:0.5;">✏️</span>
+                            </h3>
+                            <p style="font-size:11px;color:#fb923c;font-weight:700;margin:2px 0 0;line-height:1.2;">🔧 ${escapeHtml(o.equ)}</p>
+                            ${(tecnicoBadge || origenBadge) ? `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;">${tecnicoBadge}${origenBadge}</div>` : ''}
                         </div>
-                        <div class="relative flex-shrink-0" id="sta-wrap-${o.id}">
+                        <div style="flex-shrink:0;" id="sta-wrap-${o.id}">
                             ${(()=>{
                                 const cfg = {
                                     recibido:      {bg:'#1e293b', color:'#94a3b8', icon:'📥'},
@@ -5319,11 +5555,10 @@
                                     'no-reparable':{bg:'#2a0a0a', color:'#f87171', icon:'🚫'},
                                 };
                                 const c = cfg[o.sta] || cfg.recibido;
-                                return `<button onclick="toggleStaMenu(${o.id},event)"
-                                    style="background:${c.bg};color:${c.color};border:1px solid ${c.color}33;border-radius:10px;padding:5px 10px;font-size:10px;font-weight:900;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;min-width:100px;justify-content:space-between;">
-                                    <span>${c.icon} ${o.sta}</span><span style="font-size:8px;opacity:0.7;">▼</span>
+                                return `<button onclick="toggleStaMenu(${o.id},event)" style="background:${c.bg};color:${c.color};border:1px solid ${c.color}44;border-radius:11px;padding:6px 10px;font-size:10px;font-weight:900;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;min-width:98px;justify-content:space-between;text-transform:uppercase;letter-spacing:0.5px;">
+                                    <span>${c.icon} ${o.sta}</span><span style="font-size:8px;opacity:0.6;">▼</span>
                                 </button>
-                                <div id="sta-menu-${o.id}" style="display:none;position:absolute;right:0;top:36px;z-index:200;background:#1e293b;border:1px solid rgba(255,255,255,0.12);border-radius:12px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.6);min-width:130px;">
+                                <div id="sta-menu-${o.id}" style="display:none;position:absolute;right:14px;top:48px;z-index:200;background:#1e293b;border:1px solid rgba(255,255,255,0.12);border-radius:12px;overflow:hidden;box-shadow:0 12px 32px rgba(0,0,0,0.7);min-width:140px;">
                                     ${Object.entries(cfg).map(([k,v])=>`
                                     <div onclick="closeStaMenu(${o.id});updateSta(${o.id},'${k}')"
                                         style="padding:10px 14px;font-size:11px;font-weight:800;color:${v.color};cursor:pointer;background:${o.sta===k?v.bg+'99':'transparent'};border-bottom:1px solid rgba(255,255,255,0.06);"
@@ -5334,34 +5569,51 @@
                             })()}
                         </div>
                     </div>
-                    <div class="flex justify-between text-xs text-slate-400 mb-1 mt-2">
-                        <span>📅 ${new Date(o.fecha).toLocaleDateString()}</span>
-                        <span class="flex gap-2">
-                            <span class="${isOverdue ? 'text-red-400 font-bold' : ''}">🕒 ${daysInShop}d taller</span>
-                            <span class="${staColors[o.sta]||'text-slate-400'} font-bold">· ${daysInStatus}d en ${o.sta}</span>
-                        </span>
+
+                    <div style="padding:0 14px 10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
+                        <span style="font-size:10px;color:#64748b;font-weight:700;">📅 ${new Date(o.fecha).toLocaleDateString('es-ES', {day:'2-digit',month:'short'})}</span>
+                        <span style="font-size:10px;color:${isOverdue ? '#f87171':'#64748b'};font-weight:${isOverdue?'900':'700'};">· 🕒 ${daysInShop}d en taller</span>
+                        <span style="font-size:10px;font-weight:800;" class="${staColors[o.sta]||'text-slate-400'}">· ${daysInStatus}d en ${o.sta}</span>
                     </div>
-                    ${fechaEstBadge ? `<div class="flex gap-2 flex-wrap mb-1">${fechaEstBadge}</div>` : ''}
-                    ${notasBadge}
-                    <div class="flex gap-2 mb-2 mt-2">${presBadge}</div>
-                    <div class="grid grid-cols-2 gap-2 mb-2">
-                        <button onclick="openPhotoModal(${o.id})" class="bg-slate-800/60 py-2 rounded-xl text-xs font-bold">📸 RECEP. (${o.fotos?.length||0})</button>
-                        <button onclick="${deliveryPhotoCount > 0 ? `openPhotoModal(${o.id},'entrega')` : `openDeliveryPhotosModal(${o.id})`}" class="bg-emerald-900/30 py-2 rounded-xl text-xs font-bold text-emerald-400">📷 ENTREGA (${deliveryPhotoCount})</button>
+                    ${fechaEstBadge ? `<div style="padding:0 14px 10px;">${fechaEstBadge}</div>` : ''}
+                    ${notasBadge ? `<div style="padding:0 14px 10px;">${notasBadge}</div>` : ''}
+
+                    <div style="margin:0 14px 10px;padding:10px 12px;background:rgba(15,23,42,0.5);border:1px solid rgba(255,255,255,0.04);border-left:3px solid ${cardAccent};border-radius:10px;font-size:11px;color:#cbd5e1;line-height:1.4;text-transform:uppercase;letter-spacing:0.3px;font-weight:600;">${escapeHtml(o.det||'Sin detalle')}</div>
+
+                    <!-- DINERO -->
+                    <div style="margin:0 14px 12px;padding:12px;background:linear-gradient(135deg,rgba(16,185,129,0.05),rgba(15,23,42,0.5));border:1px solid rgba(16,185,129,0.12);border-radius:12px;">
+                        <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:8px;">
+                            <div>
+                                <div style="font-size:9px;font-weight:900;color:#64748b;letter-spacing:1.5px;text-transform:uppercase;">Total</div>
+                                ${canEditValue
+                                    ? `<button onclick="editOrderValue(${o.id})" style="font-size:18px;font-weight:900;color:#34d399;background:transparent;border:none;padding:0;cursor:pointer;font-variant-numeric:tabular-nums;letter-spacing:-0.3px;">${cur}${totalVal.toLocaleString()} <span style="font-size:10px;opacity:0.6;">✏️</span></button>`
+                                    : `<div style="font-size:18px;font-weight:900;color:#34d399;font-variant-numeric:tabular-nums;letter-spacing:-0.3px;">${cur}${totalVal.toLocaleString()}</div>`}
+                            </div>
+                            <div style="padding:3px 10px;border-radius:99px;background:${saldoStatus.bg};border:1px solid ${saldoStatus.border};color:${saldoStatus.color};font-size:9px;font-weight:900;letter-spacing:1px;">${saldoStatus.label}</div>
+                        </div>
+                        ${(adelanto > 0 || saldo > 0) && totalVal > 0 ? `
+                        <div style="height:6px;background:rgba(15,23,42,0.7);border-radius:99px;overflow:hidden;margin-bottom:6px;">
+                            <div style="width:${pctPagado}%;height:100%;background:linear-gradient(90deg,#3b82f6,#60a5fa);border-radius:99px;transition:width 0.3s ease;"></div>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:700;">
+                            <span style="color:#60a5fa;">💵 Adelanto: ${cur}${adelanto.toLocaleString()}</span>
+                            <span style="color:${saldo > 0 ? '#f87171' : '#34d399'};">Saldo: ${cur}${saldo.toLocaleString()}</span>
+                        </div>` : ''}
                     </div>
-                    ${(o.fotos?.length > 0 && deliveryPhotoCount > 0) ? `<button onclick="openCompareModal(${o.id})" class="w-full bg-violet-900/30 border border-violet-500/30 py-2 rounded-xl text-xs font-bold text-violet-300 mb-2 active:scale-95 transition">🔀 COMPARAR ANTES / DESPUÉS</button>` : ''}
-                    <div class="text-xs bg-black/40 rounded-xl p-2 uppercase mb-2">${escapeHtml(o.det||'')}</div>
-                    <div class="flex justify-between items-center mt-3">
-                        <div>
-                            <span class="text-[10px] text-slate-400">TOTAL</span>
-                            ${canEditValue ? `<button onclick="editOrderValue(${o.id})" class="text-emerald-400 font-black ml-2 underline">${cur}${o.val.toLocaleString()} ✏️</button>` : `<span class="text-emerald-400 font-black ml-2">${cur}${o.val.toLocaleString()}</span>`}
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="openOrderChat(${o.id})" class="order-action-btn bg-cyan-500/20 text-cyan-400" title="Notas internas">📝</button>
-                            <button onclick="openPaymentPlan(${o.id})" class="order-action-btn bg-blue-500/20 text-blue-400" title="Plan de pagos">💳</button>
-                            <button onclick="printInvoice(${o.id})" class="order-action-btn bg-amber-500/20 text-amber-400">🧾</button>
-                            <button onclick="sendWA(${o.id})" class="order-action-btn bg-emerald-500/20 text-emerald-400" title="WhatsApp">💬</button>
-                            <button onclick="delOrder(${o.id})" class="order-action-btn bg-rose-500/20 text-rose-400">🗑️</button>
-                        </div>
+
+                    <div style="padding:0 14px 10px;display:flex;gap:6px;flex-wrap:wrap;">
+                        ${presBadge}
+                        <button onclick="openPhotoModal(${o.id})" style="flex:1;min-width:110px;padding:7px 10px;background:rgba(148,163,184,0.1);border:1px solid rgba(148,163,184,0.2);border-radius:10px;font-size:10px;font-weight:800;color:#cbd5e1;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;">📸 ${o.fotos?.length||0} recep.</button>
+                        <button onclick="${deliveryPhotoCount > 0 ? `openPhotoModal(${o.id},'entrega')` : `openDeliveryPhotosModal(${o.id})`}" style="flex:1;min-width:110px;padding:7px 10px;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.25);border-radius:10px;font-size:10px;font-weight:800;color:#34d399;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;">📷 ${deliveryPhotoCount} entrega</button>
+                    </div>
+                    ${(o.fotos?.length > 0 && deliveryPhotoCount > 0) ? `<div style="padding:0 14px 10px;"><button onclick="openCompareModal(${o.id})" style="width:100%;padding:8px;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);border-radius:10px;font-size:10px;font-weight:900;color:#c4b5fd;cursor:pointer;letter-spacing:1px;text-transform:uppercase;" class="active:scale-95 transition">🔀 Comparar antes / después</button></div>` : ''}
+
+                    <div style="padding:10px 14px 14px;border-top:1px solid rgba(255,255,255,0.04);display:flex;justify-content:flex-end;gap:6px;">
+                        <button onclick="openOrderChat(${o.id})" class="order-action-btn bg-cyan-500/15 text-cyan-400" title="Notas internas">📝</button>
+                        <button onclick="openPaymentPlan(${o.id})" class="order-action-btn bg-blue-500/15 text-blue-400" title="Plan de pagos">💳</button>
+                        <button onclick="printInvoice(${o.id})" class="order-action-btn bg-amber-500/15 text-amber-400" title="Imprimir">🧾</button>
+                        <button onclick="sendWA(${o.id})" class="order-action-btn bg-emerald-500/15 text-emerald-400" title="WhatsApp">💬</button>
+                        <button onclick="delOrder(${o.id})" class="order-action-btn bg-rose-500/15 text-rose-400" title="Eliminar">🗑️</button>
                     </div>
                 </div>`;
             }).join('');
@@ -7452,76 +7704,236 @@
 
         function closeReadyModal() { document.getElementById('modal-ready-list').classList.add('hidden'); }
 
-        // ==================== REPORTE MENSUAL MEJORADO (mejora 7) ====================
+        // ==================== REPORTE MENSUAL EJECUTIVO ====================
         async function exportMonthlyReport() {
             const now = new Date();
             const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-            const monthName = now.toLocaleString('es-ES', { month: 'long', year: 'numeric' }).toUpperCase();
+            const startPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).getTime();
+            const endPrevMonth = startOfMonth - 1;
+            const monthName = now.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+
             const orders = await getAll('orders');
             const sales = await getAll('sales');
             const gastos = await getAll('gastos');
 
+            // Mes actual
             const monthOrders = orders.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha) >= startOfMonth);
-            const inProgress = orders.filter(o => o.sta !== 'entregado');
-            const monthSales = sales.filter(s => s.fecha >= startOfMonth && s.tipo !== 'adelanto' && s.tipo !== 'cobro_entrega');
+            const inProgress  = orders.filter(o => o.sta !== 'entregado' && o.sta !== 'no-reparable');
+            const monthSales  = sales.filter(s => s.fecha >= startOfMonth && s.tipo !== 'adelanto' && s.tipo !== 'cobro_entrega');
             const monthGastos = gastos.filter(g => g.fecha >= startOfMonth);
 
-            const totalRep = monthOrders.reduce((a,b) => a+(b.val||0), 0);
+            const totalRep    = monthOrders.reduce((a,b) => a+(b.val||0), 0);
             const totalVentas = monthSales.reduce((a,b) => a+(b.val||0), 0);
+            const totalIngresos = totalRep + totalVentas;
             const totalGastos = monthGastos.reduce((a,b) => a+(b.val||0), 0);
-            const neto = totalRep + totalVentas - totalGastos;
-            const ticketProm = monthOrders.length > 0 ? Math.round(totalRep / monthOrders.length) : 0;
+            const neto        = totalIngresos - totalGastos;
+            const margen      = totalIngresos > 0 ? Math.round((neto / totalIngresos) * 100) : 0;
+            const ticketProm  = monthOrders.length > 0 ? Math.round(totalRep / monthOrders.length) : 0;
 
+            // Mes anterior para comparativa
+            const prevOrders  = orders.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha) >= startPrevMonth && (o.fechaEntrega || o.fecha) <= endPrevMonth);
+            const prevSales   = sales.filter(s => s.fecha >= startPrevMonth && s.fecha <= endPrevMonth && s.tipo !== 'adelanto' && s.tipo !== 'cobro_entrega');
+            const prevGastos  = gastos.filter(g => g.fecha >= startPrevMonth && g.fecha <= endPrevMonth);
+            const prevNeto = prevOrders.reduce((a,b)=>a+(b.val||0),0) + prevSales.reduce((a,b)=>a+(b.val||0),0) - prevGastos.reduce((a,b)=>a+(b.val||0),0);
+            const variacion = prevNeto !== 0 ? Math.round(((neto - prevNeto) / Math.abs(prevNeto)) * 100) : null;
+
+            // Top items
             const itemCounts = {};
-            monthSales.forEach(s => itemCounts[s.item] = (itemCounts[s.item]||0) + s.qty);
+            monthSales.forEach(s => { itemCounts[s.item] = (itemCounts[s.item]||0) + s.qty; });
             const topItems = Object.entries(itemCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+            const topItemMax = topItems.length ? topItems[0][1] : 1;
 
             // Origen de clientes
-            const origenLabels = {recomendacion:'🗣️ Recomendación',redes:'📱 Redes',cliente_frecuente:'⭐ Frecuente',google:'🔍 Google',local:'🏠 Local',whatsapp:'💬 WhatsApp',otro:'📌 Otro'};
+            const origenLabels = {recomendacion:'Recomendación',redes:'Redes sociales',cliente_frecuente:'Cliente frecuente',google:'Google',local:'Pasó por local',whatsapp:'WhatsApp',otro:'Otro'};
+            const origenIcons  = {recomendacion:'🗣️',redes:'📱',cliente_frecuente:'⭐',google:'🔍',local:'🏠',whatsapp:'💬',otro:'📌'};
             const origenCount = {};
-            orders.filter(o => o.origen).forEach(o => { origenCount[o.origen] = (origenCount[o.origen]||0)+1; });
+            orders.filter(o => o.origen && o.fecha >= startOfMonth).forEach(o => { origenCount[o.origen] = (origenCount[o.origen]||0)+1; });
             const origenTotal = Object.values(origenCount).reduce((a,b)=>a+b,0);
             const origenRows = Object.entries(origenCount).sort((a,b)=>b[1]-a[1])
-                .map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px;"><span>${origenLabels[k]||k}</span><span style="color:#f97316;font-weight:900;">${v} (${Math.round(v/origenTotal*100)}%)</span></div>`).join('');
+                .map(([k,v]) => {
+                    const pct = Math.round(v/origenTotal*100);
+                    return `<div style="margin-bottom:8px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+                            <span style="font-size:12px;font-weight:700;color:#e2e8f0;">${origenIcons[k]||'📌'} ${origenLabels[k]||k}</span>
+                            <span style="font-size:12px;font-weight:900;color:#60a5fa;font-variant-numeric:tabular-nums;">${v} <span style="font-size:10px;color:#64748b;font-weight:700;">(${pct}%)</span></span>
+                        </div>
+                        <div style="height:5px;background:rgba(15,23,42,0.8);border-radius:99px;overflow:hidden;">
+                            <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#3b82f6,#60a5fa);border-radius:99px;"></div>
+                        </div>
+                    </div>`;
+                }).join('');
 
             const statusCount = { recibido:0, 'revisión':0, reparado:0, entregado:0 };
             orders.forEach(o => { if(statusCount[o.sta] !== undefined) statusCount[o.sta]++; });
             const business = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+            const businessName = business.name || 'TODO REPUESTOS NELSON';
+            const businessPhone = business.phone || '';
+            const businessAddress = business.address || '';
             const cur = getCurrency();
 
+            // Proporciones para barras
+            const maxIngreso = Math.max(totalRep, totalVentas, totalGastos, 1);
+            const pctRep    = Math.round((totalRep / maxIngreso) * 100);
+            const pctVentas = Math.round((totalVentas / maxIngreso) * 100);
+            const pctGastos = Math.round((totalGastos / maxIngreso) * 100);
+
+            // Badge variación
+            let variacionBadge = '';
+            if (variacion !== null) {
+                const isUp = variacion >= 0;
+                const color = isUp ? '#10b981' : '#ef4444';
+                const bg = isUp ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)';
+                const bord = isUp ? 'rgba(16,185,129,0.35)' : 'rgba(239,68,68,0.35)';
+                const arrow = isUp ? '▲' : '▼';
+                variacionBadge = `<div style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:${bg};border:1px solid ${bord};border-radius:99px;font-size:10px;font-weight:900;color:${color};letter-spacing:0.5px;">
+                    <span>${arrow}</span><span>${Math.abs(variacion)}% vs mes anterior</span>
+                </div>`;
+            } else if (prevNeto === 0 && neto > 0) {
+                variacionBadge = `<div style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.35);border-radius:99px;font-size:10px;font-weight:900;color:#60a5fa;letter-spacing:0.5px;">🆕 Primer mes con datos</div>`;
+            }
+
             const html = `
-                <div id="monthly-report-printable" style="font-family:monospace;max-width:400px;margin:0 auto;background:#111827;color:#eef2ff;padding:20px;border-radius:12px;">
-                    <div style="text-align:center;background:linear-gradient(135deg,#f97316,#ea580c);padding:16px;border-radius:8px;margin-bottom:16px;">
-                        <h2 style="margin:0;color:white;font-size:15px;letter-spacing:2px;">${business.name || 'TODO REPUESTOS NELSON'}</h2>
-                        <p style="margin:4px 0 0;color:rgba(255,255,255,0.8);font-size:11px;">REPORTE MENSUAL · ${monthName}</p>
-                    </div>
-                    <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;margin-bottom:12px;">
-                        <p style="margin:0 0 8px;font-size:10px;color:#f97316;font-weight:900;letter-spacing:2px;">💰 RESUMEN FINANCIERO</p>
-                        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;"><span>Reparaciones</span><span style="color:#34d399;font-weight:900;">${cur}${totalRep.toLocaleString()}</span></div>
-                        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;"><span>Ventas stock</span><span style="color:#34d399;font-weight:900;">${cur}${totalVentas.toLocaleString()}</span></div>
-                        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;"><span>Gastos</span><span style="color:#f87171;font-weight:900;">-${cur}${totalGastos.toLocaleString()}</span></div>
-                        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;"><span>Ticket promedio</span><span style="color:#60a5fa;font-weight:900;">${cur}${ticketProm.toLocaleString()}</span></div>
-                        <div style="border-top:1px solid rgba(255,255,255,0.1);margin-top:8px;padding-top:8px;text-align:center;">
-                            <p style="margin:0;font-size:10px;color:#9ca3af;">GANANCIA NETA</p>
-                            <p style="margin:4px 0 0;font-size:22px;font-weight:900;color:#34d399;">${cur}${neto.toLocaleString()}</p>
+                <div id="monthly-report-printable" style="font-family:system-ui,-apple-system,sans-serif;max-width:440px;margin:0 auto;background:linear-gradient(180deg,#0f172a 0%,#0a0e1a 100%);color:#e2e8f0;padding:0;border-radius:20px;overflow:hidden;border:1px solid rgba(96,165,250,0.15);">
+
+                    <!-- HERO -->
+                    <div style="padding:24px 22px 22px;background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 45%,#0ea5e9 100%);position:relative;overflow:hidden;">
+                        <div style="position:absolute;top:-60px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(255,255,255,0.15),transparent 70%);"></div>
+                        <div style="position:absolute;bottom:-40px;left:-30px;width:150px;height:150px;background:radial-gradient(circle,rgba(14,165,233,0.3),transparent 70%);"></div>
+                        <div style="position:relative;">
+                            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;">
+                                <div>
+                                    <div style="font-size:9px;font-weight:900;color:rgba(255,255,255,0.75);letter-spacing:3px;text-transform:uppercase;margin-bottom:2px;">Reporte ejecutivo</div>
+                                    <div style="font-size:20px;font-weight:900;color:#fff;letter-spacing:-0.5px;line-height:1.1;">${escapeHtml(businessName)}</div>
+                                </div>
+                                <div style="padding:5px 11px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:99px;">
+                                    <span style="font-size:9px;font-weight:900;color:#fff;letter-spacing:1.5px;text-transform:uppercase;">${monthName}</span>
+                                </div>
+                            </div>
+
+                            <div style="padding:16px 18px;background:rgba(0,0,0,0.35);border-radius:16px;border:1px solid rgba(255,255,255,0.1);">
+                                <div style="font-size:9px;font-weight:900;color:rgba(255,255,255,0.7);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:4px;">💎 Ganancia neta</div>
+                                <div style="font-size:32px;font-weight:900;color:${neto >= 0 ? '#6ee7b7' : '#fca5a5'};font-variant-numeric:tabular-nums;letter-spacing:-1px;line-height:1;">${neto < 0 ? '-' : ''}${cur}${Math.abs(neto).toLocaleString()}</div>
+                                <div style="display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap;">
+                                    ${variacionBadge}
+                                    ${margen !== 0 ? `<div style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:800;color:rgba(255,255,255,0.75);">💹 Margen <strong style="color:#fff;">${margen}%</strong></div>` : ''}
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;margin-bottom:12px;">
-                        <p style="margin:0 0 8px;font-size:10px;color:#f97316;font-weight:900;letter-spacing:2px;">📋 ÓRDENES</p>
-                        <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px;"><span>Entregadas este mes</span><span style="color:#f97316;font-weight:900;">${monthOrders.length}</span></div>
-                        <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px;"><span>En proceso</span><span style="font-weight:900;">${inProgress.length}</span></div>
-                        <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px;"><span>Reparados listos</span><span style="color:#34d399;font-weight:900;">${statusCount.reparado||0}</span></div>
-                        <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px;"><span>Total histórico</span><span style="font-weight:900;">${orders.length}</span></div>
+
+                    <div style="padding:18px;">
+
+                        <!-- KPIs -->
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
+                            <div style="padding:12px;background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(15,23,42,0.4));border:1px solid rgba(16,185,129,0.2);border-radius:14px;">
+                                <div style="font-size:8px;font-weight:900;color:#34d399;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;">📈 Ingresos totales</div>
+                                <div style="font-size:16px;font-weight:900;color:#f1f5f9;font-variant-numeric:tabular-nums;letter-spacing:-0.3px;">${cur}${totalIngresos.toLocaleString()}</div>
+                            </div>
+                            <div style="padding:12px;background:linear-gradient(135deg,rgba(239,68,68,0.08),rgba(15,23,42,0.4));border:1px solid rgba(239,68,68,0.2);border-radius:14px;">
+                                <div style="font-size:8px;font-weight:900;color:#f87171;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;">📉 Gastos del mes</div>
+                                <div style="font-size:16px;font-weight:900;color:#f1f5f9;font-variant-numeric:tabular-nums;letter-spacing:-0.3px;">${cur}${totalGastos.toLocaleString()}</div>
+                            </div>
+                            <div style="padding:12px;background:linear-gradient(135deg,rgba(96,165,250,0.08),rgba(15,23,42,0.4));border:1px solid rgba(96,165,250,0.2);border-radius:14px;">
+                                <div style="font-size:8px;font-weight:900;color:#60a5fa;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;">🎟️ Ticket promedio</div>
+                                <div style="font-size:16px;font-weight:900;color:#f1f5f9;font-variant-numeric:tabular-nums;letter-spacing:-0.3px;">${cur}${ticketProm.toLocaleString()}</div>
+                            </div>
+                            <div style="padding:12px;background:linear-gradient(135deg,rgba(251,146,60,0.08),rgba(15,23,42,0.4));border:1px solid rgba(251,146,60,0.2);border-radius:14px;">
+                                <div style="font-size:8px;font-weight:900;color:#fb923c;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;">🔧 Órdenes entregadas</div>
+                                <div style="font-size:16px;font-weight:900;color:#f1f5f9;font-variant-numeric:tabular-nums;letter-spacing:-0.3px;">${monthOrders.length}</div>
+                            </div>
+                        </div>
+
+                        <!-- Desglose -->
+                        <div style="padding:14px;background:rgba(15,23,42,0.6);border:1px solid rgba(255,255,255,0.06);border-radius:16px;margin-bottom:14px;">
+                            <div style="font-size:9px;font-weight:900;color:#60a5fa;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:12px;">💰 Desglose financiero</div>
+                            <div style="margin-bottom:10px;">
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                                    <span style="font-size:11px;font-weight:700;color:#cbd5e1;">🔧 Reparaciones</span>
+                                    <span style="font-size:13px;font-weight:900;color:#34d399;font-variant-numeric:tabular-nums;">${cur}${totalRep.toLocaleString()}</span>
+                                </div>
+                                <div style="height:6px;background:rgba(15,23,42,0.9);border-radius:99px;overflow:hidden;">
+                                    <div style="width:${pctRep}%;height:100%;background:linear-gradient(90deg,#059669,#34d399);border-radius:99px;"></div>
+                                </div>
+                            </div>
+                            <div style="margin-bottom:10px;">
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                                    <span style="font-size:11px;font-weight:700;color:#cbd5e1;">📦 Ventas de stock</span>
+                                    <span style="font-size:13px;font-weight:900;color:#34d399;font-variant-numeric:tabular-nums;">${cur}${totalVentas.toLocaleString()}</span>
+                                </div>
+                                <div style="height:6px;background:rgba(15,23,42,0.9);border-radius:99px;overflow:hidden;">
+                                    <div style="width:${pctVentas}%;height:100%;background:linear-gradient(90deg,#0891b2,#22d3ee);border-radius:99px;"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                                    <span style="font-size:11px;font-weight:700;color:#cbd5e1;">💸 Gastos operativos</span>
+                                    <span style="font-size:13px;font-weight:900;color:#f87171;font-variant-numeric:tabular-nums;">-${cur}${totalGastos.toLocaleString()}</span>
+                                </div>
+                                <div style="height:6px;background:rgba(15,23,42,0.9);border-radius:99px;overflow:hidden;">
+                                    <div style="width:${pctGastos}%;height:100%;background:linear-gradient(90deg,#dc2626,#f87171);border-radius:99px;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Operativo -->
+                        <div style="padding:14px;background:rgba(15,23,42,0.6);border:1px solid rgba(255,255,255,0.06);border-radius:16px;margin-bottom:14px;">
+                            <div style="font-size:9px;font-weight:900;color:#fb923c;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:12px;">📋 Estado operativo</div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                                <div style="text-align:center;padding:12px 8px;background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.2);border-radius:12px;">
+                                    <div style="font-size:22px;font-weight:900;color:#60a5fa;font-variant-numeric:tabular-nums;line-height:1;">${monthOrders.length}</div>
+                                    <div style="font-size:9px;font-weight:800;color:#94a3b8;letter-spacing:0.5px;margin-top:3px;text-transform:uppercase;">📦 Entregadas</div>
+                                </div>
+                                <div style="text-align:center;padding:12px 8px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:12px;">
+                                    <div style="font-size:22px;font-weight:900;color:#fbbf24;font-variant-numeric:tabular-nums;line-height:1;">${inProgress.length}</div>
+                                    <div style="font-size:9px;font-weight:800;color:#94a3b8;letter-spacing:0.5px;margin-top:3px;text-transform:uppercase;">⏳ En proceso</div>
+                                </div>
+                                <div style="text-align:center;padding:12px 8px;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);border-radius:12px;">
+                                    <div style="font-size:22px;font-weight:900;color:#34d399;font-variant-numeric:tabular-nums;line-height:1;">${statusCount.reparado||0}</div>
+                                    <div style="font-size:9px;font-weight:800;color:#94a3b8;letter-spacing:0.5px;margin-top:3px;text-transform:uppercase;">✅ Reparados</div>
+                                </div>
+                                <div style="text-align:center;padding:12px 8px;background:rgba(148,163,184,0.08);border:1px solid rgba(148,163,184,0.2);border-radius:12px;">
+                                    <div style="font-size:22px;font-weight:900;color:#cbd5e1;font-variant-numeric:tabular-nums;line-height:1;">${orders.length}</div>
+                                    <div style="font-size:9px;font-weight:800;color:#94a3b8;letter-spacing:0.5px;margin-top:3px;text-transform:uppercase;">📊 Total histórico</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        ${topItems.length ? `
+                        <div style="padding:14px;background:rgba(15,23,42,0.6);border:1px solid rgba(255,255,255,0.06);border-radius:16px;margin-bottom:14px;">
+                            <div style="font-size:9px;font-weight:900;color:#f97316;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:12px;">🔥 Top repuestos vendidos</div>
+                            ${topItems.map(([n,c],i) => {
+                                const medalColor = i===0?'#fbbf24':(i===1?'#cbd5e1':(i===2?'#d97706':'#64748b'));
+                                const pct = Math.round((c / topItemMax) * 100);
+                                return `<div style="margin-bottom:10px;">
+                                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+                                        <div style="flex-shrink:0;width:24px;height:24px;border-radius:8px;background:${medalColor}22;border:1px solid ${medalColor}55;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:${medalColor};">${i+1}</div>
+                                        <div style="flex:1;min-width:0;font-size:11px;font-weight:700;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase;letter-spacing:0.3px;">${escapeHtml(n)}</div>
+                                        <div style="flex-shrink:0;font-size:12px;font-weight:900;color:#fb923c;font-variant-numeric:tabular-nums;">${c} uds</div>
+                                    </div>
+                                    <div style="height:4px;background:rgba(15,23,42,0.9);border-radius:99px;overflow:hidden;margin-left:34px;">
+                                        <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,${medalColor}66,${medalColor});border-radius:99px;"></div>
+                                    </div>
+                                </div>`;
+                            }).join('')}
+                        </div>` : ''}
+
+                        ${origenTotal > 0 ? `
+                        <div style="padding:14px;background:rgba(15,23,42,0.6);border:1px solid rgba(255,255,255,0.06);border-radius:16px;margin-bottom:14px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                                <div style="font-size:9px;font-weight:900;color:#a78bfa;letter-spacing:2.5px;text-transform:uppercase;">📣 Origen de clientes</div>
+                                <div style="font-size:9px;font-weight:700;color:#64748b;">${origenTotal} captados</div>
+                            </div>
+                            ${origenRows}
+                        </div>` : ''}
+
+                        <!-- Footer -->
+                        <div style="padding:14px;background:linear-gradient(135deg,rgba(59,130,246,0.05),rgba(15,23,42,0.3));border:1px solid rgba(96,165,250,0.12);border-radius:14px;text-align:center;">
+                            <div style="font-size:9px;font-weight:900;color:#60a5fa;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">🛠️ ${escapeHtml(businessName)}</div>
+                            ${businessPhone ? `<div style="font-size:10px;color:#94a3b8;font-weight:700;margin-bottom:2px;">📱 ${escapeHtml(businessPhone)}</div>` : ''}
+                            ${businessAddress ? `<div style="font-size:10px;color:#94a3b8;font-weight:700;margin-bottom:6px;">📍 ${escapeHtml(businessAddress)}</div>` : ''}
+                            <div style="font-size:9px;color:#475569;font-weight:700;margin-top:6px;">Generado el ${new Date().toLocaleDateString('es-ES', {day:'2-digit', month:'long', year:'numeric'})} · ${new Date().toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'})}</div>
+                        </div>
                     </div>
-                    ${topItems.length ? `<div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;margin-bottom:12px;">
-                        <p style="margin:0 0 8px;font-size:10px;color:#f97316;font-weight:900;letter-spacing:2px;">🔥 TOP REPUESTOS</p>
-                        ${topItems.map(([n,c],i) => `<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px;"><span>${i+1}. ${escapeHtml(n)}</span><span style="color:#f97316;font-weight:900;">${c} uds</span></div>`).join('')}
-                    </div>` : ''}
-                    ${origenTotal > 0 ? `<div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;margin-bottom:12px;">
-                        <p style="margin:0 0 8px;font-size:10px;color:#f97316;font-weight:900;letter-spacing:2px;">📣 ORIGEN DE CLIENTES</p>
-                        ${origenRows}
-                    </div>` : ''}
-                    <p style="text-align:center;font-size:10px;color:#6b7280;margin:0;">Generado: ${new Date().toLocaleString('es-ES')}</p>
                 </div>`;
             document.getElementById('monthly-report-content').innerHTML = html;
             document.getElementById('modal-monthly-report').classList.remove('hidden');
@@ -7532,7 +7944,7 @@
             const el = document.getElementById('monthly-report-printable');
             if (!el) return;
             try {
-                const canvas = await html2canvas(el, { backgroundColor: '#111827', scale: 2 });
+                const canvas = await html2canvas(el, { backgroundColor: '#0a0e1a', scale: 2, useCORS: true });
                 await downloadImageCompat(canvas, `reporte_mensual_${new Date().toISOString().slice(0,10)}.png`);
             } catch(e) { showAlert('Error al generar imagen', 'error'); }
         }
