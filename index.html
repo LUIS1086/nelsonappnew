@@ -3208,91 +3208,250 @@
         </div>
     </div>
 
-    <!-- NUEVO MODAL: CONFIGURACIÓN AVANZADA -->
+    <!-- NUEVO MODAL: CONFIGURACIÓN AVANZADA (PRO REDESIGN v3.3) -->
     <style>
-        /* iOS Settings redesign */
+        /* iOS Settings — Taller Pro edition */
         #modal-config .ios-modal-wrap {
-            background: #1c1c1e;
-            border-radius: 22px;
+            background: #0f0f14;
+            border-radius: 24px;
             overflow: hidden;
             width: 100%;
-            max-width: 430px;
-            box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 1px 0 rgba(255,255,255,0.06) inset;
+            max-width: 440px;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.08) inset;
+            border: 1px solid rgba(255,255,255,0.06);
         }
+        /* Premium header with logo + health bar */
         #modal-config .ios-header {
-            padding: 18px 20px 14px;
-            display: flex; align-items: center; justify-content: space-between;
-            border-bottom: 1px solid rgba(255,255,255,0.07);
-            background: #2c2c2e;
+            position: relative;
+            padding: 16px 18px 14px;
+            background: linear-gradient(180deg, #1c1c24 0%, #15151c 100%);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        #modal-config .ios-header-top {
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        }
+        #modal-config .ios-header-brand {
+            display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1;
+        }
+        #modal-config .cfg-logo {
+            width: 42px; height: 42px; border-radius: 12px;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(249,115,22,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+            overflow: hidden;
+        }
+        #modal-config .cfg-logo img { width:100%; height:100%; object-fit:cover; }
+        #modal-config .cfg-title-wrap { min-width: 0; flex: 1; }
+        #modal-config .cfg-eyebrow {
+            font-size: 9px; font-weight: 800; letter-spacing: 2px;
+            color: #fb923c; text-transform: uppercase; margin: 0;
+            display: flex; align-items: center; gap: 6px;
+        }
+        #modal-config .cfg-version {
+            font-size: 8px; font-weight: 700; color: #6b7280;
+            background: rgba(255,255,255,0.05); padding: 1px 6px; border-radius: 4px;
+            letter-spacing: 0.5px;
+        }
+        #modal-config .cfg-h1 {
+            font-size: 20px; font-weight: 800; color: #f5f5f7; margin: 2px 0 0;
+            letter-spacing: -0.3px;
         }
         #modal-config .ios-close-btn {
-            width: 30px; height: 30px; border-radius: 50%;
-            background: rgba(255,255,255,0.1);
-            border: none; cursor: pointer;
+            width: 32px; height: 32px; border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            border: none; cursor: pointer; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
-            font-size: 13px; color: #ebebf5cc;
-            transition: background 0.15s;
+            font-size: 14px; color: #ebebf5cc;
+            transition: background 0.15s, transform 0.1s;
         }
-        #modal-config .ios-close-btn:active { background: rgba(255,255,255,0.2); }
+        #modal-config .ios-close-btn:active { background: rgba(255,255,255,0.2); transform: scale(0.92); }
+        /* Health bar */
+        #modal-config .cfg-health {
+            margin-top: 12px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        #modal-config .cfg-health-label {
+            font-size: 10px; font-weight: 700; color: #8e8e93;
+            text-transform: uppercase; letter-spacing: 0.8px; white-space: nowrap;
+        }
+        #modal-config .cfg-health-track {
+            flex: 1; height: 4px; background: rgba(255,255,255,0.06);
+            border-radius: 999px; overflow: hidden; position: relative;
+        }
+        #modal-config .cfg-health-fill {
+            height: 100%; border-radius: 999px;
+            background: linear-gradient(90deg, #f97316, #10b981);
+            transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+            box-shadow: 0 0 8px rgba(16,185,129,0.4);
+            width: 0;
+        }
+        #modal-config .cfg-health-pct {
+            font-size: 11px; font-weight: 900; color: #10b981;
+            min-width: 30px; text-align: right;
+        }
+        /* Search bar */
+        #modal-config .cfg-search-wrap {
+            margin-top: 10px; position: relative;
+        }
+        #modal-config .cfg-search {
+            width: 100%; background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 9px 12px 9px 34px;
+            font-size: 13px; color: #ebebf5;
+            outline: none;
+            transition: background 0.15s, border 0.15s;
+        }
+        #modal-config .cfg-search::placeholder { color: #6b7280; }
+        #modal-config .cfg-search:focus { background: rgba(255,255,255,0.09); border-color: rgba(249,115,22,0.35); }
+        #modal-config .cfg-search-icon {
+            position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+            color: #6b7280; pointer-events: none;
+        }
+        /* Stat cards */
+        #modal-config .cfg-stats {
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+            margin-bottom: 14px;
+        }
+        #modal-config .cfg-stat {
+            background: linear-gradient(145deg, #1c1c24, #16161d);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 10px 10px 11px;
+            text-align: center;
+            position: relative; overflow: hidden;
+        }
+        #modal-config .cfg-stat::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: var(--stat-accent, #f97316); opacity: 0.6;
+        }
+        #modal-config .cfg-stat-icon {
+            font-size: 14px; margin-bottom: 2px; opacity: 0.9;
+        }
+        #modal-config .cfg-stat-val {
+            font-size: 15px; font-weight: 900; color: #f5f5f7;
+            line-height: 1.1; letter-spacing: -0.3px;
+        }
+        #modal-config .cfg-stat-label {
+            font-size: 8.5px; font-weight: 800; color: #6b7280;
+            text-transform: uppercase; letter-spacing: 0.6px; margin-top: 3px;
+        }
+        /* Quick action row */
+        #modal-config .cfg-quick {
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+            margin-bottom: 18px;
+        }
+        #modal-config .cfg-quick-btn {
+            background: linear-gradient(145deg, #1c1c24, #16161d);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 12px;
+            padding: 11px 6px;
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            cursor: pointer; color: #ebebf5;
+            transition: transform 0.1s, background 0.15s, border 0.15s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        #modal-config .cfg-quick-btn:active { transform: scale(0.95); background: #20202a; }
+        #modal-config .cfg-quick-btn .q-ico {
+            width: 28px; height: 28px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px;
+        }
+        #modal-config .cfg-quick-btn .q-label {
+            font-size: 10px; font-weight: 800; color: #ebebf5;
+            letter-spacing: 0.3px;
+        }
         #modal-config .ios-scroll-area {
-            max-height: 78vh;
+            max-height: 76vh;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
-            padding: 16px 16px 24px;
+            padding: 14px 14px 24px;
+            background:
+                radial-gradient(circle at top left, rgba(249,115,22,0.04), transparent 45%),
+                radial-gradient(circle at bottom right, rgba(16,185,129,0.04), transparent 45%),
+                #0f0f14;
         }
         #modal-config .ios-scroll-area::-webkit-scrollbar { display: none; }
         /* Group label */
         #modal-config .ios-group-label {
-            font-size: 11px; font-weight: 700; letter-spacing: 0.6px;
-            color: #8e8e93; text-transform: uppercase;
-            padding: 0 4px 6px;
-            margin-top: 20px;
+            font-size: 10.5px; font-weight: 800; letter-spacing: 1.2px;
+            color: #6b7280; text-transform: uppercase;
+            padding: 0 6px 8px; margin-top: 22px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        #modal-config .ios-group-label::after {
+            content: ''; flex: 1; height: 1px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.06), transparent);
         }
         #modal-config .ios-group-label:first-child { margin-top: 0; }
         /* Group card */
         #modal-config .ios-group {
-            background: #2c2c2e;
+            background: #1a1a22;
+            border: 1px solid rgba(255,255,255,0.04);
             border-radius: 14px;
             overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
         /* Row */
         #modal-config .ios-row {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 13px 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 12px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
             transition: background 0.12s;
-            min-height: 52px;
+            min-height: 54px;
+            position: relative;
         }
         #modal-config .ios-row:last-child { border-bottom: none; }
-        #modal-config .ios-row:active { background: rgba(255,255,255,0.05); }
+        #modal-config .ios-row:active { background: rgba(255,255,255,0.04); }
         #modal-config .ios-row-icon {
-            width: 30px; height: 30px; border-radius: 8px;
+            width: 32px; height: 32px; border-radius: 9px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 15px; flex-shrink: 0; margin-right: 12px;
+            font-size: 16px; flex-shrink: 0; margin-right: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.12);
         }
         #modal-config .ios-row-text { flex: 1; min-width: 0; }
         #modal-config .ios-row-title {
-            font-size: 15px; font-weight: 500; color: #ebebf5;
+            font-size: 15px; font-weight: 600; color: #f5f5f7;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            letter-spacing: -0.1px;
         }
         #modal-config .ios-row-sub {
             font-size: 11px; color: #8e8e93; margin-top: 1px;
         }
+        /* Badge — live status */
+        #modal-config .ios-row-badge {
+            font-size: 10.5px; font-weight: 700;
+            color: #8e8e93;
+            margin-right: 8px; flex-shrink: 0;
+            max-width: 100px; overflow: hidden; text-overflow: ellipsis;
+            white-space: nowrap;
+            padding: 3px 8px; border-radius: 6px;
+            background: rgba(255,255,255,0.04);
+            letter-spacing: 0.1px;
+        }
+        #modal-config .ios-row-badge.ok { color: #34d399; background: rgba(16,185,129,0.1); }
+        #modal-config .ios-row-badge.warn { color: #fbbf24; background: rgba(251,191,36,0.1); }
+        #modal-config .ios-row-badge.off { color: #94a3b8; background: rgba(148,163,184,0.08); }
+        #modal-config .ios-row-badge.accent { color: #fb923c; background: rgba(249,115,22,0.12); }
         #modal-config .ios-chevron {
             color: #48484a; font-size: 12px; flex-shrink: 0;
-            transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
-            margin-left: 8px;
+            transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+            margin-left: 4px;
         }
-        #modal-config .ios-chevron.open { transform: rotate(90deg); }
+        #modal-config .ios-chevron.open { transform: rotate(90deg); color: #fb923c; }
+        /* Filter hiding */
+        #modal-config .cfg-hidden-row { display: none !important; }
+        #modal-config .cfg-hidden-group { display: none !important; }
         /* Body expandible */
         #modal-config .ios-body {
             max-height: 0; overflow: hidden;
-            transition: max-height 0.38s cubic-bezier(0.4,0,0.2,1), opacity 0.28s ease;
+            transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease;
             opacity: 0;
-            background: #1c1c1e;
-            border-top: 1px solid rgba(255,255,255,0.06);
+            background: #121218;
+            border-top: 1px solid rgba(255,255,255,0.04);
         }
         #modal-config .ios-body.open { opacity: 1; }
         #modal-config .ios-body-inner { padding: 16px; }
@@ -3353,20 +3512,105 @@
             margin-bottom: 8px;
         }
         #modal-config .ios-danger-btn:active { opacity: 0.7; }
+        /* Staggered reveal on modal open */
+        @keyframes cfg-group-in {
+            0%   { opacity: 0; transform: translateY(14px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        #modal-config:not(.hidden) .cfg-stats,
+        #modal-config:not(.hidden) .cfg-quick,
+        #modal-config:not(.hidden) .ios-group-label,
+        #modal-config:not(.hidden) .ios-group {
+            animation: cfg-group-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        #modal-config:not(.hidden) .cfg-stats { animation-delay: 0.04s; }
+        #modal-config:not(.hidden) .cfg-quick { animation-delay: 0.08s; }
+        #modal-config:not(.hidden) .ios-group-label:nth-of-type(1),
+        #modal-config:not(.hidden) .ios-group:nth-of-type(1) { animation-delay: 0.12s; }
+        #modal-config:not(.hidden) .ios-group-label:nth-of-type(2),
+        #modal-config:not(.hidden) .ios-group:nth-of-type(2) { animation-delay: 0.16s; }
+        #modal-config:not(.hidden) .ios-group-label:nth-of-type(3),
+        #modal-config:not(.hidden) .ios-group:nth-of-type(3) { animation-delay: 0.20s; }
+        #modal-config:not(.hidden) .ios-group-label:nth-of-type(4),
+        #modal-config:not(.hidden) .ios-group:nth-of-type(4) { animation-delay: 0.24s; }
+        #modal-config:not(.hidden) .ios-group-label:nth-of-type(5),
+        #modal-config:not(.hidden) .ios-group:nth-of-type(5) { animation-delay: 0.28s; }
+        #modal-config:not(.hidden) .ios-group-label:nth-of-type(n+6),
+        #modal-config:not(.hidden) .ios-group:nth-of-type(n+6) { animation-delay: 0.32s; }
+        /* Header premium animation */
+        @keyframes cfg-header-in {
+            0%   { opacity: 0; transform: translateY(-6px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        #modal-config:not(.hidden) .ios-header { animation: cfg-header-in 0.4s ease both; }
     </style>
     <div id="modal-config" class="hidden fixed inset-0 z-[4000] modal-custom flex flex-col items-center justify-center p-3">
         <div class="ios-modal-wrap view-enter">
 
-            <!-- Header -->
+            <!-- ═══ Premium Header ═══ -->
             <div class="ios-header">
-                <div>
-                    <p style="font-size:11px;font-weight:700;color:#8e8e93;letter-spacing:0.5px;text-transform:uppercase;margin:0 0 2px;">NelsonApp Pro</p>
-                    <h3 style="font-size:19px;font-weight:700;color:#ebebf5;margin:0;">Configuración</h3>
+                <div class="ios-header-top">
+                    <div class="ios-header-brand">
+                        <div class="cfg-logo" id="cfg-header-logo">🔧</div>
+                        <div class="cfg-title-wrap">
+                            <p class="cfg-eyebrow">
+                                <span id="cfg-header-biz">NelsonApp Pro</span>
+                                <span class="cfg-version" id="cfg-header-version">v3.3</span>
+                            </p>
+                            <h3 class="cfg-h1">Configuración</h3>
+                        </div>
+                    </div>
+                    <button onclick="closeConfigModal()" class="ios-close-btn" aria-label="Cerrar">✕</button>
                 </div>
-                <button onclick="closeConfigModal()" class="ios-close-btn">✕</button>
+                <!-- Health bar -->
+                <div class="cfg-health">
+                    <span class="cfg-health-label">Salud</span>
+                    <div class="cfg-health-track"><div class="cfg-health-fill" id="cfg-health-fill"></div></div>
+                    <span class="cfg-health-pct" id="cfg-health-pct">0%</span>
+                </div>
+                <!-- Search -->
+                <div class="cfg-search-wrap">
+                    <svg class="cfg-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="cfg-search-input" class="cfg-search" placeholder="Buscar ajuste..." oninput="filterConfigRows(this.value)" autocomplete="off">
+                </div>
             </div>
 
             <div class="ios-scroll-area">
+
+                <!-- ═══ Hero: Stat cards ═══ -->
+                <div class="cfg-stats" id="cfg-stats">
+                    <div class="cfg-stat" style="--stat-accent:#f97316;">
+                        <div class="cfg-stat-icon">📊</div>
+                        <div class="cfg-stat-val" id="cfg-stat-records">—</div>
+                        <div class="cfg-stat-label">Registros</div>
+                    </div>
+                    <div class="cfg-stat" style="--stat-accent:#10b981;" onclick="cfgBackupNow()" role="button" tabindex="0">
+                        <div class="cfg-stat-icon">☁️</div>
+                        <div class="cfg-stat-val" id="cfg-stat-backup">—</div>
+                        <div class="cfg-stat-label">Último respaldo</div>
+                    </div>
+                    <div class="cfg-stat" style="--stat-accent:#3b82f6;">
+                        <div class="cfg-stat-icon">🔗</div>
+                        <div class="cfg-stat-val" id="cfg-stat-drive">—</div>
+                        <div class="cfg-stat-label">Google Drive</div>
+                    </div>
+                </div>
+
+                <!-- ═══ Quick Actions ═══ -->
+                <div class="cfg-quick">
+                    <button class="cfg-quick-btn" onclick="cfgBackupNow()">
+                        <div class="q-ico" style="background:linear-gradient(135deg,#065f46,#10b981);">☁️</div>
+                        <span class="q-label">Respaldar</span>
+                    </button>
+                    <button class="cfg-quick-btn" onclick="cfgExportData()">
+                        <div class="q-ico" style="background:linear-gradient(135deg,#1d4ed8,#6366f1);">📤</div>
+                        <span class="q-label">Exportar</span>
+                    </button>
+                    <button class="cfg-quick-btn" onclick="cfgImportData()">
+                        <div class="q-ico" style="background:linear-gradient(135deg,#7c3aed,#a855f7);">📥</div>
+                        <span class="q-label">Importar</span>
+                    </button>
+                </div>
 
                 <!-- ── 1. APARIENCIA ── -->
                 <p class="ios-group-label">Personalización</p>
@@ -3749,24 +3993,111 @@
                             <button onclick="saveLowStockThreshold()" class="ios-save-btn" style="background:#0a84ff;color:white;">💾 Guardar</button>
                         </div>
                     </div>
-                    <!-- Respaldo -->
+                </div>
+
+                <!-- ═══ DATOS Y RESPALDO ═══ -->
+                <p class="ios-group-label" style="margin-top:20px;">Datos y respaldo</p>
+                <div class="ios-group">
+                    <!-- Google Drive -->
+                    <div class="ios-row" onclick="iosCfgToggle('cfg-drive',this)">
+                        <div class="ios-row-icon" style="background:linear-gradient(135deg,#1e3a5f,#1d4ed8);">☁️</div>
+                        <div class="ios-row-text">
+                            <p class="ios-row-title">Google Drive</p>
+                            <p class="ios-row-sub">Cuenta vinculada y respaldo en nube</p>
+                        </div>
+                        <svg class="ios-chevron" width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <div id="cfg-drive" class="ios-body">
+                        <div class="ios-body-inner space-y-3">
+                            <div id="cfg-drive-info" style="background:#0d1a2e;border:1px solid rgba(59,130,246,0.18);border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                                <div style="min-width:0;flex:1;">
+                                    <p style="font-size:10px;font-weight:800;color:#60a5fa;letter-spacing:1px;text-transform:uppercase;margin:0;">Estado</p>
+                                    <p id="cfg-drive-email" style="font-size:12px;font-weight:600;color:#cbd5e1;margin:3px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">No conectado</p>
+                                </div>
+                                <button id="cfg-drive-btn" onclick="cfgDriveToggle()" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:white;padding:8px 14px;border-radius:10px;font-size:10px;font-weight:900;letter-spacing:1px;text-transform:uppercase;border:none;cursor:pointer;white-space:nowrap;">Conectar</button>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="cfgBackupNow()" style="background:#0d2218;border:1px solid #16a34a;color:#4ade80;padding:10px;border-radius:10px;font-size:11px;font-weight:800;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;letter-spacing:0.5px;">☁️ Subir ahora</button>
+                                <button onclick="cfgDriveRestore()" style="background:#0d1a2e;border:1px solid #1d4ed8;color:#60a5fa;padding:10px;border-radius:10px;font-size:11px;font-weight:800;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;letter-spacing:0.5px;">📥 Restaurar</button>
+                            </div>
+                            <p id="cfg-drive-last" style="font-size:10.5px;color:#6b7280;text-align:center;margin:4px 0 0;font-weight:600;">Sin respaldos aún</p>
+                        </div>
+                    </div>
+                    <!-- Respaldo automático -->
                     <div class="ios-row" onclick="iosCfgToggle('cfg-respaldo',this)">
-                        <div class="ios-row-icon" style="background:linear-gradient(135deg,#5ac8fa,#0070c9);">⏱️</div>
+                        <div class="ios-row-icon" style="background:linear-gradient(135deg,#0e7490,#06b6d4);">⏱️</div>
                         <div class="ios-row-text">
                             <p class="ios-row-title">Respaldo automático</p>
-                            <p class="ios-row-sub">Intervalo del backup</p>
+                            <p class="ios-row-sub">Intervalo del backup en Drive</p>
                         </div>
                         <svg class="ios-chevron" width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </div>
                     <div id="cfg-respaldo" class="ios-body">
                         <div class="ios-body-inner space-y-3">
                             <select id="config-backup-interval" class="w-full text-sm">
+                                <option value="0">Desactivado</option>
+                                <option value="6">Cada 6 horas</option>
                                 <option value="12">Cada 12 horas</option>
                                 <option value="24">Cada 24 horas</option>
                                 <option value="48">Cada 48 horas</option>
                                 <option value="168">Semanal</option>
                             </select>
-                            <button onclick="saveBackupInterval()" class="ios-save-btn" style="background:#5ac8fa;color:#000;">💾 Aplicar</button>
+                            <p style="font-size:10.5px;color:#8e8e93;line-height:1.5;margin:0;">Se ejecuta silenciosamente cuando la app está abierta y tienes Drive conectado.</p>
+                            <button onclick="saveBackupInterval()" class="ios-save-btn" style="background:#06b6d4;color:#000;">💾 Aplicar</button>
+                        </div>
+                    </div>
+                    <!-- Exportar local -->
+                    <div class="ios-row" onclick="cfgExportData()">
+                        <div class="ios-row-icon" style="background:linear-gradient(135deg,#1d4ed8,#6366f1);">📤</div>
+                        <div class="ios-row-text">
+                            <p class="ios-row-title">Exportar respaldo (JSON)</p>
+                            <p class="ios-row-sub">Descarga archivo a tu teléfono</p>
+                        </div>
+                        <svg class="ios-chevron" width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <!-- Importar local -->
+                    <div class="ios-row" onclick="cfgImportData()">
+                        <div class="ios-row-icon" style="background:linear-gradient(135deg,#7c3aed,#a855f7);">📥</div>
+                        <div class="ios-row-text">
+                            <p class="ios-row-title">Importar respaldo (JSON)</p>
+                            <p class="ios-row-sub">Restaurar desde archivo</p>
+                        </div>
+                        <svg class="ios-chevron" width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <!-- Almacenamiento -->
+                    <div class="ios-row" onclick="iosCfgToggle('cfg-storage',this)">
+                        <div class="ios-row-icon" style="background:linear-gradient(135deg,#374151,#6b7280);">💾</div>
+                        <div class="ios-row-text">
+                            <p class="ios-row-title">Almacenamiento</p>
+                            <p class="ios-row-sub">Espacio usado por módulo</p>
+                        </div>
+                        <svg class="ios-chevron" width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <div id="cfg-storage" class="ios-body">
+                        <div class="ios-body-inner space-y-3">
+                            <div id="cfg-storage-bars" style="display:flex;flex-direction:column;gap:8px;"></div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);">
+                                <span style="font-size:11px;font-weight:700;color:#8e8e93;text-transform:uppercase;letter-spacing:0.5px;">Total</span>
+                                <span id="cfg-storage-total" style="font-size:13px;font-weight:900;color:#f5f5f7;">— KB</span>
+                            </div>
+                            <button onclick="cfgRefreshStorage()" class="ios-save-btn" style="background:#374151;color:#e5e7eb;">🔄 Recalcular</button>
+                        </div>
+                    </div>
+                    <!-- Mantenimiento -->
+                    <div class="ios-row" onclick="iosCfgToggle('cfg-mantenimiento',this)">
+                        <div class="ios-row-icon" style="background:linear-gradient(135deg,#78350f,#f59e0b);">🧹</div>
+                        <div class="ios-row-text">
+                            <p class="ios-row-title">Mantenimiento</p>
+                            <p class="ios-row-sub">Limpieza y purga de datos</p>
+                        </div>
+                        <svg class="ios-chevron" width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <div id="cfg-mantenimiento" class="ios-body">
+                        <div class="ios-body-inner space-y-2">
+                            <button onclick="cfgPurgeStockHistory()" class="ios-danger-btn" style="background:rgba(245,158,11,0.12);color:#fbbf24;border:1px solid rgba(245,158,11,0.25);">📦 Compactar historial de stock</button>
+                            <p style="font-size:10.5px;color:#6b7280;text-align:center;margin:-2px 0 6px;line-height:1.4;">Elimina movimientos de inventario de más de 6 meses.</p>
+                            <button onclick="cfgPurgeOrphans()" class="ios-danger-btn" style="background:rgba(139,92,246,0.12);color:#c4b5fd;border:1px solid rgba(139,92,246,0.25);">🧽 Limpiar clientes sin órdenes</button>
+                            <p style="font-size:10.5px;color:#6b7280;text-align:center;margin:-2px 0 6px;line-height:1.4;">Quita clientes sin órdenes ni ventas registradas.</p>
                         </div>
                     </div>
                 </div>
@@ -3774,23 +4105,41 @@
                 <!-- ── 14. SISTEMA ── -->
                 <p class="ios-group-label" style="margin-top:20px;">Sistema</p>
                 <div class="ios-group">
-                    <div class="ios-row" onclick="iosCfgToggle('cfg-sistema',this)">
-                        <div class="ios-row-icon" style="background:linear-gradient(135deg,#ff375f,#9b0020);">🛠️</div>
+                    <!-- Acerca de -->
+                    <div class="ios-row" onclick="iosCfgToggle('cfg-about',this)">
+                        <div class="ios-row-icon" style="background:linear-gradient(135deg,#0e7490,#22d3ee);">ℹ️</div>
                         <div class="ios-row-text">
-                            <p class="ios-row-title">Sistema</p>
-                            <p class="ios-row-sub">Reset, versión y actualizaciones</p>
+                            <p class="ios-row-title">Acerca de</p>
+                            <p class="ios-row-sub">Versión, dispositivo y conexión</p>
+                        </div>
+                        <svg class="ios-chevron" width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <div id="cfg-about" class="ios-body">
+                        <div class="ios-body-inner" style="padding:4px 8px 12px;">
+                            <div id="cfg-about-list" style="display:flex;flex-direction:column;"></div>
+                            <button onclick="checkUpdate()" class="ios-save-btn" style="background:rgba(10,132,255,0.12);color:#0a84ff;border:1px solid rgba(10,132,255,0.25);margin-top:12px;">🔄 Buscar actualizaciones</button>
+                        </div>
+                    </div>
+                    <!-- Reset -->
+                    <div class="ios-row" onclick="iosCfgToggle('cfg-sistema',this)">
+                        <div class="ios-row-icon" style="background:linear-gradient(135deg,#ff375f,#9b0020);">⚠️</div>
+                        <div class="ios-row-text">
+                            <p class="ios-row-title">Restablecer</p>
+                            <p class="ios-row-sub">Tutorial o datos de fábrica</p>
                         </div>
                         <svg class="ios-chevron" width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </div>
                     <div id="cfg-sistema" class="ios-body">
                         <div class="ios-body-inner space-y-2">
-                            <button onclick="resetTutorial()" class="ios-danger-btn" style="background:#3a3a3c;color:#ffd60a;">🔄 Restablecer tutorial</button>
+                            <button onclick="resetTutorial()" class="ios-danger-btn" style="background:rgba(255,214,10,0.12);color:#ffd60a;border:1px solid rgba(255,214,10,0.25);">🔄 Restablecer tutorial</button>
                             <button onclick="factoryReset()" class="ios-danger-btn" style="background:rgba(255,55,95,0.15);color:#ff375f;border:1px solid rgba(255,55,95,0.3);">⚠️ Restablecer fábrica</button>
-                            <p style="font-size:11px;color:#48484a;text-align:center;margin-top:4px;">Borra TODOS los datos. PIN y configuración se mantienen.</p>
-                            <p style="text-align:center;font-size:11px;color:#48484a;padding-top:4px;">v3.0.0 — <a href="#" onclick="checkUpdate()" style="color:#0a84ff;">Buscar actualizaciones</a></p>
+                            <p style="font-size:11px;color:#6b7280;text-align:center;margin-top:4px;line-height:1.5;">Borra TODOS los datos. PIN y configuración se mantienen.</p>
                         </div>
                     </div>
                 </div>
+
+                <!-- Footer -->
+                <p style="text-align:center;font-size:10px;color:#48484a;padding:16px 0 4px;font-weight:700;letter-spacing:1.5px;">NELSONAPP PRO · TALLER EDITION</p>
 
             </div>
         </div>
@@ -4536,7 +4885,16 @@
             const hours = parseInt(document.getElementById('config-backup-interval').value);
             localStorage.setItem('backupIntervalHours', hours);
             startAutoBackup();
-            showToast(`Intervalo de respaldo: cada ${hours} horas`, 'success');
+            if (hours === 0) {
+                showToast('Respaldo automático desactivado', 'info');
+            } else if (hours === 168) {
+                showToast('Respaldo automático: semanal', 'success');
+            } else {
+                showToast(`Respaldo automático: cada ${hours} horas`, 'success');
+            }
+            // Refresh config UI if open
+            if (typeof updateConfigBadges === 'function') updateConfigBadges();
+            if (typeof updateConfigHealth === 'function') updateConfigHealth();
         }
 
         // ═══ Overlay de progreso de subida/descarga a Drive ═══
@@ -8165,10 +8523,501 @@
                 btn.style.transform = btn.dataset.color === accent ? 'scale(1.2)' : 'scale(1)';
             });
             document.getElementById('modal-config').classList.remove('hidden');
+            // ── Nuevas llamadas del rediseño Pro ──
+            try {
+                updateConfigHeader();
+                updateConfigStats();
+                updateConfigBadges();
+                updateConfigHealth();
+                updateConfigDriveRow();
+                updateConfigAbout();
+                // Reset search + filter
+                const si = document.getElementById('cfg-search-input');
+                if (si) { si.value = ''; filterConfigRows(''); }
+            } catch(e) { console.warn('[config-pro] hooks:', e); }
         }
         function closeConfigModal() {
             document.getElementById('modal-config').classList.add('hidden');
         }
+
+        // ==================== CONFIG PRO — UI helpers ====================
+        // Actualiza logo + nombre del negocio + versión en el header del modal
+        function updateConfigHeader() {
+            try {
+                const logoEl = document.getElementById('cfg-header-logo');
+                const bizEl  = document.getElementById('cfg-header-biz');
+                const verEl  = document.getElementById('cfg-header-version');
+                const cfgRaw = localStorage.getItem('businessConfig');
+                if (cfgRaw) {
+                    const cfg = JSON.parse(cfgRaw);
+                    if (bizEl) bizEl.textContent = cfg.shortName || cfg.name || 'NelsonApp Pro';
+                    if (logoEl && cfg.logo) {
+                        logoEl.innerHTML = `<img src="${cfg.logo}" alt="logo">`;
+                        logoEl.style.background = '#0f0f14';
+                    } else if (logoEl) {
+                        logoEl.innerHTML = '🔧';
+                    }
+                }
+                if (verEl) verEl.textContent = (window.APP_VERSION || 'v3.3');
+            } catch(e) {}
+        }
+
+        // Popula las 3 tarjetas de estadísticas
+        async function updateConfigStats() {
+            // Registros
+            try {
+                const [orders, stock, sales, clientes] = await Promise.all([
+                    getAll('orders').catch(() => []),
+                    getAll('stock').catch(() => []),
+                    getAll('sales').catch(() => []),
+                    getAll('clientes').catch(() => [])
+                ]);
+                const total = (orders.length||0) + (stock.length||0) + (sales.length||0) + (clientes.length||0);
+                const el = document.getElementById('cfg-stat-records');
+                if (el) el.textContent = total.toLocaleString('es-CO');
+            } catch(e) {
+                const el = document.getElementById('cfg-stat-records');
+                if (el) el.textContent = '—';
+            }
+            // Último respaldo
+            const lastRaw = localStorage.getItem('driveLastBackup');
+            const elB = document.getElementById('cfg-stat-backup');
+            if (elB) {
+                if (lastRaw) {
+                    const last = new Date(lastRaw);
+                    if (!isNaN(last)) {
+                        elB.textContent = cfgTimeAgo(last);
+                    } else {
+                        elB.textContent = 'Nunca';
+                    }
+                } else {
+                    elB.textContent = 'Nunca';
+                }
+            }
+            // Drive status
+            const elD = document.getElementById('cfg-stat-drive');
+            if (elD) {
+                const token = (typeof driveToken !== 'undefined' && driveToken) || sessionStorage.getItem('driveToken');
+                elD.textContent = token ? '✓' : '—';
+                elD.style.color = token ? '#34d399' : '#6b7280';
+            }
+        }
+
+        function cfgTimeAgo(date) {
+            const now = new Date();
+            const diffMs = now - date;
+            const mins = Math.floor(diffMs / 60000);
+            if (mins < 1) return 'Ahora';
+            if (mins < 60) return `${mins}m`;
+            const hrs = Math.floor(mins / 60);
+            if (hrs < 24) return `${hrs}h`;
+            const days = Math.floor(hrs / 24);
+            if (days < 30) return `${days}d`;
+            return `${Math.floor(days/30)}mes`;
+        }
+
+        // Pone/actualiza un badge en una fila dada su ios-body id
+        function cfgSetBadge(bodyId, text, cls) {
+            const body = document.getElementById(bodyId);
+            if (!body) return;
+            const row = body.previousElementSibling;
+            if (!row || !row.classList.contains('ios-row')) return;
+            let badge = row.querySelector('.ios-row-badge');
+            if (!badge) {
+                badge = document.createElement('span');
+                badge.className = 'ios-row-badge';
+                const chev = row.querySelector('.ios-chevron');
+                if (chev) row.insertBefore(badge, chev);
+                else row.appendChild(badge);
+            }
+            badge.textContent = text || '';
+            badge.className = 'ios-row-badge' + (cls ? ' ' + cls : '');
+            badge.style.display = text ? '' : 'none';
+        }
+
+        // Pinta todos los badges dinámicos
+        function updateConfigBadges() {
+            try {
+                // Apariencia — color actual
+                const accent = localStorage.getItem('appAccentColor') || 'orange';
+                const accentNames = { orange:'Naranja', blue:'Azul', emerald:'Verde', violet:'Morado', rose:'Rosa', amber:'Ámbar' };
+                cfgSetBadge('cfg-apariencia', accentNames[accent] || accent, 'accent');
+
+                // Negocio — completo / falta X
+                const bizRaw = localStorage.getItem('businessConfig');
+                if (bizRaw) {
+                    const b = JSON.parse(bizRaw);
+                    const filled = ['name','phone','address'].filter(k => b[k] && String(b[k]).trim()).length;
+                    if (filled === 3 && b.logo) cfgSetBadge('cfg-negocio', 'Completo', 'ok');
+                    else if (filled === 0) cfgSetBadge('cfg-negocio', 'Configurar', 'warn');
+                    else cfgSetBadge('cfg-negocio', `${filled}/3`, 'warn');
+                } else {
+                    cfgSetBadge('cfg-negocio', 'Configurar', 'warn');
+                }
+
+                // Regional — moneda
+                const cur = localStorage.getItem('appCurrency') || '$';
+                cfgSetBadge('cfg-regional', cur, 'off');
+
+                // Notificaciones — activas
+                const nSound = localStorage.getItem('appSound') === 'true';
+                const nWarr  = localStorage.getItem('warrantyAlert') === 'true';
+                const nOn = [nSound, nWarr].filter(Boolean).length;
+                if (nOn === 0) cfgSetBadge('cfg-notif', 'Off', 'off');
+                else cfgSetBadge('cfg-notif', `${nOn} activas`, 'ok');
+
+                // Seguridad — bloqueo
+                const lock = parseInt(localStorage.getItem('autoLockMinutes') || '0');
+                if (lock === 0) cfgSetBadge('cfg-seguridad', 'Sin bloqueo', 'warn');
+                else cfgSetBadge('cfg-seguridad', `${lock}m`, 'ok');
+
+                // Plantillas WhatsApp — completas
+                const tplKeys = ['tpl-recepcion','tpl-revision','tpl-presupuesto','tpl-listo','tpl-garantia','tpl-norepara','tpl-retraso','tpl-cobro'];
+                const tplSaved = localStorage.getItem('whatsappTemplates');
+                let filled = 0;
+                if (tplSaved) {
+                    try {
+                        const t = JSON.parse(tplSaved);
+                        filled = Object.values(t).filter(v => v && String(v).trim()).length;
+                    } catch(e) {}
+                }
+                cfgSetBadge('cfg-wapp', `${filled}/8`, filled === 8 ? 'ok' : (filled > 0 ? 'warn' : 'off'));
+
+                // Técnicos — cantidad
+                const tecs = JSON.parse(localStorage.getItem('tecnicos') || '[]');
+                cfgSetBadge('cfg-tecnicos', `${tecs.length}`, tecs.length > 0 ? 'ok' : 'warn');
+
+                // Meta mensual
+                const meta = parseFloat(localStorage.getItem('metaMensual') || '0');
+                if (meta > 0) cfgSetBadge('cfg-meta', '$' + (meta/1000000).toFixed(1) + 'M', 'accent');
+                else cfgSetBadge('cfg-meta', 'Sin meta', 'warn');
+
+                // Recordatorios — hora cierre
+                const cierre = localStorage.getItem('cierreHora') || '';
+                cfgSetBadge('cfg-recordatorios', cierre || 'Sin hora', cierre ? 'ok' : 'off');
+
+                // Documentos — fotos on/off
+                const docRaw = localStorage.getItem('documentConfig');
+                let docBadge = 'Config';
+                if (docRaw) {
+                    try { const d = JSON.parse(docRaw); docBadge = d.facturaFotos ? 'Con fotos' : 'Sin fotos'; } catch(e){}
+                }
+                cfgSetBadge('cfg-docs', docBadge, 'off');
+
+                // Numeración — prefijo
+                const numRaw = localStorage.getItem('orderNumConfig');
+                if (numRaw) {
+                    try { const n = JSON.parse(numRaw); cfgSetBadge('cfg-numeracion', n.prefix || 'NR-', 'off'); } catch(e) { cfgSetBadge('cfg-numeracion','NR-','off'); }
+                } else cfgSetBadge('cfg-numeracion','NR-','off');
+
+                // Inventario — umbral
+                const low = localStorage.getItem('lowStockThreshold') || '3';
+                cfgSetBadge('cfg-inventario', `<${low} ud`, 'off');
+
+                // Respaldo automático — intervalo
+                const interval = parseInt(localStorage.getItem('backupIntervalHours') || '0');
+                if (interval === 0) cfgSetBadge('cfg-respaldo', 'Off', 'off');
+                else if (interval === 168) cfgSetBadge('cfg-respaldo', 'Semanal', 'ok');
+                else cfgSetBadge('cfg-respaldo', `${interval}h`, 'ok');
+
+                // Drive
+                const token = (typeof driveToken !== 'undefined' && driveToken) || sessionStorage.getItem('driveToken');
+                cfgSetBadge('cfg-drive', token ? 'Conectado' : 'Off', token ? 'ok' : 'off');
+            } catch(e) { console.warn('[badges]', e); }
+        }
+
+        // Calcula y pinta el indicador de salud general de la configuración
+        function updateConfigHealth() {
+            try {
+                let score = 0; const total = 8;
+                const bizRaw = localStorage.getItem('businessConfig');
+                if (bizRaw) { try { const b = JSON.parse(bizRaw); if (b.name && b.phone && b.address) score++; if (b.logo) score++; } catch(e){} }
+                const tecs = JSON.parse(localStorage.getItem('tecnicos') || '[]');
+                if (tecs.length > 0) score++;
+                const tplSaved = localStorage.getItem('whatsappTemplates');
+                if (tplSaved) { try { const t = JSON.parse(tplSaved); const f = Object.values(t).filter(v=>v&&String(v).trim()).length; if (f >= 4) score++; } catch(e){} }
+                if (parseFloat(localStorage.getItem('metaMensual') || '0') > 0) score++;
+                if (parseInt(localStorage.getItem('autoLockMinutes') || '0') > 0) score++;
+                const token = (typeof driveToken !== 'undefined' && driveToken) || sessionStorage.getItem('driveToken');
+                if (token) score++;
+                if (parseInt(localStorage.getItem('backupIntervalHours') || '0') > 0) score++;
+
+                const pct = Math.round((score / total) * 100);
+                const fill = document.getElementById('cfg-health-fill');
+                const lbl  = document.getElementById('cfg-health-pct');
+                if (fill) setTimeout(() => { fill.style.width = pct + '%'; }, 100);
+                if (lbl) {
+                    lbl.textContent = pct + '%';
+                    lbl.style.color = pct >= 75 ? '#34d399' : (pct >= 40 ? '#fbbf24' : '#fb7185');
+                }
+            } catch(e) {}
+        }
+
+        // Drive row interno del modal
+        function updateConfigDriveRow() {
+            const info = document.getElementById('cfg-drive-email');
+            const btn  = document.getElementById('cfg-drive-btn');
+            const last = document.getElementById('cfg-drive-last');
+            const token = (typeof driveToken !== 'undefined' && driveToken) || sessionStorage.getItem('driveToken');
+            if (token) {
+                const email = localStorage.getItem('driveEmail') || 'Conectado';
+                if (info) info.textContent = email;
+                if (btn)  { btn.textContent = 'Salir'; btn.style.background = 'linear-gradient(135deg,#475569,#334155)'; }
+            } else {
+                if (info) info.textContent = 'No conectado';
+                if (btn)  { btn.textContent = 'Conectar'; btn.style.background = 'linear-gradient(135deg,#1d4ed8,#3b82f6)'; }
+            }
+            if (last) {
+                const raw = localStorage.getItem('driveLastBackup');
+                last.textContent = raw ? `Último respaldo: ${raw}` : 'Sin respaldos aún';
+            }
+        }
+
+        // Acerca de — información de la app y el dispositivo
+        function updateConfigAbout() {
+            const wrap = document.getElementById('cfg-about-list');
+            if (!wrap) return;
+            const ua = navigator.userAgent || '';
+            let platform = 'Desconocido';
+            if (/Android/i.test(ua)) platform = 'Android';
+            else if (/iPhone|iPad|iPod/i.test(ua)) platform = 'iOS';
+            else if (/Win/i.test(ua)) platform = 'Windows';
+            else if (/Mac/i.test(ua)) platform = 'macOS';
+            else if (/Linux/i.test(ua)) platform = 'Linux';
+            const online = navigator.onLine ? 'En línea' : 'Sin conexión';
+            const onlineCls = navigator.onLine ? '#34d399' : '#fbbf24';
+            const installed = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches ? 'PWA instalada' : 'Navegador';
+            const rows = [
+                ['Versión', window.APP_VERSION || 'v3.3'],
+                ['Plataforma', platform],
+                ['Entorno', installed],
+                ['Conexión', `<span style="color:${onlineCls};font-weight:800;">${online}</span>`],
+                ['Idioma', (navigator.language || 'es-CO')],
+                ['Pantalla', `${screen.width}×${screen.height}`]
+            ];
+            wrap.innerHTML = rows.map(([k,v]) => `
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 8px;border-bottom:1px solid rgba(255,255,255,0.05);">
+                    <span style="font-size:12px;color:#8e8e93;font-weight:600;">${k}</span>
+                    <span style="font-size:12px;color:#e5e7eb;font-weight:700;text-align:right;">${v}</span>
+                </div>
+            `).join('');
+        }
+
+        // Filtro de búsqueda en vivo
+        function filterConfigRows(query) {
+            const q = (query || '').toLowerCase().trim();
+            const modal = document.getElementById('modal-config');
+            if (!modal) return;
+            const groups = modal.querySelectorAll('.ios-group');
+            groups.forEach(group => {
+                const rows = group.querySelectorAll(':scope > .ios-row');
+                let visibleCount = 0;
+                rows.forEach(row => {
+                    const title = (row.querySelector('.ios-row-title')?.textContent || '').toLowerCase();
+                    const sub   = (row.querySelector('.ios-row-sub')?.textContent || '').toLowerCase();
+                    const match = !q || title.includes(q) || sub.includes(q);
+                    row.classList.toggle('cfg-hidden-row', !match);
+                    if (match) visibleCount++;
+                });
+                const label = group.previousElementSibling;
+                if (label && label.classList.contains('ios-group-label')) {
+                    label.classList.toggle('cfg-hidden-group', visibleCount === 0);
+                }
+                group.classList.toggle('cfg-hidden-group', visibleCount === 0);
+            });
+            // Oculta hero cuando hay búsqueda
+            const stats = modal.querySelector('.cfg-stats');
+            const quick = modal.querySelector('.cfg-quick');
+            if (stats) stats.style.display = q ? 'none' : '';
+            if (quick) quick.style.display = q ? 'none' : '';
+        }
+
+        // Wrappers para acciones rápidas (reutilizan funciones existentes)
+        function cfgBackupNow() {
+            const token = (typeof driveToken !== 'undefined' && driveToken) || sessionStorage.getItem('driveToken');
+            if (!token) {
+                showAlert('Primero conecta tu cuenta de Google Drive desde la sección "Datos y respaldo".', 'warning');
+                return;
+            }
+            if (typeof driveBackupNow === 'function') driveBackupNow(false);
+        }
+        function cfgExportData() {
+            if (typeof exportData === 'function') exportData();
+        }
+        function cfgImportData() {
+            const inp = document.getElementById('import-file');
+            if (inp) inp.click();
+        }
+        function cfgDriveToggle() {
+            const token = (typeof driveToken !== 'undefined' && driveToken) || sessionStorage.getItem('driveToken');
+            if (token) {
+                if (typeof driveSignOut === 'function') driveSignOut();
+            } else {
+                if (typeof driveSignIn === 'function') driveSignIn();
+            }
+            setTimeout(() => { updateConfigDriveRow(); updateConfigStats(); updateConfigBadges(); updateConfigHealth(); }, 600);
+        }
+        function cfgDriveRestore() {
+            if (typeof driveRestore === 'function') driveRestore();
+        }
+
+        // Almacenamiento — calcula tamaño por store
+        async function cfgRefreshStorage() {
+            const wrap = document.getElementById('cfg-storage-bars');
+            const totalEl = document.getElementById('cfg-storage-total');
+            if (!wrap) return;
+            wrap.innerHTML = '<p style="font-size:11px;color:#6b7280;text-align:center;padding:8px;">Calculando...</p>';
+            try {
+                const storesList = [
+                    ['orders', '📋 Órdenes', '#f97316'],
+                    ['stock', '📦 Inventario', '#0a84ff'],
+                    ['sales', '💰 Ventas', '#10b981'],
+                    ['clientes', '👥 Clientes', '#bf5af2'],
+                    ['gastos', '💸 Gastos', '#f43f5e'],
+                    ['stockHistory', '📜 Hist. stock', '#64748b']
+                ];
+                const sizes = [];
+                let grand = 0;
+                for (const [key, lbl, color] of storesList) {
+                    const items = await getAll(key).catch(() => []);
+                    const bytes = new Blob([JSON.stringify(items || [])]).size;
+                    grand += bytes;
+                    sizes.push({ key, lbl, color, bytes, count: items.length });
+                }
+                const maxBytes = Math.max(...sizes.map(s => s.bytes), 1);
+                wrap.innerHTML = sizes.map(s => {
+                    const pct = Math.max(3, Math.round((s.bytes / maxBytes) * 100));
+                    const kb = s.bytes < 1024 ? s.bytes + ' B' : (s.bytes / 1024).toFixed(1) + ' KB';
+                    return `
+                        <div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                                <span style="font-size:11.5px;color:#e5e7eb;font-weight:600;">${s.lbl}</span>
+                                <span style="font-size:10.5px;color:#8e8e93;font-weight:700;">${s.count} · ${kb}</span>
+                            </div>
+                            <div style="height:5px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;">
+                                <div style="height:100%;width:${pct}%;background:${s.color};border-radius:999px;transition:width 0.5s ease;"></div>
+                            </div>
+                        </div>`;
+                }).join('');
+                if (totalEl) totalEl.textContent = (grand / 1024).toFixed(1) + ' KB';
+            } catch(e) {
+                wrap.innerHTML = '<p style="font-size:11px;color:#f43f5e;text-align:center;">Error al calcular</p>';
+            }
+        }
+
+        // Mantenimiento — compactar stockHistory viejo
+        async function cfgPurgeStockHistory() {
+            try {
+                const hist = await getAll('stockHistory');
+                if (!hist || hist.length === 0) {
+                    showAlert('No hay historial de stock para compactar.', 'info');
+                    return;
+                }
+                const cutoff = Date.now() - (180 * 24 * 60 * 60 * 1000); // 6 meses
+                const old = hist.filter(h => {
+                    const t = new Date(h.fecha || h.date || h.timestamp || 0).getTime();
+                    return t > 0 && t < cutoff;
+                });
+                if (old.length === 0) {
+                    showAlert('No hay movimientos de más de 6 meses.', 'info');
+                    return;
+                }
+                showAlert(`¿Eliminar ${old.length} movimientos de stock de más de 6 meses?\n\nEsta acción no se puede deshacer.`, 'warning', async () => {
+                    try {
+                        for (const h of old) await del('stockHistory', h.id);
+                        showToast(`${old.length} movimientos compactados`, 'success');
+                        cfgRefreshStorage();
+                        updateConfigStats();
+                    } catch(e) { showAlert('Error al compactar: ' + e.message, 'error'); }
+                });
+            } catch(e) { showAlert('Error: ' + e.message, 'error'); }
+        }
+
+        // Mantenimiento — purgar clientes huérfanos
+        async function cfgPurgeOrphans() {
+            try {
+                const [clientes, orders, sales] = await Promise.all([
+                    getAll('clientes').catch(() => []),
+                    getAll('orders').catch(() => []),
+                    getAll('sales').catch(() => [])
+                ]);
+                const activeNames = new Set();
+                orders.forEach(o => { if (o.cliente) activeNames.add(String(o.cliente).trim().toLowerCase()); });
+                sales.forEach(s => { if (s.cliente) activeNames.add(String(s.cliente).trim().toLowerCase()); });
+                const orphans = clientes.filter(c => !activeNames.has(String(c.nombre || '').trim().toLowerCase()));
+                if (orphans.length === 0) {
+                    showAlert('No hay clientes huérfanos. Todos tienen órdenes o ventas.', 'info');
+                    return;
+                }
+                showAlert(`¿Eliminar ${orphans.length} clientes sin órdenes ni ventas?\n\nEsta acción no se puede deshacer.`, 'warning', async () => {
+                    try {
+                        for (const c of orphans) await del('clientes', c.nombre);
+                        showToast(`${orphans.length} clientes limpiados`, 'success');
+                        updateConfigStats();
+                    } catch(e) { showAlert('Error al limpiar: ' + e.message, 'error'); }
+                });
+            } catch(e) { showAlert('Error: ' + e.message, 'error'); }
+        }
+
+        // ═══ CONFIG PRO — Live refresh wrappers ═══
+        // Se ejecuta después de que TODAS las funciones originales están definidas.
+        // Monkeypatchea savers para refrescar badges/salud en vivo, y iosCfgToggle
+        // para auto-cargar Almacenamiento la primera vez que se abre.
+        window.addEventListener('load', function() {
+            // Helper: refresca UI del modal si está abierto
+            function cfgLiveRefresh() {
+                const modal = document.getElementById('modal-config');
+                if (!modal || modal.classList.contains('hidden')) return;
+                try {
+                    updateConfigBadges();
+                    updateConfigHealth();
+                    updateConfigHeader();
+                } catch(e) {}
+            }
+
+            // Lista de savers que disparan refresh (solo si existen)
+            const saverNames = [
+                'setAccentColor', 'toggleHighContrast', 'setFontSize',
+                'saveBusinessConfig', 'saveRegionalConfig', 'saveSoundConfig',
+                'saveWarrantyAlertConfig', 'saveAutoLockConfig', 'saveMaxAttemptsConfig',
+                'saveWhatsappTemplates', 'addTecnico', 'removeTecnico',
+                'saveMetaConfig', 'saveReminderConfig', 'saveDocumentConfig',
+                'saveOrderNumConfig', 'saveLowStockThreshold', 'saveAutoThemeConfig'
+            ];
+            saverNames.forEach(name => {
+                const orig = window[name];
+                if (typeof orig !== 'function') return;
+                window[name] = function() {
+                    const ret = orig.apply(this, arguments);
+                    // Post-save refresh (pequeño delay para que el localStorage termine)
+                    setTimeout(cfgLiveRefresh, 50);
+                    return ret;
+                };
+            });
+
+            // Monkeypatch iosCfgToggle: auto-carga Almacenamiento la 1ª vez
+            const origToggle = window.iosCfgToggle;
+            if (typeof origToggle === 'function') {
+                window.iosCfgToggle = function(id, rowEl) {
+                    const ret = origToggle.apply(this, arguments);
+                    if (id === 'cfg-storage') {
+                        const body = document.getElementById('cfg-storage');
+                        if (body && body.classList.contains('open') && !body.dataset.cfgLoaded) {
+                            body.dataset.cfgLoaded = '1';
+                            setTimeout(() => { try { cfgRefreshStorage(); } catch(e) {} }, 150);
+                        }
+                    }
+                    if (id === 'cfg-about') {
+                        // Refrescar acerca de cada vez (online/offline puede cambiar)
+                        const body = document.getElementById('cfg-about');
+                        if (body && body.classList.contains('open')) {
+                            setTimeout(() => { try { updateConfigAbout(); } catch(e) {} }, 80);
+                        }
+                    }
+                    return ret;
+                };
+            }
+        });
 
         // ==================== SPLASH SCREEN ====================
         (function initSplash() {
