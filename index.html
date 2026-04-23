@@ -1650,7 +1650,7 @@
                 </div>
 
                 <!-- CTA -->
-                <button onclick="saveOrder()" style="width:100%;padding:18px;background:linear-gradient(135deg,#ea580c 0%,#f97316 60%,#fb923c 100%);border:none;border-radius:18px;color:#fff;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;box-shadow:0 12px 28px rgba(249,115,22,0.35),inset 0 1px 0 rgba(255,255,255,0.25);cursor:pointer;transition:all 0.15s ease;display:flex;align-items:center;justify-content:center;gap:10px;" class="active:scale-[0.98]">
+                <button id="btn-registrar-entrada" onclick="saveOrder()" style="width:100%;padding:18px;background:linear-gradient(135deg,var(--taller-btn-dark,#ea580c) 0%,var(--taller-btn-primary,#f97316) 60%,var(--taller-btn-light,#fb923c) 100%);border:none;border-radius:18px;color:#fff;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;box-shadow:0 12px 28px var(--taller-btn-shadow,rgba(249,115,22,0.35)),inset 0 1px 0 rgba(255,255,255,0.25);cursor:pointer;transition:all 0.15s ease;display:flex;align-items:center;justify-content:center;gap:10px;" class="active:scale-[0.98]">
                     <span style="font-size:18px;">✓</span>
                     <span>Registrar entrada</span>
                 </button>
@@ -3668,6 +3668,20 @@
                                     <button onclick="setAccentColor('amber','#f59e0b','#d97706')" class="ios-color-dot bg-amber-500" data-color="amber" title="Ámbar"></button>
                                 </div>
                             </div>
+                            <div>
+                                <span class="ios-input-label">🔧 Color del botón "Registrar entrada"</span>
+                                <div class="flex gap-3 flex-wrap" id="taller-btn-color-btns">
+                                    <button onclick="setTallerBtnColor('orange','#f97316','#ea580c','#fb923c')" class="ios-color-dot bg-orange-500" data-color="orange" title="Naranja"></button>
+                                    <button onclick="setTallerBtnColor('blue','#3b82f6','#2563eb','#60a5fa')" class="ios-color-dot bg-blue-500" data-color="blue" title="Azul"></button>
+                                    <button onclick="setTallerBtnColor('emerald','#10b981','#059669','#34d399')" class="ios-color-dot bg-emerald-500" data-color="emerald" title="Verde"></button>
+                                    <button onclick="setTallerBtnColor('violet','#8b5cf6','#7c3aed','#a78bfa')" class="ios-color-dot bg-violet-500" data-color="violet" title="Morado"></button>
+                                    <button onclick="setTallerBtnColor('rose','#f43f5e','#e11d48','#fb7185')" class="ios-color-dot bg-rose-500" data-color="rose" title="Rosa"></button>
+                                    <button onclick="setTallerBtnColor('amber','#f59e0b','#d97706','#fbbf24')" class="ios-color-dot bg-amber-500" data-color="amber" title="Ámbar"></button>
+                                    <button onclick="setTallerBtnColor('red','#ef4444','#dc2626','#f87171')" class="ios-color-dot bg-red-500" data-color="red" title="Rojo"></button>
+                                    <button onclick="setTallerBtnColor('cyan','#06b6d4','#0891b2','#22d3ee')" class="ios-color-dot bg-cyan-500" data-color="cyan" title="Cyan"></button>
+                                </div>
+                                <p style="font-size:10px;color:#8e8e93;margin-top:6px;">Cambia solo el color del botón en Taller</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -4784,6 +4798,7 @@
             // ═══ FASE 1: CRÍTICA ═══ Lo que el usuario necesita ver ya
             applyStoredTheme();
             applyAccentColor();
+            applyTallerBtnColor();
             applyFontSize();
             applyHighContrast();
             loadBusinessConfig();
@@ -8977,7 +8992,7 @@
 
             // Lista de savers que disparan refresh (solo si existen)
             const saverNames = [
-                'setAccentColor', 'toggleHighContrast', 'setFontSize',
+                'setAccentColor', 'setTallerBtnColor', 'toggleHighContrast', 'setFontSize',
                 'saveBusinessConfig', 'saveRegionalConfig', 'saveSoundConfig',
                 'saveWarrantyAlertConfig', 'saveAutoLockConfig', 'saveMaxAttemptsConfig',
                 'saveWhatsappTemplates', 'addTecnico', 'removeTecnico',
@@ -9115,6 +9130,41 @@
                 .camera-btn { background: linear-gradient(135deg, ${primary}, ${dark}) !important; box-shadow: 0 8px 20px ${primary}4d !important; }
                 input:focus, textarea:focus, select:focus { border-color: ${primary} !important; box-shadow: 0 0 0 3px ${primary}33 !important; }
             `;
+        }
+
+        // ==================== COLOR BOTÓN "REGISTRAR ENTRADA" (TALLER) ====================
+        function setTallerBtnColor(name, primary, dark, light) {
+            localStorage.setItem('tallerBtnColorName', name);
+            localStorage.setItem('tallerBtnPrimary', primary);
+            localStorage.setItem('tallerBtnDark', dark);
+            localStorage.setItem('tallerBtnLight', light);
+            applyTallerBtnColor();
+            document.querySelectorAll('#taller-btn-color-btns button').forEach(btn => {
+                btn.style.borderColor = btn.dataset.color === name ? '#fff' : 'transparent';
+                btn.style.transform = btn.dataset.color === name ? 'scale(1.2)' : 'scale(1)';
+            });
+            showToast('Color del botón actualizado', 'success');
+        }
+        function applyTallerBtnColor() {
+            const primary = localStorage.getItem('tallerBtnPrimary') || '#f97316';
+            const dark    = localStorage.getItem('tallerBtnDark')    || '#ea580c';
+            const light   = localStorage.getItem('tallerBtnLight')   || '#fb923c';
+            const root = document.documentElement;
+            root.style.setProperty('--taller-btn-primary', primary);
+            root.style.setProperty('--taller-btn-dark', dark);
+            root.style.setProperty('--taller-btn-light', light);
+            // Convierte el primary hex a rgba para el shadow
+            const hex = primary.replace('#','');
+            const r = parseInt(hex.substring(0,2),16);
+            const g = parseInt(hex.substring(2,4),16);
+            const b = parseInt(hex.substring(4,6),16);
+            root.style.setProperty('--taller-btn-shadow', `rgba(${r},${g},${b},0.35)`);
+            // Marca el botón activo en la paleta de configuración
+            const activeName = localStorage.getItem('tallerBtnColorName') || 'orange';
+            document.querySelectorAll('#taller-btn-color-btns button').forEach(btn => {
+                btn.style.borderColor = btn.dataset.color === activeName ? '#fff' : 'transparent';
+                btn.style.transform = btn.dataset.color === activeName ? 'scale(1.2)' : 'scale(1)';
+            });
         }
 
         // ==================== LOGO ====================
@@ -9390,6 +9440,67 @@
         const DRIVE_FOLDER    = 'NelsonApp_Backups';
         let driveToken = null;
         let driveFolderId = null;
+        let driveTokenClient = null;       // Cliente OAuth reutilizable (se crea una sola vez)
+        let driveTokenExpiresAt = 0;       // Timestamp (ms) de cuándo expira el token
+        let driveRefreshTimerId = null;    // ID del setTimeout para refresh proactivo
+
+        // Crea (o retorna) el cliente OAuth. Reutilizamos el mismo cliente para todas
+        // las operaciones (sign in inicial + renovaciones silenciosas).
+        function getDriveTokenClient() {
+            if (driveTokenClient) return driveTokenClient;
+            if (!window.google || !google.accounts) return null;
+            driveTokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: DRIVE_CLIENT_ID,
+                scope: DRIVE_SCOPES,
+                callback: () => {} // sobrescrito antes de cada requestAccessToken
+            });
+            return driveTokenClient;
+        }
+
+        // Renueva el token SIN mostrar popup, usando la sesión activa de Google.
+        // Funciona si el usuario sigue logueado en Google en este navegador/WebView.
+        function driveSilentRefresh() {
+            return new Promise((resolve, reject) => {
+                if (!navigator.onLine) { reject(new Error('sin conexión')); return; }
+                const client = getDriveTokenClient();
+                if (!client) { reject(new Error('GIS no cargado aún')); return; }
+                // prompt '' = intento silencioso (no pide confirmación al usuario)
+                client.callback = (resp) => {
+                    if (resp && resp.error) { reject(new Error(resp.error)); return; }
+                    if (!resp || !resp.access_token) { reject(new Error('sin token')); return; }
+                    driveToken = resp.access_token;
+                    sessionStorage.setItem('driveToken', driveToken);
+                    const lifeMs = (parseInt(resp.expires_in, 10) || 3600) * 1000;
+                    driveTokenExpiresAt = Date.now() + lifeMs;
+                    localStorage.setItem('driveTokenExpiresAt', String(driveTokenExpiresAt));
+                    scheduleNextDriveRefresh();
+                    console.log('[Drive] Token renovado silenciosamente, expira en', Math.round(lifeMs/60000), 'min');
+                    resolve(driveToken);
+                };
+                try {
+                    client.requestAccessToken({ prompt: '' });
+                } catch(e) { reject(e); }
+            });
+        }
+
+        // Programa la próxima renovación 5 minutos antes de que expire el token
+        function scheduleNextDriveRefresh() {
+            if (driveRefreshTimerId) { clearTimeout(driveRefreshTimerId); driveRefreshTimerId = null; }
+            if (!driveTokenExpiresAt) return;
+            const msLeft = driveTokenExpiresAt - Date.now() - (5 * 60 * 1000);
+            // Mínimo 60s, máximo 55min (por si el sistema se despertó del sleep)
+            const delay = Math.min(55 * 60 * 1000, Math.max(60 * 1000, msLeft));
+            driveRefreshTimerId = setTimeout(() => {
+                driveSilentRefresh().catch(e => {
+                    console.warn('[Drive] Refresh proactivo falló:', e.message);
+                    // Reintentar en 2 minutos si falló
+                    driveRefreshTimerId = setTimeout(() => {
+                        driveSilentRefresh().catch(() => {});
+                    }, 2 * 60 * 1000);
+                });
+            }, delay);
+        }
+
 
         function driveSignIn() {
             if (!navigator.onLine) {
@@ -9398,32 +9509,38 @@
             if (!window.google || !google.accounts) {
                 showAlert('Google API aún cargando. Intenta en unos segundos.', 'warning'); return;
             }
-            const client = google.accounts.oauth2.initTokenClient({
-                client_id: DRIVE_CLIENT_ID,
-                scope: DRIVE_SCOPES,
-                callback: async (resp) => {
-                    if (resp.error) { showAlert('Error al conectar con Google: ' + resp.error, 'error'); return; }
-                    driveToken = resp.access_token;
-                    sessionStorage.setItem('driveToken', driveToken);
-                    try {
-                        const info = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-                            headers: { Authorization: 'Bearer ' + driveToken }
-                        }).then(r => r.json());
-                        localStorage.setItem('driveEmail', info.email || '');
-                        updateDriveUI(true, info.email);
-                    } catch(e) { updateDriveUI(true, 'Conectado'); }
-                    await ensureDriveFolder();
-                    startAutoBackup(); // reiniciar respaldo automático al conectar
-                }
-            });
+            const client = getDriveTokenClient();
+            if (!client) { showAlert('Google API aún cargando. Intenta en unos segundos.', 'warning'); return; }
+            client.callback = async (resp) => {
+                if (resp.error) { showAlert('Error al conectar con Google: ' + resp.error, 'error'); return; }
+                driveToken = resp.access_token;
+                sessionStorage.setItem('driveToken', driveToken);
+                // Guardar timestamp de expiración para el sistema de refresh automático
+                const lifeMs = (parseInt(resp.expires_in, 10) || 3600) * 1000;
+                driveTokenExpiresAt = Date.now() + lifeMs;
+                localStorage.setItem('driveTokenExpiresAt', String(driveTokenExpiresAt));
+                scheduleNextDriveRefresh();
+                try {
+                    const info = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                        headers: { Authorization: 'Bearer ' + driveToken }
+                    }).then(r => r.json());
+                    localStorage.setItem('driveEmail', info.email || '');
+                    updateDriveUI(true, info.email);
+                } catch(e) { updateDriveUI(true, 'Conectado'); }
+                await ensureDriveFolder();
+                startAutoBackup(); // reiniciar respaldo automático al conectar
+            };
             client.requestAccessToken();
         }
 
         function driveSignOut() {
             driveToken = null; driveFolderId = null;
+            driveTokenExpiresAt = 0;
+            if (driveRefreshTimerId) { clearTimeout(driveRefreshTimerId); driveRefreshTimerId = null; }
             sessionStorage.removeItem('driveToken');
             localStorage.removeItem('driveEmail');
             localStorage.removeItem('driveFolderId');
+            localStorage.removeItem('driveTokenExpiresAt');
             updateDriveUI(false);
             if (autoBackupIntervalId) clearInterval(autoBackupIntervalId);
             autoBackupIntervalId = null;
@@ -9605,8 +9722,46 @@
 
         function tryDriveReconnect() {
             const email = localStorage.getItem('driveEmail');
-            if (email) updateDriveUI(true, email);
+            if (!email) return; // nunca se conectó, no hacer nada
+
+            // 1) Restaurar token en memoria desde sessionStorage (persiste mientras la app siga abierta)
+            const storedToken = sessionStorage.getItem('driveToken');
+            const storedExp   = parseInt(localStorage.getItem('driveTokenExpiresAt') || '0', 10);
+            if (storedToken) { driveToken = storedToken; driveTokenExpiresAt = storedExp; }
+
+            // 2) UI como conectado (optimista, mejor UX que mostrar "desconectado")
+            updateDriveUI(true, email);
+
+            // 3) Decidir si renovar ahora o agendar
+            const now = Date.now();
+            const aboutToExpire = !driveTokenExpiresAt || driveTokenExpiresAt <= now + 5 * 60 * 1000;
+            if (aboutToExpire) {
+                // Token vencido o casi vencido → renovar silenciosamente
+                driveSilentRefresh().catch(e => {
+                    console.warn('[Drive] Refresh automático al iniciar falló:', e.message);
+                    // Si falla, no mostramos alerta. El usuario tendrá que reconectar
+                    // manualmente si llega a intentar un respaldo.
+                });
+            } else {
+                // Token aún válido → solo agendar el siguiente refresh
+                scheduleNextDriveRefresh();
+            }
         }
+
+        // Cuando la app vuelve del segundo plano (WhatsApp, etc.), revisamos si el token
+        // está por expirar. Esto cubre el caso donde el teléfono estuvo en sleep y el
+        // setTimeout se pausó.
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState !== 'visible') return;
+            if (!localStorage.getItem('driveEmail')) return; // no estaba conectado
+            const now = Date.now();
+            const needsRefresh = !driveToken || !driveTokenExpiresAt || driveTokenExpiresAt <= now + 10 * 60 * 1000;
+            if (needsRefresh) {
+                driveSilentRefresh().catch(e => {
+                    console.warn('[Drive] Refresh al volver del background falló:', e.message);
+                });
+            }
+        });
 
         // ==================== PLANTILLAS WHATSAPP ====================
         function saveWhatsappTemplates() {
