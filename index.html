@@ -497,17 +497,228 @@
         @keyframes pulse-mic { 0%,100%{box-shadow:0 0 0 0 rgba(244,63,94,0.4)} 50%{box-shadow:0 0 0 6px rgba(244,63,94,0)} }
         @keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.85)} }
 
-        /* ===== MODAL EXPORTAR PDF/EXCEL ===== */
+        /* ===== MODAL EXPORTAR v2 — Rediseño coherente con Taller Pro ===== */
         #modal-export-panel { z-index: 4100; }
-        .export-option-btn {
-            display: flex; align-items: center; gap: 14px;
-            padding: 14px 16px; border-radius: 16px;
-            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
-            cursor: pointer; transition: all 0.2s; width: 100%; text-align: left;
+        .export-modal-wrap {
+            width: 100%; max-width: 440px; max-height: 92vh;
+            display: flex; flex-direction: column;
+            border-radius: 24px; overflow: hidden;
+            background: linear-gradient(180deg, #0e0a07 0%, #0a0706 100%);
+            border: 1px solid rgba(249,115,22,0.14);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.03);
         }
-        .export-option-btn:hover { background: rgba(249,115,22,0.1); border-color: rgba(249,115,22,0.25); }
+        .export-modal-header {
+            position: relative;
+            padding: 16px 16px 14px;
+            background:
+                radial-gradient(circle at 20% -10%, rgba(249,115,22,0.25), transparent 55%),
+                radial-gradient(circle at 110% 30%, rgba(234,88,12,0.18), transparent 55%),
+                linear-gradient(180deg, #1a120c 0%, #120c08 100%);
+            border-bottom: 1px solid rgba(249,115,22,0.14);
+        }
+        .export-header-row {
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        }
+        .export-header-title-wrap { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+        .export-header-icon {
+            width: 44px; height: 44px; border-radius: 13px;
+            background: linear-gradient(135deg, #f97316, #c2410c);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; flex-shrink: 0;
+            box-shadow: 0 6px 18px rgba(249,115,22,0.38), inset 0 1px 0 rgba(255,255,255,0.18);
+        }
+        .export-header-title {
+            font-size: 17px; font-weight: 900; color: #fff7ed;
+            letter-spacing: -0.3px; margin: 0; line-height: 1.1;
+        }
+        .export-header-sub {
+            font-size: 11px; color: #fdba74; font-weight: 700;
+            margin: 2px 0 0; opacity: 0.85; letter-spacing: 0.3px;
+        }
+        .export-close-btn {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #f1f5f9; font-size: 14px; font-weight: 700;
+            cursor: pointer; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .export-close-btn:active { transform: scale(0.9); }
+
+        /* Segmented control PDF/Excel/CSV */
+        .export-segmented {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            margin-top: 14px;
+            padding: 4px;
+            background: rgba(0,0,0,0.35);
+            border-radius: 13px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .export-seg-btn {
+            padding: 9px 6px;
+            border-radius: 9px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 11.5px;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.18s ease;
+        }
+        .export-seg-btn-icon { font-size: 14px; line-height: 1; }
+        .export-seg-btn:active { transform: scale(0.96); }
+        .export-seg-btn.active {
+            background: linear-gradient(180deg, #1c1510, #15100c);
+            color: #fdba74;
+            box-shadow: 0 2px 8px rgba(249,115,22,0.25), inset 0 1px 0 rgba(251,146,60,0.15);
+            border: 1px solid rgba(249,115,22,0.3);
+        }
+        .export-seg-btn[data-fmt="pdf"].active { color: #fca5a5; border-color: rgba(244,63,94,0.35); box-shadow: 0 2px 8px rgba(244,63,94,0.25), inset 0 1px 0 rgba(251,113,133,0.15); }
+        .export-seg-btn[data-fmt="excel"].active { color: #6ee7b7; border-color: rgba(16,185,129,0.35); box-shadow: 0 2px 8px rgba(16,185,129,0.25), inset 0 1px 0 rgba(52,211,153,0.15); }
+        .export-seg-btn[data-fmt="csv"].active { color: #93c5fd; border-color: rgba(59,130,246,0.35); box-shadow: 0 2px 8px rgba(59,130,246,0.25), inset 0 1px 0 rgba(96,165,250,0.15); }
+
+        /* Sección label */
+        .export-section-label {
+            font-size: 9.5px; font-weight: 900;
+            color: #64748b;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            margin: 0 2px 8px;
+        }
+
+        /* Chips de rango */
+        .export-range-chips {
+            display: flex; gap: 6px;
+            overflow-x: auto; -webkit-overflow-scrolling: touch;
+            padding: 0 16px 2px;
+            margin-bottom: 10px;
+            scrollbar-width: none;
+        }
+        .export-range-chips::-webkit-scrollbar { display: none; }
+        .export-range-chip {
+            padding: 7px 13px;
+            border-radius: 99px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #94a3b8;
+            font-size: 11.5px;
+            font-weight: 800;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: all 0.15s ease;
+        }
+        .export-range-chip:active { transform: scale(0.95); }
+        .export-range-chip.active {
+            background: rgba(249,115,22,0.18);
+            border-color: rgba(249,115,22,0.45);
+            color: #fdba74;
+            box-shadow: 0 2px 8px rgba(249,115,22,0.22);
+        }
+
+        /* Body scroll area */
+        .export-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 14px 16px 10px;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .export-body::-webkit-scrollbar { width: 4px; }
+        .export-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 99px; }
+
+        /* Opciones como tarjetas con contador */
+        .export-option-btn {
+            position: relative;
+            display: flex; align-items: center; gap: 12px;
+            padding: 13px 14px;
+            border-radius: 16px;
+            background: linear-gradient(180deg, rgba(30,41,59,0.5), rgba(15,23,42,0.5));
+            border: 1px solid rgba(255,255,255,0.06);
+            cursor: pointer;
+            transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+            width: 100%; text-align: left;
+        }
+        .export-option-btn:hover { border-color: rgba(249,115,22,0.3); background: linear-gradient(180deg, rgba(249,115,22,0.08), rgba(15,23,42,0.5)); }
         .export-option-btn:active { transform: scale(0.97); }
-        .export-opt-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
+        .export-opt-icon {
+            width: 40px; height: 40px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; flex-shrink: 0;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 3px 10px rgba(0,0,0,0.3);
+        }
+        .export-opt-text { flex: 1; min-width: 0; }
+        .export-opt-title {
+            font-size: 13.5px; font-weight: 900; color: #f1f5f9;
+            margin: 0; letter-spacing: -0.2px;
+        }
+        .export-opt-sub {
+            font-size: 10.5px; color: #94a3b8; font-weight: 600;
+            margin: 2px 0 0;
+        }
+        .export-opt-count {
+            flex-shrink: 0;
+            min-width: 44px;
+            padding: 5px 10px;
+            border-radius: 10px;
+            background: rgba(249,115,22,0.12);
+            border: 1px solid rgba(249,115,22,0.25);
+            color: #fdba74;
+            font-size: 14px;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+            text-align: center;
+            line-height: 1.1;
+        }
+        .export-opt-count-label {
+            display: block;
+            font-size: 8.5px;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            opacity: 0.75;
+            margin-top: 1px;
+        }
+        .export-opt-count-empty {
+            background: rgba(148,163,184,0.08);
+            border-color: rgba(148,163,184,0.18);
+            color: #94a3b8;
+        }
+
+        /* Footer */
+        .export-footer {
+            padding: 10px 14px 12px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            background: rgba(0,0,0,0.35);
+        }
+        .export-footer-info {
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+            text-align: center;
+            margin: 0 0 2px;
+            letter-spacing: 0.2px;
+        }
+        .export-footer-info-hint {
+            font-size: 9.5px;
+            font-weight: 600;
+            color: #64748b;
+            text-align: center;
+            margin: 0;
+        }
+
+        /* Estado loading */
+        .export-loading-wrap {
+            text-align: center;
+            padding: 14px 10px 2px;
+        }
+
         .swipe-area { touch-action: pan-y; }
         .garantia-badge { background: linear-gradient(135deg, #10b981, #059669); padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 800; color: white; }
         .garantia-vencida { background: linear-gradient(135deg, #f43f5e, #e11d48); }
@@ -532,6 +743,509 @@
 
         /* ===== MEJORAS TALLER v3.2 ===== */
         .deadline-badge { display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:800; }
+
+        /* ===== QUICK ACTION BUTTONS (Órdenes → Avisar / Reporte / Exportar) ===== */
+        .quick-action {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 7px;
+            padding: 12px 6px 11px;
+            border-radius: 18px;
+            border: 1px solid var(--qa-border, rgba(255,255,255,0.08));
+            background: linear-gradient(160deg, var(--qa-bg-top, rgba(30,41,59,0.6)) 0%, var(--qa-bg-bot, rgba(15,23,42,0.6)) 100%);
+            box-shadow: 0 4px 14px var(--qa-shadow, rgba(0,0,0,0.25)), inset 0 1px 0 rgba(255,255,255,0.06);
+            cursor: pointer;
+            overflow: hidden;
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+            min-height: 86px;
+        }
+        .quick-action::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(circle at 50% 0%, var(--qa-shine, rgba(255,255,255,0.1)), transparent 60%);
+            pointer-events: none;
+            opacity: 0.9;
+        }
+        .quick-action:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 6px var(--qa-shadow, rgba(0,0,0,0.25)), inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+        .qa-icon-wrap {
+            width: 34px;
+            height: 34px;
+            border-radius: 11px;
+            background: var(--qa-icon-bg, rgba(255,255,255,0.08));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 0 1px var(--qa-icon-border, rgba(255,255,255,0.1));
+            position: relative;
+            z-index: 1;
+        }
+        .qa-icon {
+            font-size: 18px;
+            line-height: 1;
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
+        }
+        .qa-label {
+            font-size: 10.5px;
+            font-weight: 900;
+            letter-spacing: 0.7px;
+            text-transform: uppercase;
+            color: var(--qa-text, #e2e8f0);
+            line-height: 1.2;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        /* Temas por color — cada botón tiene su propia paleta */
+        .qa-green {
+            --qa-bg-top: rgba(16,185,129,0.28);
+            --qa-bg-bot: rgba(6,78,59,0.35);
+            --qa-border: rgba(16,185,129,0.4);
+            --qa-shadow: rgba(16,185,129,0.2);
+            --qa-shine: rgba(52,211,153,0.18);
+            --qa-icon-bg: rgba(16,185,129,0.25);
+            --qa-icon-border: rgba(52,211,153,0.35);
+            --qa-text: #6ee7b7;
+        }
+        .qa-blue {
+            --qa-bg-top: rgba(59,130,246,0.28);
+            --qa-bg-bot: rgba(30,58,138,0.35);
+            --qa-border: rgba(59,130,246,0.4);
+            --qa-shadow: rgba(59,130,246,0.2);
+            --qa-shine: rgba(96,165,250,0.18);
+            --qa-icon-bg: rgba(59,130,246,0.25);
+            --qa-icon-border: rgba(96,165,250,0.35);
+            --qa-text: #93c5fd;
+        }
+        .qa-orange {
+            --qa-bg-top: rgba(249,115,22,0.28);
+            --qa-bg-bot: rgba(154,52,18,0.35);
+            --qa-border: rgba(249,115,22,0.4);
+            --qa-shadow: rgba(249,115,22,0.22);
+            --qa-shine: rgba(251,146,60,0.2);
+            --qa-icon-bg: rgba(249,115,22,0.25);
+            --qa-icon-border: rgba(251,146,60,0.35);
+            --qa-text: #fdba74;
+        }
+
+        /* ===== MODAL AVISAR LISTOS v4 ===== */
+        .ready-modal-wrap {
+            width: 100%;
+            max-width: 480px;
+            max-height: 92vh;
+            display: flex;
+            flex-direction: column;
+            border-radius: 24px;
+            overflow: hidden;
+            background: linear-gradient(180deg, #0c1a17 0%, #0a1412 100%);
+            border: 1px solid rgba(16,185,129,0.15);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.03);
+        }
+        .ready-modal-header {
+            position: relative;
+            padding: 16px 16px 12px;
+            background:
+                radial-gradient(circle at 20% -10%, rgba(16,185,129,0.22), transparent 50%),
+                radial-gradient(circle at 110% 30%, rgba(5,150,105,0.18), transparent 55%),
+                linear-gradient(180deg, #0f2520 0%, #0b1b17 100%);
+            border-bottom: 1px solid rgba(16,185,129,0.14);
+        }
+        .ready-header-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .ready-header-title-wrap { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1; }
+        .ready-header-icon {
+            width: 44px; height: 44px; border-radius: 13px;
+            background: linear-gradient(135deg, #10b981, #047857);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; flex-shrink: 0;
+            box-shadow: 0 6px 18px rgba(16,185,129,0.38), inset 0 1px 0 rgba(255,255,255,0.18);
+        }
+        .ready-header-text { min-width: 0; }
+        .ready-header-title {
+            font-size: 17px; font-weight: 900; color: #f0fdf4;
+            letter-spacing: -0.3px; margin: 0; line-height: 1.1;
+        }
+        .ready-header-sub {
+            font-size: 11px; color: #6ee7b7; font-weight: 600;
+            margin: 2px 0 0; opacity: 0.8;
+        }
+        .ready-today-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 9px;
+            margin: 6px 0 0;
+            border-radius: 99px;
+            background: rgba(16,185,129,0.15);
+            border: 1px solid rgba(16,185,129,0.3);
+            color: #6ee7b7;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 0.3px;
+            width: fit-content;
+        }
+        .ready-close-btn {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #f1f5f9; font-size: 14px; font-weight: 700;
+            cursor: pointer; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.15s ease;
+        }
+        .ready-close-btn:active { transform: scale(0.9); }
+
+        /* Stats KPIs */
+        .ready-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .ready-stat-card {
+            padding: 10px 8px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            text-align: center;
+        }
+        .ready-stat-val {
+            font-size: 16px; font-weight: 900;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.5px;
+            line-height: 1.1;
+        }
+        .ready-stat-label {
+            font-size: 8.5px; font-weight: 800;
+            color: #94a3b8; letter-spacing: 0.8px;
+            text-transform: uppercase; margin-top: 3px;
+        }
+
+        /* Filter chips */
+        .ready-filters {
+            display: flex; gap: 6px;
+            overflow-x: auto; -webkit-overflow-scrolling: touch;
+            padding-bottom: 2px;
+            scrollbar-width: none;
+        }
+        .ready-filters::-webkit-scrollbar { display: none; }
+        .ready-chip {
+            padding: 7px 12px;
+            border-radius: 99px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #94a3b8;
+            font-size: 11px; font-weight: 800;
+            display: inline-flex; align-items: center; gap: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+        }
+        .ready-chip:active { transform: scale(0.95); }
+        .ready-chip-active {
+            background: rgba(16,185,129,0.18);
+            border-color: rgba(16,185,129,0.45);
+            color: #6ee7b7;
+            box-shadow: 0 2px 8px rgba(16,185,129,0.2);
+        }
+        .ready-chip-count {
+            background: rgba(0,0,0,0.35);
+            padding: 1px 7px;
+            border-radius: 99px;
+            font-size: 10px;
+            font-weight: 900;
+            min-width: 18px;
+            text-align: center;
+        }
+        .ready-chip-active .ready-chip-count {
+            background: rgba(16,185,129,0.3);
+            color: #d1fae5;
+        }
+
+        /* Lista */
+        .ready-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 14px;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .ready-list::-webkit-scrollbar { width: 4px; }
+        .ready-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 99px; }
+
+        /* Tarjeta de orden lista */
+        .ready-card {
+            background: linear-gradient(180deg, rgba(30,41,59,0.5), rgba(15,23,42,0.5));
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 12px;
+            display: flex; flex-direction: column; gap: 10px;
+            position: relative;
+            transition: border-color 0.2s ease;
+        }
+        .ready-card-urgent {
+            border-color: rgba(244,63,94,0.3);
+            box-shadow: 0 0 0 1px rgba(244,63,94,0.1), 0 4px 14px rgba(244,63,94,0.12);
+        }
+        .ready-card-warm {
+            border-color: rgba(251,146,60,0.28);
+            box-shadow: 0 0 0 1px rgba(251,146,60,0.08), 0 4px 12px rgba(251,146,60,0.1);
+        }
+        .ready-card-head { display: flex; align-items: flex-start; gap: 10px; }
+        .ready-card-avatar {
+            width: 42px; height: 42px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 900; color: #fff;
+            letter-spacing: -0.3px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+            flex-shrink: 0;
+        }
+        .ready-card-info { flex: 1; min-width: 0; }
+        .ready-card-name {
+            font-size: 14px; font-weight: 900;
+            color: #f1f5f9;
+            line-height: 1.2;
+            display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+        }
+        .ready-card-ordernum {
+            font-size: 9px; font-weight: 900;
+            color: #10b981;
+            background: rgba(16,185,129,0.1);
+            padding: 2px 7px;
+            border-radius: 6px;
+            letter-spacing: 0.5px;
+        }
+        .ready-card-equipo {
+            font-size: 11.5px;
+            color: #fb923c;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+        .ready-card-notified {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 3px 8px;
+            border-radius: 99px;
+            font-size: 9.5px; font-weight: 900;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+        .ready-notified-never {
+            background: rgba(244,63,94,0.14);
+            color: #fb7185;
+            border: 1px solid rgba(244,63,94,0.3);
+            animation: readyPulse 2s ease-in-out infinite;
+        }
+        .ready-notified-done {
+            background: rgba(148,163,184,0.1);
+            color: #94a3b8;
+            border: 1px solid rgba(148,163,184,0.18);
+        }
+        @keyframes readyPulse {
+            0%,100% { box-shadow: 0 0 0 0 rgba(244,63,94,0.35); }
+            50%     { box-shadow: 0 0 0 5px rgba(244,63,94,0); }
+        }
+
+        /* Info de dinero */
+        .ready-money-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 9px 11px;
+            background: rgba(16,185,129,0.06);
+            border: 1px solid rgba(16,185,129,0.12);
+            border-radius: 10px;
+            gap: 10px;
+        }
+        .ready-money-total {
+            font-size: 15px; font-weight: 900;
+            color: #34d399;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.3px;
+        }
+        .ready-money-total-label {
+            font-size: 9px; font-weight: 800;
+            color: #64748b;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+        .ready-saldo-pill {
+            padding: 3px 9px;
+            border-radius: 99px;
+            font-size: 10px; font-weight: 900;
+            letter-spacing: 0.3px;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+        .ready-saldo-pending {
+            background: rgba(251,146,60,0.14);
+            color: #fb923c;
+            border: 1px solid rgba(251,146,60,0.28);
+        }
+        .ready-saldo-paid {
+            background: rgba(16,185,129,0.15);
+            color: #34d399;
+            border: 1px solid rgba(16,185,129,0.3);
+        }
+        .ready-saldo-uncosted {
+            background: rgba(148,163,184,0.12);
+            color: #cbd5e1;
+            border: 1px solid rgba(148,163,184,0.25);
+        }
+
+        /* Info meta (tel + tiempo reparado) */
+        .ready-meta {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 10px; flex-wrap: wrap;
+            font-size: 10.5px; font-weight: 600;
+            color: #94a3b8;
+        }
+        .ready-meta-phone {
+            display: inline-flex; align-items: center; gap: 4px;
+            font-variant-numeric: tabular-nums;
+        }
+        .ready-meta-days {
+            display: inline-flex; align-items: center; gap: 4px;
+            font-weight: 700;
+        }
+
+        /* Acciones */
+        .ready-card-actions {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 6px;
+        }
+        .ready-act-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+            padding: 9px 10px;
+            border-radius: 10px;
+            font-size: 11px; font-weight: 900;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: transform 0.15s ease;
+            letter-spacing: 0.3px;
+        }
+        .ready-act-btn:active { transform: scale(0.95); }
+        .ready-act-call {
+            background: rgba(59,130,246,0.14);
+            color: #60a5fa;
+            border-color: rgba(59,130,246,0.3);
+        }
+        .ready-act-wa {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(22,163,74,0.35);
+            text-transform: uppercase;
+        }
+        .ready-act-done {
+            background: rgba(148,163,184,0.1);
+            color: #cbd5e1;
+            border-color: rgba(148,163,184,0.2);
+        }
+
+        /* Footer */
+        .ready-footer {
+            padding: 10px 14px 12px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: rgba(0,0,0,0.35);
+        }
+        .ready-footer-row { display: flex; gap: 8px; }
+        .ready-btn-bulk {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 70%, #166534 100%);
+            border: 1px solid rgba(74,222,128,0.3);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 8px 22px rgba(22,163,74,0.35), inset 0 1px 0 rgba(255,255,255,0.18);
+            transition: transform 0.15s ease;
+        }
+        .ready-btn-bulk:active { transform: scale(0.97); }
+        .ready-btn-bulk:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .ready-bulk-icon { font-size: 15px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35)); }
+        .ready-bulk-label { flex: 1; text-align: left; }
+        .ready-bulk-count {
+            background: rgba(0,0,0,0.3);
+            padding: 3px 9px;
+            border-radius: 99px;
+            font-size: 11px;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+            min-width: 24px;
+            text-align: center;
+        }
+        .ready-btn-secondary {
+            flex: 1;
+            padding: 11px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #cbd5e1;
+            font-size: 11.5px; font-weight: 900;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: transform 0.15s;
+        }
+        .ready-btn-secondary:active { transform: scale(0.96); }
+        .ready-btn-close {
+            padding: 11px 18px;
+            border-radius: 12px;
+            background: rgba(244,63,94,0.1);
+            border: 1px solid rgba(244,63,94,0.25);
+            color: #fb7185;
+            font-size: 11.5px; font-weight: 900;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: transform 0.15s;
+        }
+        .ready-btn-close:active { transform: scale(0.96); }
+
+        /* Estado vacío */
+        .ready-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+        }
+        .ready-empty-icon {
+            font-size: 44px;
+            margin-bottom: 10px;
+            opacity: 0.6;
+        }
+        .ready-empty-text {
+            font-size: 13px; font-weight: 700;
+            color: #94a3b8;
+        }
+        .ready-empty-sub {
+            font-size: 11px; font-weight: 500;
+            color: #64748b;
+            margin-top: 4px;
+        }
 
         /* ===== BLOQUE 2: BÚSQUEDA GLOBAL + REPORTES ===== */
         #global-search-bar { position:relative; }
@@ -1691,11 +2405,19 @@
 
     <main id="view-ordenes" class="app-view hidden p-4 space-y-4 max-container">
         <div class="space-y-3">
-            <div class="flex gap-2">
-                <button onclick="notifyAllReady()" class="flex-1 bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition">💬 AVISAR LISTOS</button>
-                <button onclick="exportMonthlyReport()" class="flex-1 bg-blue-600/20 border border-blue-500/30 text-blue-400 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition">📄 REPORTE MES</button>
-                <button onclick="openCalendarioEntregas()" class="flex-1 bg-violet-600/20 border border-violet-500/30 text-violet-400 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition">📆 AGENDA</button>
-                <button onclick="openExportPanel()" class="flex-1 bg-orange-600/20 border border-orange-500/30 text-orange-400 py-2 rounded-xl text-[10px] font-black uppercase active:scale-95 transition">⬇️ EXPORTAR</button>
+            <div class="grid grid-cols-3 gap-2">
+                <button onclick="notifyAllReady()" class="quick-action qa-green">
+                    <div class="qa-icon-wrap"><span class="qa-icon">💬</span></div>
+                    <span class="qa-label">Avisar<br>listos</span>
+                </button>
+                <button onclick="exportMonthlyReport()" class="quick-action qa-blue">
+                    <div class="qa-icon-wrap"><span class="qa-icon">📄</span></div>
+                    <span class="qa-label">Reporte<br>mes</span>
+                </button>
+                <button onclick="openExportPanel()" class="quick-action qa-orange">
+                    <div class="qa-icon-wrap"><span class="qa-icon">⬇️</span></div>
+                    <span class="qa-label">Exportar</span>
+                </button>
             </div>
             <div class="relative">
             <input type="text" id="search-orders" placeholder="🔍 Buscar cliente, equipo o #orden..." class="w-full text-sm font-semibold uppercase tracking-wide pr-12" oninput="onSearchInput()" onfocus="_onSearchFocus()" onblur="_onSearchBlur()" list="search-suggestions">
@@ -2295,56 +3017,98 @@
     </div>
 
     <!-- ===== MODAL EXPORTAR PDF / EXCEL ===== -->
-    <div id="modal-export-panel" class="hidden fixed inset-0 z-[4100] modal-custom flex items-center justify-center p-4">
-        <div class="bg-[#111827] border border-white/10 w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl view-enter">
-            <div class="bg-gradient-to-r from-orange-700 to-orange-500 p-5 flex justify-between items-center">
-                <div>
-                    <h3 class="text-white font-black text-lg">⬇️ EXPORTAR DATOS</h3>
-                    <p class="text-orange-200 text-[10px] font-bold mt-0.5">PDF · Excel · CSV</p>
+    <div id="modal-export-panel" class="hidden fixed inset-0 z-[4100] modal-custom flex items-center justify-center p-3">
+        <div class="export-modal-wrap view-enter">
+            <!-- HEADER -->
+            <div class="export-modal-header">
+                <div class="export-header-row">
+                    <div class="export-header-title-wrap">
+                        <div class="export-header-icon">⬇️</div>
+                        <div style="min-width:0;">
+                            <h3 class="export-header-title">Exportar datos</h3>
+                            <p class="export-header-sub">Descarga en PDF, Excel o CSV</p>
+                        </div>
+                    </div>
+                    <button onclick="closeExportPanel()" class="export-close-btn" aria-label="Cerrar">✕</button>
                 </div>
-                <button onclick="closeExportPanel()" class="text-white bg-black/30 w-9 h-9 rounded-full font-bold text-lg">✕</button>
+                <!-- Segmented format -->
+                <div class="export-segmented">
+                    <button id="exp-fmt-pdf" data-fmt="pdf" onclick="setExportFmt('pdf')" class="export-seg-btn active">
+                        <span class="export-seg-btn-icon">📄</span><span>PDF</span>
+                    </button>
+                    <button id="exp-fmt-excel" data-fmt="excel" onclick="setExportFmt('excel')" class="export-seg-btn">
+                        <span class="export-seg-btn-icon">📊</span><span>Excel</span>
+                    </button>
+                    <button id="exp-fmt-csv" data-fmt="csv" onclick="setExportFmt('csv')" class="export-seg-btn">
+                        <span class="export-seg-btn-icon">📋</span><span>CSV</span>
+                    </button>
+                </div>
             </div>
-            <div class="p-5 space-y-3">
-                <!-- Formato -->
-                <div class="flex gap-2 mb-1">
-                    <button id="exp-fmt-pdf" onclick="setExportFmt('pdf')" class="flex-1 py-2 rounded-xl text-xs font-black border border-white/10 bg-rose-600/20 text-rose-400 border-rose-500/40 transition active:scale-95">📄 PDF</button>
-                    <button id="exp-fmt-excel" onclick="setExportFmt('excel')" class="flex-1 py-2 rounded-xl text-xs font-black border border-white/10 bg-white/5 text-slate-400 transition active:scale-95">📊 Excel</button>
-                    <button id="exp-fmt-csv" onclick="setExportFmt('csv')" class="flex-1 py-2 rounded-xl text-xs font-black border border-white/10 bg-white/5 text-slate-400 transition active:scale-95">📋 CSV</button>
-                </div>
-                <p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest px-1">¿Qué quieres exportar?</p>
-                <!-- Opciones -->
+            <!-- Rango de fechas -->
+            <p class="export-section-label" style="padding:14px 16px 0;margin:0;">Rango de fechas</p>
+            <div class="export-range-chips" id="export-range-chips" style="padding-top:8px;">
+                <button class="export-range-chip active" data-range="month" onclick="setExportRange('month')">Este mes</button>
+                <button class="export-range-chip" data-range="prevmonth" onclick="setExportRange('prevmonth')">Mes pasado</button>
+                <button class="export-range-chip" data-range="3months" onclick="setExportRange('3months')">3 meses</button>
+                <button class="export-range-chip" data-range="year" onclick="setExportRange('year')">Este año</button>
+                <button class="export-range-chip" data-range="all" onclick="setExportRange('all')">Todo</button>
+            </div>
+            <!-- Opciones -->
+            <div class="export-body">
+                <p class="export-section-label">¿Qué quieres exportar?</p>
                 <button class="export-option-btn" onclick="runExport('ordenes')">
-                    <div class="export-opt-icon bg-orange-500/20">🔧</div>
-                    <div>
-                        <p class="text-sm font-black text-white">Órdenes del Taller</p>
-                        <p class="text-[10px] text-slate-400 font-bold">Todas las órdenes con estado y valor</p>
+                    <div class="export-opt-icon" style="background:linear-gradient(135deg,rgba(59,130,246,0.3),rgba(29,78,216,0.2));">🔧</div>
+                    <div class="export-opt-text">
+                        <p class="export-opt-title">Órdenes del taller</p>
+                        <p class="export-opt-sub">Con estado, valor y saldo</p>
+                    </div>
+                    <div class="export-opt-count" id="exp-count-ordenes">
+                        <span id="exp-num-ordenes">—</span>
+                        <span class="export-opt-count-label">órdenes</span>
                     </div>
                 </button>
                 <button class="export-option-btn" onclick="runExport('ventas')">
-                    <div class="export-opt-icon bg-emerald-500/20">💵</div>
-                    <div>
-                        <p class="text-sm font-black text-white">Ventas</p>
-                        <p class="text-[10px] text-slate-400 font-bold">Historial de ventas y gastos</p>
+                    <div class="export-opt-icon" style="background:linear-gradient(135deg,rgba(16,185,129,0.3),rgba(6,95,70,0.2));">💵</div>
+                    <div class="export-opt-text">
+                        <p class="export-opt-title">Ventas y gastos</p>
+                        <p class="export-opt-sub">Historial financiero</p>
+                    </div>
+                    <div class="export-opt-count" id="exp-count-ventas">
+                        <span id="exp-num-ventas">—</span>
+                        <span class="export-opt-count-label">movs</span>
                     </div>
                 </button>
                 <button class="export-option-btn" onclick="runExport('inventario')">
-                    <div class="export-opt-icon bg-blue-500/20">📦</div>
-                    <div>
-                        <p class="text-sm font-black text-white">Inventario / Stock</p>
-                        <p class="text-[10px] text-slate-400 font-bold">Repuestos, precios y cantidades</p>
+                    <div class="export-opt-icon" style="background:linear-gradient(135deg,rgba(139,92,246,0.3),rgba(76,29,149,0.2));">📦</div>
+                    <div class="export-opt-text">
+                        <p class="export-opt-title">Inventario / Stock</p>
+                        <p class="export-opt-sub">Snapshot actual (no filtrado)</p>
+                    </div>
+                    <div class="export-opt-count" id="exp-count-inventario">
+                        <span id="exp-num-inventario">—</span>
+                        <span class="export-opt-count-label">items</span>
                     </div>
                 </button>
                 <button class="export-option-btn" onclick="runExport('reporte')">
-                    <div class="export-opt-icon bg-violet-500/20">📊</div>
-                    <div>
-                        <p class="text-sm font-black text-white">Reporte General del Mes</p>
-                        <p class="text-[10px] text-slate-400 font-bold">Resumen financiero completo</p>
+                    <div class="export-opt-icon" style="background:linear-gradient(135deg,rgba(249,115,22,0.3),rgba(154,52,18,0.2));">📊</div>
+                    <div class="export-opt-text">
+                        <p class="export-opt-title">Reporte financiero</p>
+                        <p class="export-opt-sub">Resumen ejecutivo del mes actual</p>
+                    </div>
+                    <div class="export-opt-count" id="exp-count-reporte">
+                        <span style="font-size:12px;">📅</span>
+                        <span class="export-opt-count-label" id="exp-num-reporte">mes</span>
                     </div>
                 </button>
-                <div id="export-loading" class="hidden text-center py-3">
+                <div id="export-loading" class="hidden export-loading-wrap">
                     <span class="loading-spinner"></span>
                     <p class="text-xs text-slate-400 font-bold mt-2">Generando archivo...</p>
                 </div>
+            </div>
+            <!-- Footer con info del rango -->
+            <div class="export-footer">
+                <p class="export-footer-info" id="export-footer-range">📅 Cargando rango...</p>
+                <p class="export-footer-info-hint">El inventario se exporta siempre completo</p>
             </div>
         </div>
     </div>
@@ -3172,20 +3936,44 @@
         </div>
     </div>
 
-    <!-- MODAL AVISAR LISTOS MEJORADO (mejora 6) -->
-    <div id="modal-ready-list" class="hidden fixed inset-0 z-[3700] modal-custom flex flex-col items-center justify-center p-4">
-        <div class="bg-[#111827] border border-white/10 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl view-enter">
-            <div class="bg-gradient-to-r from-emerald-600 to-emerald-500 p-4 flex justify-between items-center">
-                <div>
-                    <h3 class="text-white font-black text-lg">💬 EQUIPOS LISTOS</h3>
-                    <p id="ready-count-text" class="text-emerald-200 text-[10px] font-bold"></p>
+    <!-- MODAL AVISAR LISTOS v4 — rediseño completo -->
+    <div id="modal-ready-list" class="hidden fixed inset-0 z-[3700] modal-custom flex items-center justify-center p-3">
+        <div class="ready-modal-wrap view-enter">
+            <!-- HEADER con gradiente y stats -->
+            <div class="ready-modal-header">
+                <div class="ready-header-top">
+                    <div class="ready-header-title-wrap">
+                        <div class="ready-header-icon">💬</div>
+                        <div class="ready-header-text">
+                            <h3 class="ready-header-title">Avisar listos</h3>
+                            <p id="ready-count-text" class="ready-header-sub">Equipos reparados esperando al cliente</p>
+                            <p id="ready-today-text" class="ready-today-pill" style="display:none;"></p>
+                        </div>
+                    </div>
+                    <button onclick="closeReadyModal()" class="ready-close-btn" aria-label="Cerrar">✕</button>
                 </div>
-                <button onclick="closeReadyModal()" class="text-white bg-black/30 w-8 h-8 rounded-full font-bold">✕</button>
+                <!-- KPIs -->
+                <div class="ready-stats" id="ready-stats"></div>
+                <!-- Filtros -->
+                <div class="ready-filters" id="ready-filters">
+                    <button class="ready-chip ready-chip-active" data-filter="all" onclick="filterReadyList('all')">Todos <span class="ready-chip-count" id="chip-count-all">0</span></button>
+                    <button class="ready-chip" data-filter="saldo" onclick="filterReadyList('saldo')">Con saldo <span class="ready-chip-count" id="chip-count-saldo">0</span></button>
+                    <button class="ready-chip" data-filter="never" onclick="filterReadyList('never')">Sin avisar <span class="ready-chip-count" id="chip-count-never">0</span></button>
+                </div>
             </div>
-            <div id="ready-list-container" class="p-4 max-h-[55vh] overflow-y-auto space-y-3 no-scrollbar"></div>
-            <div class="p-4 border-t border-white/10 flex gap-3">
-                <button onclick="copyAllReadyPhones()" class="flex-1 bg-slate-700 py-3 rounded-xl font-black uppercase text-xs active:scale-95 transition">📋 COPIAR NÚMEROS</button>
-                <button onclick="closeReadyModal()" class="flex-1 bg-slate-600 py-3 rounded-xl font-black uppercase text-xs active:scale-95 transition">CERRAR</button>
+            <!-- LISTA -->
+            <div id="ready-list-container" class="ready-list"></div>
+            <!-- FOOTER -->
+            <div class="ready-footer">
+                <button id="ready-bulk-btn" onclick="notifyAllPending()" class="ready-btn-bulk" style="display:none;">
+                    <span class="ready-bulk-icon">🚀</span>
+                    <span class="ready-bulk-label">Avisar a todos los pendientes</span>
+                    <span class="ready-bulk-count" id="ready-bulk-count">0</span>
+                </button>
+                <div class="ready-footer-row">
+                    <button onclick="copyAllReadyPhones()" class="ready-btn-secondary">📋 Copiar números</button>
+                    <button onclick="closeReadyModal()" class="ready-btn-close">Cerrar</button>
+                </div>
             </div>
         </div>
     </div>
@@ -5906,17 +6694,17 @@
 
                     <!-- HEADER: avatar + cliente + estado -->
                     <div style="position:relative;padding:14px 14px 10px;display:flex;align-items:flex-start;gap:12px;">
-                        <div onclick="editOrder(${o.id})" style="flex-shrink:0;width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,hsl(${avatarHue},70%,55%),hsl(${avatarHue},70%,40%));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#fff;box-shadow:0 4px 12px hsla(${avatarHue},70%,50%,0.35);cursor:pointer;letter-spacing:-0.5px;">${nameInitials}</div>
+                        <div onclick="editOrder(${o.id})" style="flex-shrink:0;width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,hsl(${avatarHue},70%,55%),hsl(${avatarHue},70%,40%));display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;color:#fff;box-shadow:0 4px 12px hsla(${avatarHue},70%,50%,0.35);cursor:pointer;letter-spacing:-0.5px;">${nameInitials}</div>
                         <div style="flex:1;min-width:0;">
-                            <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;flex-wrap:wrap;">
-                                <span class="order-num" style="font-size:9px;">${numLabel}</span>
+                            <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap;">
+                                <span class="order-num" style="font-size:10px;">${numLabel}</span>
                                 ${garantiaBadge}
                             </div>
-                            <h3 onclick="editOrder(${o.id})" style="font-size:15px;font-weight:900;color:#f1f5f9;cursor:pointer;line-height:1.2;margin:0;display:flex;align-items:center;gap:6px;" class="hover:text-orange-400">
-                                ${escapeHtml(o.nom)} <span style="font-size:10px;opacity:0.5;">✏️</span>
+                            <h3 onclick="editOrder(${o.id})" style="font-size:17px;font-weight:900;color:#f1f5f9;cursor:pointer;line-height:1.2;margin:0;display:flex;align-items:center;gap:6px;" class="hover:text-orange-400">
+                                ${escapeHtml(o.nom)} <span style="font-size:11px;opacity:0.5;">✏️</span>
                             </h3>
-                            <p style="font-size:11px;color:#fb923c;font-weight:700;margin:2px 0 0;line-height:1.2;">🔧 ${escapeHtml(o.equ)}</p>
-                            ${(tecnicoBadge || origenBadge) ? `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;">${tecnicoBadge}${origenBadge}</div>` : ''}
+                            <p style="font-size:13px;color:#fb923c;font-weight:700;margin:3px 0 0;line-height:1.25;">🔧 ${escapeHtml(o.equ)}</p>
+                            ${(tecnicoBadge || origenBadge) ? `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:5px;">${tecnicoBadge}${origenBadge}</div>` : ''}
                         </div>
                         <div style="flex-shrink:0;" id="sta-wrap-${o.id}">
                             ${(()=>{
@@ -5944,14 +6732,14 @@
                     </div>
 
                     <div style="padding:0 14px 10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
-                        <span style="font-size:10px;color:#64748b;font-weight:700;">📅 ${new Date(o.fecha).toLocaleDateString('es-ES', {day:'2-digit',month:'short'})}</span>
-                        <span style="font-size:10px;color:${isOverdue ? '#f87171':'#64748b'};font-weight:${isOverdue?'900':'700'};">· 🕒 ${daysInShop}d en taller</span>
-                        <span style="font-size:10px;font-weight:800;" class="${staColors[o.sta]||'text-slate-400'}">· ${daysInStatus}d en ${o.sta}</span>
+                        <span style="font-size:11px;color:#64748b;font-weight:700;">📅 ${new Date(o.fecha).toLocaleDateString('es-ES', {day:'2-digit',month:'short'})}</span>
+                        <span style="font-size:11px;color:${isOverdue ? '#f87171':'#64748b'};font-weight:${isOverdue?'900':'700'};">· 🕒 ${daysInShop}d en taller</span>
+                        <span style="font-size:11px;font-weight:800;" class="${staColors[o.sta]||'text-slate-400'}">· ${daysInStatus}d en ${o.sta}</span>
                     </div>
                     ${fechaEstBadge ? `<div style="padding:0 14px 10px;">${fechaEstBadge}</div>` : ''}
                     ${notasBadge ? `<div style="padding:0 14px 10px;">${notasBadge}</div>` : ''}
 
-                    <div style="margin:0 14px 10px;padding:10px 12px;background:rgba(15,23,42,0.5);border:1px solid rgba(255,255,255,0.04);border-left:3px solid ${cardAccent};border-radius:10px;font-size:11px;color:#cbd5e1;line-height:1.4;text-transform:uppercase;letter-spacing:0.3px;font-weight:600;">${escapeHtml(o.det||'Sin detalle')}</div>
+                    <div style="margin:0 14px 10px;padding:11px 12px;background:rgba(15,23,42,0.5);border:1px solid rgba(255,255,255,0.04);border-left:3px solid ${cardAccent};border-radius:10px;font-size:12.5px;color:#cbd5e1;line-height:1.4;text-transform:uppercase;letter-spacing:0.3px;font-weight:600;">${escapeHtml(o.det||'Sin detalle')}</div>
 
                     <!-- DINERO -->
                     <div style="margin:0 14px 12px;padding:12px;background:linear-gradient(135deg,rgba(16,185,129,0.05),rgba(15,23,42,0.5));border:1px solid rgba(16,185,129,0.12);border-radius:12px;">
@@ -6071,6 +6859,8 @@
         async function _doUpdateSta(o, newSta, oldSta) {
             o.sta = newSta;
             o.fechaEstado = Date.now();
+            // Guardar marca específica al entrar en "reparado" — se usa en el modal Avisar Listos
+            if (newSta === 'reparado') o.fechaReparado = Date.now();
 
             if (newSta === 'entregado' && oldSta !== 'entregado') {
                 // Modo entrega rápida con cobro
@@ -8035,44 +8825,364 @@
             }
         }
 
-        // ==================== AVISAR LISTOS MEJORADO (mejora 6) ====================
+        // ==================== AVISAR LISTOS v4 (rediseño con KPIs, filtros y tracking) ====================
+        let _readyCache = [];      // cache de las órdenes reparadas
+        let _readyFilter = 'all';  // filtro activo
+
         async function notifyAllReady() {
-            const cur = getCurrency();
             const orders = await getAll('orders');
             const ready = orders.filter(o => o.sta === 'reparado' && o.tel);
             if (!ready.length) return showAlert("No hay equipos en estado 'reparado' con teléfono registrado.", "info");
-            // Mostrar modal con la lista
-            const container = document.getElementById('ready-list-container');
-            const countText = document.getElementById('ready-count-text');
-            countText.innerText = `${ready.length} equipo(s) listo(s) para avisar`;
-            container.innerHTML = ready.map(o => {
-                const msg = buildWhatsappMsg('listo', o);
-                const encodedMsg = encodeURIComponent(msg);
-                const waLink = `https://wa.me/57${o.tel.replace(/\D/g, '')}?text=${encodedMsg}`;
-                return `<div class="bg-slate-800/60 rounded-xl p-3 flex flex-wrap items-center justify-between gap-2">
-                            <div class="flex-1">
-                                <p class="font-bold text-sm">${escapeHtml(o.nom)}</p>
-                                <p class="text-xs text-slate-400">${escapeHtml(o.equ)} · Tel: ${o.tel}</p>
-                                <p class="text-[10px] text-slate-500 mt-1">Valor: ${cur}${o.val.toLocaleString()}</p>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="sessionStorage.setItem('_waJump','1'); window.open('${waLink}','_blank')" class="bg-green-600/20 text-green-400 px-3 py-2 rounded-xl text-xs font-black">💬 ENVIAR</button>
-                            </div>
-                        </div>`;
-            }).join('');
+
+            // Ordenar: no avisados primero, luego por días reparado descendente
+            ready.sort((a, b) => {
+                const aNotified = a.lastNotified || 0;
+                const bNotified = b.lastNotified || 0;
+                if (!aNotified && bNotified) return -1;
+                if (aNotified && !bNotified) return 1;
+                // Ambos iguales en "avisado" → por fecha de reparado desc (más antiguo arriba)
+                const aTime = a.fechaReparado || a.fechaEstado || a.fecha || 0;
+                const bTime = b.fechaReparado || b.fechaEstado || b.fecha || 0;
+                return aTime - bTime;
+            });
+
+            _readyCache = ready;
+            _readyFilter = 'all';
+            document.getElementById('ready-count-text').textContent = `${ready.length} equipo${ready.length !== 1 ? 's' : ''} reparado${ready.length !== 1 ? 's' : ''} esperando al cliente`;
+            _renderReadyStats();
+            _renderReadyChipCounts();
+            _renderReadyTodayPill();
+            _renderReadyBulkButton();
+            _renderReadyFilter('all');
             document.getElementById('modal-ready-list').classList.remove('hidden');
         }
 
-        function copyAllReadyPhones() {
-            const phones = Array.from(document.querySelectorAll('#ready-list-container .bg-slate-800\\/60 .text-slate-400'))
-                .map(el => el.innerText.match(/Tel:\s*([\d\s]+)/)?.[1]?.trim())
-                .filter(Boolean);
-            if (phones.length) {
-                navigator.clipboard.writeText(phones.join(', '));
-                showToast('Números copiados al portapapeles', 'success');
-            } else {
-                showAlert('No se pudieron extraer números', 'warning');
+        // "Avisados hoy: X de Y"
+        function _renderReadyTodayPill() {
+            const pill = document.getElementById('ready-today-text');
+            if (!pill) return;
+            const startOfDay = new Date(); startOfDay.setHours(0,0,0,0);
+            const todayStart = startOfDay.getTime();
+            const avisadosHoy = _readyCache.filter(o => (o.lastNotified || 0) >= todayStart).length;
+            if (_readyCache.length === 0) { pill.style.display = 'none'; return; }
+            pill.style.display = 'inline-flex';
+            pill.textContent = `📊 ${avisadosHoy} de ${_readyCache.length} avisado${avisadosHoy !== 1 ? 's' : ''} hoy`;
+        }
+
+        // Muestra/oculta el botón masivo según haya pendientes en el filtro
+        function _renderReadyBulkButton() {
+            const btn = document.getElementById('ready-bulk-btn');
+            const count = document.getElementById('ready-bulk-count');
+            if (!btn || !count) return;
+
+            // Solo los que no han sido avisados (en el filtro actual)
+            let list = _readyCache.slice();
+            if (_readyFilter === 'saldo') {
+                list = list.filter(o => (Number(o.val) || 0) - (Number(o.adelanto) || 0) > 0);
+            } else if (_readyFilter === 'never') {
+                list = list.filter(o => !o.lastNotified);
             }
+            const pendientes = list.filter(o => !o.lastNotified);
+            if (pendientes.length === 0) {
+                btn.style.display = 'none';
+            } else {
+                btn.style.display = 'flex';
+                count.textContent = pendientes.length;
+            }
+        }
+
+        // KPIs superiores
+        function _renderReadyStats() {
+            const cur = getCurrency();
+            const total = _readyCache.length;
+            const saldoTotal = _readyCache.reduce((sum, o) => {
+                const val = Number(o.val) || 0;
+                const ade = Number(o.adelanto) || 0;
+                return sum + Math.max(0, val - ade);
+            }, 0);
+            const now = Date.now();
+            const diasProm = total > 0
+                ? Math.round(_readyCache.reduce((sum, o) => {
+                    const ref = o.fechaReparado || o.fechaEstado || o.fecha || now;
+                    return sum + Math.max(0, Math.floor((now - ref) / 86400000));
+                  }, 0) / total)
+                : 0;
+            const statsEl = document.getElementById('ready-stats');
+            if (!statsEl) return;
+            statsEl.innerHTML = `
+                <div class="ready-stat-card">
+                    <div class="ready-stat-val" style="color:#34d399;">${total}</div>
+                    <div class="ready-stat-label">Listos</div>
+                </div>
+                <div class="ready-stat-card">
+                    <div class="ready-stat-val" style="color:#fb923c;font-size:${saldoTotal >= 1000000 ? '13px' : '15px'};">${cur}${saldoTotal.toLocaleString()}</div>
+                    <div class="ready-stat-label">Por cobrar</div>
+                </div>
+                <div class="ready-stat-card">
+                    <div class="ready-stat-val" style="color:#60a5fa;">${diasProm}<span style="font-size:11px;opacity:0.7;">d</span></div>
+                    <div class="ready-stat-label">Promedio</div>
+                </div>
+            `;
+        }
+
+        // Contadores de los chips
+        function _renderReadyChipCounts() {
+            const all = _readyCache.length;
+            const saldo = _readyCache.filter(o => (Number(o.val) || 0) - (Number(o.adelanto) || 0) > 0).length;
+            const never = _readyCache.filter(o => !o.lastNotified).length;
+            const el = (id) => document.getElementById(id);
+            if (el('chip-count-all'))   el('chip-count-all').textContent   = all;
+            if (el('chip-count-saldo')) el('chip-count-saldo').textContent = saldo;
+            if (el('chip-count-never')) el('chip-count-never').textContent = never;
+        }
+
+        // Cambia filtro activo
+        function filterReadyList(filter) {
+            _readyFilter = filter;
+            document.querySelectorAll('#ready-filters .ready-chip').forEach(btn => {
+                btn.classList.toggle('ready-chip-active', btn.dataset.filter === filter);
+            });
+            _renderReadyFilter(filter);
+            _renderReadyBulkButton();
+        }
+
+        // Renderiza la lista filtrada
+        function _renderReadyFilter(filter) {
+            const cur = getCurrency();
+            const container = document.getElementById('ready-list-container');
+            if (!container) return;
+            const now = Date.now();
+
+            let list = _readyCache.slice();
+            if (filter === 'saldo') {
+                list = list.filter(o => (Number(o.val) || 0) - (Number(o.adelanto) || 0) > 0);
+            } else if (filter === 'never') {
+                list = list.filter(o => !o.lastNotified);
+            }
+
+            if (!list.length) {
+                container.innerHTML = `
+                    <div class="ready-empty">
+                        <div class="ready-empty-icon">✨</div>
+                        <div class="ready-empty-text">${filter === 'all' ? 'No hay equipos listos' : 'Nada en este filtro'}</div>
+                        <div class="ready-empty-sub">${filter === 'never' ? 'Todos ya fueron avisados' : filter === 'saldo' ? 'Todos están pagos' : 'Marca una orden como "reparado"'}</div>
+                    </div>`;
+                return;
+            }
+
+            const avatarHues = [12, 35, 145, 200, 260, 320];
+            container.innerHTML = list.map(o => {
+                // Avatar e iniciales
+                const nombre = o.nom || 'Cliente';
+                const initials = nombre.split(/\s+/).filter(Boolean).slice(0,2).map(w => w[0]?.toUpperCase() || '').join('') || 'C';
+                let hashVal = 0;
+                for (let i = 0; i < nombre.length; i++) hashVal = (hashVal + nombre.charCodeAt(i)) % avatarHues.length;
+                const hue = avatarHues[hashVal];
+
+                // Dinero
+                const total = Number(o.val) || 0;
+                const adelanto = Number(o.adelanto) || 0;
+                const saldo = Math.max(0, total - adelanto);
+                const pctPago = total > 0 ? Math.round((adelanto / total) * 100) : 0;
+
+                // Días reparado
+                const refDate = o.fechaReparado || o.fechaEstado || o.fecha || now;
+                const diasReparado = Math.max(0, Math.floor((now - refDate) / 86400000));
+
+                // Estado de aviso
+                const lastNot = o.lastNotified || 0;
+                let notifiedBadge = '';
+                if (!lastNot) {
+                    notifiedBadge = `<span class="ready-card-notified ready-notified-never">🔔 Nunca avisado</span>`;
+                } else {
+                    const diasDesde = Math.max(0, Math.floor((now - lastNot) / 86400000));
+                    const texto = diasDesde === 0 ? 'hoy' : `hace ${diasDesde}d`;
+                    notifiedBadge = `<span class="ready-card-notified ready-notified-done">✓ Avisado ${texto}</span>`;
+                }
+
+                // Urgencia (borde de la tarjeta)
+                let urgentClass = '';
+                if (!lastNot && diasReparado >= 5) urgentClass = ' ready-card-urgent';
+                else if (!lastNot && diasReparado >= 2) urgentClass = ' ready-card-warm';
+
+                // Badge de días
+                let diasBadge = '';
+                if (diasReparado >= 7) diasBadge = `<span class="ready-meta-days" style="color:#fb7185;">🔥 ${diasReparado}d reparado</span>`;
+                else if (diasReparado >= 3) diasBadge = `<span class="ready-meta-days" style="color:#fb923c;">⏰ ${diasReparado}d reparado</span>`;
+                else diasBadge = `<span class="ready-meta-days">⏰ ${diasReparado}d reparado</span>`;
+
+                // Saldo pill
+                let saldoPill;
+                if (total <= 0) {
+                    saldoPill = `<span class="ready-saldo-pill ready-saldo-uncosted">📝 Sin cotizar</span>`;
+                } else if (saldo > 0) {
+                    saldoPill = `<span class="ready-saldo-pill ready-saldo-pending">💰 Debe ${cur}${saldo.toLocaleString()}</span>`;
+                } else {
+                    saldoPill = `<span class="ready-saldo-pill ready-saldo-paid">✓ Pagado</span>`;
+                }
+
+                // Formato de orden
+                const numLabel = o.orderNum ? `#${String(o.orderNum).padStart(4,'0')}` : `#${o.id}`;
+
+                // Teléfono formateado (visual)
+                const telDigits = (o.tel || '').replace(/\D/g, '');
+                const telDisplay = telDigits.length === 10
+                    ? `${telDigits.slice(0,3)} ${telDigits.slice(3,6)} ${telDigits.slice(6)}`
+                    : o.tel;
+
+                return `<div class="ready-card${urgentClass}">
+                    <div class="ready-card-head">
+                        <div class="ready-card-avatar" style="background:linear-gradient(135deg,hsl(${hue},70%,55%),hsl(${hue},70%,40%));">${initials}</div>
+                        <div class="ready-card-info">
+                            <div class="ready-card-name">
+                                ${escapeHtml(nombre)}
+                                <span class="ready-card-ordernum">${numLabel}</span>
+                            </div>
+                            <div class="ready-card-equipo">🔧 ${escapeHtml(o.equ || '')}</div>
+                            ${notifiedBadge}
+                        </div>
+                    </div>
+
+                    <div class="ready-money-row">
+                        <div>
+                            <div class="ready-money-total-label">Total</div>
+                            <div class="ready-money-total">${cur}${total.toLocaleString()}</div>
+                        </div>
+                        ${saldoPill}
+                    </div>
+                    ${adelanto > 0 && saldo > 0 ? `
+                    <div style="margin-top:-4px;">
+                        <div style="height:4px;background:rgba(15,23,42,0.7);border-radius:99px;overflow:hidden;">
+                            <div style="width:${pctPago}%;height:100%;background:linear-gradient(90deg,#3b82f6,#60a5fa);border-radius:99px;"></div>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;font-size:9.5px;font-weight:700;margin-top:3px;">
+                            <span style="color:#60a5fa;">Adelanto: ${cur}${adelanto.toLocaleString()}</span>
+                            <span style="color:#94a3b8;">${pctPago}% pagado</span>
+                        </div>
+                    </div>` : ''}
+
+                    <div class="ready-meta">
+                        <span class="ready-meta-phone">📞 ${telDisplay}</span>
+                        ${diasBadge}
+                    </div>
+
+                    <div class="ready-card-actions">
+                        <button onclick="callFromReady('${telDigits}')" class="ready-act-btn ready-act-call" title="Llamar">📞</button>
+                        <button onclick="sendReadyWA(${o.id})" class="ready-act-btn ready-act-wa">💬 WhatsApp</button>
+                        <button onclick="markReadyAsNotified(${o.id})" class="ready-act-btn ready-act-done" title="Marcar como avisado manualmente">✓</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // Llamar al cliente (abre el dialer del teléfono)
+        function callFromReady(phone) {
+            if (!phone) return showAlert('Número no disponible', 'warning');
+            const prefix = phone.length === 10 ? '+57' : '+';
+            window.location.href = `tel:${prefix}${phone}`;
+        }
+
+        // Avisar a todos los pendientes del filtro actual, en secuencia
+        async function notifyAllPending() {
+            // Obtener los que aún no han sido avisados en el filtro actual
+            let list = _readyCache.slice();
+            if (_readyFilter === 'saldo') {
+                list = list.filter(o => (Number(o.val) || 0) - (Number(o.adelanto) || 0) > 0);
+            } else if (_readyFilter === 'never') {
+                list = list.filter(o => !o.lastNotified);
+            }
+            const pending = list.filter(o => !o.lastNotified);
+            if (!pending.length) return showAlert('No hay pendientes por avisar', 'info');
+
+            const msg = `Vas a abrir ${pending.length} WhatsApp${pending.length !== 1 ? 's' : ''} en secuencia (uno cada 1.5 segundos). Para cada cliente el mensaje saldrá pre-llenado — solo toca "Enviar" en WhatsApp.\n\n¿Continuar?`;
+            showConfirm(msg, async () => {
+                const btn = document.getElementById('ready-bulk-btn');
+                if (btn) btn.disabled = true;
+                let enviados = 0;
+                for (let i = 0; i < pending.length; i++) {
+                    const o = pending[i];
+                    try {
+                        const m = buildWhatsappMsg('listo', o);
+                        const waLink = `https://wa.me/57${o.tel.replace(/\D/g, '')}?text=${encodeURIComponent(m)}`;
+                        sessionStorage.setItem('_waJump', '1');
+                        window.open(waLink, '_blank');
+                        // Marcar como avisado
+                        o.lastNotified = Date.now();
+                        await put('orders', o);
+                        const idx = _readyCache.findIndex(x => x.id === o.id);
+                        if (idx >= 0) _readyCache[idx] = o;
+                        enviados++;
+                        // Pausa entre envíos (menos en el último)
+                        if (i < pending.length - 1) await new Promise(r => setTimeout(r, 1500));
+                    } catch(e) { console.warn('[notifyAllPending]', e); }
+                }
+                if (btn) btn.disabled = false;
+                _renderReadyStats();
+                _renderReadyChipCounts();
+                _renderReadyTodayPill();
+                _renderReadyBulkButton();
+                _renderReadyFilter(_readyFilter);
+                showToast(`${enviados} cliente${enviados !== 1 ? 's' : ''} avisado${enviados !== 1 ? 's' : ''}`, 'success');
+            });
+        }
+
+        // Enviar WhatsApp y marcar como avisado
+        async function sendReadyWA(id) {
+            try {
+                const orders = await getAll('orders');
+                const o = orders.find(x => x.id === id);
+                if (!o || !o.tel) return showAlert('Orden o teléfono no encontrado', 'warning');
+                const msg = buildWhatsappMsg('listo', o);
+                const waLink = `https://wa.me/57${o.tel.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`;
+                sessionStorage.setItem('_waJump', '1');
+                window.open(waLink, '_blank');
+                // Marcar como avisado
+                o.lastNotified = Date.now();
+                await put('orders', o);
+                // Refrescar cache y UI
+                const idx = _readyCache.findIndex(x => x.id === id);
+                if (idx >= 0) _readyCache[idx] = o;
+                _renderReadyChipCounts();
+                _renderReadyTodayPill();
+                _renderReadyBulkButton();
+                _renderReadyFilter(_readyFilter);
+                showToast('WhatsApp enviado · marcado como avisado', 'success');
+            } catch (e) {
+                console.warn('[sendReadyWA]', e);
+                showAlert('Error al enviar WhatsApp', 'error');
+            }
+        }
+
+        // Marcar manualmente como avisado (sin abrir WA)
+        async function markReadyAsNotified(id) {
+            try {
+                const orders = await getAll('orders');
+                const o = orders.find(x => x.id === id);
+                if (!o) return;
+                o.lastNotified = Date.now();
+                await put('orders', o);
+                const idx = _readyCache.findIndex(x => x.id === id);
+                if (idx >= 0) _readyCache[idx] = o;
+                _renderReadyChipCounts();
+                _renderReadyTodayPill();
+                _renderReadyBulkButton();
+                _renderReadyFilter(_readyFilter);
+                showToast('Marcado como avisado', 'success');
+            } catch (e) { console.warn('[markReadyAsNotified]', e); }
+        }
+
+        // Copiar todos los números del filtro actual
+        function copyAllReadyPhones() {
+            let list = _readyCache.slice();
+            if (_readyFilter === 'saldo') {
+                list = list.filter(o => (Number(o.val) || 0) - (Number(o.adelanto) || 0) > 0);
+            } else if (_readyFilter === 'never') {
+                list = list.filter(o => !o.lastNotified);
+            }
+            const phones = list.map(o => (o.tel || '').replace(/\D/g, '')).filter(Boolean);
+            if (!phones.length) return showAlert('No hay números para copiar', 'warning');
+            navigator.clipboard.writeText(phones.join(', '));
+            showToast(`${phones.length} número${phones.length !== 1 ? 's' : ''} copiado${phones.length !== 1 ? 's' : ''}`, 'success');
         }
 
         function closeReadyModal() { document.getElementById('modal-ready-list').classList.add('hidden'); }
@@ -12051,11 +13161,62 @@
         }
 
         // ==================== ⬇️ EXPORTAR PDF / EXCEL / CSV ====================
+        // ==================== EXPORTAR DATOS v2 ====================
         let _exportFmt = 'pdf';
+        let _exportRange = 'month'; // month | prevmonth | 3months | year | all
+
+        // Calcula timestamps de inicio/fin según el rango elegido
+        function _getExportRange() {
+            const now = new Date();
+            const endMs = now.getTime();
+            let fromMs = 0, label = 'Todo el historial';
+            const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+            if (_exportRange === 'month') {
+                const d = new Date(now.getFullYear(), now.getMonth(), 1);
+                fromMs = d.getTime();
+                label = `Del 1 al ${now.getDate()} de ${meses[now.getMonth()]}`;
+            } else if (_exportRange === 'prevmonth') {
+                const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                const end   = new Date(now.getFullYear(), now.getMonth(), 1).getTime() - 1;
+                fromMs = start.getTime();
+                label = `${meses[start.getMonth()]} ${start.getFullYear()} completo`;
+                return { from: fromMs, to: end + 1, label };
+            } else if (_exportRange === '3months') {
+                const d = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+                fromMs = d.getTime();
+                label = `${meses[d.getMonth()]} → ${meses[now.getMonth()]} ${now.getFullYear()}`;
+            } else if (_exportRange === 'year') {
+                const d = new Date(now.getFullYear(), 0, 1);
+                fromMs = d.getTime();
+                label = `Año ${now.getFullYear()}`;
+            } else if (_exportRange === 'all') {
+                fromMs = 0;
+                label = 'Todo el historial';
+            }
+            return { from: fromMs, to: endMs, label };
+        }
+
+        // Shortname del rango para el nombre del archivo
+        function _exportRangeFileSlug() {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            if (_exportRange === 'month')     return `${y}-${m}`;
+            if (_exportRange === 'prevmonth') {
+                const d = new Date(y, now.getMonth() - 1, 1);
+                return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+            }
+            if (_exportRange === '3months') return `${y}-${m}-3m`;
+            if (_exportRange === 'year')    return `${y}`;
+            if (_exportRange === 'all')     return 'todo';
+            return now.toISOString().slice(0,10);
+        }
 
         function openExportPanel() {
             _exportFmt = 'pdf';
+            _exportRange = 'month';
             setExportFmt('pdf');
+            setExportRange('month');
             document.getElementById('modal-export-panel').classList.remove('hidden');
         }
         function closeExportPanel() {
@@ -12065,13 +13226,63 @@
 
         function setExportFmt(fmt) {
             _exportFmt = fmt;
-            const fmts = ['pdf','excel','csv'];
-            const colors = { pdf: 'bg-rose-600/20 text-rose-400 border-rose-500/40', excel: 'bg-emerald-600/20 text-emerald-400 border-emerald-500/40', csv: 'bg-blue-600/20 text-blue-400 border-blue-500/40' };
-            fmts.forEach(f => {
+            ['pdf','excel','csv'].forEach(f => {
                 const btn = document.getElementById('exp-fmt-' + f);
                 if (!btn) return;
-                btn.className = 'flex-1 py-2 rounded-xl text-xs font-black border transition active:scale-95 ' + (f === fmt ? colors[f] : 'bg-white/5 text-slate-400 border-white/10');
+                btn.classList.toggle('active', f === fmt);
             });
+        }
+
+        function setExportRange(range) {
+            _exportRange = range;
+            document.querySelectorAll('#export-range-chips .export-range-chip').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.range === range);
+            });
+            _updateExportCounts();
+        }
+
+        // Recalcula y repinta los contadores en cada tarjeta + label del footer
+        async function _updateExportCounts() {
+            try {
+                const { from, to, label } = _getExportRange();
+                const footer = document.getElementById('export-footer-range');
+                if (footer) footer.textContent = `📅 ${label}`;
+
+                // Órdenes: filtrar por fecha de creación dentro del rango
+                const orders = await getAll('orders');
+                const ordenesFiltradas = orders.filter(o => {
+                    const f = o.fecha || 0;
+                    return f >= from && f <= to;
+                });
+                const numOrd = document.getElementById('exp-num-ordenes');
+                const boxOrd = document.getElementById('exp-count-ordenes');
+                if (numOrd) numOrd.textContent = ordenesFiltradas.length;
+                if (boxOrd) boxOrd.classList.toggle('export-opt-count-empty', ordenesFiltradas.length === 0);
+
+                // Ventas + gastos
+                const sales  = await getAll('sales');
+                const gastos = (await getAll('gastos')) || [];
+                const salesFilt  = sales.filter(s  => (s.fecha || 0) >= from && (s.fecha || 0) <= to);
+                const gastosFilt = gastos.filter(g => (g.fecha || 0) >= from && (g.fecha || 0) <= to);
+                const totalMovs = salesFilt.length + gastosFilt.length;
+                const numVen = document.getElementById('exp-num-ventas');
+                const boxVen = document.getElementById('exp-count-ventas');
+                if (numVen) numVen.textContent = totalMovs;
+                if (boxVen) boxVen.classList.toggle('export-opt-count-empty', totalMovs === 0);
+
+                // Inventario (snapshot, no se filtra por fecha)
+                const stock = await getAll('stock');
+                const numInv = document.getElementById('exp-num-inventario');
+                const boxInv = document.getElementById('exp-count-inventario');
+                if (numInv) numInv.textContent = stock.length;
+                if (boxInv) boxInv.classList.toggle('export-opt-count-empty', stock.length === 0);
+
+                // Reporte: siempre del mes actual
+                const meses3 = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+                const now = new Date();
+                const repLabel = document.getElementById('exp-num-reporte');
+                if (repLabel) repLabel.textContent = meses3[now.getMonth()] + ' ' + now.getFullYear();
+            } catch(e) { console.warn('[_updateExportCounts]', e); }
         }
 
         async function runExport(type) {
@@ -12084,11 +13295,14 @@
                 const now = new Date();
                 const dateStr = now.toISOString().slice(0,10);
                 const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+                const { from, to } = _getExportRange();
+                const rangeSlug = _exportRangeFileSlug();
 
                 let rows = [], headers = [], filename = '';
 
                 if (type === 'ordenes') {
-                    const orders = await getAll('orders');
+                    let orders = await getAll('orders');
+                    orders = orders.filter(o => (o.fecha || 0) >= from && (o.fecha || 0) <= to);
                     headers = ['#Orden','Cliente','Teléfono','Equipo','Falla','Estado','Valor','Adelanto','Saldo','Fecha','Entrega Estimada','Técnico'];
                     rows = orders.map((o,i) => [
                         i+1, o.nom||'', o.tel||'', o.equ||'', (o.fal||'').replace(/,/g,' '),
@@ -12097,15 +13311,17 @@
                         o.deadline ? new Date(o.deadline).toLocaleDateString('es-CO') : '',
                         o.tecnico||''
                     ]);
-                    filename = `ordenes_${dateStr}`;
+                    filename = `ordenes_${rangeSlug}`;
                 } else if (type === 'ventas') {
-                    const sales = await getAll('sales');
-                    const gastos = await getAll('gastos') || [];
+                    let sales = await getAll('sales');
+                    let gastos = (await getAll('gastos')) || [];
+                    sales  = sales.filter(s  => (s.fecha || 0) >= from && (s.fecha || 0) <= to);
+                    gastos = gastos.filter(g => (g.fecha || 0) >= from && (g.fecha || 0) <= to);
                     headers = ['Tipo','Descripción','Ítem','Cantidad','Valor','Fecha'];
                     const saleRows = sales.map(s => [s.tipo||'venta', s.det||s.item||'', s.item||'', s.qty||1, s.val||0, s.fecha ? new Date(s.fecha).toLocaleDateString('es-CO') : '']);
                     const gastoRows = gastos.map(g => ['gasto', g.det||'', '', 1, -(g.val||0), g.fecha ? new Date(g.fecha).toLocaleDateString('es-CO') : '']);
                     rows = [...saleRows, ...gastoRows].sort((a,b) => new Date(b[5]) - new Date(a[5]));
-                    filename = `ventas_${dateStr}`;
+                    filename = `ventas_${rangeSlug}`;
                 } else if (type === 'inventario') {
                     const stock = await getAll('stock');
                     headers = ['Nombre','Categoría','Código','Cantidad','Mínimo','Precio Venta','Precio Costo','Estado'];
@@ -12139,6 +13355,12 @@
                         ['Ticket promedio', monthOrders.length ? Math.round(totalRep/monthOrders.length) : 0],
                     ];
                     filename = `reporte_mes_${dateStr}`;
+                }
+
+                // Si no hay datos para exportar, avisar y salir (evita PDF/Excel vacíos)
+                if ((type === 'ordenes' || type === 'ventas') && rows.length === 0) {
+                    showAlert('No hay datos en el rango seleccionado.\nPrueba con otro rango de fechas.', 'info');
+                    return;
                 }
 
                 if (_exportFmt === 'csv') {
