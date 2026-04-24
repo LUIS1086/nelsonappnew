@@ -3993,19 +3993,6 @@
         </div>
     </div>
 
-    <!-- ═══ INDICADOR DE CONEXIÓN (aparece solo cuando estás offline) ═══ -->
-    <div id="connection-indicator" class="hidden" style="position:fixed;bottom:calc(env(safe-area-inset-bottom, 0px) + 76px);left:12px;z-index:5500;display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:99px;background:linear-gradient(135deg,rgba(244,63,94,0.95),rgba(190,18,60,0.95));border:1px solid rgba(244,63,94,0.5);box-shadow:0 6px 18px rgba(244,63,94,0.4);color:#fff;font-size:11px;font-weight:900;letter-spacing:0.3px;backdrop-filter:blur(8px);animation:connPulse 2s ease-in-out infinite;pointer-events:auto;cursor:pointer;" onclick="_showConnectionInfo()">
-        <span id="connection-indicator-dot" style="width:8px;height:8px;border-radius:50%;background:#fca5a5;box-shadow:0 0 8px #f87171;"></span>
-        <span id="connection-indicator-text">Sin conexión</span>
-        <span id="connection-indicator-count" class="hidden" style="background:rgba(0,0,0,0.3);padding:1px 7px;border-radius:99px;font-size:10px;">0</span>
-    </div>
-    <style>
-        @keyframes connPulse {
-            0%,100% { box-shadow: 0 6px 18px rgba(244,63,94,0.4); }
-            50%     { box-shadow: 0 6px 24px rgba(244,63,94,0.7); }
-        }
-    </style>
-
     <!-- ═════════════ TOUR GUIADO v1 — Onboarding para usuarios nuevos ═════════════ -->
     <!-- Overlay semi-transparente con recorte circular alrededor del elemento destacado -->
     <div id="tour-overlay" class="hidden" style="position:fixed;inset:0;z-index:9500;pointer-events:none;"></div>
@@ -13164,80 +13151,14 @@
         }
 
         // ════════════════════════════════════════════════════════════════════════
-        // INDICADOR DE CONEXIÓN Y COLA DE MENSAJES PENDIENTES
+        // COLA DE MENSAJES WHATSAPP PENDIENTES (se usa cuando hay offline)
+        // El indicador visual principal lo maneja showNetBadge (net-badge)
         // ════════════════════════════════════════════════════════════════════════
-        function _refreshConnectionIndicator() {
-            const ind = document.getElementById('connection-indicator');
-            if (!ind) return;
-            const online = navigator.onLine;
-            const pending = _getPendingMessagesCount();
-
-            if (online && pending === 0) {
-                // Todo bien → ocultar
-                ind.classList.add('hidden');
-            } else if (!online) {
-                // Sin conexión → indicador rojo
-                ind.classList.remove('hidden');
-                ind.style.background = 'linear-gradient(135deg,rgba(244,63,94,0.95),rgba(190,18,60,0.95))';
-                ind.style.borderColor = 'rgba(244,63,94,0.5)';
-                ind.style.boxShadow = '0 6px 18px rgba(244,63,94,0.4)';
-                const text = document.getElementById('connection-indicator-text');
-                if (text) text.textContent = 'Sin conexión';
-                const dot = document.getElementById('connection-indicator-dot');
-                if (dot) { dot.style.background = '#fca5a5'; dot.style.boxShadow = '0 0 8px #f87171'; }
-                const count = document.getElementById('connection-indicator-count');
-                if (count) {
-                    if (pending > 0) {
-                        count.textContent = pending;
-                        count.classList.remove('hidden');
-                    } else {
-                        count.classList.add('hidden');
-                    }
-                }
-            } else {
-                // Online con mensajes pendientes → indicador ámbar
-                ind.classList.remove('hidden');
-                ind.style.background = 'linear-gradient(135deg,rgba(245,158,11,0.95),rgba(180,83,9,0.95))';
-                ind.style.borderColor = 'rgba(245,158,11,0.5)';
-                ind.style.boxShadow = '0 6px 18px rgba(245,158,11,0.4)';
-                const text = document.getElementById('connection-indicator-text');
-                if (text) text.textContent = `${pending} mensaje${pending !== 1 ? 's' : ''} pendiente${pending !== 1 ? 's' : ''}`;
-                const dot = document.getElementById('connection-indicator-dot');
-                if (dot) { dot.style.background = '#fde68a'; dot.style.boxShadow = '0 0 8px #fbbf24'; }
-                const count = document.getElementById('connection-indicator-count');
-                if (count) count.classList.add('hidden');
-            }
-        }
-
         function _getPendingMessagesCount() {
             try {
                 const q = JSON.parse(localStorage.getItem('waQueue') || '[]');
                 return Array.isArray(q) ? q.length : 0;
             } catch(e) { return 0; }
-        }
-
-        function _showConnectionInfo() {
-            const online = navigator.onLine;
-            const pending = _getPendingMessagesCount();
-            if (!online) {
-                let msg = '📡 Estás sin conexión a Internet.\n\n';
-                msg += 'Lo que SÍ funciona:\n';
-                msg += '  ✅ Recibir equipos (crear órdenes)\n';
-                msg += '  ✅ Cambiar estados\n';
-                msg += '  ✅ Registrar ventas y gastos\n';
-                msg += '  ✅ Ver tu historial\n\n';
-                msg += 'Lo que NO funciona hasta que vuelva la señal:\n';
-                msg += '  ❌ Enviar WhatsApp\n';
-                msg += '  ❌ Respaldo en Drive\n\n';
-                if (pending > 0) msg += `📥 Hay ${pending} mensaje${pending !== 1 ? 's' : ''} de WhatsApp esperando para enviarse.`;
-                showAlert(msg, 'info');
-            } else if (pending > 0) {
-                showConfirm(
-                    `Tienes ${pending} mensaje${pending !== 1 ? 's' : ''} de WhatsApp pendiente${pending !== 1 ? 's' : ''} de enviar.\n\n¿Abrirlos ahora?`,
-                    () => _flushWhatsappQueue(),
-                    'info'
-                );
-            }
         }
 
         async function _flushWhatsappQueue() {
@@ -13253,14 +13174,13 @@
                     if (i < queue.length - 1) await new Promise(r => setTimeout(r, 1500));
                 }
                 localStorage.setItem('waQueue', '[]');
-                _refreshConnectionIndicator();
                 showToast('✅ Todos los mensajes fueron abiertos', 'success');
             } catch(e) { console.warn('[flushWhatsappQueue]', e); }
         }
 
-        // Helper: encolar o enviar al instante un mensaje según conexión
+        // Helper: encolar o enviar al instante un mensaje según conexión real
         function _sendOrQueueWA(url, label) {
-            if (navigator.onLine) {
+            if (_isReallyOnline()) {
                 sessionStorage.setItem('_waJump', '1');
                 window.open(url, '_blank');
                 return 'sent';
@@ -13269,18 +13189,57 @@
                     const q = JSON.parse(localStorage.getItem('waQueue') || '[]');
                     q.push({ url, label: label || '', ts: Date.now() });
                     localStorage.setItem('waQueue', JSON.stringify(q));
-                    _refreshConnectionIndicator();
                     showToast(`📥 Guardado · Se abrirá cuando vuelva la señal`, 'info');
                     return 'queued';
                 } catch(e) { return 'failed'; }
             }
         }
 
-        // Escuchar cambios de conexión
-        window.addEventListener('online',  _refreshConnectionIndicator);
-        window.addEventListener('offline', _refreshConnectionIndicator);
-        // Revisar al iniciar
-        setTimeout(() => _refreshConnectionIndicator(), 1000);
+        // Estado real de conexión (combina navigator.onLine + último ping verificado)
+        let _lastOnlineVerified = true;
+        function _isReallyOnline() {
+            // Si navigator.onLine dice false, confiar en eso (está 100% desconectado del sistema)
+            if (!navigator.onLine) return false;
+            // Si navigator.onLine dice true, usar el resultado de nuestro último ping
+            return _lastOnlineVerified;
+        }
+
+        // Ping real a internet para verificar conexión más allá de navigator.onLine
+        // (algunos Android/WebView reportan onLine=false aunque haya datos, y al revés)
+        async function _verifyRealConnection() {
+            if (!navigator.onLine) {
+                _lastOnlineVerified = false;
+                return false;
+            }
+            try {
+                // Ping ligero a Google (imagen transparente de 1 pixel, sin caché)
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 4000);
+                const response = await fetch('https://www.google.com/generate_204', {
+                    method: 'GET',
+                    mode: 'no-cors',
+                    cache: 'no-store',
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                _lastOnlineVerified = true;
+                return true;
+            } catch (e) {
+                // Si falla el ping, intentar con un fallback más tolerante
+                try {
+                    await fetch('https://cdnjs.cloudflare.com/favicon.ico', {
+                        method: 'HEAD',
+                        mode: 'no-cors',
+                        cache: 'no-store'
+                    });
+                    _lastOnlineVerified = true;
+                    return true;
+                } catch(e2) {
+                    _lastOnlineVerified = false;
+                    return false;
+                }
+            }
+        }
 
         async function pedirAProveedor(stockId) {
             try {
@@ -13491,6 +13450,8 @@
 
         // ==================== BADGE OFFLINE / ONLINE ====================
         let _netBadgeTimer = null;
+        let _netCheckPending = false;
+
         function showNetBadge(online) {
             const badge = document.getElementById('net-badge');
             if (!badge) return;
@@ -13501,9 +13462,36 @@
                 _netBadgeTimer = setTimeout(() => badge.classList.remove('show'), 3000);
             }
         }
-        window.addEventListener('offline', () => showNetBadge(false));
+
+        // Verifica con ping REAL antes de mostrar como offline
+        // Esto evita falsos "sin conexión" cuando navigator.onLine reporta mal (bug común en WebView Android)
+        async function _checkAndShowNetBadge(isOnlineEvent) {
+            if (_netCheckPending) return;
+            _netCheckPending = true;
+            try {
+                if (isOnlineEvent) {
+                    // Sistema dice que volvió la conexión — verificar con ping
+                    const real = await _verifyRealConnection();
+                    if (real) showNetBadge(true);
+                    // Si el ping falló, no mostrar nada (dejar que el siguiente evento lo resuelva)
+                } else {
+                    // Sistema dice que se fue la conexión — verificar con ping antes de alarmar al usuario
+                    const real = await _verifyRealConnection();
+                    if (!real) {
+                        showNetBadge(false);
+                    } else {
+                        // Falso positivo del sistema — sí hay internet
+                        console.log('[netbadge] navigator.onLine=false pero ping exitoso, ignorando');
+                    }
+                }
+            } finally {
+                _netCheckPending = false;
+            }
+        }
+
+        window.addEventListener('offline', () => _checkAndShowNetBadge(false));
         window.addEventListener('online',  () => {
-            showNetBadge(true);
+            _checkAndShowNetBadge(true);
             // Al volver online: si hay token y auto-backup configurado, disparar un backup silencioso
             try {
                 const hours = parseInt(localStorage.getItem('backupIntervalHours')) || 0;
@@ -13516,7 +13504,30 @@
                 try { navigator.serviceWorker.controller.postMessage({ type: 'UPDATE_CACHE' }); } catch(e){}
             }
         });
-        if (!navigator.onLine) setTimeout(() => showNetBadge(false), 2500);
+        // Al iniciar, verificar de verdad (no confiar solo en navigator.onLine)
+        setTimeout(() => {
+            if (!navigator.onLine) {
+                _checkAndShowNetBadge(false);
+            } else {
+                // Verificar silenciosamente por si hay falso positivo
+                _verifyRealConnection();
+            }
+        }, 2500);
+        // Re-verificar cada 60 segundos (el estado puede cambiar sin emitir evento)
+        setInterval(() => {
+            _verifyRealConnection().then(real => {
+                const badge = document.getElementById('net-badge');
+                if (!badge) return;
+                // Si el badge muestra offline pero el ping dice online → ocultar
+                if (real && badge.classList.contains('offline') && badge.classList.contains('show')) {
+                    showNetBadge(true);
+                }
+                // Si el badge está oculto pero el ping dice offline → mostrar
+                else if (!real && !badge.classList.contains('show')) {
+                    showNetBadge(false);
+                }
+            });
+        }, 60000);
 
         // ==================== BÚSQUEDA GLOBAL ====================
         let _gsrDebounce = null;
