@@ -7727,7 +7727,12 @@
             const today = new Date();
             const container = document.getElementById('orders-list');
             if (!orders.length) { container.innerHTML = '<div class="text-center py-12 opacity-50">📭 No hay órdenes</div>'; return; }
-            container.innerHTML = orders.map(o => {
+            // RENDERIZADO PROGRESIVO: primeros 30 items → respuesta inmediata al cambiar de tab
+            const ORDERS_INITIAL = 30;
+            const firstOrdersBatch = orders.slice(0, ORDERS_INITIAL);
+            const remainingOrders  = orders.slice(ORDERS_INITIAL);
+
+            const renderOrderCard = (o) => {
                 const canEditValue = (o.sta === 'reparado' || o.sta === 'entregado');
                 const daysInShop = getBusinessDaysDiff(new Date(o.fecha), today);
                 const isOverdue = daysInShop >= 60 && o.sta !== 'entregado';
@@ -7893,7 +7898,21 @@
                         <button onclick="delOrder(${o.id})" class="order-action-btn bg-rose-500/15 text-rose-400" title="Eliminar">🗑️</button>
                     </div>
                 </div>`;
-            }).join('');
+            };
+
+            // Pintar primer batch inmediatamente (el usuario ve algo YA)
+            container.innerHTML = firstOrdersBatch.map(renderOrderCard).join('');
+
+            // Si quedan más, pintarlos en segundo paso (UI sigue respondiendo)
+            if (remainingOrders.length > 0) {
+                requestAnimationFrame(() => {
+                    setTimeout(() => {
+                        const fragment = document.createElement('div');
+                        fragment.innerHTML = remainingOrders.map(renderOrderCard).join('');
+                        while (fragment.firstChild) container.appendChild(fragment.firstChild);
+                    }, 0);
+                });
+            }
         }
 
         // printInvoice usando datos del negocio y config de documentos
@@ -8329,7 +8348,9 @@
         let activeStockCategory = '';
 
         async function renderStock() {
-            let stock = await getAll('stock');
+            // Una sola lectura del stock (antes se llamaba getAll 3 veces seguidas)
+            const allStock = await getAll('stock');
+            let stock = allStock.slice();
             const st   = (document.getElementById('stock-search')?.value || '').toLowerCase();
             const sort = document.getElementById('stock-sort')?.value || 'name';
             const threshold = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
@@ -8352,9 +8373,8 @@
                 return 0;
             });
 
-            renderCategoryChips(await getAll('stock'));
+            renderCategoryChips(allStock);
 
-            const allStock = await getAll('stock');
             const totalVal = allStock.reduce((a,b) => a + (b.p * b.q), 0);
             const lowCount = allStock.filter(s => s.q <= (s.minStock || threshold) && s.q > 0).length;
             const outCount = allStock.filter(s => s.q === 0).length;
@@ -8377,14 +8397,20 @@
                 'Tapones olla':'🔒','Otros':'📦'
             };
 
-            c.innerHTML = stock.map(s => {
+            // RENDERIZADO PROGRESIVO: primero pintamos los primeros 40 items (respuesta inmediata),
+            // y si hay más, los agregamos en un segundo paso (no bloquea la UI)
+            const INITIAL_RENDER = 40;
+            const firstBatch = stock.slice(0, INITIAL_RENDER);
+            const remaining  = stock.slice(INITIAL_RENDER);
+
+            const renderItem = (s) => {
                 const minSt   = s.minStock || threshold;
                 const isLow   = s.q <= minSt && s.q > 0;
                 const isOut   = s.q === 0;
                 const margin  = s.cost > 0 && s.p > 0 ? Math.round(((s.p - s.cost) / s.cost) * 100) : null;
                 const catIcon = catIcons[s.cat] || '📦';
                 const imgHtml = s.img
-                    ? `<img src="${s.img}" class="w-10 h-10 rounded-xl object-cover flex-shrink-0">`
+                    ? `<img src="${s.img}" class="w-10 h-10 rounded-xl object-cover flex-shrink-0" loading="lazy">`
                     : `<div class="w-10 h-10 rounded-xl bg-slate-700/60 flex items-center justify-center text-lg flex-shrink-0">${catIcon}</div>`;
                 const statusBar = isOut
                     ? `<div class="h-1 rounded-full bg-rose-500 mt-1" style="width:100%"></div>`
@@ -8421,7 +8447,22 @@
                         </div>
                     </div>
                 </div>`;
-            }).join('');
+            };
+
+            // Pintar el primer batch YA
+            c.innerHTML = firstBatch.map(renderItem).join('');
+
+            // Si hay más items, agregarlos en un segundo paso después del primer paint
+            if (remaining.length > 0) {
+                requestAnimationFrame(() => {
+                    setTimeout(() => {
+                        const fragment = document.createElement('div');
+                        fragment.innerHTML = remaining.map(renderItem).join('');
+                        // Agregar al final en un solo append (más rápido que insertar uno por uno)
+                        while (fragment.firstChild) c.appendChild(fragment.firstChild);
+                    }, 0);
+                });
+            }
         }
 
         function renderCategoryChips(allStock) {
