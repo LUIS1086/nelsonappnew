@@ -744,6 +744,185 @@
         /* ===== MEJORAS TALLER v3.2 ===== */
         .deadline-badge { display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:800; }
 
+        /* ===== MODAL REPUESTOS USADOS ===== */
+        .parts-modal-wrap {
+            width: 100%; max-width: 460px; max-height: 92vh;
+            display: flex; flex-direction: column;
+            border-radius: 24px; overflow: hidden;
+            background: linear-gradient(180deg, #0a1218 0%, #060a0e 100%);
+            border: 1px solid rgba(6,182,212,0.2);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+        }
+        .parts-modal-header {
+            padding: 16px;
+            background:
+                radial-gradient(circle at 20% -10%, rgba(6,182,212,0.25), transparent 55%),
+                linear-gradient(180deg, #10202a 0%, #0a1620 100%);
+            border-bottom: 1px solid rgba(6,182,212,0.15);
+        }
+        .parts-header-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .parts-header-title-wrap { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+        .parts-header-icon {
+            width: 44px; height: 44px; border-radius: 13px;
+            background: linear-gradient(135deg, #06b6d4, #0e7490);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; flex-shrink: 0;
+            box-shadow: 0 6px 18px rgba(6,182,212,0.4);
+        }
+        .parts-header-title { font-size: 17px; font-weight: 900; color: #ecfeff; margin: 0; letter-spacing: -0.3px; }
+        .parts-header-sub { font-size: 11px; color: #67e8f9; font-weight: 700; margin: 2px 0 0; opacity: 0.85; }
+        .parts-close-btn {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
+            color: #f1f5f9; font-weight: 700; font-size: 14px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .parts-close-btn:active { transform: scale(0.9); }
+
+        .parts-search-wrap {
+            padding: 12px 14px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .parts-search-input {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            color: #e2e8f0;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .parts-search-input:focus {
+            border-color: rgba(6,182,212,0.4);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(6,182,212,0.1);
+        }
+
+        .parts-stock-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 12px;
+            display: flex; flex-direction: column; gap: 6px;
+            min-height: 200px;
+        }
+        .parts-stock-list::-webkit-scrollbar { width: 4px; }
+        .parts-stock-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 99px; }
+
+        .parts-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 11px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: border-color 0.15s;
+        }
+        .parts-item-selected {
+            background: rgba(6,182,212,0.1);
+            border-color: rgba(6,182,212,0.4);
+            box-shadow: 0 2px 8px rgba(6,182,212,0.15);
+        }
+        .parts-item-info { flex: 1; min-width: 0; }
+        .parts-item-name {
+            font-size: 12.5px; font-weight: 800; color: #f1f5f9;
+            line-height: 1.2;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .parts-item-meta {
+            font-size: 10px; font-weight: 600; color: #64748b;
+            margin-top: 2px;
+            display: flex; gap: 8px; flex-wrap: wrap;
+        }
+        .parts-item-stock { color: #94a3b8; }
+        .parts-item-stock-low { color: #fb923c; font-weight: 800; }
+        .parts-item-stock-zero { color: #f87171; font-weight: 800; }
+        .parts-item-cost { color: #67e8f9; font-weight: 800; }
+        .parts-item-ctrls {
+            display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+        }
+        .parts-qty-btn {
+            width: 28px; height: 28px; border-radius: 8px;
+            background: rgba(6,182,212,0.15);
+            border: 1px solid rgba(6,182,212,0.3);
+            color: #67e8f9;
+            font-size: 14px; font-weight: 900;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            line-height: 1;
+        }
+        .parts-qty-btn:active { transform: scale(0.9); }
+        .parts-qty-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .parts-qty-num {
+            min-width: 24px;
+            text-align: center;
+            font-size: 14px; font-weight: 900;
+            color: #f1f5f9;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .parts-summary {
+            padding: 12px 14px;
+            background: rgba(6,182,212,0.05);
+            border-top: 1px solid rgba(6,182,212,0.12);
+        }
+        .parts-sum-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 3px 0;
+        }
+        .parts-sum-lbl {
+            font-size: 11px; font-weight: 700; color: #94a3b8;
+            letter-spacing: 0.2px;
+        }
+        .parts-sum-val {
+            font-size: 13px; font-weight: 900; color: #f1f5f9;
+            font-variant-numeric: tabular-nums;
+        }
+        .parts-sum-cost { color: #fb923c; }
+        .parts-sum-profit { color: #34d399; font-size: 15px; }
+        .parts-sum-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 6px 0; }
+        .parts-sum-hint {
+            font-size: 9px; font-weight: 600; color: #64748b;
+            text-align: right; margin: 2px 0 0; font-style: italic;
+        }
+
+        .parts-footer {
+            padding: 12px 14px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            background: rgba(0,0,0,0.3);
+            display: flex; gap: 8px;
+        }
+        .parts-btn-skip {
+            padding: 11px 18px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #cbd5e1;
+            font-size: 11.5px; font-weight: 900;
+            letter-spacing: 0.5px; cursor: pointer;
+        }
+        .parts-btn-skip:active { transform: scale(0.95); }
+        .parts-btn-save {
+            flex: 1;
+            padding: 11px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            border: none;
+            color: #fff;
+            font-size: 12px; font-weight: 900;
+            letter-spacing: 0.5px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 4px;
+            box-shadow: 0 6px 16px rgba(6,182,212,0.3), inset 0 1px 0 rgba(255,255,255,0.18);
+        }
+        .parts-btn-save:active { transform: scale(0.96); }
+
+        .parts-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+        }
+        .parts-empty-icon { font-size: 36px; margin-bottom: 8px; opacity: 0.6; }
+        .parts-empty-text { font-size: 12px; font-weight: 700; color: #94a3b8; }
+
         /* ===== MODAL ESTADÍSTICAS v2 — Rediseño ===== */
         .stats-modal-wrap {
             width: 100%; max-width: 460px; max-height: 92vh;
@@ -1098,6 +1277,63 @@
             font-weight: 700;
             color: #64748b;
             margin-left: 2px;
+        }
+
+        /* Profit card (ganancia real con partsUsed) */
+        .stats-profit-card {
+            background: linear-gradient(180deg, rgba(16,185,129,0.1), rgba(6,78,59,0.1)) !important;
+            border-color: rgba(16,185,129,0.22) !important;
+            box-shadow: 0 4px 16px rgba(16,185,129,0.1);
+        }
+        .stats-profit-grid { display: flex; flex-direction: column; }
+        .stats-profit-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 4px 0;
+        }
+        .stats-profit-lbl {
+            font-size: 11px; font-weight: 700; color: #cbd5e1;
+            letter-spacing: 0.2px;
+        }
+        .stats-profit-val {
+            font-size: 12.5px; font-weight: 900; color: #f1f5f9;
+            font-variant-numeric: tabular-nums;
+        }
+        .stats-profit-cost { color: #fb923c; }
+        .stats-profit-final { color: #34d399; font-size: 17px; letter-spacing: -0.3px; }
+        .stats-profit-divider {
+            height: 1px; background: rgba(255,255,255,0.08);
+            margin: 6px 0 4px;
+        }
+        .stats-profit-margin {
+            margin-top: 8px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            background: rgba(16,185,129,0.1);
+            border: 1px solid rgba(16,185,129,0.25);
+            text-align: center;
+            font-size: 10.5px;
+            font-weight: 900;
+            color: #6ee7b7;
+            letter-spacing: 0.3px;
+        }
+        .stats-profit-margin.warn {
+            background: rgba(251,146,60,0.1);
+            border-color: rgba(251,146,60,0.25);
+            color: #fdba74;
+        }
+        .stats-profit-margin.bad {
+            background: rgba(244,63,94,0.1);
+            border-color: rgba(244,63,94,0.25);
+            color: #fb7185;
+        }
+        .stats-profit-hint {
+            font-size: 9.5px;
+            font-weight: 600;
+            color: #64748b;
+            text-align: center;
+            margin: 6px 0 0;
+            font-style: italic;
+            line-height: 1.4;
         }
 
         /* ===== QUICK ACTION BUTTONS (Órdenes → Avisar / Reporte / Exportar) ===== */
@@ -2580,6 +2816,19 @@
     </header>
 
     <main id="view-taller" class="app-view hidden p-4 space-y-4 max-container">
+        <!-- ═══ PANEL DE HOY — Resumen diario de 3 segundos ═══ -->
+        <div id="daily-panel" class="hidden" style="border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#0c1220 0%,#0a0f1a 100%);border:1px solid rgba(99,102,241,0.18);box-shadow:0 6px 18px rgba(99,102,241,0.1);">
+            <div style="padding:12px 14px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.04);background:radial-gradient(circle at 10% -20%,rgba(99,102,241,0.2),transparent 60%);">
+                <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#4f46e5,#818cf8);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;box-shadow:0 4px 12px rgba(99,102,241,0.3);">📋</div>
+                <div style="flex:1;min-width:0;">
+                    <p style="font-size:9px;font-weight:900;color:#818cf8;letter-spacing:2px;text-transform:uppercase;margin:0;">Panel de hoy</p>
+                    <p id="daily-panel-date" style="font-size:11px;font-weight:700;color:#cbd5e1;margin:1px 0 0;"></p>
+                </div>
+                <button onclick="_refreshDailyPanel()" style="background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.25);color:#a5b4fc;padding:4px 9px;border-radius:8px;font-size:9.5px;font-weight:900;letter-spacing:0.5px;cursor:pointer;flex-shrink:0;">↻</button>
+            </div>
+            <div id="daily-panel-items" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:rgba(255,255,255,0.04);"></div>
+        </div>
+
         <div class="card p-0 overflow-hidden" style="border:1px solid rgba(249,115,22,0.15);">
             <!-- HERO header con gradiente -->
             <div style="position:relative;padding:20px 20px 18px;background:linear-gradient(135deg,rgba(249,115,22,0.16) 0%,rgba(234,88,12,0.08) 50%,transparent 100%);border-bottom:1px solid rgba(255,255,255,0.04);overflow:hidden;">
@@ -2606,6 +2855,20 @@
                                 <div id="ac-dropdown-cliente" class="ac-dropdown" style="display:none;"></div>
                             </div>
                             <div id="client-alert" class="text-[10px] text-emerald-400 font-bold mt-1 min-h-[15px] ml-2"></div>
+                            <!-- Tarjeta de info del cliente (solo aparece si es cliente existente) -->
+                            <div id="client-info-card" class="hidden" style="margin-top:8px;border-radius:14px;overflow:hidden;background:linear-gradient(135deg,rgba(59,130,246,0.08),rgba(30,58,138,0.08));border:1px solid rgba(59,130,246,0.2);cursor:pointer;transition:transform 0.15s ease;" onclick="_openClientHistoryFromTaller()" ontouchstart="this.style.transform='scale(0.98)'" ontouchend="this.style.transform='scale(1)'">
+                                <div style="padding:10px 12px;display:flex;align-items:center;gap:10px;">
+                                    <div id="client-info-avatar" style="width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff;flex-shrink:0;background:linear-gradient(135deg,#3b82f6,#2563eb);"></div>
+                                    <div style="flex:1;min-width:0;">
+                                        <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:2px;">
+                                            <span id="client-info-badge" style="display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:900;letter-spacing:0.4px;text-transform:uppercase;padding:2px 7px;border-radius:99px;background:rgba(59,130,246,0.2);color:#93c5fd;border:1px solid rgba(59,130,246,0.3);">⭐ Frecuente</span>
+                                            <span id="client-info-deuda" class="hidden" style="display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:900;letter-spacing:0.4px;text-transform:uppercase;padding:2px 7px;border-radius:99px;background:rgba(251,146,60,0.15);color:#fdba74;border:1px solid rgba(251,146,60,0.3);"></span>
+                                        </div>
+                                        <div id="client-info-stats" style="font-size:11px;font-weight:700;color:#cbd5e1;line-height:1.3;"></div>
+                                    </div>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;"><polyline points="9 18 15 12 9 6"/></svg>
+                                </div>
+                            </div>
                         </div>
                         <div style="position:relative;">
                             <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:13px;pointer-events:none;z-index:2;">📱</span>
@@ -3720,6 +3983,54 @@
         </div>
     </div>
 
+    <!-- ===== MODAL REPUESTOS USADOS EN ORDEN (integración stock ↔ órdenes) ===== -->
+    <div id="modal-parts-used" class="hidden fixed inset-0 z-[3500] modal-custom flex items-center justify-center p-3">
+        <div class="parts-modal-wrap view-enter">
+            <div class="parts-modal-header">
+                <div class="parts-header-row">
+                    <div class="parts-header-title-wrap">
+                        <div class="parts-header-icon">🔧</div>
+                        <div style="min-width:0;flex:1;">
+                            <h3 class="parts-header-title">Repuestos usados</h3>
+                            <p class="parts-header-sub" id="parts-header-sub">Orden —</p>
+                        </div>
+                    </div>
+                    <button onclick="closePartsModal()" class="parts-close-btn">✕</button>
+                </div>
+            </div>
+            <div class="parts-search-wrap">
+                <input type="text" id="parts-search" placeholder="🔍 Buscar repuesto del inventario…" class="parts-search-input" oninput="_filterPartsList()">
+            </div>
+            <!-- LISTA DE REPUESTOS DEL STOCK -->
+            <div id="parts-stock-list" class="parts-stock-list"></div>
+            <!-- RESUMEN -->
+            <div class="parts-summary" id="parts-summary">
+                <div class="parts-sum-row">
+                    <span class="parts-sum-lbl">Seleccionados</span>
+                    <span class="parts-sum-val" id="parts-sum-count">0</span>
+                </div>
+                <div class="parts-sum-row">
+                    <span class="parts-sum-lbl">Costo total (para ti)</span>
+                    <span class="parts-sum-val parts-sum-cost" id="parts-sum-cost">$0</span>
+                </div>
+                <div class="parts-sum-divider"></div>
+                <div class="parts-sum-row">
+                    <span class="parts-sum-lbl" style="font-weight:900;">Ganancia estimada</span>
+                    <span class="parts-sum-val parts-sum-profit" id="parts-sum-profit">$0</span>
+                </div>
+                <p class="parts-sum-hint" id="parts-sum-hint">Valor orden − costo repuestos</p>
+            </div>
+            <!-- FOOTER -->
+            <div class="parts-footer">
+                <button onclick="_skipPartsModal()" class="parts-btn-skip">Omitir</button>
+                <button onclick="_savePartsUsed()" class="parts-btn-save">
+                    <span>💾 Guardar</span>
+                    <span id="parts-btn-save-count" style="background:rgba(0,0,0,0.25);padding:2px 8px;border-radius:99px;font-size:10px;margin-left:6px;">0</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== MODAL ÓRDENES DE COMPRA ===== -->
     <div id="modal-ordenes-compra" class="hidden fixed inset-0 z-[3200] modal-custom flex flex-col items-center justify-center p-4">
         <div class="bg-[#111827] border border-white/10 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl view-enter">
@@ -4064,6 +4375,31 @@
                         <span class="stats-mini-icon">📥</span>
                         <div class="stats-mini-val" id="stat-new-this-month">0</div>
                         <div class="stats-mini-lbl">Nuevas</div>
+                    </div>
+                </div>
+
+                <!-- GANANCIA REAL (si hay partsUsed) -->
+                <div id="stats-profit-card" class="stats-card stats-profit-card hidden">
+                    <div class="stats-card-head">
+                        <span class="stats-card-title" style="color:#6ee7b7;">💎 Ganancia real del mes</span>
+                        <span class="stats-card-sub">Con costos de repuestos</span>
+                    </div>
+                    <div class="stats-profit-grid">
+                        <div class="stats-profit-row">
+                            <span class="stats-profit-lbl">Ingresos reparaciones</span>
+                            <span class="stats-profit-val" id="stats-profit-ingresos">$0</span>
+                        </div>
+                        <div class="stats-profit-row">
+                            <span class="stats-profit-lbl">− Costo repuestos usados</span>
+                            <span class="stats-profit-val stats-profit-cost" id="stats-profit-costos">$0</span>
+                        </div>
+                        <div class="stats-profit-divider"></div>
+                        <div class="stats-profit-row" style="padding-top:2px;">
+                            <span class="stats-profit-lbl" style="font-weight:900;color:#f1f5f9;">Ganancia neta</span>
+                            <span class="stats-profit-val stats-profit-final" id="stats-profit-neto">$0</span>
+                        </div>
+                        <div class="stats-profit-margin" id="stats-profit-margin"></div>
+                        <p class="stats-profit-hint" id="stats-profit-hint"></p>
                     </div>
                 </div>
 
@@ -6507,10 +6843,103 @@
         async function checkClient() {
             const nom = document.getElementById('c-nom').value.trim().toUpperCase();
             const alertBox = document.getElementById('client-alert');
-            if(nom.length < 3) return alertBox.innerText = '';
-            const orders = await getAll('orders');
-            const count = orders.filter(o => o.nom === nom).length;
-            alertBox.innerText = count > 0 ? `🌟 Cliente Frecuente: ${count} órdenes previas` : '';
+            const card = document.getElementById('client-info-card');
+            if (!nom || nom.length < 3) {
+                alertBox.innerText = '';
+                if (card) card.classList.add('hidden');
+                return;
+            }
+            try {
+                const orders = await getAll('orders');
+                const clientOrders = orders.filter(o => o.nom === nom);
+                const count = clientOrders.length;
+
+                if (count === 0) {
+                    alertBox.innerText = '';
+                    if (card) card.classList.add('hidden');
+                    return;
+                }
+
+                // Calcular saldo pendiente (órdenes no canceladas con saldo > 0)
+                const saldoPendiente = clientOrders.reduce((sum, o) => {
+                    if (o.sta === 'cancelado' || o.sta === 'no-reparable') return sum;
+                    const val = Number(o.val) || 0;
+                    const ade = Number(o.adelanto) || 0;
+                    const saldo = Math.max(0, val - ade);
+                    // Solo contar si no está entregado o si está entregado pero con saldo pendiente
+                    return sum + saldo;
+                }, 0);
+
+                // Última visita
+                const lastOrder = clientOrders.slice().sort((a, b) => (b.fecha || 0) - (a.fecha || 0))[0];
+                const diasUltima = lastOrder && lastOrder.fecha ? Math.floor((Date.now() - lastOrder.fecha) / 86400000) : null;
+
+                // Limpiar el alert viejo (la tarjeta es mejor)
+                alertBox.innerText = '';
+
+                // Poblar la tarjeta
+                if (card) {
+                    // Avatar con iniciales y color determinístico
+                    const nameInitials = nom.split(/\s+/).filter(Boolean).slice(0,2).map(w => w[0]?.toUpperCase() || '').join('') || 'C';
+                    const avatarHues = [12, 35, 145, 200, 260, 320];
+                    let hashVal = 0;
+                    for (let i = 0; i < nom.length; i++) hashVal = (hashVal + nom.charCodeAt(i)) % avatarHues.length;
+                    const hue = avatarHues[hashVal];
+                    const avatarEl = document.getElementById('client-info-avatar');
+                    if (avatarEl) {
+                        avatarEl.style.background = `linear-gradient(135deg,hsl(${hue},70%,55%),hsl(${hue},70%,40%))`;
+                        avatarEl.textContent = nameInitials;
+                    }
+
+                    // Badge según frecuencia
+                    const badgeEl = document.getElementById('client-info-badge');
+                    if (badgeEl) {
+                        if (count >= 5) badgeEl.innerHTML = '🏆 VIP · ' + count + ' órdenes';
+                        else if (count >= 3) badgeEl.innerHTML = '⭐ Frecuente · ' + count + ' órdenes';
+                        else badgeEl.innerHTML = '🔄 Recurrente · ' + count + (count === 1 ? ' orden' : ' órdenes');
+                    }
+
+                    // Badge de deuda (si aplica)
+                    const deudaEl = document.getElementById('client-info-deuda');
+                    if (deudaEl) {
+                        if (saldoPendiente > 0) {
+                            const cur = getCurrency();
+                            deudaEl.textContent = `💰 Debe ${cur}${saldoPendiente.toLocaleString()}`;
+                            deudaEl.classList.remove('hidden');
+                        } else {
+                            deudaEl.classList.add('hidden');
+                        }
+                    }
+
+                    // Stats line (equipos distintos, última visita)
+                    const statsEl = document.getElementById('client-info-stats');
+                    if (statsEl) {
+                        const equiposSet = new Set(clientOrders.map(o => (o.equ || '').trim()).filter(Boolean));
+                        let ultimaTxt = '';
+                        if (diasUltima !== null) {
+                            if (diasUltima === 0) ultimaTxt = 'Hoy';
+                            else if (diasUltima === 1) ultimaTxt = 'Ayer';
+                            else if (diasUltima < 30) ultimaTxt = `Hace ${diasUltima}d`;
+                            else if (diasUltima < 365) ultimaTxt = `Hace ${Math.floor(diasUltima/30)} meses`;
+                            else ultimaTxt = `Hace ${Math.floor(diasUltima/365)} año${Math.floor(diasUltima/365) > 1 ? 's' : ''}`;
+                        }
+                        statsEl.innerHTML = `${equiposSet.size} equipo${equiposSet.size !== 1 ? 's' : ''} · Última: ${ultimaTxt} <span style="color:#64748b;font-weight:600;">· Click para ver historial</span>`;
+                    }
+
+                    card.classList.remove('hidden');
+                }
+            } catch (e) {
+                console.warn('[checkClient]', e);
+                if (card) card.classList.add('hidden');
+            }
+        }
+
+        // Abrir historial del cliente desde la tarjeta en Taller
+        function _openClientHistoryFromTaller() {
+            const nom = document.getElementById('c-nom').value.trim().toUpperCase();
+            if (nom && typeof showClientHistory === 'function') {
+                showClientHistory(nom);
+            }
         }
 
         // ============ AUTOCOMPLETE CUSTOM (clientes / equipos) ============
@@ -6681,10 +7110,66 @@
             document.getElementById('c-tecnico').value = '';
             document.getElementById('c-origen').value = '';
             document.getElementById('client-alert').innerText = '';
+            const clientCard = document.getElementById('client-info-card');
+            if (clientCard) clientCard.classList.add('hidden');
             document.getElementById('val-error').innerText = '';
             document.getElementById('saldo-preview').classList.add('hidden');
             playBeep(); closeCamera(); await updateTotal(); await updateSuggestions(); tab('ordenes');
             showToast(adelanto > 0 ? `✅ Orden registrada · Adelanto ${getCurrency()}${adelanto.toLocaleString()} guardado` : '✅ Orden registrada', 'success');
+        }
+
+        // Duplicar orden: pre-llena el formulario de Taller con los datos del cliente
+        // para cuando el mismo cliente vuelve con otro equipo o el mismo equipo por otra falla
+        async function duplicateOrder(id) {
+            try {
+                const orders = await getAll('orders');
+                const src = orders.find(x => x.id === id);
+                if (!src) return showAlert('Orden no encontrada', 'error');
+
+                showConfirm(
+                    `¿Crear una nueva orden para ${src.nom}?\n\nSe pre-llenará con sus datos de contacto. Puedes editar el equipo, falla y valor antes de registrar.`,
+                    () => {
+                        // Ir a la vista Taller
+                        tab('taller');
+                        // Pequeña pausa para que la vista se pinte
+                        setTimeout(() => {
+                            // Pre-llenar datos del cliente (no del equipo/falla)
+                            const elNom = document.getElementById('c-nom');
+                            const elTel = document.getElementById('c-tel');
+                            const elEqu = document.getElementById('c-equ');
+                            const elFal = document.getElementById('c-fal');
+                            const elVal = document.getElementById('c-val');
+                            const elAde = document.getElementById('c-adelanto');
+                            const elOrigen = document.getElementById('c-origen');
+
+                            if (elNom) elNom.value = src.nom || '';
+                            if (elTel) elTel.value = src.tel || '';
+                            // Origen: si era nuevo antes, ahora es "cliente_frecuente"
+                            if (elOrigen) elOrigen.value = 'cliente_frecuente';
+                            // Vaciar campos específicos del equipo (el cliente usualmente trae otro)
+                            if (elEqu) elEqu.value = '';
+                            if (elFal) elFal.value = '';
+                            if (elVal) elVal.value = '';
+                            if (elAde) elAde.value = '';
+
+                            // Disparar el check del cliente para mostrar la tarjeta de info
+                            if (typeof checkClient === 'function') checkClient();
+
+                            // Foco en el campo de equipo (el siguiente que toca llenar)
+                            if (elEqu) {
+                                elEqu.focus();
+                                elEqu.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
+
+                            showToast(`📋 Datos de ${src.nom.split(' ')[0]} precargados · Ingresa el nuevo equipo`, 'success');
+                        }, 350);
+                    },
+                    'info'
+                );
+            } catch (e) {
+                console.warn('[duplicateOrder]', e);
+                showAlert('Error al duplicar la orden', 'error');
+            }
         }
 
         async function editOrder(id) {
@@ -7070,6 +7555,10 @@
                 const origenLabels = {recomendacion:'🗣️ Recomendación',redes:'📱 Redes',cliente_frecuente:'⭐ Frecuente',google:'🔍 Google',local:'🏠 Local',whatsapp:'💬 WhatsApp',otro:'📌 Otro'};
                 const origenBadge = o.origen && origenLabels[o.origen]
                     ? `<span class="text-[9px] bg-slate-700/60 text-slate-400 px-2 py-0.5 rounded-full font-bold">${origenLabels[o.origen]}</span>` : '';
+                // Badge de repuestos usados (integración stock ↔ órdenes)
+                const partsUsedBadge = (Array.isArray(o.partsUsed) && o.partsUsed.length > 0)
+                    ? `<span onclick="event.stopPropagation();openPartsModal(${o.id})" title="Ver/editar repuestos usados" style="cursor:pointer;display:inline-flex;align-items:center;gap:3px;font-size:9px;background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.3);color:#67e8f9;padding:2px 7px;border-radius:99px;font-weight:800;">🔧 ${o.partsUsed.reduce((a,b) => a + (b.qty||0), 0)} rep.</span>`
+                    : '';
 
                 // Avatar con iniciales
                 const nameInitials = (o.nom || 'C').split(/\s+/).filter(Boolean).slice(0,2).map(w => w[0]?.toUpperCase() || '').join('') || 'C';
@@ -7115,7 +7604,7 @@
                                 ${escapeHtml(o.nom)} <span style="font-size:11px;opacity:0.5;">✏️</span>
                             </h3>
                             <p style="font-size:13px;color:#fb923c;font-weight:700;margin:3px 0 0;line-height:1.25;">🔧 ${escapeHtml(o.equ)}</p>
-                            ${(tecnicoBadge || origenBadge) ? `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:5px;">${tecnicoBadge}${origenBadge}</div>` : ''}
+                            ${(tecnicoBadge || origenBadge || partsUsedBadge) ? `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:5px;">${tecnicoBadge}${origenBadge}${partsUsedBadge}</div>` : ''}
                         </div>
                         <div style="flex-shrink:0;" id="sta-wrap-${o.id}">
                             ${(()=>{
@@ -7183,6 +7672,7 @@
                     <div style="padding:10px 14px 14px;border-top:1px solid rgba(255,255,255,0.04);display:flex;justify-content:flex-end;gap:6px;">
                         <button onclick="openOrderChat(${o.id})" class="order-action-btn bg-cyan-500/15 text-cyan-400" title="Notas internas">📝</button>
                         <button onclick="openPaymentPlan(${o.id})" class="order-action-btn bg-blue-500/15 text-blue-400" title="Plan de pagos">💳</button>
+                        <button onclick="duplicateOrder(${o.id})" class="order-action-btn bg-violet-500/15 text-violet-400" title="Duplicar orden (mismo cliente)">📋</button>
                         <button onclick="printInvoice(${o.id})" class="order-action-btn bg-amber-500/15 text-amber-400" title="Imprimir">🧾</button>
                         <button onclick="sendWA(${o.id})" class="order-action-btn bg-emerald-500/15 text-emerald-400" title="WhatsApp">💬</button>
                         <button onclick="delOrder(${o.id})" class="order-action-btn bg-rose-500/15 text-rose-400" title="Eliminar">🗑️</button>
@@ -7294,6 +7784,24 @@
             // Registrar cambio de estado en el chat interno
             const staEmojis = { recibido:'📥', 'revisión':'🔍', reparado:'✅', entregado:'📦', 'no-reparable':'🚫' };
             await logChatSistema(o.id, `Estado cambiado: ${staEmojis[oldSta]||'•'} ${oldSta} → ${staEmojis[newSta]||'•'} ${newSta}`);
+
+            // ✨ INTEGRACIÓN STOCK ↔ ÓRDENES: al pasar a "reparado" (primera vez) sugerir registrar repuestos usados
+            // Solo si: (a) es transición hacia reparado, (b) no tiene partsUsed todavía, (c) hay stock disponible
+            if (newSta === 'reparado' && oldSta !== 'reparado' && !Array.isArray(o.partsUsed)) {
+                try {
+                    const stockAll = await getAll('stock');
+                    if (stockAll.length > 0) {
+                        // Pequeña pausa para que el renderOrders termine primero
+                        setTimeout(() => {
+                            showConfirm(
+                                `¿Registrar los repuestos usados en esta orden?\n\nEsto descontará automáticamente del inventario y calculará la ganancia real.`,
+                                () => openPartsModal(o.id),
+                                'info'
+                            );
+                        }, 400);
+                    }
+                } catch (e) { console.warn('[partsUsed hint]', e); }
+            }
 
             await updateTotal(); await renderOrders(); await renderCartera();
 
@@ -8471,6 +8979,43 @@
             document.getElementById('stat-in-progress').textContent = inProgress;
             document.getElementById('stat-new-this-month').textContent = newThisMonth;
 
+            // ===== Ganancia real (usa partsUsed cuando existe) =====
+            const profitCard = document.getElementById('stats-profit-card');
+            if (profitCard) {
+                const ordersWithParts = monthOrders.filter(o => Array.isArray(o.partsUsed) && o.partsUsed.length > 0);
+                if (ordersWithParts.length === 0) {
+                    // No hay datos de repuestos usados → ocultar la tarjeta
+                    profitCard.classList.add('hidden');
+                } else {
+                    profitCard.classList.remove('hidden');
+                    // Ingresos solo de las órdenes QUE tienen partsUsed (justo para el cálculo real)
+                    const ingresosConParts = ordersWithParts.reduce((a,b) => a + (b.val || 0), 0);
+                    const costoTotal = ordersWithParts.reduce((acc, o) => {
+                        return acc + o.partsUsed.reduce((s, p) => s + ((p.cost || 0) * (p.qty || 0)), 0);
+                    }, 0);
+                    const gananciaNeta = ingresosConParts - costoTotal;
+                    const margenPct = ingresosConParts > 0 ? Math.round((gananciaNeta / ingresosConParts) * 100) : 0;
+
+                    document.getElementById('stats-profit-ingresos').textContent = cur + ingresosConParts.toLocaleString();
+                    document.getElementById('stats-profit-costos').textContent = '−' + cur + costoTotal.toLocaleString();
+                    document.getElementById('stats-profit-neto').textContent = cur + gananciaNeta.toLocaleString();
+
+                    const marginEl = document.getElementById('stats-profit-margin');
+                    if (marginEl) {
+                        marginEl.className = 'stats-profit-margin' + (margenPct < 20 ? ' bad' : margenPct < 40 ? ' warn' : '');
+                        const emoji = margenPct >= 50 ? '🚀' : margenPct >= 30 ? '💪' : margenPct >= 15 ? '⚠️' : '🔴';
+                        marginEl.textContent = `${emoji} Margen ${margenPct}%`;
+                    }
+                    const hintEl = document.getElementById('stats-profit-hint');
+                    if (hintEl) {
+                        const pendientes = monthOrders.length - ordersWithParts.length;
+                        hintEl.textContent = pendientes > 0
+                            ? `Basado en ${ordersWithParts.length} de ${monthOrders.length} órdenes. ${pendientes} sin registrar repuestos.`
+                            : `Basado en las ${ordersWithParts.length} órdenes del mes.`;
+                    }
+                }
+            }
+
             // ===== Tendencia 6 meses =====
             const trendData = [];
             for (let i = 5; i >= 0; i--) {
@@ -8853,6 +9398,7 @@
             if (mobileBtn) mobileBtn.classList.add('nav-active');
             if(t === 'ordenes') await renderOrders();
             if(t === 'ventas') { await renderStock(); await renderMovimientos(); await updateVentaSelect(); await renderCartera(); }
+            if(t === 'taller') _refreshDailyPanel();
             window.scrollTo(0,0);
             // Sync sidebar
             ['taller','ordenes','ventas','admin'].forEach(name => {
@@ -8864,6 +9410,68 @@
             const dtTitle = document.getElementById('desktop-topbar-title');
             if (dtTitle) dtTitle.innerText = tabTitles[t] || 'NELSON';
             syncSidebarCash();
+        }
+
+        // ==================== PANEL DE HOY (Taller) ====================
+        async function _refreshDailyPanel() {
+            const panel = document.getElementById('daily-panel');
+            const items = document.getElementById('daily-panel-items');
+            const dateEl = document.getElementById('daily-panel-date');
+            if (!panel || !items) return;
+            try {
+                const now = new Date();
+                const dayNames = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+                const monthNames = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+                if (dateEl) dateEl.textContent = `${dayNames[now.getDay()]}, ${now.getDate()} de ${monthNames[now.getMonth()]}`;
+
+                const orders = await getAll('orders');
+                const stock  = await getAll('stock');
+
+                // 1) Listos para avisar (reparados)
+                const listos = orders.filter(o => o.sta === 'reparado' && o.tel).length;
+
+                // 2) Vencidos: órdenes no entregadas con fechaEstimada pasada
+                const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+                const vencidos = orders.filter(o => {
+                    if (o.sta === 'entregado' || o.sta === 'cancelado') return false;
+                    if (!o.fechaEstimada) return false;
+                    const fe = new Date(o.fechaEstimada).getTime();
+                    return fe < todayStart;
+                }).length;
+
+                // 3) Repuestos bajo mínimo (con existencia > 0 todavía, los que están en cero no aplican tanto)
+                const threshold = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
+                const bajoMinimo = stock.filter(s => (s.q || 0) <= (s.minStock || threshold) && (s.q || 0) > 0).length;
+
+                const cards = [
+                    { emoji:'📢', label:'Listos', count:listos, color:'#34d399', bg:'rgba(16,185,129,0.08)', border:'rgba(16,185,129,0.25)', action:'notifyAllReady()' },
+                    { emoji:'⏰', label:'Vencidos', count:vencidos, color:'#f87171', bg:'rgba(244,63,94,0.08)', border:'rgba(244,63,94,0.25)', action:"tab('ordenes')" },
+                    { emoji:'📦', label:'Bajo mín.', count:bajoMinimo, color:'#fbbf24', bg:'rgba(245,158,11,0.08)', border:'rgba(245,158,11,0.25)', action:'openOrdenesCompra()' }
+                ];
+
+                items.innerHTML = cards.map(c => `
+                    <div onclick="${c.action}" style="background:${c.bg};padding:10px 6px;cursor:pointer;text-align:center;border-bottom:3px solid ${c.count > 0 ? c.border : 'transparent'};transition:transform 0.15s;" ontouchstart="this.style.transform='scale(0.96)'" ontouchend="this.style.transform='scale(1)'">
+                        <div style="font-size:18px;line-height:1;margin-bottom:3px;">${c.emoji}</div>
+                        <div style="font-size:20px;font-weight:900;color:${c.count > 0 ? c.color : '#475569'};font-variant-numeric:tabular-nums;line-height:1;letter-spacing:-0.5px;">${c.count}</div>
+                        <div style="font-size:8.5px;font-weight:800;color:#64748b;letter-spacing:0.6px;text-transform:uppercase;margin-top:3px;">${c.label}</div>
+                    </div>
+                `).join('');
+
+                // Si TODO está en 0, mostrar mensaje limpio
+                const total = listos + vencidos + bajoMinimo;
+                if (total === 0) {
+                    items.innerHTML = `<div style="grid-column:1 / -1;background:rgba(16,185,129,0.06);padding:14px 10px;text-align:center;">
+                        <div style="font-size:18px;margin-bottom:3px;">✨</div>
+                        <div style="font-size:11.5px;font-weight:800;color:#34d399;letter-spacing:0.3px;">Todo al día</div>
+                        <div style="font-size:9.5px;font-weight:600;color:#64748b;margin-top:2px;">Sin pendientes urgentes</div>
+                    </div>`;
+                }
+
+                panel.classList.remove('hidden');
+            } catch (e) {
+                console.warn('[_refreshDailyPanel]', e);
+                panel.classList.add('hidden');
+            }
         }
 
         function syncSidebarCash() {
@@ -9723,6 +10331,229 @@
         }
 
         function closeReadyModal() { document.getElementById('modal-ready-list').classList.add('hidden'); }
+
+        // ==================== INTEGRACIÓN STOCK ↔ ÓRDENES (Repuestos usados) ====================
+        let _partsCurrentOrder = null;      // Orden sobre la cual estamos trabajando
+        let _partsStockCache   = [];        // Snapshot del stock al abrir
+        let _partsSelected     = {};        // { stockId: qty }
+        let _partsOnCloseCb    = null;      // Callback opcional a ejecutar al cerrar (para continuar flow de estado)
+
+        async function openPartsModal(orderId, onCloseCb) {
+            const orders = await getAll('orders');
+            const o = orders.find(x => x.id === orderId);
+            if (!o) { showAlert('Orden no encontrada', 'error'); return; }
+            _partsCurrentOrder = o;
+            _partsOnCloseCb = onCloseCb || null;
+
+            // Precargar repuestos ya guardados (si existen)
+            _partsSelected = {};
+            if (Array.isArray(o.partsUsed)) {
+                o.partsUsed.forEach(p => { if (p && p.id) _partsSelected[p.id] = p.qty || 1; });
+            }
+
+            _partsStockCache = await getAll('stock');
+            // Ordenar: seleccionados primero, luego con stock, luego sin stock
+            _partsStockCache.sort((a, b) => {
+                const aSel = _partsSelected[a.id] ? 1 : 0;
+                const bSel = _partsSelected[b.id] ? 1 : 0;
+                if (aSel !== bSel) return bSel - aSel;
+                const aStock = (a.q || 0) > 0 ? 1 : 0;
+                const bStock = (b.q || 0) > 0 ? 1 : 0;
+                if (aStock !== bStock) return bStock - aStock;
+                return (a.n || '').localeCompare(b.n || '');
+            });
+
+            const numLabel = o.orderNum ? `#${String(o.orderNum).padStart(4,'0')}` : `#${o.id}`;
+            const sub = document.getElementById('parts-header-sub');
+            if (sub) sub.textContent = `Orden ${numLabel} · ${(o.nom || '').substring(0, 22)}`;
+
+            document.getElementById('parts-search').value = '';
+            _renderPartsList();
+            _updatePartsSummary();
+            document.getElementById('modal-parts-used').classList.remove('hidden');
+        }
+
+        function closePartsModal() {
+            document.getElementById('modal-parts-used').classList.add('hidden');
+            const cb = _partsOnCloseCb;
+            _partsCurrentOrder = null;
+            _partsSelected = {};
+            _partsStockCache = [];
+            _partsOnCloseCb = null;
+            if (typeof cb === 'function') cb();
+        }
+
+        function _skipPartsModal() {
+            // Cerrar sin guardar cambios (respeta los partsUsed previos si había)
+            closePartsModal();
+        }
+
+        function _filterPartsList() {
+            _renderPartsList();
+        }
+
+        function _renderPartsList() {
+            const container = document.getElementById('parts-stock-list');
+            if (!container) return;
+            const cur = getCurrency();
+            const query = (document.getElementById('parts-search')?.value || '').trim().toLowerCase();
+
+            let list = _partsStockCache;
+            if (query) {
+                list = list.filter(s =>
+                    (s.n || '').toLowerCase().includes(query) ||
+                    (s.code || '').toLowerCase().includes(query) ||
+                    (s.cat || '').toLowerCase().includes(query)
+                );
+            }
+
+            if (!list.length) {
+                container.innerHTML = `<div class="parts-empty">
+                    <div class="parts-empty-icon">📦</div>
+                    <div class="parts-empty-text">${query ? 'Sin coincidencias' : 'No tienes repuestos en inventario'}</div>
+                </div>`;
+                return;
+            }
+
+            container.innerHTML = list.map(s => {
+                const sel    = _partsSelected[s.id] || 0;
+                const stock  = s.q || 0;
+                const maxQty = Math.max(stock + sel, sel);  // si ya tenía seleccionado + stock actual
+                const stockCls = stock === 0 ? 'parts-item-stock-zero' : (stock <= (s.minStock || 3) ? 'parts-item-stock-low' : 'parts-item-stock');
+                const canAdd = sel < maxQty || stock === 0 && sel === 0;  // permitir agregar aunque no haya stock (por si el repuesto entró después)
+                const costStr = s.cost ? `${cur}${Number(s.cost).toLocaleString()} c/u` : '';
+                return `<div class="parts-item${sel > 0 ? ' parts-item-selected' : ''}">
+                    <div class="parts-item-info">
+                        <div class="parts-item-name">${escapeHtml(s.n || '')}</div>
+                        <div class="parts-item-meta">
+                            <span class="${stockCls}">📦 ${stock} disp.</span>
+                            ${costStr ? `<span class="parts-item-cost">💰 ${costStr}</span>` : ''}
+                            ${s.code ? `<span style="color:#64748b;">${escapeHtml(s.code)}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="parts-item-ctrls">
+                        <button class="parts-qty-btn" onclick="_partsQtyChange(${s.id}, -1)" ${sel === 0 ? 'disabled' : ''}>−</button>
+                        <span class="parts-qty-num">${sel}</span>
+                        <button class="parts-qty-btn" onclick="_partsQtyChange(${s.id}, 1)" ${sel >= maxQty ? 'disabled' : ''}>+</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function _partsQtyChange(stockId, delta) {
+            const item = _partsStockCache.find(s => s.id === stockId);
+            if (!item) return;
+            const current = _partsSelected[stockId] || 0;
+            const stock = item.q || 0;
+            const max = Math.max(stock + current, current);  // respeta lo que ya había reservado
+            const next = Math.max(0, Math.min(max, current + delta));
+            if (next === 0) delete _partsSelected[stockId];
+            else _partsSelected[stockId] = next;
+            _renderPartsList();
+            _updatePartsSummary();
+        }
+
+        function _updatePartsSummary() {
+            const cur = getCurrency();
+            const ids = Object.keys(_partsSelected);
+            let totalCost = 0;
+            let totalQty  = 0;
+            ids.forEach(id => {
+                const item = _partsStockCache.find(s => String(s.id) === String(id));
+                if (!item) return;
+                const q = _partsSelected[id] || 0;
+                totalQty += q;
+                totalCost += (Number(item.cost) || 0) * q;
+            });
+            const countEl = document.getElementById('parts-sum-count');
+            const costEl  = document.getElementById('parts-sum-cost');
+            const profEl  = document.getElementById('parts-sum-profit');
+            const hintEl  = document.getElementById('parts-sum-hint');
+            const badgeEl = document.getElementById('parts-btn-save-count');
+            if (countEl) countEl.textContent = `${ids.length} (${totalQty} unid.)`;
+            if (costEl)  costEl.textContent  = cur + totalCost.toLocaleString();
+            if (badgeEl) badgeEl.textContent = ids.length;
+
+            const orderVal = Number(_partsCurrentOrder && _partsCurrentOrder.val) || 0;
+            const profit   = orderVal - totalCost;
+            if (profEl) {
+                profEl.textContent = cur + profit.toLocaleString();
+                profEl.style.color = profit >= 0 ? '#34d399' : '#f87171';
+            }
+            if (hintEl) {
+                if (orderVal > 0) hintEl.textContent = `${cur}${orderVal.toLocaleString()} orden − ${cur}${totalCost.toLocaleString()} repuestos`;
+                else hintEl.textContent = 'Define el valor de la orden para ver la ganancia';
+            }
+        }
+
+        async function _savePartsUsed() {
+            if (!_partsCurrentOrder) return;
+            try {
+                const orders = await getAll('orders');
+                const o = orders.find(x => x.id === _partsCurrentOrder.id);
+                if (!o) return;
+
+                // Construir snapshot de partes seleccionadas
+                const nuevosPartsUsed = [];
+                Object.entries(_partsSelected).forEach(([sid, q]) => {
+                    const item = _partsStockCache.find(s => String(s.id) === String(sid));
+                    if (!item || !q) return;
+                    nuevosPartsUsed.push({
+                        id: item.id,
+                        name: item.n,
+                        qty: q,
+                        cost: Number(item.cost) || 0,
+                        price: Number(item.p) || 0
+                    });
+                });
+
+                // Reconciliar stock: comparar partsUsed previos vs nuevos
+                const previos = Array.isArray(o.partsUsed) ? o.partsUsed : [];
+                const prevMap = {};
+                previos.forEach(p => { prevMap[p.id] = p.qty || 0; });
+
+                // Para cada stock afectado, aplicar la diferencia
+                const allIds = new Set([...previos.map(p => p.id), ...nuevosPartsUsed.map(p => p.id)]);
+                for (const stockId of allIds) {
+                    const prevQty = prevMap[stockId] || 0;
+                    const nuevo   = nuevosPartsUsed.find(p => p.id === stockId);
+                    const newQty  = nuevo ? nuevo.qty : 0;
+                    const diff    = newQty - prevQty;  // positivo = salida extra; negativo = devolución al stock
+                    if (diff === 0) continue;
+
+                    const stockAll = await getAll('stock');
+                    const stockItem = stockAll.find(s => s.id === stockId);
+                    if (!stockItem) continue;
+                    stockItem.q = Math.max(0, (stockItem.q || 0) - diff);
+                    await put('stock', stockItem);
+                    const tipo = diff > 0 ? 'salida' : 'entrada';
+                    const nota = `Orden ${o.orderNum ? '#' + String(o.orderNum).padStart(4,'0') : '#' + o.id} — ${diff > 0 ? 'uso en reparación' : 'ajuste (devolución)'}`;
+                    try { await addStockMovementRecord(stockItem.id, tipo, Math.abs(diff), nota, stockItem.q + diff); } catch(e) {}
+                }
+
+                // Guardar en la orden
+                o.partsUsed = nuevosPartsUsed;
+                const totalCost = nuevosPartsUsed.reduce((a, b) => a + (b.cost * b.qty), 0);
+                o.partsCost = totalCost;
+                await put('orders', o);
+
+                // Chat interno
+                if (nuevosPartsUsed.length > 0) {
+                    const resumen = nuevosPartsUsed.map(p => `${p.qty}× ${p.name}`).join(', ');
+                    try { await logChatSistema(o.id, `🔧 Repuestos usados: ${resumen}`); } catch(e) {}
+                }
+
+                showToast(`✅ ${nuevosPartsUsed.length} repuesto${nuevosPartsUsed.length !== 1 ? 's' : ''} guardado${nuevosPartsUsed.length !== 1 ? 's' : ''} · stock actualizado`, 'success');
+                closePartsModal();
+                // Refrescar vistas
+                if (typeof renderOrders === 'function') await renderOrders();
+                if (typeof renderStock === 'function') await renderStock();
+            } catch (e) {
+                console.warn('[_savePartsUsed]', e);
+                showAlert('Error al guardar los repuestos', 'error');
+            }
+        }
+
 
         // ==================== REPORTE MENSUAL EJECUTIVO ====================
         async function exportMonthlyReport() {
@@ -11683,7 +12514,10 @@
             if (!bajos.length) {
                 list.innerHTML = '<p class="text-center text-slate-500 text-sm py-6">✅ Todo el stock está sobre el mínimo</p>';
             } else {
-                list.innerHTML = bajos.map(s => `
+                list.innerHTML = bajos.map(s => {
+                    const hasSupplier = (s.supplier || '').trim().length > 0;
+                    const supplierShort = hasSupplier ? (s.supplier.length > 18 ? s.supplier.substring(0,18) + '…' : s.supplier) : '';
+                    return `
                     <div class="flex items-center gap-3 bg-black/20 rounded-xl p-3 border border-amber-500/20">
                         <div class="flex-1 min-w-0">
                             <p class="text-xs font-black text-white truncate">${escapeHtml(s.n)}</p>
@@ -11692,14 +12526,17 @@
                                 · Mín: ${s.minStock || threshold}
                                 ${s.code ? `· ${s.code}` : ''}
                             </p>
+                            ${hasSupplier ? `<p class="text-[9.5px] text-cyan-400 font-bold mt-1">📌 ${escapeHtml(supplierShort)}</p>` : ''}
                         </div>
                         <div class="flex items-center gap-1 flex-shrink-0">
                             <input type="number" value="${Math.max(1,(s.minStock||threshold)*2 - s.q)}"
                                 min="1" class="w-12 text-center text-xs font-black text-amber-400"
                                 id="oc-qty-${s.id}">
-                            <span class="text-[10px] text-slate-500">uds</span>
+                            <span class="text-[10px] text-slate-500 mr-1">uds</span>
+                            ${hasSupplier ? `<button onclick="pedirAProveedor(${s.id})" title="Pedir a ${escapeHtml(s.supplier).replace(/"/g,'&quot;')}" style="background:linear-gradient(135deg,#16a34a,#15803d);border:none;color:#fff;width:30px;height:30px;border-radius:8px;font-size:12px;cursor:pointer;box-shadow:0 2px 6px rgba(22,163,74,0.35);" class="active:scale-90 transition">📱</button>` : ''}
                         </div>
-                    </div>`).join('');
+                    </div>`;
+                }).join('');
             }
 
             document.getElementById('oc-notas').value = '';
@@ -11708,6 +12545,58 @@
 
         function closeOrdenesCompra() {
             document.getElementById('modal-ordenes-compra').classList.add('hidden');
+        }
+
+        // Pedido rápido al proveedor asociado de un repuesto bajo mínimo
+        async function pedirAProveedor(stockId) {
+            try {
+                const stock = await getAll('stock');
+                const item  = stock.find(s => s.id === stockId);
+                if (!item) return showAlert('Repuesto no encontrado', 'error');
+                if (!item.supplier || !item.supplier.trim()) return showAlert('Este repuesto no tiene proveedor asignado. Edítalo y agrega el proveedor.', 'info');
+
+                const cantidadSugerida = Math.max(1, (item.minStock || 3) * 2 - (item.q || 0));
+                const qtyInput = document.getElementById(`oc-qty-${stockId}`);
+                const cantidad = (qtyInput && qtyInput.value) ? parseInt(qtyInput.value) : cantidadSugerida;
+
+                // Buscar match en tabla de proveedores (por nombre, case-insensitive)
+                const provs = await getAll('proveedores');
+                const supplierNorm = item.supplier.trim().toLowerCase();
+                const matchProv = provs.find(p => (p.nombre || '').trim().toLowerCase() === supplierNorm)
+                                || provs.find(p => (p.nombre || '').trim().toLowerCase().includes(supplierNorm))
+                                || provs.find(p => supplierNorm.includes((p.nombre || '').trim().toLowerCase()));
+
+                const biz = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+                const bizName = biz.name || 'Todo Repuestos Nelson';
+
+                let mensaje = `Hola, ${matchProv && matchProv.nombre ? matchProv.nombre.split(' ')[0] : ''}\n\n`;
+                mensaje += `Te escribo de *${bizName}*. Necesito el siguiente repuesto:\n\n`;
+                mensaje += `📦 *${item.n}*\n`;
+                if (item.code) mensaje += `🔖 Código: ${item.code}\n`;
+                mensaje += `🔢 Cantidad: *${cantidad} unidad${cantidad !== 1 ? 'es' : ''}*\n\n`;
+                mensaje += `¿Tienes disponibilidad y cuál sería el precio?\n\nGracias.`;
+
+                // Si hay proveedor con teléfono, abrir WhatsApp directo
+                if (matchProv && matchProv.telefono) {
+                    const tel = matchProv.telefono.replace(/\D/g, '');
+                    const prefix = tel.length === 10 ? '57' : '';
+                    const url = `https://wa.me/${prefix}${tel}?text=${encodeURIComponent(mensaje)}`;
+                    sessionStorage.setItem('_waJump', '1');
+                    window.open(url, '_blank');
+                    showToast(`📱 Enviando a ${matchProv.nombre}`, 'success');
+                } else {
+                    // No hay match con teléfono → solo copiar el mensaje al portapapeles
+                    try {
+                        await navigator.clipboard.writeText(mensaje);
+                        showAlert(`El proveedor "${item.supplier}" no tiene teléfono registrado en la tabla de proveedores.\n\nEl mensaje se copió al portapapeles — pégalo en tu WhatsApp.`, 'info');
+                    } catch (e) {
+                        showAlert(`Proveedor "${item.supplier}" no registrado. Ve a Proveedores y agrégalo con su teléfono para pedir directo.`, 'info');
+                    }
+                }
+            } catch (e) {
+                console.warn('[pedirAProveedor]', e);
+                showAlert('Error al armar el pedido', 'error');
+            }
         }
 
         async function _buildOCText() {
