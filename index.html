@@ -744,6 +744,362 @@
         /* ===== MEJORAS TALLER v3.2 ===== */
         .deadline-badge { display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:800; }
 
+        /* ===== MODAL ESTADÍSTICAS v2 — Rediseño ===== */
+        .stats-modal-wrap {
+            width: 100%; max-width: 460px; max-height: 92vh;
+            display: flex; flex-direction: column;
+            border-radius: 24px; overflow: hidden;
+            background: linear-gradient(180deg, #0f0a1a 0%, #0a0612 100%);
+            border: 1px solid rgba(168,85,247,0.18);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.03);
+        }
+        .stats-modal-header {
+            position: relative;
+            padding: 16px;
+            background:
+                radial-gradient(circle at 20% -10%, rgba(168,85,247,0.28), transparent 55%),
+                radial-gradient(circle at 110% 30%, rgba(217,70,239,0.2), transparent 55%),
+                linear-gradient(180deg, #1e1430 0%, #150c22 100%);
+            border-bottom: 1px solid rgba(168,85,247,0.18);
+        }
+        .stats-header-row {
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        }
+        .stats-header-title-wrap { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+        .stats-header-icon {
+            width: 44px; height: 44px; border-radius: 13px;
+            background: linear-gradient(135deg, #a855f7, #7c3aed);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; flex-shrink: 0;
+            box-shadow: 0 6px 18px rgba(168,85,247,0.4), inset 0 1px 0 rgba(255,255,255,0.18);
+        }
+        .stats-header-title {
+            font-size: 17px; font-weight: 900; color: #faf5ff;
+            letter-spacing: -0.3px; margin: 0; line-height: 1.1;
+        }
+        .stats-header-sub {
+            font-size: 11px; color: #d8b4fe; font-weight: 700;
+            margin: 2px 0 0; opacity: 0.85; letter-spacing: 0.3px; text-transform: capitalize;
+        }
+        .stats-close-btn {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #f1f5f9; font-size: 14px; font-weight: 700;
+            cursor: pointer; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .stats-close-btn:active { transform: scale(0.9); }
+
+        /* Body scrollable */
+        .stats-body {
+            flex: 1; overflow-y: auto;
+            padding: 14px 14px 16px;
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        .stats-body::-webkit-scrollbar { width: 4px; }
+        .stats-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 99px; }
+
+        /* 2 KPI hero */
+        .stats-hero-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+        }
+        .stats-hero-card {
+            position: relative;
+            padding: 14px 13px 12px;
+            border-radius: 16px;
+            border: 1px solid var(--hero-border, rgba(255,255,255,0.06));
+            background: linear-gradient(180deg, var(--hero-bg-top, rgba(30,41,59,0.5)), var(--hero-bg-bot, rgba(15,23,42,0.5)));
+            box-shadow: 0 6px 18px var(--hero-shadow, rgba(0,0,0,0.25)), inset 0 1px 0 rgba(255,255,255,0.05);
+            overflow: hidden;
+        }
+        .stats-hero-card::before {
+            content: "";
+            position: absolute; inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(circle at 0% 0%, var(--hero-shine, rgba(255,255,255,0.08)), transparent 60%);
+            pointer-events: none;
+        }
+        .stats-hero-green {
+            --hero-bg-top: rgba(16,185,129,0.18);
+            --hero-bg-bot: rgba(6,78,59,0.22);
+            --hero-border: rgba(16,185,129,0.3);
+            --hero-shadow: rgba(16,185,129,0.18);
+            --hero-shine: rgba(52,211,153,0.18);
+        }
+        .stats-hero-purple {
+            --hero-bg-top: rgba(168,85,247,0.18);
+            --hero-bg-bot: rgba(88,28,135,0.22);
+            --hero-border: rgba(168,85,247,0.3);
+            --hero-shadow: rgba(168,85,247,0.18);
+            --hero-shine: rgba(217,70,239,0.18);
+        }
+        .stats-hero-head {
+            display: flex; align-items: center; gap: 6px;
+            position: relative; z-index: 1;
+        }
+        .stats-hero-icon { font-size: 15px; }
+        .stats-hero-label {
+            font-size: 9.5px;
+            font-weight: 900;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            color: #cbd5e1;
+            opacity: 0.85;
+        }
+        .stats-hero-value {
+            font-size: 21px; font-weight: 900;
+            color: #fff;
+            margin-top: 6px;
+            letter-spacing: -0.6px;
+            line-height: 1.1;
+            font-variant-numeric: tabular-nums;
+            position: relative; z-index: 1;
+        }
+        .stats-hero-green .stats-hero-value { color: #6ee7b7; }
+        .stats-hero-purple .stats-hero-value { color: #d8b4fe; }
+        .stats-hero-trend {
+            font-size: 10.5px;
+            font-weight: 800;
+            margin-top: 5px;
+            letter-spacing: 0.2px;
+            position: relative; z-index: 1;
+            min-height: 14px;
+        }
+        .stats-trend-up { color: #34d399; }
+        .stats-trend-down { color: #f87171; }
+        .stats-trend-flat { color: #94a3b8; }
+
+        /* Mini stats 4 columnas */
+        .stats-mini-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px;
+        }
+        .stats-mini-card {
+            padding: 10px 4px 9px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.035);
+            border: 1px solid rgba(255,255,255,0.05);
+            text-align: center;
+            display: flex; flex-direction: column; align-items: center;
+            gap: 2px;
+        }
+        .stats-mini-icon {
+            font-size: 15px;
+            line-height: 1;
+            opacity: 0.9;
+            margin-bottom: 3px;
+        }
+        .stats-mini-val {
+            font-size: 16px;
+            font-weight: 900;
+            color: #f1f5f9;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.3px;
+            line-height: 1.05;
+        }
+        .stats-mini-lbl {
+            font-size: 8.5px;
+            font-weight: 800;
+            color: #94a3b8;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            margin-top: 1px;
+        }
+
+        /* Card genérico */
+        .stats-card {
+            padding: 13px 14px 12px;
+            border-radius: 16px;
+            background: linear-gradient(180deg, rgba(30,25,45,0.4), rgba(15,10,25,0.4));
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .stats-card-head {
+            display: flex; justify-content: space-between; align-items: baseline;
+            gap: 10px; margin-bottom: 10px;
+        }
+        .stats-card-title {
+            font-size: 11.5px;
+            font-weight: 900;
+            color: #e9d5ff;
+            letter-spacing: 0.3px;
+        }
+        .stats-card-sub {
+            font-size: 9.5px;
+            font-weight: 700;
+            color: #64748b;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        /* Gráfica de tendencia */
+        .stats-trend-chart {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 6px;
+            align-items: end;
+            height: 110px;
+            padding: 4px 2px 0;
+        }
+        .stats-trend-bar-col {
+            display: flex; flex-direction: column;
+            align-items: center;
+            height: 100%;
+            position: relative;
+        }
+        .stats-trend-bar-wrap {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+        .stats-trend-bar {
+            width: 100%;
+            background: linear-gradient(180deg, #a855f7, #7c3aed);
+            border-radius: 6px 6px 2px 2px;
+            min-height: 3px;
+            transition: all 0.4s ease;
+            box-shadow: 0 -2px 8px rgba(168,85,247,0.25);
+        }
+        .stats-trend-bar.current {
+            background: linear-gradient(180deg, #34d399, #059669);
+            box-shadow: 0 -2px 10px rgba(16,185,129,0.4);
+        }
+        .stats-trend-label {
+            font-size: 9px;
+            font-weight: 800;
+            color: #94a3b8;
+            margin-top: 6px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+        .stats-trend-val {
+            font-size: 8.5px;
+            font-weight: 700;
+            color: #64748b;
+            margin-top: 1px;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+        .stats-trend-bar-col.current .stats-trend-label { color: #6ee7b7; }
+
+        /* Barras horizontales (top repuestos, origen) */
+        .stats-bars { display: flex; flex-direction: column; gap: 8px; }
+        .stats-bar-row {
+            position: relative;
+            padding: 8px 11px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.04);
+            overflow: hidden;
+        }
+        .stats-bar-fill {
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            background: linear-gradient(90deg, rgba(168,85,247,0.22), rgba(217,70,239,0.14));
+            border-right: 1px solid rgba(217,70,239,0.3);
+            border-radius: 10px 0 0 10px;
+            transition: width 0.5s ease;
+        }
+        .stats-bar-top .stats-bar-fill {
+            background: linear-gradient(90deg, rgba(249,115,22,0.28), rgba(234,88,12,0.16));
+            border-right: 1px solid rgba(249,115,22,0.4);
+        }
+        .stats-bar-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .stats-bar-label {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .stats-bar-rank {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 18px;
+            font-weight: 900;
+            font-size: 11px;
+        }
+        .stats-bar-value {
+            font-size: 11px;
+            font-weight: 900;
+            color: #cbd5e1;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+        .stats-bar-pct {
+            font-size: 9.5px;
+            font-weight: 800;
+            color: #94a3b8;
+            margin-left: 4px;
+        }
+        .stats-empty {
+            text-align: center;
+            padding: 18px 10px;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* Técnicos con medallas */
+        .stats-tecs { display: flex; flex-direction: column; gap: 7px; }
+        .stats-tec-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 11px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .stats-tec-medal {
+            width: 28px; height: 28px;
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+            background: rgba(255,255,255,0.05);
+        }
+        .stats-tec-info { flex: 1; min-width: 0; }
+        .stats-tec-name {
+            font-size: 12px;
+            font-weight: 800;
+            color: #f1f5f9;
+            line-height: 1.15;
+        }
+        .stats-tec-sub {
+            font-size: 9.5px;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-top: 1px;
+        }
+        .stats-tec-metric {
+            font-size: 13px;
+            font-weight: 900;
+            color: #60a5fa;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+        .stats-tec-metric-unit {
+            font-size: 9.5px;
+            font-weight: 700;
+            color: #64748b;
+            margin-left: 2px;
+        }
+
         /* ===== QUICK ACTION BUTTONS (Órdenes → Avisar / Reporte / Exportar) ===== */
         .quick-action {
             position: relative;
@@ -2741,7 +3097,7 @@
                 </button>
 
                 <div style="height:1px;background:#1a2235;margin:8px 0;"></div>
-                <p style="font-size:9px;font-weight:900;letter-spacing:3px;color:#2a3a55;text-transform:uppercase;padding:6px 4px;margin:0;">SISTEMA</p>
+                <p style="font-size:9px;font-weight:900;letter-spacing:3px;color:#2a3a55;text-transform:uppercase;padding:6px 4px;margin:0;">AJUSTES</p>
 
                 <button onclick="openChangePinModal()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
                     <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#92400e,#f59e0b);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(245,158,11,0.35);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#fcd34d;margin:0;">Cambiar PIN</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Actualizar contraseña de acceso</p></div></div>
@@ -2754,19 +3110,11 @@
                 </button>
 
                 <button onclick="openAdvancedConfig()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
-                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#0e7490,#06b6d4);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(6,182,212,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#22d3ee;margin:0;">Configuración avanzada</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Apariencia, plantillas, técnicos</p></div></div>
+                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#0e7490,#06b6d4);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(6,182,212,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#22d3ee;margin:0;">Configuración avanzada</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Apariencia, respaldos, plantillas</p></div></div>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
 
-                <button onclick="exportData()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
-                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#1d4ed8,#6366f1);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(99,102,241,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#818cf8;margin:0;">Exportar Respaldo</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Guarda la base de datos</p></div></div>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-                </button>
-
-                <label for="import-file" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
-                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#7c3aed,#a855f7);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(168,85,247,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#c084fc;margin:0;">Importar Datos</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Restaura una copia de seguridad</p></div></div>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-                </label>
+                <!-- Input oculto reutilizado por Config Avanzada → Importar Datos -->
                 <input type="file" id="import-file" class="hidden" accept=".json" onchange="importData(event)">
 
             </div>
@@ -3658,20 +4006,102 @@
         </div>
     </div>
 
-    <div id="modal-stats" class="hidden fixed inset-0 z-[3000] modal-custom flex flex-col items-center justify-center p-4">
-        <div class="bg-[#111827] border border-white/10 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl view-enter">
-            <div class="bg-gradient-to-r from-purple-600 to-purple-500 p-6 flex justify-between items-center relative overflow-hidden">
-                <div class="absolute -right-4 -top-4 text-7xl opacity-20">📊</div>
-                <h3 class="text-white font-black text-xl tracking-wide flex items-center gap-2 relative z-10">RENDIMIENTO DEL MES</h3>
-                <button onclick="closeStatsModal()" class="text-white bg-black/30 hover:bg-black/50 w-8 h-8 rounded-full flex items-center justify-center transition relative z-10 font-bold">✕</button>
+    <div id="modal-stats" class="hidden fixed inset-0 z-[3000] modal-custom flex items-center justify-center p-3">
+        <div class="stats-modal-wrap view-enter">
+            <!-- HEADER -->
+            <div class="stats-modal-header">
+                <div class="stats-header-row">
+                    <div class="stats-header-title-wrap">
+                        <div class="stats-header-icon">📊</div>
+                        <div style="min-width:0;">
+                            <h3 class="stats-header-title">Estadísticas</h3>
+                            <p class="stats-header-sub" id="stats-header-month">Rendimiento del mes</p>
+                        </div>
+                    </div>
+                    <button onclick="closeStatsModal()" class="stats-close-btn" aria-label="Cerrar">✕</button>
+                </div>
             </div>
-            <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto no-scrollbar">
-                <div class="grid grid-cols-2 gap-3"><div class="bg-black/30 p-4 rounded-xl text-center"><p class="text-[10px] text-slate-400 uppercase font-bold">Órdenes Completadas</p><p id="stat-orders" class="text-2xl font-black text-white mt-1">0</p></div><div class="bg-black/30 p-4 rounded-xl text-center"><p class="text-[10px] text-slate-400 uppercase font-bold">Ventas Realizadas</p><p id="stat-sales" class="text-2xl font-black text-white mt-1">0</p></div></div>
-                <div class="grid grid-cols-2 gap-3"><div class="bg-black/30 p-4 rounded-xl text-center"><p class="text-[10px] text-slate-400 uppercase font-bold">En Proceso</p><p id="stat-in-progress" class="text-2xl font-black text-white mt-1">0</p></div><div class="bg-black/30 p-4 rounded-xl text-center"><p class="text-[10px] text-slate-400 uppercase font-bold">Total Reparaciones</p><p id="stat-total-orders" class="text-2xl font-black text-white mt-1">0</p></div></div>
-                <div class="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl text-center"><p class="text-[10px] text-slate-400 uppercase font-bold">💰 Ticket Promedio</p><p id="stat-ticket-prom" class="text-2xl font-black text-emerald-400 mt-1">$0</p></div>
-                <div class="bg-black/30 p-4 rounded-xl border border-white/5"><p class="text-[10px] text-slate-400 uppercase font-bold mb-3">🔥 TOP 3 Repuestos Más Vendidos</p><div id="stat-top-items" class="space-y-2"></div></div>
-                <div class="bg-black/30 p-4 rounded-xl border border-white/5"><p class="text-[10px] text-slate-400 uppercase font-bold mb-2">👷 Rendimiento Técnicos</p><div id="stat-tecnicos" class="space-y-2"></div></div>
-                <div class="bg-black/30 p-4 rounded-xl border border-white/5"><p class="text-[10px] text-slate-400 uppercase font-bold mb-3">📣 Origen de Clientes</p><div id="stat-origen" class="space-y-2"></div></div>
+            <!-- BODY scrollable -->
+            <div class="stats-body">
+                <!-- 2 KPIs HERO -->
+                <div class="stats-hero-grid">
+                    <div class="stats-hero-card stats-hero-green">
+                        <div class="stats-hero-head">
+                            <span class="stats-hero-icon">💰</span>
+                            <span class="stats-hero-label">Ingresos del mes</span>
+                        </div>
+                        <div class="stats-hero-value" id="stats-hero-ingresos">$0</div>
+                        <div class="stats-hero-trend" id="stats-hero-ingresos-trend"></div>
+                    </div>
+                    <div class="stats-hero-card stats-hero-purple">
+                        <div class="stats-hero-head">
+                            <span class="stats-hero-icon">🎫</span>
+                            <span class="stats-hero-label">Ticket promedio</span>
+                        </div>
+                        <div class="stats-hero-value" id="stats-hero-ticket">$0</div>
+                        <div class="stats-hero-trend" id="stats-hero-ticket-trend"></div>
+                    </div>
+                </div>
+
+                <!-- 4 MINI STATS -->
+                <div class="stats-mini-grid">
+                    <div class="stats-mini-card">
+                        <span class="stats-mini-icon">✅</span>
+                        <div class="stats-mini-val" id="stat-orders">0</div>
+                        <div class="stats-mini-lbl">Completadas</div>
+                    </div>
+                    <div class="stats-mini-card">
+                        <span class="stats-mini-icon">🛒</span>
+                        <div class="stats-mini-val" id="stat-sales">0</div>
+                        <div class="stats-mini-lbl">Ventas</div>
+                    </div>
+                    <div class="stats-mini-card">
+                        <span class="stats-mini-icon">⏳</span>
+                        <div class="stats-mini-val" id="stat-in-progress">0</div>
+                        <div class="stats-mini-lbl">En proceso</div>
+                    </div>
+                    <div class="stats-mini-card">
+                        <span class="stats-mini-icon">📥</span>
+                        <div class="stats-mini-val" id="stat-new-this-month">0</div>
+                        <div class="stats-mini-lbl">Nuevas</div>
+                    </div>
+                </div>
+
+                <!-- TENDENCIA 6 MESES -->
+                <div class="stats-card">
+                    <div class="stats-card-head">
+                        <span class="stats-card-title">📈 Tendencia 6 meses</span>
+                        <span class="stats-card-sub" id="stats-trend-hint">Ingresos por mes</span>
+                    </div>
+                    <div class="stats-trend-chart" id="stats-trend-chart"></div>
+                </div>
+
+                <!-- TOP REPUESTOS -->
+                <div class="stats-card">
+                    <div class="stats-card-head">
+                        <span class="stats-card-title">🔥 Top repuestos</span>
+                        <span class="stats-card-sub">Más vendidos este mes</span>
+                    </div>
+                    <div class="stats-bars" id="stat-top-items"></div>
+                </div>
+
+                <!-- RENDIMIENTO TÉCNICOS -->
+                <div class="stats-card">
+                    <div class="stats-card-head">
+                        <span class="stats-card-title">👷 Técnicos</span>
+                        <span class="stats-card-sub">Tiempo promedio de reparación</span>
+                    </div>
+                    <div class="stats-tecs" id="stat-tecnicos"></div>
+                </div>
+
+                <!-- ORIGEN CLIENTES -->
+                <div class="stats-card">
+                    <div class="stats-card-head">
+                        <span class="stats-card-title">📣 ¿Cómo nos conocen?</span>
+                        <span class="stats-card-sub">Canales de adquisición</span>
+                    </div>
+                    <div class="stats-bars" id="stat-origen"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -4799,13 +5229,14 @@
 
                 <!-- ═══ DATOS Y RESPALDO ═══ -->
                 <p class="ios-group-label" style="margin-top:20px;">Datos y respaldo</p>
+                <p style="font-size:10.5px;color:#6b7280;margin:-6px 18px 6px;line-height:1.45;">Las acciones rápidas (Respaldar · Exportar · Importar) están arriba. Aquí gestionas la configuración y el almacenamiento.</p>
                 <div class="ios-group">
-                    <!-- Google Drive -->
+                    <!-- Google Drive (configuración de cuenta) -->
                     <div class="ios-row" onclick="iosCfgToggle('cfg-drive',this)">
                         <div class="ios-row-icon" style="background:linear-gradient(135deg,#1e3a5f,#1d4ed8);">☁️</div>
                         <div class="ios-row-text">
                             <p class="ios-row-title">Google Drive</p>
-                            <p class="ios-row-sub">Cuenta vinculada y respaldo en nube</p>
+                            <p class="ios-row-sub">Cuenta vinculada y restauración</p>
                         </div>
                         <svg class="ios-chevron" width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </div>
@@ -4818,11 +5249,9 @@
                                 </div>
                                 <button id="cfg-drive-btn" onclick="cfgDriveToggle()" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:white;padding:8px 14px;border-radius:10px;font-size:10px;font-weight:900;letter-spacing:1px;text-transform:uppercase;border:none;cursor:pointer;white-space:nowrap;">Conectar</button>
                             </div>
-                            <div class="grid grid-cols-2 gap-2">
-                                <button onclick="cfgBackupNow()" style="background:#0d2218;border:1px solid #16a34a;color:#4ade80;padding:10px;border-radius:10px;font-size:11px;font-weight:800;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;letter-spacing:0.5px;">☁️ Subir ahora</button>
-                                <button onclick="cfgDriveRestore()" style="background:#0d1a2e;border:1px solid #1d4ed8;color:#60a5fa;padding:10px;border-radius:10px;font-size:11px;font-weight:800;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;letter-spacing:0.5px;">📥 Restaurar</button>
-                            </div>
+                            <button onclick="cfgDriveRestore()" style="width:100%;background:#0d1a2e;border:1px solid #1d4ed8;color:#60a5fa;padding:11px;border-radius:10px;font-size:11px;font-weight:800;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;letter-spacing:0.5px;">📥 Restaurar desde Drive</button>
                             <p id="cfg-drive-last" style="font-size:10.5px;color:#6b7280;text-align:center;margin:4px 0 0;font-weight:600;">Sin respaldos aún</p>
+                            <p style="font-size:10px;color:#6b7280;text-align:center;margin:0;line-height:1.4;">Para subir manual, usa "Respaldar" arriba ↑</p>
                         </div>
                     </div>
                     <!-- Respaldo automático -->
@@ -4847,24 +5276,6 @@
                             <p style="font-size:10.5px;color:#8e8e93;line-height:1.5;margin:0;">Se ejecuta silenciosamente cuando la app está abierta y tienes Drive conectado.</p>
                             <button onclick="saveBackupInterval()" class="ios-save-btn" style="background:#06b6d4;color:#000;">💾 Aplicar</button>
                         </div>
-                    </div>
-                    <!-- Exportar local -->
-                    <div class="ios-row" onclick="cfgExportData()">
-                        <div class="ios-row-icon" style="background:linear-gradient(135deg,#1d4ed8,#6366f1);">📤</div>
-                        <div class="ios-row-text">
-                            <p class="ios-row-title">Exportar respaldo (JSON)</p>
-                            <p class="ios-row-sub">Descarga archivo a tu teléfono</p>
-                        </div>
-                        <svg class="ios-chevron" width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    </div>
-                    <!-- Importar local -->
-                    <div class="ios-row" onclick="cfgImportData()">
-                        <div class="ios-row-icon" style="background:linear-gradient(135deg,#7c3aed,#a855f7);">📥</div>
-                        <div class="ios-row-text">
-                            <p class="ios-row-title">Importar respaldo (JSON)</p>
-                            <p class="ios-row-sub">Restaurar desde archivo</p>
-                        </div>
-                        <svg class="ios-chevron" width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l6 5.5L1 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </div>
                     <!-- Almacenamiento -->
                     <div class="ios-row" onclick="iosCfgToggle('cfg-storage',this)">
@@ -8011,36 +8422,109 @@
         function executeCierreCaja() { localStorage.setItem('lastCierreCaja', Date.now()); updateTotal(); closeConfirmModal(); showAlert("Caja reiniciada correctamente.", "success"); }
 
         async function openStatsModal() {
-            const now = new Date(); const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-            const orders = await getAll('orders'); const sales = await getAll('sales');
+            const now = new Date();
+            const cur = getCurrency();
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+            const startOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).getTime();
+            const endOfPrevMonth = startOfMonth - 1;
+            const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+            const monthShort = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+            // Subtítulo del header
+            const headerSub = document.getElementById('stats-header-month');
+            if (headerSub) headerSub.textContent = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+
+            const orders = await getAll('orders');
+            const sales  = await getAll('sales');
+
+            // ===== Filtros temporales =====
             const monthOrders = orders.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha) >= startOfMonth);
-            const inProgress = orders.filter(o => o.sta !== 'entregado').length;
-            document.getElementById('stat-orders').innerText = monthOrders.length;
-            document.getElementById('stat-in-progress').innerText = inProgress;
-            document.getElementById('stat-total-orders').innerText = orders.length;
+            const prevMonthOrders = orders.filter(o => {
+                const t = o.fechaEntrega || o.fecha || 0;
+                return o.sta === 'entregado' && t >= startOfPrevMonth && t <= endOfPrevMonth;
+            });
+            const newThisMonth = orders.filter(o => (o.fecha || 0) >= startOfMonth).length;
+            const inProgress = orders.filter(o => o.sta !== 'entregado' && o.sta !== 'cancelado').length;
             const monthSales = sales.filter(s => s.fecha >= startOfMonth && s.tipo !== 'adelanto' && s.tipo !== 'cobro_entrega');
-            document.getElementById('stat-sales').innerText = monthSales.length;
-            const itemCounts = {}; monthSales.forEach(s => itemCounts[s.item] = (itemCounts[s.item] || 0) + s.qty);
-            const sorted = Object.entries(itemCounts).sort((a,b)=>b[1]-a[1]).slice(0,3);
-            document.getElementById('stat-top-items').innerHTML = sorted.length ? sorted.map(([n,c],i)=>`<div class="flex justify-between bg-white/5 p-2 rounded-lg"><span>${i+1}. ${escapeHtml(n)}</span><span>${c} uds</span></div>`).join('') : '<p class="text-center text-xs">Sin ventas este mes</p>';
-            // Ticket promedio
-            const ticketProm = monthOrders.length > 0 ? Math.round(monthOrders.reduce((a,b)=>a+(b.val||0),0) / monthOrders.length) : 0;
-            const tpEl = document.getElementById('stat-ticket-prom');
-            if (tpEl) tpEl.innerText = getCurrency() + ticketProm.toLocaleString();
-            // Origen de clientes (solo órdenes con origen registrado)
-            const origenLabels = {recomendacion:'🗣️ Recomendación',redes:'📱 Redes',cliente_frecuente:'⭐ Frecuente',google:'🔍 Google',local:'🏠 Local',whatsapp:'💬 WhatsApp',otro:'📌 Otro'};
-            const origenCount = {};
-            orders.filter(o => o.origen).forEach(o => { origenCount[o.origen] = (origenCount[o.origen]||0)+1; });
-            const origenEl = document.getElementById('stat-origen');
-            if (origenEl) {
-                const total = Object.values(origenCount).reduce((a,b)=>a+b,0);
-                origenEl.innerHTML = total > 0
-                    ? Object.entries(origenCount).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="flex justify-between items-center bg-white/5 p-2 rounded-lg"><span class="text-xs">${origenLabels[k]||k}</span><span class="font-black text-orange-400 text-xs">${v} <span class="text-slate-500">(${Math.round(v/total*100)}%)</span></span></div>`).join('')
-                    : '<p class="text-center text-xs text-slate-500">Sin datos de origen aún</p>';
+            const prevMonthSales = sales.filter(s => s.fecha >= startOfPrevMonth && s.fecha <= endOfPrevMonth && s.tipo !== 'adelanto' && s.tipo !== 'cobro_entrega');
+
+            // ===== Ingresos del mes (reparaciones + ventas de repuestos) =====
+            const monthIngresosRep = monthOrders.reduce((a,b) => a + (b.val || 0), 0);
+            const monthIngresosVen = monthSales.reduce((a,b) => a + (b.val || 0), 0);
+            const monthIngresos = monthIngresosRep + monthIngresosVen;
+            const prevIngresosRep = prevMonthOrders.reduce((a,b) => a + (b.val || 0), 0);
+            const prevIngresosVen = prevMonthSales.reduce((a,b) => a + (b.val || 0), 0);
+            const prevIngresos = prevIngresosRep + prevIngresosVen;
+
+            document.getElementById('stats-hero-ingresos').textContent = cur + monthIngresos.toLocaleString();
+            _renderStatTrend('stats-hero-ingresos-trend', monthIngresos, prevIngresos, monthShort[((now.getMonth()-1)+12)%12]);
+
+            // ===== Ticket promedio =====
+            const ticketProm = monthOrders.length > 0 ? Math.round(monthIngresosRep / monthOrders.length) : 0;
+            const prevTicket = prevMonthOrders.length > 0 ? Math.round(prevIngresosRep / prevMonthOrders.length) : 0;
+            document.getElementById('stats-hero-ticket').textContent = cur + ticketProm.toLocaleString();
+            _renderStatTrend('stats-hero-ticket-trend', ticketProm, prevTicket, monthShort[((now.getMonth()-1)+12)%12]);
+
+            // ===== Mini stats =====
+            document.getElementById('stat-orders').textContent = monthOrders.length;
+            document.getElementById('stat-sales').textContent = monthSales.length;
+            document.getElementById('stat-in-progress').textContent = inProgress;
+            document.getElementById('stat-new-this-month').textContent = newThisMonth;
+
+            // ===== Tendencia 6 meses =====
+            const trendData = [];
+            for (let i = 5; i >= 0; i--) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const startMs = d.getTime();
+                const endMs = new Date(now.getFullYear(), now.getMonth() - i + 1, 1).getTime() - 1;
+                const ordMs = orders.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha) >= startMs && (o.fechaEntrega || o.fecha) <= endMs);
+                const venMs = sales.filter(s => s.fecha >= startMs && s.fecha <= endMs && s.tipo !== 'adelanto' && s.tipo !== 'cobro_entrega');
+                const total = ordMs.reduce((a,b) => a + (b.val || 0), 0) + venMs.reduce((a,b) => a + (b.val || 0), 0);
+                trendData.push({ label: monthShort[d.getMonth()], total, current: i === 0 });
             }
-            // Rendimiento por técnico
+            const maxTrend = Math.max(...trendData.map(t => t.total), 1);
+            const trendEl = document.getElementById('stats-trend-chart');
+            if (trendEl) {
+                trendEl.innerHTML = trendData.map(t => {
+                    const h = Math.max(3, Math.round((t.total / maxTrend) * 70));
+                    const valStr = t.total >= 1000000 ? (t.total/1000000).toFixed(1)+'M' : (t.total >= 1000 ? Math.round(t.total/1000)+'k' : t.total);
+                    return `<div class="stats-trend-bar-col${t.current ? ' current' : ''}">
+                        <div class="stats-trend-bar-wrap">
+                            <div class="stats-trend-bar${t.current ? ' current' : ''}" style="height:${h}%;"></div>
+                        </div>
+                        <div class="stats-trend-label">${t.label}</div>
+                        <div class="stats-trend-val">${t.total ? cur + valStr : '—'}</div>
+                    </div>`;
+                }).join('');
+            }
+
+            // ===== Top 3 repuestos con % del total =====
+            const itemCounts = {};
+            monthSales.forEach(s => itemCounts[s.item] = (itemCounts[s.item] || 0) + (s.qty || 1));
+            const sortedItems = Object.entries(itemCounts).sort((a,b) => b[1] - a[1]).slice(0,3);
+            const totalUnits = Object.values(itemCounts).reduce((a,b) => a + b, 0);
+            const topMax = sortedItems[0] ? sortedItems[0][1] : 1;
+            const topEl = document.getElementById('stat-top-items');
+            if (topEl) {
+                topEl.innerHTML = sortedItems.length
+                    ? sortedItems.map(([name, count], i) => {
+                        const pct = totalUnits > 0 ? Math.round(count / totalUnits * 100) : 0;
+                        const widthPct = Math.round(count / topMax * 100);
+                        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';
+                        return `<div class="stats-bar-row stats-bar-top">
+                            <div class="stats-bar-fill" style="width:${widthPct}%;"></div>
+                            <div class="stats-bar-content">
+                                <span class="stats-bar-label"><span class="stats-bar-rank">${medal}</span>${escapeHtml(name || 'Sin nombre')}</span>
+                                <span class="stats-bar-value">${count} <span class="stats-bar-pct">${pct}%</span></span>
+                            </div>
+                        </div>`;
+                    }).join('')
+                    : '<div class="stats-empty">Sin ventas este mes</div>';
+            }
+
+            // ===== Técnicos con medallas y tiempo promedio =====
             const tecMap = {};
-            orders.filter(o => o.sta==='entregado' && o.tecnico && o.fechaEntrega && o.fecha)
+            orders.filter(o => o.sta === 'entregado' && o.tecnico && o.fechaEntrega && o.fecha)
                 .forEach(o => {
                     if (!tecMap[o.tecnico]) tecMap[o.tecnico] = [];
                     tecMap[o.tecnico].push(Math.round((o.fechaEntrega - o.fecha) / 86400000));
@@ -8048,24 +8532,77 @@
             const tecStats = Object.entries(tecMap)
                 .map(([tec, dias]) => ({
                     tec,
-                    prom: Math.round(dias.reduce((a,b)=>a+b,0)/dias.length),
+                    prom: Math.round(dias.reduce((a,b) => a+b, 0) / dias.length * 10) / 10,
                     total: dias.length
                 }))
                 .sort((a,b) => a.prom - b.prom);
             const tecEl = document.getElementById('stat-tecnicos');
             if (tecEl) {
                 tecEl.innerHTML = tecStats.length
-                    ? tecStats.map(t => `
-                        <div class="flex justify-between items-center bg-white/5 p-2 rounded-lg">
-                            <span class="text-xs font-bold">👷 ${escapeHtml(t.tec)}</span>
-                            <div class="text-right">
-                                <span class="text-xs font-black text-blue-400">${t.prom}d prom.</span>
-                                <span class="text-[10px] text-slate-500 ml-2">${t.total} órd.</span>
+                    ? tecStats.map((t, i) => {
+                        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '👷';
+                        return `<div class="stats-tec-row">
+                            <div class="stats-tec-medal">${medal}</div>
+                            <div class="stats-tec-info">
+                                <div class="stats-tec-name">${escapeHtml(t.tec)}</div>
+                                <div class="stats-tec-sub">${t.total} orden${t.total !== 1 ? 'es' : ''} entregada${t.total !== 1 ? 's' : ''}</div>
                             </div>
-                        </div>`).join('')
-                    : '<p class="text-center text-xs text-slate-500">Sin datos de técnicos aún</p>';
+                            <div>
+                                <span class="stats-tec-metric">${t.prom}</span><span class="stats-tec-metric-unit">d prom.</span>
+                            </div>
+                        </div>`;
+                    }).join('')
+                    : '<div class="stats-empty">Asigna técnicos a las órdenes para ver este reporte</div>';
             }
+
+            // ===== Origen de clientes con barras horizontales =====
+            const origenLabels = {recomendacion:'🗣️ Recomendación', redes:'📱 Redes sociales', cliente_frecuente:'⭐ Frecuente', google:'🔍 Google', local:'🏠 Pasó por el local', whatsapp:'💬 WhatsApp', otro:'📌 Otro'};
+            const origenCount = {};
+            orders.filter(o => o.origen).forEach(o => { origenCount[o.origen] = (origenCount[o.origen] || 0) + 1; });
+            const totalOrigen = Object.values(origenCount).reduce((a,b) => a+b, 0);
+            const sortedOrigen = Object.entries(origenCount).sort((a,b) => b[1] - a[1]);
+            const maxOrigen = sortedOrigen[0] ? sortedOrigen[0][1] : 1;
+            const origenEl = document.getElementById('stat-origen');
+            if (origenEl) {
+                origenEl.innerHTML = sortedOrigen.length > 0
+                    ? sortedOrigen.map(([k, v]) => {
+                        const pct = totalOrigen > 0 ? Math.round(v / totalOrigen * 100) : 0;
+                        const widthPct = Math.round(v / maxOrigen * 100);
+                        return `<div class="stats-bar-row">
+                            <div class="stats-bar-fill" style="width:${widthPct}%;"></div>
+                            <div class="stats-bar-content">
+                                <span class="stats-bar-label">${origenLabels[k] || k}</span>
+                                <span class="stats-bar-value">${v} <span class="stats-bar-pct">${pct}%</span></span>
+                            </div>
+                        </div>`;
+                    }).join('')
+                    : '<div class="stats-empty">Registra "¿Cómo nos conoció?" al crear órdenes</div>';
+            }
+
             document.getElementById('modal-stats').classList.remove('hidden');
+        }
+
+        // Helper: calcula y pinta el trend vs mes anterior
+        function _renderStatTrend(elId, current, previous, prevLabel) {
+            const el = document.getElementById(elId);
+            if (!el) return;
+            if (previous === 0 && current === 0) {
+                el.innerHTML = '<span class="stats-trend-flat">— Sin datos previos</span>';
+                return;
+            }
+            if (previous === 0) {
+                el.innerHTML = `<span class="stats-trend-up">▲ Nuevo · 0 en ${prevLabel}</span>`;
+                return;
+            }
+            const diff = current - previous;
+            const pct = Math.round((diff / previous) * 100);
+            if (Math.abs(pct) < 2) {
+                el.innerHTML = `<span class="stats-trend-flat">≈ Similar a ${prevLabel}</span>`;
+            } else if (pct > 0) {
+                el.innerHTML = `<span class="stats-trend-up">▲ ${pct}% vs ${prevLabel}</span>`;
+            } else {
+                el.innerHTML = `<span class="stats-trend-down">▼ ${Math.abs(pct)}% vs ${prevLabel}</span>`;
+            }
         }
         function closeStatsModal() { document.getElementById('modal-stats').classList.add('hidden'); }
 
