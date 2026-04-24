@@ -741,6 +741,33 @@
             border: none;
         }
 
+        /* ═══ OPTIMIZACIONES DE FLUIDEZ v1 ═══ */
+        /* Aceleración GPU en elementos que se animan o scrollean frecuentemente */
+        .app-view {
+            transform: translateZ(0);
+            will-change: auto;
+        }
+        .nav-btn, .sidebar-nav-item {
+            transform: translateZ(0);
+            touch-action: manipulation;  /* elimina los ~300ms de double-tap delay */
+        }
+        /* Los botones de acción también deben responder instantáneo al tap */
+        button, [role="button"], .order-action-btn, .quick-action, .ios-row, .ready-chip, .ready-card, .parts-qty-btn {
+            touch-action: manipulation;
+        }
+        /* contain: layout evita que cambios dentro de un elemento fuercen relayout del padre */
+        .order-card, .parts-item, .ready-card {
+            contain: layout style;
+            transform: translateZ(0);
+        }
+        /* Scroll con momentum nativo iOS/Android */
+        .no-scrollbar, .ready-list, .parts-stock-list, .stats-body, .export-body {
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+        }
+        /* Evitar repaints innecesarios durante scroll */
+        body { backface-visibility: hidden; }
+
         /* ===== MEJORAS TALLER v3.2 ===== */
         .deadline-badge { display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:800; }
 
@@ -2850,7 +2877,7 @@
                     <div class="space-y-3" style="margin-top:8px;">
                         <div>
                             <div class="relative">
-                                <input type="text" id="c-nom" placeholder="Nombre completo del cliente" class="uppercase font-semibold w-full pr-12" autocomplete="off" onkeyup="checkClient()" oninput="ac_onInput(this,'cliente')" onfocus="ac_onInput(this,'cliente')" onblur="ac_onBlur()">
+                                <input type="text" id="c-nom" placeholder="Nombre completo del cliente" class="uppercase font-semibold w-full pr-12" autocomplete="off" onkeyup="_debouncedCheckClient()" oninput="ac_onInput(this,'cliente')" onfocus="ac_onInput(this,'cliente')" onblur="ac_onBlur()">
                                 <button type="button" onclick="startVoiceInput('c-nom')" id="voice-btn-c-nom" class="voice-mic-btn absolute right-2 top-1/2 -translate-y-1/2" title="Dictado por voz">🎤</button>
                                 <div id="ac-dropdown-cliente" class="ac-dropdown" style="display:none;"></div>
                             </div>
@@ -6014,11 +6041,59 @@
             });
         }
 
-        async function getAll(store) { await openDB(); return new Promise((resolve) => { try { const tx = db.transaction(store, 'readonly'); const req = tx.objectStore(store).getAll(); req.onsuccess = () => resolve(req.result || []); req.onerror = () => resolve([]); } catch(e) { resolve([]); } }); }
+        // ═══ CACHE EN MEMORIA DE getAll (v1) ═══
+        // Guarda los resultados de getAll para no re-leer la misma store múltiples veces.
+        // Se invalida automáticamente cada vez que put/del/clearStore modifican una store.
+        // TTL también de 3s como red de seguridad por si algo externo modifica la DB.
+        const _dbCache = {};          // { storeName: { data: [...], ts: timestamp } }
+        const _CACHE_TTL = 3000;       // 3 segundos
+        function _invalidateCache(store) {
+            if (store) delete _dbCache[store];
+            else Object.keys(_dbCache).forEach(k => delete _dbCache[k]);
+        }
+
+        async function getAll(store) {
+            // Si hay cache válido, retornar copia rápida
+            const cached = _dbCache[store];
+            if (cached && (Date.now() - cached.ts) < _CACHE_TTL) {
+                return cached.data.slice();  // copia para que no mutten el cache
+            }
+            await openDB();
+            return new Promise((resolve) => {
+                try {
+                    const tx = db.transaction(store, 'readonly');
+                    const req = tx.objectStore(store).getAll();
+                    req.onsuccess = () => {
+                        const data = req.result || [];
+                        _dbCache[store] = { data, ts: Date.now() };
+                        resolve(data.slice());
+                    };
+                    req.onerror = () => resolve([]);
+                } catch(e) { resolve([]); }
+            });
+        }
         async function getOne(store, key) { await openDB(); return new Promise((resolve) => { const tx = db.transaction(store, 'readonly'); const req = tx.objectStore(store).get(key); req.onsuccess = () => resolve(req.result); }); }
-        async function put(store, item) { await openDB(); return new Promise((resolve) => { const tx = db.transaction(store, 'readwrite'); tx.objectStore(store).put(item).onsuccess = resolve; }); }
-        async function del(store, id) { await openDB(); return new Promise((resolve) => { const tx = db.transaction(store, 'readwrite'); tx.objectStore(store).delete(id).onsuccess = resolve; }); }
-        async function clearStore(store) { await openDB(); return new Promise((resolve) => { const tx = db.transaction(store, 'readwrite'); tx.objectStore(store).clear().onsuccess = resolve; }); }
+        async function put(store, item) {
+            await openDB();
+            return new Promise((resolve) => {
+                const tx = db.transaction(store, 'readwrite');
+                tx.objectStore(store).put(item).onsuccess = () => { _invalidateCache(store); resolve(); };
+            });
+        }
+        async function del(store, id) {
+            await openDB();
+            return new Promise((resolve) => {
+                const tx = db.transaction(store, 'readwrite');
+                tx.objectStore(store).delete(id).onsuccess = () => { _invalidateCache(store); resolve(); };
+            });
+        }
+        async function clearStore(store) {
+            await openDB();
+            return new Promise((resolve) => {
+                const tx = db.transaction(store, 'readwrite');
+                tx.objectStore(store).clear().onsuccess = () => { _invalidateCache(store); resolve(); };
+            });
+        }
 
         // ==================== PIN AUTH ====================
         async function verifyPin() {
@@ -6949,6 +7024,13 @@
                 document.getElementById('previews').appendChild(img);
                 if (currentPhotos.length === 3) closeCamera();
             }
+        }
+
+        // Wrapper con debounce para evitar correr checkClient en cada tecla
+        let _checkClientTimer = null;
+        function _debouncedCheckClient() {
+            if (_checkClientTimer) clearTimeout(_checkClientTimer);
+            _checkClientTimer = setTimeout(() => { checkClient(); }, 280);
         }
 
         async function checkClient() {
@@ -9521,18 +9603,16 @@
         // mientras scrolleás vertical. Es preferible la navegación explícita con los
         // botones de abajo (mobile), el sidebar (desktop/tablet) o los atajos 1-4.
 
-        async function tab(t) {
+        function tab(t) {
+            // ═══ PASO 1: actualización visual INSTANTÁNEA (sin esperas) ═══
+            // La animación del botón y el cambio de vista deben ser inmediatos
             if (cameraMode !== 'entrega') closeCamera();
             document.querySelectorAll('.app-view').forEach(v => v.classList.add('hidden'));
             document.getElementById(`view-${t}`).classList.remove('hidden');
-            // Sync nav bar inferior mobile (nueva estructura con .nav-btn / .nav-active)
+            // Sync nav bar inferior mobile
             document.querySelectorAll('nav.bottom-nav-mobile .nav-btn').forEach(b => b.classList.remove('nav-active'));
             const mobileBtn = document.getElementById(`btn-${t}`);
             if (mobileBtn) mobileBtn.classList.add('nav-active');
-            if(t === 'ordenes') await renderOrders();
-            if(t === 'ventas') { await renderStock(); await renderMovimientos(); await updateVentaSelect(); await renderCartera(); }
-            if(t === 'taller') _refreshDailyPanel();
-            window.scrollTo(0,0);
             // Sync sidebar
             ['taller','ordenes','ventas','admin'].forEach(name => {
                 const sEl = document.getElementById(`sidebar-btn-${name}`);
@@ -9542,7 +9622,30 @@
             const tabTitles = { taller:'Nueva Recepción', ordenes:'Órdenes', ventas:'Caja & Inventario', admin:'Datos & Config' };
             const dtTitle = document.getElementById('desktop-topbar-title');
             if (dtTitle) dtTitle.innerText = tabTitles[t] || 'NELSON';
-            syncSidebarCash();
+            window.scrollTo(0,0);
+
+            // ═══ PASO 2: renderizados pesados en segundo plano (no bloqueantes) ═══
+            // Dejamos que el navegador pinte primero, luego cargamos los datos
+            requestAnimationFrame(() => {
+                setTimeout(async () => {
+                    try {
+                        if (t === 'ordenes') {
+                            await renderOrders();
+                        } else if (t === 'ventas') {
+                            // Paralelizar las 4 cargas en vez de secuencial
+                            await Promise.all([
+                                renderStock(),
+                                renderMovimientos(),
+                                updateVentaSelect(),
+                                renderCartera()
+                            ]);
+                        } else if (t === 'taller') {
+                            _refreshDailyPanel();
+                        }
+                        syncSidebarCash();
+                    } catch(e) { console.warn('[tab async render]', e); }
+                }, 0);
+            });
         }
 
         // ==================== PANEL DE HOY (Taller) ====================
@@ -10020,8 +10123,8 @@
             toggleTallerPreviewPanel();
         }, 1500);
 
-        // Refresco periódico de stats cuando la app está visible (mobile + desktop)
-        setInterval(() => { if (!document.hidden) updateDesktopStats(); }, 15000);
+        // (Se eliminó un setInterval duplicado que llamaba updateDesktopStats cada 15s —
+        // ya existe uno cada 60s más arriba, suficiente para mantener los KPIs al día)
 
         // ==================== FIN DESKTOP/TABLET UX ====================
 
@@ -12783,11 +12886,8 @@
             document.getElementById('tour-welcome').classList.add('hidden');
             document.getElementById('tour-complete').classList.add('hidden');
             _tourActive = false;
-            if (markSeen) {
-                localStorage.setItem('tourCompleted', '1');
-            } else {
-                localStorage.setItem('tourCompleted', '1');
-            }
+            // Marcar como visto (tanto si completó como si decidió saltar)
+            localStorage.setItem('tourCompleted', '1');
         }
 
         function _tourHideUI() {
@@ -12910,6 +13010,10 @@
                 showToast('📄 Generando guía...', 'info');
                 // Cargar jsPDF dinámicamente si no está
                 if (!window.jspdf) {
+                    if (!navigator.onLine) {
+                        showAlert('Para generar la guía necesitas conexión a Internet (se descarga una librería la primera vez).\n\nIntenta de nuevo cuando tengas señal.', 'info');
+                        return;
+                    }
                     await new Promise((resolve, reject) => {
                         const s = document.createElement('script');
                         s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
@@ -13513,16 +13617,23 @@
                 _verifyRealConnection();
             }
         }, 2500);
-        // Re-verificar cada 60 segundos (el estado puede cambiar sin emitir evento)
+        // Re-verificar solo cuando el estado podría ser inconsistente:
+        // - Si el badge muestra "offline" (verificar si volvió la conexión)
+        // - Si navigator.onLine dice false (verificar con ping, puede ser falso positivo)
+        // Evita hacer pings innecesarios cuando todo está normal (~1440 pings menos al día)
         setInterval(() => {
+            const badge = document.getElementById('net-badge');
+            const showingOffline = badge && badge.classList.contains('offline') && badge.classList.contains('show');
+            const systemSaysOffline = !navigator.onLine;
+            // Solo pingar si hay indicio de problema
+            if (!showingOffline && !systemSaysOffline) return;
             _verifyRealConnection().then(real => {
-                const badge = document.getElementById('net-badge');
                 if (!badge) return;
-                // Si el badge muestra offline pero el ping dice online → ocultar
-                if (real && badge.classList.contains('offline') && badge.classList.contains('show')) {
+                // Si el badge muestra offline pero el ping dice online → restaurar
+                if (real && showingOffline) {
                     showNetBadge(true);
                 }
-                // Si el badge está oculto pero el ping dice offline → mostrar
+                // Si el sistema dice offline y el ping también → mostrar si no está visible
                 else if (!real && !badge.classList.contains('show')) {
                     showNetBadge(false);
                 }
