@@ -3362,6 +3362,16 @@
                 <div style="height:1px;background:#1a2235;margin:8px 0;"></div>
                 <p style="font-size:9px;font-weight:900;letter-spacing:3px;color:#2a3a55;text-transform:uppercase;padding:6px 4px;margin:0;">AJUSTES</p>
 
+                <button onclick="tourRestart()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
+                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#b45309,#f59e0b);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(245,158,11,0.35);font-size:22px;">👋</div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#fcd34d;margin:0;">Primeros pasos</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Tour guiado para aprender la app</p></div></div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+
+                <button onclick="downloadGuidePDF()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
+                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#be123c,#f43f5e);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(244,63,94,0.35);font-size:20px;">📄</div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#fda4af;margin:0;">Guía imprimible (PDF)</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Para tener cerca del taller</p></div></div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+
                 <button onclick="openChangePinModal()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
                     <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#92400e,#f59e0b);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(245,158,11,0.35);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#fcd34d;margin:0;">Cambiar PIN</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Actualizar contraseña de acceso</p></div></div>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
@@ -3982,6 +3992,84 @@
             </div>
         </div>
     </div>
+
+    <!-- ═══ INDICADOR DE CONEXIÓN (aparece solo cuando estás offline) ═══ -->
+    <div id="connection-indicator" class="hidden" style="position:fixed;bottom:calc(env(safe-area-inset-bottom, 0px) + 76px);left:12px;z-index:5500;display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:99px;background:linear-gradient(135deg,rgba(244,63,94,0.95),rgba(190,18,60,0.95));border:1px solid rgba(244,63,94,0.5);box-shadow:0 6px 18px rgba(244,63,94,0.4);color:#fff;font-size:11px;font-weight:900;letter-spacing:0.3px;backdrop-filter:blur(8px);animation:connPulse 2s ease-in-out infinite;pointer-events:auto;cursor:pointer;" onclick="_showConnectionInfo()">
+        <span id="connection-indicator-dot" style="width:8px;height:8px;border-radius:50%;background:#fca5a5;box-shadow:0 0 8px #f87171;"></span>
+        <span id="connection-indicator-text">Sin conexión</span>
+        <span id="connection-indicator-count" class="hidden" style="background:rgba(0,0,0,0.3);padding:1px 7px;border-radius:99px;font-size:10px;">0</span>
+    </div>
+    <style>
+        @keyframes connPulse {
+            0%,100% { box-shadow: 0 6px 18px rgba(244,63,94,0.4); }
+            50%     { box-shadow: 0 6px 24px rgba(244,63,94,0.7); }
+        }
+    </style>
+
+    <!-- ═════════════ TOUR GUIADO v1 — Onboarding para usuarios nuevos ═════════════ -->
+    <!-- Overlay semi-transparente con recorte circular alrededor del elemento destacado -->
+    <div id="tour-overlay" class="hidden" style="position:fixed;inset:0;z-index:9500;pointer-events:none;"></div>
+    <!-- Highlight (círculo con animación de pulso alrededor del botón destacado) -->
+    <div id="tour-highlight" class="hidden" style="position:fixed;z-index:9501;pointer-events:none;border-radius:18px;box-shadow:0 0 0 6px rgba(251,191,36,0.45), 0 0 0 9999px rgba(5,7,14,0.78);transition:all 0.4s cubic-bezier(0.4,0,0.2,1);animation:tourPulse 2s ease-in-out infinite;"></div>
+    <!-- Globo de explicación -->
+    <div id="tour-tooltip" class="hidden" style="position:fixed;z-index:9502;max-width:300px;background:linear-gradient(180deg,#fef3c7 0%,#fde68a 100%);border:2px solid #f59e0b;border-radius:18px;padding:14px 14px 12px;box-shadow:0 20px 50px rgba(0,0,0,0.6),0 0 0 1px rgba(251,191,36,0.3);">
+        <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;">
+            <div id="tour-tooltip-emoji" style="font-size:26px;line-height:1;flex-shrink:0;"></div>
+            <div style="flex:1;min-width:0;">
+                <p style="font-size:10px;font-weight:900;color:#92400e;letter-spacing:1.5px;text-transform:uppercase;margin:0;" id="tour-tooltip-step">Paso 1 de 8</p>
+                <p id="tour-tooltip-title" style="font-size:15px;font-weight:900;color:#451a03;line-height:1.2;margin:3px 0 0;"></p>
+            </div>
+        </div>
+        <p id="tour-tooltip-text" style="font-size:12.5px;font-weight:600;color:#422006;line-height:1.5;margin:0 0 12px;"></p>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <button id="tour-btn-skip" onclick="tourEnd(true)" style="background:transparent;border:none;color:#92400e;font-size:11px;font-weight:800;cursor:pointer;padding:6px 4px;text-decoration:underline;">Ya sé usarla</button>
+            <div style="display:flex;gap:6px;">
+                <button id="tour-btn-prev" onclick="tourPrev()" style="background:rgba(255,255,255,0.7);border:1px solid #f59e0b;color:#92400e;padding:7px 14px;border-radius:10px;font-size:11px;font-weight:900;cursor:pointer;letter-spacing:0.5px;">← Atrás</button>
+                <button id="tour-btn-next" onclick="tourNext()" style="background:linear-gradient(135deg,#f59e0b,#d97706);border:none;color:#fff;padding:7px 16px;border-radius:10px;font-size:11px;font-weight:900;cursor:pointer;letter-spacing:0.5px;box-shadow:0 4px 10px rgba(245,158,11,0.35);">Siguiente →</button>
+            </div>
+        </div>
+    </div>
+    <!-- Modal de bienvenida inicial -->
+    <div id="tour-welcome" class="hidden fixed inset-0 z-[9600] modal-custom flex items-center justify-center p-4">
+        <div style="width:100%;max-width:380px;background:linear-gradient(180deg,#0b0f1e 0%,#050812 100%);border:1px solid rgba(251,191,36,0.25);border-radius:24px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.7);" class="view-enter">
+            <div style="padding:22px 20px 18px;background:radial-gradient(circle at 30% -10%,rgba(251,191,36,0.25),transparent 55%),linear-gradient(180deg,#1a1608 0%,#0f0c04 100%);border-bottom:1px solid rgba(251,191,36,0.2);text-align:center;">
+                <div style="font-size:48px;margin-bottom:6px;">👋</div>
+                <h2 style="font-size:22px;font-weight:900;color:#fef3c7;margin:0;letter-spacing:-0.5px;">¡Bienvenida!</h2>
+                <p style="font-size:12px;color:#fcd34d;font-weight:700;margin:6px 0 0;">Te voy a mostrar cómo usar la app</p>
+            </div>
+            <div style="padding:18px 20px 20px;">
+                <p style="font-size:13.5px;font-weight:600;color:#cbd5e1;line-height:1.55;margin:0 0 14px;text-align:center;">En <strong style="color:#fcd34d;">2 minutos</strong> aprenderás lo más importante. Solo presiona <strong style="color:#fcd34d;">"Siguiente"</strong> para avanzar.</p>
+                <div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:12px;padding:10px 12px;margin-bottom:14px;">
+                    <p style="font-size:11px;font-weight:700;color:#fde68a;margin:0;line-height:1.5;"><strong>💡 Tip:</strong> Puedes salir del tour en cualquier momento y volver a verlo desde <strong>Datos → Primeros pasos</strong>.</p>
+                </div>
+                <div style="display:flex;gap:8px;margin-bottom:10px;">
+                    <button onclick="tourEnd(true)" style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1;padding:12px;border-radius:12px;font-size:12px;font-weight:800;cursor:pointer;">Ya sé usarla</button>
+                    <button onclick="tourStart()" style="flex:2;background:linear-gradient(135deg,#f59e0b,#d97706);border:none;color:#fff;padding:12px;border-radius:12px;font-size:13px;font-weight:900;cursor:pointer;letter-spacing:0.5px;box-shadow:0 6px 18px rgba(245,158,11,0.4);">✨ Empezar tour</button>
+                </div>
+                <button onclick="downloadGuidePDF()" style="width:100%;background:transparent;border:1px dashed rgba(244,63,94,0.4);color:#fda4af;padding:10px;border-radius:12px;font-size:11.5px;font-weight:700;cursor:pointer;letter-spacing:0.3px;">📄 O descarga la guía en PDF</button>
+            </div>
+        </div>
+    </div>
+    <!-- Mensaje final -->
+    <div id="tour-complete" class="hidden fixed inset-0 z-[9600] modal-custom flex items-center justify-center p-4">
+        <div style="width:100%;max-width:360px;background:linear-gradient(180deg,#0a1a14 0%,#050c08 100%);border:1px solid rgba(16,185,129,0.3);border-radius:24px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.7);" class="view-enter">
+            <div style="padding:22px 20px 18px;background:radial-gradient(circle at 30% -10%,rgba(16,185,129,0.25),transparent 55%),linear-gradient(180deg,#0a1e14 0%,#04100a 100%);border-bottom:1px solid rgba(16,185,129,0.2);text-align:center;">
+                <div style="font-size:48px;margin-bottom:6px;">🎉</div>
+                <h2 style="font-size:22px;font-weight:900;color:#d1fae5;margin:0;letter-spacing:-0.5px;">¡Terminaste!</h2>
+                <p style="font-size:12px;color:#6ee7b7;font-weight:700;margin:6px 0 0;">Ya sabes lo esencial</p>
+            </div>
+            <div style="padding:18px 20px 20px;">
+                <p style="font-size:13px;font-weight:600;color:#cbd5e1;line-height:1.55;margin:0 0 14px;text-align:center;">Puedes empezar a usar la app. Si se te olvida algo, vuelve al tour desde <strong style="color:#6ee7b7;">Datos → Primeros pasos</strong>.</p>
+                <button onclick="tourEnd(false)" style="width:100%;background:linear-gradient(135deg,#10b981,#059669);border:none;color:#fff;padding:13px;border-radius:12px;font-size:13px;font-weight:900;cursor:pointer;letter-spacing:0.5px;box-shadow:0 6px 18px rgba(16,185,129,0.4);">✓ ¡Vamos a trabajar!</button>
+            </div>
+        </div>
+    </div>
+    <style>
+        @keyframes tourPulse {
+            0%,100% { box-shadow: 0 0 0 6px rgba(251,191,36,0.45), 0 0 0 9999px rgba(5,7,14,0.78); }
+            50%     { box-shadow: 0 0 0 10px rgba(251,191,36,0.55), 0 0 0 9999px rgba(5,7,14,0.78); }
+        }
+    </style>
 
     <!-- ===== MODAL REPUESTOS USADOS EN ORDEN (integración stock ↔ órdenes) ===== -->
     <div id="modal-parts-used" class="hidden fixed inset-0 z-[3500] modal-custom flex items-center justify-center p-3">
@@ -6073,6 +6161,39 @@
             const overdue = orders.filter(o => o.sta !== 'entregado' && getBusinessDaysDiff(new Date(o.fecha), today) >= 60);
             if (overdue.length) showToast(`${overdue.length} órdenes con más de 60 días pendientes`, 'warning');
         }
+
+        // Equipos REPARADOS que llevan +5 días sin ser recogidos → recordatorio al cliente
+        async function checkUnclaimedRepairs() {
+            try {
+                // Solo si ya se mostró hoy, no repetir (una sola vez al día para no molestar)
+                const today = new Date().toISOString().slice(0, 10);
+                const lastShown = localStorage.getItem('unclaimedCheckDate');
+                if (lastShown === today) return;
+
+                const orders = await getAll('orders');
+                const now = Date.now();
+                const cincoDias = 5 * 86400000;
+                const candidates = orders.filter(o => {
+                    if (o.sta !== 'reparado') return false;
+                    if (!o.tel) return false;
+                    const ref = o.fechaReparado || o.fechaEstado || o.fecha || 0;
+                    const dias = (now - ref) / 86400000;
+                    // Llevan más de 5 días reparados
+                    if (dias < 5) return false;
+                    // No han sido avisados O el último aviso fue hace +3 días
+                    if (!o.lastNotified) return true;
+                    return (now - o.lastNotified) > 3 * 86400000;
+                });
+
+                if (candidates.length === 0) return;
+
+                localStorage.setItem('unclaimedCheckDate', today);
+                // Mensaje sutil en vez de bloqueante
+                setTimeout(() => {
+                    showToast(`🔔 ${candidates.length} equipo${candidates.length !== 1 ? 's' : ''} reparado${candidates.length !== 1 ? 's' : ''} esperando al cliente hace varios días. Toca para avisar.`, 'info', 7000);
+                }, 2500);
+            } catch(e) { console.warn('[checkUnclaimedRepairs]', e); }
+        }
         setInterval(() => { checkLowStock(); checkOverdueOrders(); }, 3600000);
 
         // ==================== CLIENTES Y DEUDA ====================
@@ -6350,6 +6471,7 @@
                 try {
                     checkLowStock();
                     checkOverdueOrders();
+                    checkUnclaimedRepairs();
                     checkWarrantyAlerts();
                     checkSinMovimiento();
                     loadLowStockThreshold();
@@ -6375,6 +6497,8 @@
                     requestPushPermission();
                     tryDriveReconnect();
                     await _migrateStockFields();
+                    // Verificar si es la primera vez que se abre la app → mostrar tour
+                    _maybeShowTourOnStart();
                 } catch(e) { console.warn('Fase 3 init:', e); }
             });
         }
@@ -6874,6 +6998,16 @@
                 const lastOrder = clientOrders.slice().sort((a, b) => (b.fecha || 0) - (a.fecha || 0))[0];
                 const diasUltima = lastOrder && lastOrder.fecha ? Math.floor((Date.now() - lastOrder.fecha) / 86400000) : null;
 
+                // Detectar equipos AÚN EN GARANTÍA (cliente podría estar reclamando)
+                const now = Date.now();
+                const enGarantia = clientOrders.filter(o => {
+                    if (o.sta !== 'entregado') return false;
+                    if (!o.garantia || o.garantia <= 0) return false;
+                    if (!o.fechaEntrega) return false;
+                    const expMs = o.fechaEntrega + o.garantia * 86400000;
+                    return expMs > now;
+                });
+
                 // Limpiar el alert viejo (la tarjeta es mejor)
                 alertBox.innerText = '';
 
@@ -6902,9 +7036,22 @@
                     // Badge de deuda (si aplica)
                     const deudaEl = document.getElementById('client-info-deuda');
                     if (deudaEl) {
-                        if (saldoPendiente > 0) {
+                        if (enGarantia.length > 0) {
+                            // PRIORIDAD: garantía activa gana sobre deuda (más importante avisar al técnico)
+                            const equiposGar = enGarantia.map(o => o.equ).slice(0, 2).join(', ');
+                            deudaEl.style.background = 'rgba(16,185,129,0.15)';
+                            deudaEl.style.borderColor = 'rgba(16,185,129,0.3)';
+                            deudaEl.style.color = '#6ee7b7';
+                            deudaEl.textContent = `🛡️ ${enGarantia.length} equipo${enGarantia.length !== 1 ? 's' : ''} en garantía`;
+                            deudaEl.title = equiposGar;
+                            deudaEl.classList.remove('hidden');
+                        } else if (saldoPendiente > 0) {
                             const cur = getCurrency();
+                            deudaEl.style.background = 'rgba(251,146,60,0.15)';
+                            deudaEl.style.borderColor = 'rgba(251,146,60,0.3)';
+                            deudaEl.style.color = '#fdba74';
                             deudaEl.textContent = `💰 Debe ${cur}${saldoPendiente.toLocaleString()}`;
+                            deudaEl.title = '';
                             deudaEl.classList.remove('hidden');
                         } else {
                             deudaEl.classList.add('hidden');
@@ -7671,7 +7818,6 @@
 
                     <div style="padding:10px 14px 14px;border-top:1px solid rgba(255,255,255,0.04);display:flex;justify-content:flex-end;gap:6px;">
                         <button onclick="openOrderChat(${o.id})" class="order-action-btn bg-cyan-500/15 text-cyan-400" title="Notas internas">📝</button>
-                        <button onclick="openPaymentPlan(${o.id})" class="order-action-btn bg-blue-500/15 text-blue-400" title="Plan de pagos">💳</button>
                         <button onclick="duplicateOrder(${o.id})" class="order-action-btn bg-violet-500/15 text-violet-400" title="Duplicar orden (mismo cliente)">📋</button>
                         <button onclick="printInvoice(${o.id})" class="order-action-btn bg-amber-500/15 text-amber-400" title="Imprimir">🧾</button>
                         <button onclick="sendWA(${o.id})" class="order-action-btn bg-emerald-500/15 text-emerald-400" title="WhatsApp">💬</button>
@@ -12548,6 +12694,594 @@
         }
 
         // Pedido rápido al proveedor asociado de un repuesto bajo mínimo
+        // ════════════════════════════════════════════════════════════════════════
+        // TOUR GUIADO v1 — Sistema de onboarding para usuarios nuevos
+        // ════════════════════════════════════════════════════════════════════════
+        const _TOUR_STEPS = [
+            {
+                target: '#btn-taller',
+                emoji: '🔧',
+                title: 'Aquí empieza todo',
+                text: 'Este botón "Taller" es donde recibes los equipos de los clientes. Cada vez que llegue un cliente con un equipo dañado, tocas aquí primero.',
+                position: 'top'
+            },
+            {
+                target: '#c-nom',
+                emoji: '👤',
+                title: 'Nombre del cliente',
+                text: 'Escribe el nombre completo del cliente aquí. Si ya lo habías atendido antes, te aparece una tarjeta azul con su historial. Puedes tocarla para ver qué le has reparado.',
+                position: 'bottom'
+            },
+            {
+                target: '#c-tel',
+                emoji: '📱',
+                title: 'WhatsApp del cliente',
+                text: 'Muy importante escribir bien el número. La app envía mensajes automáticos al cliente por WhatsApp cuando su equipo está listo.',
+                position: 'bottom'
+            },
+            {
+                target: '#c-equ',
+                emoji: '🔌',
+                title: 'Describe el equipo',
+                text: 'Escribe marca, modelo y tipo. Por ejemplo: "OSTER LICUADORA" o "LG NEVERA". Así después es fácil buscar.',
+                position: 'bottom'
+            },
+            {
+                target: '#c-fal',
+                emoji: '⚠️',
+                title: 'La falla reportada',
+                text: 'Escribe qué le pasa al equipo. Lo que te dijo el cliente. Por ejemplo: "NO PRENDE" o "HACE RUIDO EXTRAÑO". Con letra sencilla, sin complicarse.',
+                position: 'top'
+            },
+            {
+                target: '#btn-ordenes',
+                emoji: '📋',
+                title: 'Todas las órdenes',
+                text: 'Aquí ves todos los equipos que has recibido. Puedes cambiar el estado (en revisión, reparado, entregado) tocando el botón de estado en cada orden.',
+                position: 'top'
+            },
+            {
+                target: '#btn-ventas',
+                emoji: '💵',
+                title: 'Caja e inventario',
+                text: 'En "Caja" registras ventas de repuestos y gastos del día. Y manejas el inventario. Todo el dinero que entra y sale pasa por aquí.',
+                position: 'top'
+            },
+            {
+                target: '#btn-admin',
+                emoji: '📊',
+                title: 'Datos y reportes',
+                text: 'En "Datos" ves los reportes del mes, estadísticas, y ajustes. Al final del mes revisa aquí cuánto ganaste. Y usa "Respaldar" para guardar tu información en Google Drive.',
+                position: 'top'
+            }
+        ];
+        let _tourIdx = 0;
+        let _tourActive = false;
+
+        function tourShowWelcome() {
+            const prevTab = document.querySelector('.app-view:not(.hidden)');
+            // Asegurarnos de estar en la vista Taller antes del tour
+            if (typeof tab === 'function') tab('taller');
+            setTimeout(() => {
+                document.getElementById('tour-welcome').classList.remove('hidden');
+            }, 200);
+        }
+
+        function tourStart() {
+            document.getElementById('tour-welcome').classList.add('hidden');
+            document.getElementById('tour-complete').classList.add('hidden');
+            _tourIdx = 0;
+            _tourActive = true;
+            _tourShowStep(0);
+        }
+
+        function tourNext() {
+            if (_tourIdx >= _TOUR_STEPS.length - 1) {
+                _tourHideUI();
+                document.getElementById('tour-complete').classList.remove('hidden');
+                return;
+            }
+            _tourIdx++;
+            _tourShowStep(_tourIdx);
+        }
+
+        function tourPrev() {
+            if (_tourIdx === 0) return;
+            _tourIdx--;
+            _tourShowStep(_tourIdx);
+        }
+
+        function tourEnd(markSeen) {
+            _tourHideUI();
+            document.getElementById('tour-welcome').classList.add('hidden');
+            document.getElementById('tour-complete').classList.add('hidden');
+            _tourActive = false;
+            if (markSeen) {
+                localStorage.setItem('tourCompleted', '1');
+            } else {
+                localStorage.setItem('tourCompleted', '1');
+            }
+        }
+
+        function _tourHideUI() {
+            document.getElementById('tour-overlay').classList.add('hidden');
+            document.getElementById('tour-highlight').classList.add('hidden');
+            document.getElementById('tour-tooltip').classList.add('hidden');
+        }
+
+        function _tourShowStep(idx) {
+            const step = _TOUR_STEPS[idx];
+            if (!step) return;
+
+            // Asegurarnos que estamos en vista Taller (muchos targets están ahí)
+            if (typeof tab === 'function' && step.target && step.target.startsWith('#c-')) {
+                const tallerView = document.getElementById('view-taller');
+                if (tallerView && tallerView.classList.contains('hidden')) tab('taller');
+            }
+
+            // Localizar el elemento destacado
+            setTimeout(() => {
+                const targetEl = document.querySelector(step.target);
+                if (!targetEl) {
+                    // Si no existe, saltar el paso (evitar que el tour se rompa)
+                    console.warn('[tour] target no encontrado:', step.target);
+                    if (idx < _TOUR_STEPS.length - 1) {
+                        _tourIdx++;
+                        _tourShowStep(_tourIdx);
+                    } else {
+                        _tourHideUI();
+                        document.getElementById('tour-complete').classList.remove('hidden');
+                    }
+                    return;
+                }
+
+                // Scroll al elemento si está fuera de vista
+                targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                setTimeout(() => {
+                    const rect = targetEl.getBoundingClientRect();
+                    const highlight = document.getElementById('tour-highlight');
+                    const overlay   = document.getElementById('tour-overlay');
+                    const tooltip   = document.getElementById('tour-tooltip');
+                    const emojiEl   = document.getElementById('tour-tooltip-emoji');
+                    const stepEl    = document.getElementById('tour-tooltip-step');
+                    const titleEl   = document.getElementById('tour-tooltip-title');
+                    const textEl    = document.getElementById('tour-tooltip-text');
+                    const prevBtn   = document.getElementById('tour-btn-prev');
+                    const nextBtn   = document.getElementById('tour-btn-next');
+
+                    // Posición del highlight (con pequeño padding)
+                    const pad = 6;
+                    highlight.style.left   = (rect.left - pad) + 'px';
+                    highlight.style.top    = (rect.top - pad) + 'px';
+                    highlight.style.width  = (rect.width + pad * 2) + 'px';
+                    highlight.style.height = (rect.height + pad * 2) + 'px';
+                    highlight.classList.remove('hidden');
+                    overlay.classList.remove('hidden');
+
+                    // Contenido del tooltip
+                    emojiEl.textContent = step.emoji;
+                    stepEl.textContent  = `Paso ${idx + 1} de ${_TOUR_STEPS.length}`;
+                    titleEl.textContent = step.title;
+                    textEl.textContent  = step.text;
+                    prevBtn.disabled    = (idx === 0);
+                    prevBtn.style.opacity = (idx === 0) ? '0.4' : '1';
+                    nextBtn.textContent = (idx === _TOUR_STEPS.length - 1) ? 'Finalizar ✓' : 'Siguiente →';
+
+                    // Calcular posición del tooltip (arriba o abajo del target)
+                    tooltip.classList.remove('hidden');
+                    // Esperar a que se renderice para medir altura real
+                    requestAnimationFrame(() => {
+                        const ttRect = tooltip.getBoundingClientRect();
+                        const vw = window.innerWidth;
+                        const vh = window.innerHeight;
+                        const wantBelow = step.position === 'bottom';
+                        const spaceBelow = vh - rect.bottom;
+                        const spaceAbove = rect.top;
+                        let top;
+                        if (wantBelow && spaceBelow >= ttRect.height + 20) {
+                            top = rect.bottom + 14;
+                        } else if (spaceAbove >= ttRect.height + 20) {
+                            top = rect.top - ttRect.height - 14;
+                        } else if (spaceBelow >= ttRect.height + 20) {
+                            top = rect.bottom + 14;
+                        } else {
+                            // No cabe ni arriba ni abajo — centrar vertical
+                            top = Math.max(10, (vh - ttRect.height) / 2);
+                        }
+                        // Centrar horizontal relativo al target, sin salirse de pantalla
+                        let left = rect.left + (rect.width / 2) - (ttRect.width / 2);
+                        left = Math.max(10, Math.min(vw - ttRect.width - 10, left));
+                        tooltip.style.left = left + 'px';
+                        tooltip.style.top  = top + 'px';
+                    });
+                }, 350);
+            }, 100);
+        }
+
+        // Verifica al inicio si se debe mostrar el tour de bienvenida
+        function _maybeShowTourOnStart() {
+            try {
+                if (localStorage.getItem('tourCompleted') === '1') return;
+                // Solo si no hay todavía órdenes (usuario realmente nuevo) o el flag explícito
+                getAll('orders').then(orders => {
+                    // Dar tiempo para que la UI cargue
+                    setTimeout(() => tourShowWelcome(), 1800);
+                }).catch(() => {});
+            } catch(e) { console.warn('[tour init]', e); }
+        }
+
+        // Permite re-lanzar el tour desde un botón en Ajustes
+        function tourRestart() {
+            localStorage.removeItem('tourCompleted');
+            tourShowWelcome();
+        }
+
+        // Generar PDF imprimible con guía básica de uso
+        async function downloadGuidePDF() {
+            try {
+                showToast('📄 Generando guía...', 'info');
+                // Cargar jsPDF dinámicamente si no está
+                if (!window.jspdf) {
+                    await new Promise((resolve, reject) => {
+                        const s = document.createElement('script');
+                        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+                        s.onload = resolve; s.onerror = reject;
+                        document.head.appendChild(s);
+                    });
+                }
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+                const biz = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+                const bizName = biz.name || 'Todo Repuestos Nelson';
+                const pageW = doc.internal.pageSize.getWidth();
+                const pageH = doc.internal.pageSize.getHeight();
+
+                // ═══ PÁGINA 1 — Portada y flujo básico ═══
+                // Header con color
+                doc.setFillColor(15, 23, 42);
+                doc.rect(0, 0, pageW, 48, 'F');
+                doc.setFillColor(249, 115, 22);
+                doc.rect(0, 46, pageW, 2, 'F');
+                // Logo/título
+                doc.setTextColor(254, 243, 199);
+                doc.setFontSize(22);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Guía Rápida', pageW/2, 22, { align: 'center' });
+                doc.setTextColor(252, 211, 77);
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'normal');
+                doc.text(bizName, pageW/2, 32, { align: 'center' });
+                doc.setTextColor(156, 163, 175);
+                doc.setFontSize(9);
+                doc.text('Los pasos básicos para usar la app', pageW/2, 40, { align: 'center' });
+
+                // Intro
+                let y = 62;
+                doc.setTextColor(31, 41, 55);
+                doc.setFontSize(11);
+                doc.setFont('helvetica', 'bold');
+                doc.text('📱 La app tiene 4 botones abajo:', 14, y);
+                y += 8;
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(75, 85, 99);
+                const intros = [
+                    ['🔧 TALLER', 'Para recibir equipos nuevos de los clientes.'],
+                    ['📋 ÓRDENES', 'Lista de todos los equipos recibidos.'],
+                    ['💵 CAJA', 'Ventas de repuestos, gastos e inventario.'],
+                    ['📊 DATOS', 'Reportes, estadísticas y configuración.'],
+                ];
+                intros.forEach(([nombre, desc]) => {
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(17, 24, 39);
+                    doc.text(nombre, 18, y);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setTextColor(75, 85, 99);
+                    doc.text(desc, 60, y);
+                    y += 7;
+                });
+
+                // Sección 1
+                y += 4;
+                doc.setFillColor(254, 243, 199);
+                doc.rect(10, y - 5, pageW - 20, 8, 'F');
+                doc.setTextColor(146, 64, 14);
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text('1. Cuando un cliente trae un equipo dañado', 14, y);
+                y += 12;
+                doc.setTextColor(55, 65, 81);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                const pasos1 = [
+                    '1) Toca el botón TALLER abajo.',
+                    '2) Escribe el NOMBRE COMPLETO del cliente.',
+                    '3) Escribe el NÚMERO DE WHATSAPP (sin espacios).',
+                    '4) Describe el EQUIPO: marca, modelo, tipo.',
+                    '5) Escribe la FALLA que reportó el cliente.',
+                    '6) Pon el VALOR aproximado de la reparación.',
+                    '7) Si dejó un adelanto, escríbelo en ADELANTO.',
+                    '8) Al final, toca el botón naranja REGISTRAR.',
+                ];
+                pasos1.forEach(p => {
+                    doc.text(p, 18, y);
+                    y += 6.5;
+                });
+                y += 3;
+                doc.setFillColor(220, 252, 231);
+                doc.rect(10, y - 3, pageW - 20, 10, 'F');
+                doc.setTextColor(6, 95, 70);
+                doc.setFontSize(9);
+                doc.setFont('helvetica', 'bold');
+                doc.text('💡 TIP: Si el cliente ya vino antes, sale una tarjeta azul con su', 14, y + 1);
+                doc.text('historial. Puedes tocarla para ver qué le has reparado.', 14, y + 5);
+                y += 14;
+
+                // Sección 2
+                doc.setFillColor(254, 243, 199);
+                doc.rect(10, y - 5, pageW - 20, 8, 'F');
+                doc.setTextColor(146, 64, 14);
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text('2. Cuando ya reparaste el equipo', 14, y);
+                y += 12;
+                doc.setTextColor(55, 65, 81);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                const pasos2 = [
+                    '1) Ve a ÓRDENES.',
+                    '2) Busca la orden del cliente.',
+                    '3) Toca el botón de ESTADO (dice "RECIBIDO", "EN REVISIÓN"...)',
+                    '4) Cambia a REPARADO.',
+                    '5) La app te preguntará qué repuestos usaste (opcional).',
+                    '6) Avisa al cliente con el botón 💬 de WhatsApp.',
+                ];
+                pasos2.forEach(p => {
+                    doc.text(p, 18, y);
+                    y += 6.5;
+                });
+
+                // Footer página 1
+                doc.setFontSize(8);
+                doc.setTextColor(156, 163, 175);
+                doc.text('Página 1 de 2', pageW / 2, pageH - 8, { align: 'center' });
+
+                // ═══ PÁGINA 2 — Entrega, Caja y Consejos ═══
+                doc.addPage();
+                // Header pág 2
+                doc.setFillColor(15, 23, 42);
+                doc.rect(0, 0, pageW, 20, 'F');
+                doc.setFillColor(249, 115, 22);
+                doc.rect(0, 19, pageW, 1, 'F');
+                doc.setTextColor(254, 243, 199);
+                doc.setFontSize(11);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Guía Rápida — ' + bizName, pageW/2, 13, { align: 'center' });
+
+                y = 32;
+
+                // Sección 3
+                doc.setFillColor(254, 243, 199);
+                doc.rect(10, y - 5, pageW - 20, 8, 'F');
+                doc.setTextColor(146, 64, 14);
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text('3. Cuando el cliente viene a recoger', 14, y);
+                y += 12;
+                doc.setTextColor(55, 65, 81);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                const pasos3 = [
+                    '1) Abre la orden del cliente.',
+                    '2) Cambia el estado a ENTREGADO.',
+                    '3) Registra el pago final.',
+                    '4) Si usaste efectivo, queda registrado en CAJA automáticamente.',
+                ];
+                pasos3.forEach(p => { doc.text(p, 18, y); y += 6.5; });
+                y += 3;
+
+                // Sección 4
+                doc.setFillColor(254, 243, 199);
+                doc.rect(10, y - 5, pageW - 20, 8, 'F');
+                doc.setTextColor(146, 64, 14);
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text('4. Caja (ventas de repuestos y gastos)', 14, y);
+                y += 12;
+                doc.setTextColor(55, 65, 81);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                const pasos4 = [
+                    '• Para VENDER un repuesto: toca CAJA → Nueva Venta.',
+                    '• Para registrar un GASTO: toca CAJA → Nuevo Gasto.',
+                    '• El saldo de la caja se actualiza solo al final del día.',
+                    '• Si ves que un repuesto baja de cantidad, es normal:',
+                    '  la app descuenta el stock automáticamente al vender.',
+                ];
+                pasos4.forEach(p => { doc.text(p, 18, y); y += 6.5; });
+                y += 3;
+
+                // Sección 5 - Consejos
+                doc.setFillColor(219, 234, 254);
+                doc.rect(10, y - 5, pageW - 20, 8, 'F');
+                doc.setTextColor(29, 78, 216);
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text('✨ Consejos importantes', 14, y);
+                y += 12;
+                doc.setTextColor(55, 65, 81);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                const consejos = [
+                    '• En la parte de arriba de TALLER verás el "Panel de hoy":',
+                    '  te dice cuántos equipos están listos, vencidos, o bajo stock.',
+                    '',
+                    '• Si te equivocas en una orden, puedes editarla:',
+                    '  toca el nombre del cliente en la tarjeta de la orden.',
+                    '',
+                    '• Para GUARDAR tu información en la nube de Google:',
+                    '  DATOS → Respaldar. Hazlo al menos una vez por semana.',
+                    '',
+                    '• Si quieres ver el tour otra vez:',
+                    '  DATOS → AJUSTES → Primeros pasos.',
+                    '',
+                    '• Si algo no te funciona bien, cierra y vuelve a abrir la app.',
+                ];
+                consejos.forEach(p => {
+                    if (p) doc.text(p, 18, y);
+                    y += 5.5;
+                });
+                y += 2;
+
+                // Botón de ayuda al final
+                doc.setFillColor(254, 226, 226);
+                doc.rect(10, y - 3, pageW - 20, 18, 'F');
+                doc.setDrawColor(248, 113, 113);
+                doc.setLineWidth(0.5);
+                doc.rect(10, y - 3, pageW - 20, 18, 'S');
+                doc.setTextColor(153, 27, 27);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.text('⚠️ ¿Te trabaste? Llama a Luis para que te ayude.', 14, y + 2);
+                doc.setTextColor(127, 29, 29);
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(9);
+                doc.text('No te preocupes si algo sale mal, todo se puede corregir después.', 14, y + 9);
+
+                // Footer
+                doc.setFontSize(8);
+                doc.setTextColor(156, 163, 175);
+                doc.text('Página 2 de 2', pageW / 2, pageH - 8, { align: 'center' });
+
+                const today = new Date().toISOString().slice(0, 10);
+                doc.save(`Guia-Rapida-${today}.pdf`);
+                showToast('✅ Guía descargada · Imprímela y tenla cerca del taller', 'success');
+            } catch (e) {
+                console.warn('[downloadGuidePDF]', e);
+                showAlert('Error al generar la guía. Intenta de nuevo.', 'error');
+            }
+        }
+
+        // ════════════════════════════════════════════════════════════════════════
+        // INDICADOR DE CONEXIÓN Y COLA DE MENSAJES PENDIENTES
+        // ════════════════════════════════════════════════════════════════════════
+        function _refreshConnectionIndicator() {
+            const ind = document.getElementById('connection-indicator');
+            if (!ind) return;
+            const online = navigator.onLine;
+            const pending = _getPendingMessagesCount();
+
+            if (online && pending === 0) {
+                // Todo bien → ocultar
+                ind.classList.add('hidden');
+            } else if (!online) {
+                // Sin conexión → indicador rojo
+                ind.classList.remove('hidden');
+                ind.style.background = 'linear-gradient(135deg,rgba(244,63,94,0.95),rgba(190,18,60,0.95))';
+                ind.style.borderColor = 'rgba(244,63,94,0.5)';
+                ind.style.boxShadow = '0 6px 18px rgba(244,63,94,0.4)';
+                const text = document.getElementById('connection-indicator-text');
+                if (text) text.textContent = 'Sin conexión';
+                const dot = document.getElementById('connection-indicator-dot');
+                if (dot) { dot.style.background = '#fca5a5'; dot.style.boxShadow = '0 0 8px #f87171'; }
+                const count = document.getElementById('connection-indicator-count');
+                if (count) {
+                    if (pending > 0) {
+                        count.textContent = pending;
+                        count.classList.remove('hidden');
+                    } else {
+                        count.classList.add('hidden');
+                    }
+                }
+            } else {
+                // Online con mensajes pendientes → indicador ámbar
+                ind.classList.remove('hidden');
+                ind.style.background = 'linear-gradient(135deg,rgba(245,158,11,0.95),rgba(180,83,9,0.95))';
+                ind.style.borderColor = 'rgba(245,158,11,0.5)';
+                ind.style.boxShadow = '0 6px 18px rgba(245,158,11,0.4)';
+                const text = document.getElementById('connection-indicator-text');
+                if (text) text.textContent = `${pending} mensaje${pending !== 1 ? 's' : ''} pendiente${pending !== 1 ? 's' : ''}`;
+                const dot = document.getElementById('connection-indicator-dot');
+                if (dot) { dot.style.background = '#fde68a'; dot.style.boxShadow = '0 0 8px #fbbf24'; }
+                const count = document.getElementById('connection-indicator-count');
+                if (count) count.classList.add('hidden');
+            }
+        }
+
+        function _getPendingMessagesCount() {
+            try {
+                const q = JSON.parse(localStorage.getItem('waQueue') || '[]');
+                return Array.isArray(q) ? q.length : 0;
+            } catch(e) { return 0; }
+        }
+
+        function _showConnectionInfo() {
+            const online = navigator.onLine;
+            const pending = _getPendingMessagesCount();
+            if (!online) {
+                let msg = '📡 Estás sin conexión a Internet.\n\n';
+                msg += 'Lo que SÍ funciona:\n';
+                msg += '  ✅ Recibir equipos (crear órdenes)\n';
+                msg += '  ✅ Cambiar estados\n';
+                msg += '  ✅ Registrar ventas y gastos\n';
+                msg += '  ✅ Ver tu historial\n\n';
+                msg += 'Lo que NO funciona hasta que vuelva la señal:\n';
+                msg += '  ❌ Enviar WhatsApp\n';
+                msg += '  ❌ Respaldo en Drive\n\n';
+                if (pending > 0) msg += `📥 Hay ${pending} mensaje${pending !== 1 ? 's' : ''} de WhatsApp esperando para enviarse.`;
+                showAlert(msg, 'info');
+            } else if (pending > 0) {
+                showConfirm(
+                    `Tienes ${pending} mensaje${pending !== 1 ? 's' : ''} de WhatsApp pendiente${pending !== 1 ? 's' : ''} de enviar.\n\n¿Abrirlos ahora?`,
+                    () => _flushWhatsappQueue(),
+                    'info'
+                );
+            }
+        }
+
+        async function _flushWhatsappQueue() {
+            try {
+                const queue = JSON.parse(localStorage.getItem('waQueue') || '[]');
+                if (!queue.length) return;
+                showToast(`Abriendo ${queue.length} mensaje${queue.length !== 1 ? 's' : ''} pendiente${queue.length !== 1 ? 's' : ''}...`, 'info');
+                for (let i = 0; i < queue.length; i++) {
+                    const m = queue[i];
+                    if (!m || !m.url) continue;
+                    sessionStorage.setItem('_waJump', '1');
+                    window.open(m.url, '_blank');
+                    if (i < queue.length - 1) await new Promise(r => setTimeout(r, 1500));
+                }
+                localStorage.setItem('waQueue', '[]');
+                _refreshConnectionIndicator();
+                showToast('✅ Todos los mensajes fueron abiertos', 'success');
+            } catch(e) { console.warn('[flushWhatsappQueue]', e); }
+        }
+
+        // Helper: encolar o enviar al instante un mensaje según conexión
+        function _sendOrQueueWA(url, label) {
+            if (navigator.onLine) {
+                sessionStorage.setItem('_waJump', '1');
+                window.open(url, '_blank');
+                return 'sent';
+            } else {
+                try {
+                    const q = JSON.parse(localStorage.getItem('waQueue') || '[]');
+                    q.push({ url, label: label || '', ts: Date.now() });
+                    localStorage.setItem('waQueue', JSON.stringify(q));
+                    _refreshConnectionIndicator();
+                    showToast(`📥 Guardado · Se abrirá cuando vuelva la señal`, 'info');
+                    return 'queued';
+                } catch(e) { return 'failed'; }
+            }
+        }
+
+        // Escuchar cambios de conexión
+        window.addEventListener('online',  _refreshConnectionIndicator);
+        window.addEventListener('offline', _refreshConnectionIndicator);
+        // Revisar al iniciar
+        setTimeout(() => _refreshConnectionIndicator(), 1000);
+
         async function pedirAProveedor(stockId) {
             try {
                 const stock = await getAll('stock');
