@@ -5787,6 +5787,14 @@
                     <p id="mov-total-net" class="text-white font-black text-base">$0</p>
                 </div>
             </div>
+            <!-- Toggle Caja actual / Histórico completo -->
+            <div class="px-3 pt-3 pb-1 border-b border-white/5">
+                <div class="flex gap-1 bg-slate-800/40 rounded-xl p-1">
+                    <button id="mov-tab-actual" onclick="setMovScope('actual')" class="flex-1 text-[10px] font-black py-2 rounded-lg transition active:scale-95" style="background:linear-gradient(135deg,#0e7490,#06b6d4);color:#fff;box-shadow:0 2px 6px rgba(6,182,212,0.3);">📌 CAJA ACTUAL</button>
+                    <button id="mov-tab-historico" onclick="setMovScope('historico')" class="flex-1 text-[10px] font-black py-2 rounded-lg transition active:scale-95 text-slate-400">📚 HISTÓRICO COMPLETO</button>
+                </div>
+                <p id="mov-scope-hint" class="text-[9px] text-slate-500 text-center mt-1.5">Movimientos desde el último cierre de caja</p>
+            </div>
             <!-- Filtro de fecha -->
             <div class="p-3 flex gap-2 border-b border-white/10">
                 <div class="flex-1">
@@ -12086,15 +12094,61 @@
 
         // ==================== MOVIMIENTOS COMPLETOS ====================
         let _allMovimientos = [];
+        let _movScope = 'actual'; // 'actual' o 'historico'
 
         async function openMovimientosCompletos() {
+            _movScope = 'actual';
+            _updateMovScopeUI();
+            await _loadMovimientosByScope();
+            document.getElementById('mov-filter-from').value = '';
+            document.getElementById('mov-filter-to').value = '';
+            renderMovimientosFull(_allMovimientos);
+            document.getElementById('modal-movimientos').classList.remove('hidden');
+        }
+
+        function _updateMovScopeUI() {
+            const tabActual = document.getElementById('mov-tab-actual');
+            const tabHistorico = document.getElementById('mov-tab-historico');
+            const hint = document.getElementById('mov-scope-hint');
+            if (!tabActual || !tabHistorico) return;
+            if (_movScope === 'actual') {
+                tabActual.style.background = 'linear-gradient(135deg,#0e7490,#06b6d4)';
+                tabActual.style.color = '#fff';
+                tabActual.style.boxShadow = '0 2px 6px rgba(6,182,212,0.3)';
+                tabHistorico.style.background = 'transparent';
+                tabHistorico.style.color = '#94a3b8';
+                tabHistorico.style.boxShadow = 'none';
+                if (hint) hint.textContent = 'Movimientos desde el último cierre de caja';
+            } else {
+                tabHistorico.style.background = 'linear-gradient(135deg,#7c3aed,#a855f7)';
+                tabHistorico.style.color = '#fff';
+                tabHistorico.style.boxShadow = '0 2px 6px rgba(168,85,247,0.3)';
+                tabActual.style.background = 'transparent';
+                tabActual.style.color = '#94a3b8';
+                tabActual.style.boxShadow = 'none';
+                if (hint) hint.textContent = 'Todos los movimientos · usa el filtro de fechas para acotar';
+            }
+        }
+
+        async function setMovScope(scope) {
+            if (_movScope === scope) return;
+            _movScope = scope;
+            _updateMovScopeUI();
+            await _loadMovimientosByScope();
+            // Re-aplicar filtros de fecha si los hay
+            filterMovimientos();
+        }
+
+        async function _loadMovimientosByScope() {
             const lastCierre = Number(localStorage.getItem('lastCierreCaja')) || 0;
             const sales  = await getAll('sales');
             const gastos = await getAll('gastos');
             const orders = await getAll('orders');
-            const movSales   = sales.filter(s => s.fecha > lastCierre && s.tipo !== 'adelanto' && s.tipo !== 'cobro_entrega').map(s => ({ ...s, type: 'sale',    fecha: s.fecha }));
-            const movGastos  = gastos.filter(g => g.fecha > lastCierre).map(g => ({ ...g, type: 'gasto',   fecha: g.fecha }));
-            const movOrders  = orders.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha) > lastCierre)
+            // Si el scope es "actual", filtramos por > lastCierre. Si es "histórico", traemos TODO.
+            const passes = (ts) => _movScope === 'historico' ? true : (ts > lastCierre);
+            const movSales   = sales.filter(s => passes(s.fecha) && s.tipo !== 'adelanto' && s.tipo !== 'cobro_entrega').map(s => ({ ...s, type: 'sale',    fecha: s.fecha }));
+            const movGastos  = gastos.filter(g => passes(g.fecha)).map(g => ({ ...g, type: 'gasto',   fecha: g.fecha }));
+            const movOrders  = orders.filter(o => o.sta === 'entregado' && passes(o.fechaEntrega || o.fecha))
                                      .map(o => ({ ...o, type: 'repair', fecha: o.fechaEntrega || o.fecha }));
             _allMovimientos = [...movSales, ...movGastos, ...movOrders].sort((a,b) => b.fecha - a.fecha);
             const totalIng = movSales.reduce((a,b) => a + (b.val||0), 0) + movOrders.reduce((a,b) => a + (b.val||0), 0);
@@ -12105,25 +12159,49 @@
             const netEl = document.getElementById('mov-total-net');
             netEl.innerText = fmtMoney(net);
             netEl.className = `font-black text-base ${net >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
-            const biz = JSON.parse(localStorage.getItem('businessConfig') || '{}');
-            document.getElementById('mov-periodo').innerText = `${biz.name || 'Caja actual'} — ${_allMovimientos.length} movimientos`;
-            document.getElementById('mov-filter-from').value = '';
-            document.getElementById('mov-filter-to').value = '';
-            renderMovimientosFull(_allMovimientos);
-            document.getElementById('modal-movimientos').classList.remove('hidden');
+            const periodLabel = _movScope === 'actual' ? 'Caja actual' : 'Histórico';
+            document.getElementById('mov-periodo').innerText = `${periodLabel} — ${_allMovimientos.length} movimientos`;
         }
 
         function filterMovimientos() {
             const from = document.getElementById('mov-filter-from').value;
             const to   = document.getElementById('mov-filter-to').value;
             let filtered = _allMovimientos;
-            if (from) filtered = filtered.filter(m => m.fecha >= new Date(from).getTime());
-            if (to)   filtered = filtered.filter(m => m.fecha <= new Date(to).getTime() + 86399999);
+            // FIX: las fechas del <input type="date"> llegan como "2026-04-23"
+            // y new Date("2026-04-23") las interpreta como UTC, lo que causa desfases
+            // de 5 horas en Colombia. Construimos la fecha en zona horaria LOCAL.
+            const parseLocalDate = (str, endOfDay) => {
+                if (!str) return null;
+                const [y, m, d] = str.split('-').map(Number);
+                if (!y || !m || !d) return null;
+                return endOfDay
+                    ? new Date(y, m - 1, d, 23, 59, 59, 999).getTime()
+                    : new Date(y, m - 1, d, 0, 0, 0, 0).getTime();
+            };
+            const fromTs = parseLocalDate(from, false);
+            const toTs   = parseLocalDate(to, true);
+            if (fromTs !== null) filtered = filtered.filter(m => m.fecha >= fromTs);
+            if (toTs   !== null) filtered = filtered.filter(m => m.fecha <= toTs);
             renderMovimientosFull(filtered);
+            // Recalcular totales del rango filtrado para que coincidan con lo visible
+            const fIng = filtered.filter(m => m.type === 'sale' || m.type === 'repair').reduce((a,b) => a + (b.val||0), 0);
+            const fGas = filtered.filter(m => m.type === 'gasto').reduce((a,b) => a + (b.val||0), 0);
+            const ingEl = document.getElementById('mov-total-ing');
+            const gasEl = document.getElementById('mov-total-gas');
+            const netEl = document.getElementById('mov-total-net');
+            if (ingEl) ingEl.innerText = fmtMoney(fIng);
+            if (gasEl) gasEl.innerText = fmtMoney(fGas);
+            if (netEl) {
+                const net = fIng - fGas;
+                netEl.innerText = fmtMoney(net);
+                netEl.className = `font-black text-base ${net >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+            }
         }
-        function clearMovFiltros() {
+        async function clearMovFiltros() {
             document.getElementById('mov-filter-from').value = '';
             document.getElementById('mov-filter-to').value = '';
+            // Recargar para que los totales vuelvan a los del scope completo
+            await _loadMovimientosByScope();
             renderMovimientosFull(_allMovimientos);
         }
 
