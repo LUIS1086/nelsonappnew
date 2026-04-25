@@ -3186,7 +3186,7 @@
             <div class="flex gap-2 mb-3">
                 <div class="relative flex-1">
                     <input type="text" id="stock-search" placeholder="🔍 Buscar nombre o código..." class="w-full text-xs py-2 pl-3 pr-9 rounded-xl" oninput="renderStock()">
-                    <button onclick="openQRScanner('stock')" class="absolute right-2 top-1/2 -translate-y-1/2 text-violet-400 text-base leading-none active:scale-90 transition" title="Escanear código QR/barras">📷</button>
+                    <button onclick="openQRScanner('stock')" class="absolute right-2 top-1/2 -translate-y-1/2 text-violet-400 text-base leading-none active:scale-90 transition hidden" title="Escanear código QR/barras">📷</button>
                 </div>
                 <select id="stock-sort" class="text-xs py-2 px-2 rounded-xl w-28 flex-shrink-0" onchange="renderStock()">
                     <option value="name">A-Z</option>
@@ -3358,16 +3358,6 @@
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
 
-                <button onclick="openTecnicosReport()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
-                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#1d4ed8,#3b82f6);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(59,130,246,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#60a5fa;margin:0;">Reporte por Técnico</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Productividad, tiempos y órdenes</p></div></div>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-                </button>
-
-                <button onclick="openEquiposReport()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
-                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#b45309,#f59e0b);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(245,158,11,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#fbbf24;margin:0;">Equipos más Reparados</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Top equipos y fallas frecuentes</p></div></div>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-                </button>
-
                 <div style="height:1px;background:#1a2235;margin:8px 0;"></div>
                 <p style="font-size:9px;font-weight:900;letter-spacing:3px;color:#2a3a55;text-transform:uppercase;padding:6px 4px;margin:0;">OPERACIONES</p>
 
@@ -3378,11 +3368,6 @@
 
                 <button onclick="openCajaModal()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
                     <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#9f1239,#f43f5e);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(244,63,94,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#fb7185;margin:0;">Cierre de Caja</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Ingresos, egresos y reinicio</p></div></div>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-                </button>
-
-                <button onclick="openProveedoresModal()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
-                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#0f766e,#14b8a6);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(20,184,166,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#2dd4bf;margin:0;">Proveedores</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Gestión de proveedores y catálogos</p></div></div>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
 
@@ -8440,7 +8425,7 @@
                             <button onclick="modQty(${s.id},1)" class="w-7 h-7 rounded-full bg-orange-600/60 text-sm font-black active:scale-90 transition">+</button>
                         </div>
                         <div class="flex gap-1">
-                            <button onclick="openQRItemModal(${s.id})" class="text-violet-400 text-xs bg-violet-500/10 w-7 h-7 rounded-lg flex items-center justify-center" title="Generar etiqueta QR">🏷️</button>
+                            <button onclick="openQRItemModal(${s.id})" class="text-violet-400 text-xs bg-violet-500/10 w-7 h-7 rounded-lg flex items-center justify-center hidden" title="Generar etiqueta QR">🏷️</button>
                             <button onclick="openStockHistory(${s.id})" class="text-blue-400 text-xs bg-blue-500/10 w-7 h-7 rounded-lg flex items-center justify-center" title="Historial">📋</button>
                             <button onclick="editStockItem(${s.id})" class="text-slate-400 text-xs bg-slate-700/40 w-7 h-7 rounded-lg flex items-center justify-center">✏️</button>
                             <button onclick="deleteStockItem(${s.id})" class="text-rose-400 text-xs bg-rose-500/10 w-7 h-7 rounded-lg flex items-center justify-center">🗑️</button>
@@ -13426,9 +13411,9 @@
                     // No hay match con teléfono → solo copiar el mensaje al portapapeles
                     try {
                         await navigator.clipboard.writeText(mensaje);
-                        showAlert(`El proveedor "${item.supplier}" no tiene teléfono registrado en la tabla de proveedores.\n\nEl mensaje se copió al portapapeles — pégalo en tu WhatsApp.`, 'info');
+                        showAlert(`El proveedor "${item.supplier}" no tiene teléfono guardado.\n\nEl mensaje se copió al portapapeles — pégalo en tu WhatsApp.`, 'info');
                     } catch (e) {
-                        showAlert(`Proveedor "${item.supplier}" no registrado. Ve a Proveedores y agrégalo con su teléfono para pedir directo.`, 'info');
+                        showAlert(`Proveedor "${item.supplier}" no encontrado.\n\nNo se pudo armar el WhatsApp automático. Llámalo directamente.`, 'info');
                     }
                 }
             } catch (e) {
