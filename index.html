@@ -1080,6 +1080,43 @@
         .stats-mini-grid {
             display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px;
         }
+        /* Distribución por estado (mini-barras) */
+        .stats-status-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+        }
+        .stats-status-row {
+            display: flex; flex-direction: column; gap: 4px;
+        }
+        .stats-status-row-head {
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .stats-status-name {
+            font-size: 11.5px;
+            font-weight: 800;
+            color: #cbd5e1;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .stats-status-name-emoji { font-size: 12px; }
+        .stats-status-count {
+            font-size: 12.5px;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+            min-width: 20px;
+            text-align: right;
+        }
+        .stats-status-bar-track {
+            height: 5px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+        .stats-status-bar-fill {
+            height: 100%;
+            border-radius: 99px;
+            transition: width 0.7s ease;
+        }
         .stats-mini-card {
             padding: 10px 4px 9px;
             border-radius: 12px;
@@ -3177,8 +3214,8 @@
                 </div>
                 <div class="flex gap-2">
                     <button onclick="openStockReport()" class="text-[10px] bg-purple-600/20 text-purple-400 border border-purple-500/30 px-3 py-1.5 rounded-xl font-bold transition active:scale-95">📊</button>
-                    <button onclick="openQRBulk()" class="text-[10px] bg-violet-600/20 text-violet-400 border border-violet-500/30 px-3 py-1.5 rounded-xl font-bold transition active:scale-95" title="Etiquetas QR en lote">🏷️</button>
-                    <button onclick="scanBarcode()" class="text-[10px] bg-blue-600/20 text-blue-400 border border-blue-500/30 px-3 py-1.5 rounded-xl font-bold transition active:scale-95">📷</button>
+                    <button onclick="openQRBulk()" class="text-[10px] bg-violet-600/20 text-violet-400 border border-violet-500/30 px-3 py-1.5 rounded-xl font-bold transition active:scale-95 hidden" title="Etiquetas QR en lote">🏷️</button>
+                    <button onclick="scanBarcode()" class="text-[10px] bg-blue-600/20 text-blue-400 border border-blue-500/30 px-3 py-1.5 rounded-xl font-bold transition active:scale-95 hidden">📷</button>
                     <button onclick="addStockItem()" class="text-[10px] bg-orange-600/20 text-orange-400 border border-orange-500/30 px-3 py-1.5 rounded-xl font-bold active:scale-95">+ NUEVO</button>
                 </div>
             </div>
@@ -3286,72 +3323,6 @@
 
                 <p style="font-size:9px;font-weight:900;letter-spacing:3px;color:#2a3a55;text-transform:uppercase;padding:10px 4px 6px;margin:0;">ANÁLISIS</p>
 
-                <!-- BOTÓN DASHBOARD DESPLEGABLE -->
-                <button onclick="toggleDashboardInline()" id="btn-dashboard-toggle" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
-                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#0f4c81,#0ea5e9);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(14,165,233,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><polyline points="6 10 9 13 12 10 16 14"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#38bdf8;margin:0;">Dashboard</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">KPIs, ingresos, estados y alertas</p></div></div>
-                    <svg id="dash-toggle-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round" style="transition:transform 0.3s ease;"><polyline points="9 18 15 12 9 6"/></svg>
-                </button>
-
-                <!-- PANEL INLINE DEL DASHBOARD -->
-                <div id="dashboard-inline-panel" style="display:none;overflow:hidden;border-radius:18px;background:#0d1117;border:1px solid rgba(14,165,233,0.15);margin:4px 0 8px;">
-
-                    <!-- Header mes -->
-                    <div style="padding:12px 14px 10px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.04);">
-                        <p id="dash-month-label" style="font-size:11px;font-weight:800;color:#38bdf8;margin:0;letter-spacing:1px;text-transform:uppercase;"></p>
-                        <button onclick="renderInlineDashboard()" style="background:rgba(14,165,233,0.12);border:1px solid rgba(14,165,233,0.25);color:#38bdf8;padding:4px 10px;border-radius:8px;font-size:10px;font-weight:800;cursor:pointer;">↻ Actualizar</button>
-                    </div>
-
-                    <!-- KPIs -->
-                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,0.04);">
-                        <div style="background:#0d1117;padding:14px 10px;text-align:center;">
-                            <p style="font-size:9px;font-weight:700;color:#64748b;margin:0 0 4px;letter-spacing:1px;">INGRESOS MES</p>
-                            <p id="dash-kpi-ingresos" style="font-size:15px;font-weight:900;color:#10b981;margin:0;">$0</p>
-                        </div>
-                        <div style="background:#0d1117;padding:14px 10px;text-align:center;">
-                            <p style="font-size:9px;font-weight:700;color:#64748b;margin:0 0 4px;letter-spacing:1px;">ÓRDENES MES</p>
-                            <p id="dash-kpi-ordenes" style="font-size:15px;font-weight:900;color:#38bdf8;margin:0;">0</p>
-                        </div>
-                        <div style="background:#0d1117;padding:14px 10px;text-align:center;">
-                            <p style="font-size:9px;font-weight:700;color:#64748b;margin:0 0 4px;letter-spacing:1px;">PENDIENTES</p>
-                            <p id="dash-kpi-pendientes" style="font-size:15px;font-weight:900;color:#f97316;margin:0;">0</p>
-                        </div>
-                    </div>
-
-                    <!-- Gráfica ingresos -->
-                    <div style="padding:16px 14px 8px;">
-                        <div style="margin-bottom:10px;">
-                            <p style="font-size:10px;font-weight:800;color:#475569;letter-spacing:2px;text-transform:uppercase;margin:0;">📈 Últimos 6 meses</p>
-                        </div>
-                        <div style="position:relative;height:130px;">
-                            <canvas id="dash-chart-ingresos"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Estados + Top repuestos -->
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,0.04);margin-top:4px;">
-                        <div style="background:#0d1117;padding:14px;">
-                            <p style="font-size:10px;font-weight:800;color:#475569;letter-spacing:2px;text-transform:uppercase;margin:0 0 10px;">📋 Por estado</p>
-                            <div id="dash-estados" style="display:flex;flex-direction:column;gap:7px;"></div>
-                        </div>
-                        <div style="background:#0d1117;padding:14px;">
-                            <p style="font-size:10px;font-weight:800;color:#475569;letter-spacing:2px;text-transform:uppercase;margin:0 0 10px;">🔥 Top repuestos</p>
-                            <div id="dash-top-repuestos" style="display:flex;flex-direction:column;gap:6px;"></div>
-                        </div>
-                    </div>
-
-                    <!-- Alertas -->
-                    <div id="dash-alertas-wrap" style="padding:12px 14px 14px;display:none;">
-                        <p style="font-size:10px;font-weight:800;color:#f43f5e;letter-spacing:2px;text-transform:uppercase;margin:0 0 8px;">⚠️ Alertas</p>
-                        <div id="dash-alertas" style="display:flex;flex-direction:column;gap:6px;"></div>
-                    </div>
-
-                    <!-- Loader -->
-                    <div id="dash-loader" style="padding:28px;text-align:center;">
-                        <div class="loading-spinner" style="margin:0 auto 10px;"></div>
-                        <p style="font-size:12px;color:#475569;font-weight:600;">Cargando datos…</p>
-                    </div>
-
-                </div>
 
                 <button onclick="openStatsModal()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
                     <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#6d28d9,#7c3aed);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(109,40,217,0.4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#a78bfa;margin:0;">Estadísticas</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Resumen mensual y top repuestos</p></div></div>
@@ -4463,6 +4434,15 @@
                         <div class="stats-mini-val" id="stat-new-this-month">0</div>
                         <div class="stats-mini-lbl">Nuevas</div>
                     </div>
+                </div>
+
+                <!-- DISTRIBUCIÓN POR ESTADO (toda la base de órdenes activas) -->
+                <div class="stats-card">
+                    <div class="stats-card-head">
+                        <span class="stats-card-title">📋 Por estado</span>
+                        <span class="stats-card-sub" id="stats-status-sub">Todas las órdenes</span>
+                    </div>
+                    <div id="stats-status-list" class="stats-status-grid"></div>
                 </div>
 
                 <!-- GANANCIA REAL (si hay partsUsed) -->
@@ -6551,23 +6531,52 @@
         }
 
         // ==================== MIGRACIÓN DE CAMPOS STOCK ====================
-        // Normaliza objetos antiguos {n,p,q,cat,minStock} → {name,price,qty,category,minimo}
-        // y viceversa (aliases), para que tanto código nuevo como viejo funcionen sin bugs
+        // Helper: normaliza un item de stock al formato canónico (nombres cortos)
+        // Útil como red de seguridad si en algún backup viejo entran items con campos largos
+        function _normStock(s) {
+            if (!s || typeof s !== 'object') return s;
+            // Si solo tiene nombres largos, copiar al corto
+            if (s.n        === undefined && s.name     !== undefined) s.n        = s.name;
+            if (s.p        === undefined && s.price    !== undefined) s.p        = s.price;
+            if (s.q        === undefined && s.qty      !== undefined) s.q        = s.qty;
+            if (s.cat      === undefined && s.category !== undefined) s.cat      = s.category;
+            if (s.minStock === undefined && s.minimo   !== undefined) s.minStock = s.minimo;
+            return s;
+        }
+        // Unifica los campos del stock dejando SOLO los nombres cortos canónicos:
+        // {n, p, q, cat, minStock, cost, code, supplier, notes, img}
+        // Si encuentra los nombres largos {name, price, qty, category, minimo} los
+        // copia a los cortos (si los cortos faltan) y luego ELIMINA los largos.
+        // Esto previene desincronización entre lecturas/escrituras.
         async function _migrateStockFields() {
             try {
                 const items = await getAll('stock');
                 let migrated = 0;
                 for (const s of items) {
                     let changed = false;
-                    // Solo migrar si aún usan los nombres cortos sin los largos
-                    if (s.n !== undefined && s.name === undefined)        { s.name     = s.n;        changed = true; }
-                    if (s.p !== undefined && s.price === undefined)       { s.price    = s.p;        changed = true; }
-                    if (s.q !== undefined && s.qty === undefined)         { s.qty      = s.q;        changed = true; }
-                    if (s.cat !== undefined && s.category === undefined)  { s.category = s.cat;      changed = true; }
-                    if (s.minStock !== undefined && s.minimo === undefined){ s.minimo   = s.minStock; changed = true; }
+                    // 1) Si hay nombre largo y no corto → copiar al corto
+                    if (s.name      !== undefined && s.n        === undefined) { s.n        = s.name;      changed = true; }
+                    if (s.price     !== undefined && s.p        === undefined) { s.p        = s.price;     changed = true; }
+                    if (s.qty       !== undefined && s.q        === undefined) { s.q        = s.qty;       changed = true; }
+                    if (s.category  !== undefined && s.cat      === undefined) { s.cat      = s.category;  changed = true; }
+                    if (s.minimo    !== undefined && s.minStock === undefined) { s.minStock = s.minimo;    changed = true; }
+
+                    // 2) Eliminar campos largos duplicados (siempre, si existen)
+                    if (s.name     !== undefined) { delete s.name;     changed = true; }
+                    if (s.price    !== undefined) { delete s.price;    changed = true; }
+                    if (s.qty      !== undefined) { delete s.qty;      changed = true; }
+                    if (s.category !== undefined) { delete s.category; changed = true; }
+                    if (s.minimo   !== undefined) { delete s.minimo;   changed = true; }
+
+                    // 3) Asegurar tipos correctos en los campos canónicos
+                    if (s.q !== undefined && typeof s.q !== 'number') { s.q = parseInt(s.q) || 0; changed = true; }
+                    if (s.p !== undefined && typeof s.p !== 'number') { s.p = parseFloat(s.p) || 0; changed = true; }
+                    if (s.cost !== undefined && typeof s.cost !== 'number') { s.cost = parseFloat(s.cost) || 0; changed = true; }
+                    if (s.minStock !== undefined && typeof s.minStock !== 'number') { s.minStock = parseInt(s.minStock) || 0; changed = true; }
+
                     if (changed) { await put('stock', s); migrated++; }
                 }
-                if (migrated > 0) console.log(`[NelsonApp] Migración stock: ${migrated} items actualizados`);
+                if (migrated > 0) console.log(`[NelsonApp] Stock: ${migrated} items normalizados (campos unificados)`);
             } catch(e) { console.warn('[NelsonApp] Error en migración de stock:', e); }
         }
 
@@ -9220,6 +9229,45 @@
             document.getElementById('stat-in-progress').textContent = inProgress;
             document.getElementById('stat-new-this-month').textContent = newThisMonth;
 
+            // ===== Distribución por estado (todas las órdenes activas, no solo las del mes) =====
+            const statusEl = document.getElementById('stats-status-list');
+            if (statusEl) {
+                // Estados en orden lógico del flujo
+                const statusDef = [
+                    { key: 'recibido',     label: 'Recibido',     emoji: '📥', color: '#3b82f6' },
+                    { key: 'revisión',     label: 'En revisión',  emoji: '🔍', color: '#fb923c' },
+                    { key: 'reparando',    label: 'Reparando',    emoji: '🔧', color: '#f59e0b' },
+                    { key: 'reparado',     label: 'Listo',        emoji: '✅', color: '#10b981' },
+                    { key: 'entregado',    label: 'Entregado',    emoji: '📦', color: '#94a3b8' },
+                    { key: 'no-reparable', label: 'No reparable', emoji: '🚫', color: '#f43f5e' }
+                ];
+                const counts = {};
+                statusDef.forEach(s => counts[s.key] = 0);
+                orders.forEach(o => {
+                    if (o.sta && counts[o.sta] !== undefined) counts[o.sta]++;
+                });
+                // El máximo se calcula sobre todos para que las barras sean comparables
+                const maxCount = Math.max(...Object.values(counts), 1);
+                statusEl.innerHTML = statusDef
+                    .filter(s => counts[s.key] > 0 || s.key === 'recibido' || s.key === 'reparado') // siempre mostrar recibido y listo aunque sean 0
+                    .map(s => {
+                        const c = counts[s.key];
+                        const pct = Math.round((c / maxCount) * 100);
+                        return `<div class="stats-status-row">
+                            <div class="stats-status-row-head">
+                                <span class="stats-status-name"><span class="stats-status-name-emoji">${s.emoji}</span>${s.label}</span>
+                                <span class="stats-status-count" style="color:${c > 0 ? s.color : '#475569'}">${c}</span>
+                            </div>
+                            <div class="stats-status-bar-track">
+                                <div class="stats-status-bar-fill" style="width:${pct}%;background:${s.color};"></div>
+                            </div>
+                        </div>`;
+                    }).join('');
+                // Subtítulo con total
+                const subEl = document.getElementById('stats-status-sub');
+                if (subEl) subEl.textContent = `${orders.length} en total`;
+            }
+
             // ===== Ganancia real (usa partsUsed cuando existe) =====
             const profitCard = document.getElementById('stats-profit-card');
             if (profitCard) {
@@ -9567,7 +9615,7 @@
                         }
                         await put('orders', {...o, fotos, fotosEntrega});
                     }
-                    for(let s of data.stock || []) await put('stock', s);
+                    for(let s of data.stock || []) await put('stock', _normStock(s));
                     for(let s of data.sales || []) await put('sales', s);
                     for(let g of data.gastos || []) await put('gastos', g);
                     for(let c of data.clientes || []) await put('clientes', c);
@@ -9576,6 +9624,8 @@
                     for(let h of data.stockHistory || []) await put('stockHistory', h);
                     for(let m of data.orderChat || []) await put('orderChat', m);
                     for(let p of data.paymentPlans || []) await put('paymentPlans', p);
+                    // Limpiar campos duplicados y normalizar tipos por si el backup era viejo
+                    await _migrateStockFields();
                     await updateTotal(); await updateSuggestions(); await renderCartera();
                     showAlert("✅ Importación exitosa. La app se recargará.", "success", () => location.reload());
                 } catch(err) { showAlert("Error al importar: " + err.message, "error"); }
@@ -15876,7 +15926,7 @@
                     const lastKey = '_notif_stock_' + bajosMin.length;
                     if (!sessionStorage.getItem(lastKey)) {
                         sessionStorage.setItem(lastKey, '1');
-                        const names = bajosMin.slice(0,3).map(s => s.name).join(', ');
+                        const names = bajosMin.slice(0,3).map(s => s.n).join(', ');
                         new Notification('📦 Stock bajo mínimo · NelsonApp', {
                             body: `${bajosMin.length} repuesto(s) con stock crítico: ${names}${bajosMin.length > 3 ? '...' : ''}`,
                             icon: 'icons/icon-192x192.png',
