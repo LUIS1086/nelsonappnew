@@ -12733,7 +12733,7 @@
             const saved = localStorage.getItem('whatsappTemplates');
             const tpls  = saved ? JSON.parse(saved) : {};
             const biz   = JSON.parse(localStorage.getItem('businessConfig') || '{}');
-            const bizName = (biz.name || 'Todo Repuestos Nelson').toUpperCase();
+            const bizName = ((biz.name || 'Todo Repuestos Nelson').trim()).toUpperCase();
             const defaults = {
                 recepcion:   '🔧 *{negocio}*\n\nHola {cliente}, recibimos tu {equipo}. Orden {orden}. Te avisamos cuando esté listo. ¡Gracias por confiar en nosotros! 🙌',
                 revision:    '🔧 *{negocio}*\n\nHola {cliente}, tu {equipo} está siendo revisado y diagnosticado. En breve te informamos el estado 🔍',
