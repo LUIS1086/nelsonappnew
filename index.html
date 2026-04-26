@@ -8180,23 +8180,79 @@
         }
 
         // ===== FIX PANTALLA NEGRA AL VOLVER DE WHATSAPP =====
+        // ════════════════════════════════════════════════════════════════════════
+        // FIX PANTALLA NEGRA AL VOLVER DE WHATSAPP (WebView Android)
+        // El WebView de Android a veces se queda con la pantalla "congelada" cuando
+        // la app vuelve a primer plano después de saltar a otra app (WhatsApp).
+        // Aplicamos varias técnicas de repaint para forzar al WebView a re-pintar.
+        // ════════════════════════════════════════════════════════════════════════
+        function _forceRepaintAfterWAReturn() {
+            try {
+                // Técnica 1: scroll micro para forzar repaint
+                const sx = window.scrollX, sy = window.scrollY;
+                window.scrollTo(sx, sy + 1);
+                requestAnimationFrame(() => window.scrollTo(sx, sy));
+
+                // Técnica 2: forzar reflow del root con transform
+                const root = document.documentElement;
+                root.style.transform = 'translateZ(0)';
+                requestAnimationFrame(() => {
+                    root.style.transform = '';
+                });
+
+                // Técnica 3: forzar repaint del body con visibility
+                // (más confiable que display:none en algunos WebView)
+                const body = document.body;
+                body.style.visibility = 'hidden';
+                // Trigger reflow leyendo offsetHeight
+                // eslint-disable-next-line no-unused-expressions
+                void body.offsetHeight;
+                requestAnimationFrame(() => {
+                    body.style.visibility = '';
+                    // Técnica 4: re-renderizar la vista activa por si quedó incompleta
+                    setTimeout(() => {
+                        try {
+                            const activeView = document.querySelector('.app-view:not(.hidden)');
+                            if (activeView) {
+                                // Forzar opacity flip — ayuda en WebView problemáticos
+                                activeView.style.opacity = '0.999';
+                                requestAnimationFrame(() => {
+                                    activeView.style.opacity = '';
+                                });
+                            }
+                        } catch(_) {}
+                    }, 30);
+                });
+            } catch(e) { console.warn('[WA repaint]', e); }
+        }
+
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible' && sessionStorage.getItem('_waJump')) {
                 sessionStorage.removeItem('_waJump');
-                // Forzar repaint: ocultar/mostrar body brevemente
-                document.body.style.display = 'none';
-                // eslint-disable-next-line no-unused-expressions
-                document.body.offsetHeight; // trigger reflow
-                document.body.style.display = '';
+                _forceRepaintAfterWAReturn();
             }
         });
         // También aplicar al volver con el botón Atrás / pageshow
         window.addEventListener('pageshow', (e) => {
             if (e.persisted || sessionStorage.getItem('_waJump')) {
                 sessionStorage.removeItem('_waJump');
-                document.body.style.display = 'none';
-                document.body.offsetHeight;
-                document.body.style.display = '';
+                _forceRepaintAfterWAReturn();
+            }
+        });
+        // Backup: cualquier vuelta de "background" que dure más de 1 segundo merece repaint
+        let _wasHidden = false;
+        let _hiddenSince = 0;
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') {
+                _wasHidden = true;
+                _hiddenSince = Date.now();
+            } else if (document.visibilityState === 'visible' && _wasHidden) {
+                _wasHidden = false;
+                // Si estuvo más de 1s en background, forzar repaint también
+                // (cubre casos donde _waJump no se setea)
+                if (Date.now() - _hiddenSince > 1000) {
+                    _forceRepaintAfterWAReturn();
+                }
             }
         });
         let _fotoModalOrderId = null;
