@@ -4334,6 +4334,22 @@
                     <label class="text-[10px] text-slate-400 block mb-1">📅 FECHA ESTIMADA ENTREGA</label>
                     <input type="date" id="edit-fecha-estimada" class="w-full text-sm font-bold text-blue-400">
                 </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[10px] text-slate-400 block mb-1">🛡️ GARANTÍA (días)</label>
+                        <input type="number" id="edit-garantia" placeholder="0" class="w-full text-sm font-bold text-emerald-400 text-center" min="0" max="365">
+                        <p class="text-[9px] text-slate-500 mt-1">0 = sin garantía</p>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-slate-400 block mb-1">📋 PRESUPUESTO</label>
+                        <select id="edit-presupuesto" class="w-full font-bold text-sm">
+                            <option value="pendiente">⏳ Pendiente</option>
+                            <option value="enviado">📤 Enviado</option>
+                            <option value="aprobado">✅ Aprobado</option>
+                            <option value="rechazado">❌ Rechazado</option>
+                        </select>
+                    </div>
+                </div>
                 <div>
                     <label class="text-[10px] text-slate-400 block mb-1">🔒 NOTAS INTERNAS <span class="text-slate-600">(no aparece en recibo)</span></label>
                     <textarea id="edit-notas" placeholder="Contraseña del equipo, accesorios, observaciones técnicas..." class="w-full text-xs" rows="2"></textarea>
@@ -7590,6 +7606,9 @@
             document.getElementById('edit-det').value = order.det || '';
             document.getElementById('edit-notas').value = order.notas || '';
             document.getElementById('edit-fecha-estimada').value = order.fechaEstimada || '';
+            // Cargar garantía y presupuesto (campos editables nuevos)
+            document.getElementById('edit-garantia').value = order.garantia !== undefined ? order.garantia : 30;
+            document.getElementById('edit-presupuesto').value = order.presupuesto || 'pendiente';
             // Cargar técnicos en el select
             const tecnicos = getTecnicos();
             const sel = document.getElementById('edit-tecnico');
@@ -7619,6 +7638,10 @@
             order.det = document.getElementById('edit-det').value.toUpperCase();
             order.notas = document.getElementById('edit-notas').value.trim();
             order.fechaEstimada = document.getElementById('edit-fecha-estimada').value || '';
+            // Guardar garantía y presupuesto editados
+            const newGarantia = parseInt(document.getElementById('edit-garantia').value);
+            order.garantia = isNaN(newGarantia) ? 0 : Math.max(0, Math.min(365, newGarantia));
+            order.presupuesto = document.getElementById('edit-presupuesto').value || 'pendiente';
             await put('orders', order);
             closeEditModal();
             await renderOrders();
