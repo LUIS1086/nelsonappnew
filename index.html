@@ -5455,14 +5455,14 @@
                     <div id="cfg-wapp" class="ios-body">
                         <div class="ios-body-inner space-y-3">
                             <div class="ios-variables">Variables: <span>{cliente} {equipo} {valor} {orden} {dias}</span></div>
-                            <div><span class="ios-input-label">📥 Al recibir equipo</span><textarea id="tpl-recepcion" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, recibimos tu {equipo}. Orden {orden}. Te avisamos cuando esté listo 🔧"></textarea></div>
-                            <div><span class="ios-input-label">🔍 En revisión</span><textarea id="tpl-revision" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, tu {equipo} está siendo revisado 🔍"></textarea></div>
-                            <div><span class="ios-input-label">💼 Enviar presupuesto</span><textarea id="tpl-presupuesto" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, el presupuesto para tu {equipo} es de ${valor}. ¿Apruebas? ✅"></textarea></div>
-                            <div><span class="ios-input-label">✅ Equipo listo</span><textarea id="tpl-listo" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, tu {equipo} ya está listo! Valor: ${valor} 🎉"></textarea></div>
-                            <div><span class="ios-input-label">🛡️ Recordatorio garantía</span><textarea id="tpl-garantia" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, tu {equipo} tiene garantía de {dias} días 🛡️"></textarea></div>
-                            <div><span class="ios-input-label">⚠️ Sin reparación</span><textarea id="tpl-norepara" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, lamentamos que tu {equipo} no tiene reparación posible 😔"></textarea></div>
-                            <div><span class="ios-input-label">⏳ Aviso de retraso</span><textarea id="tpl-retraso" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, la reparación está tomando más tiempo. Gracias ⏳"></textarea></div>
-                            <div><span class="ios-input-label">💸 Recordatorio de pago</span><textarea id="tpl-cobro" rows="2" class="w-full text-xs" placeholder="Hola {cliente}, tienes un saldo pendiente de ${valor}. Gracias 🙏"></textarea></div>
+                            <div><span class="ios-input-label">📥 Al recibir equipo</span><textarea id="tpl-recepcion" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, recibimos tu {equipo}. Orden {orden}. Te avisamos cuando esté listo 🙌"></textarea></div>
+                            <div><span class="ios-input-label">🔍 En revisión</span><textarea id="tpl-revision" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, tu {equipo} está siendo revisado 🔍"></textarea></div>
+                            <div><span class="ios-input-label">💼 Enviar presupuesto</span><textarea id="tpl-presupuesto" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, el presupuesto para tu {equipo} es de ${valor}. ¿Apruebas? ✅"></textarea></div>
+                            <div><span class="ios-input-label">✅ Equipo listo</span><textarea id="tpl-listo" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, tu {equipo} ya está listo! Valor: ${valor} 🎉"></textarea></div>
+                            <div><span class="ios-input-label">🛡️ Recordatorio garantía</span><textarea id="tpl-garantia" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, tu {equipo} tiene garantía de {dias} días 🛡️"></textarea></div>
+                            <div><span class="ios-input-label">⚠️ Sin reparación</span><textarea id="tpl-norepara" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, tu {equipo} no tiene reparación posible 😔"></textarea></div>
+                            <div><span class="ios-input-label">⏳ Aviso de retraso</span><textarea id="tpl-retraso" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, la reparación está tomando más tiempo. Gracias ⏳"></textarea></div>
+                            <div><span class="ios-input-label">💸 Recordatorio de pago</span><textarea id="tpl-cobro" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, tienes un saldo pendiente de ${valor} 🙏"></textarea></div>
                             <button onclick="saveWhatsappTemplates()" class="ios-save-btn" style="background:#25d366;color:white;">💾 Guardar plantillas</button>
                         </div>
                     </div>
@@ -12706,6 +12706,23 @@
             const saved = localStorage.getItem('whatsappTemplates');
             if (!saved) return;
             const tpls = JSON.parse(saved);
+            // Migración suave: si una plantilla guardada NO incluye {negocio}, agregárselo al inicio
+            // (esto solo corre una vez por instalación gracias al flag)
+            const migrated = localStorage.getItem('tplsBizMigrated_v1');
+            if (!migrated) {
+                let changedAny = false;
+                Object.keys(tpls).forEach(k => {
+                    if (tpls[k] && !tpls[k].includes('{negocio}')) {
+                        tpls[k] = '🔧 *{negocio}*\n\n' + tpls[k];
+                        changedAny = true;
+                    }
+                });
+                if (changedAny) {
+                    localStorage.setItem('whatsappTemplates', JSON.stringify(tpls));
+                    console.log('[NelsonApp] Plantillas WhatsApp migradas para incluir nombre del negocio');
+                }
+                localStorage.setItem('tplsBizMigrated_v1', '1');
+            }
             const ids = ['recepcion','revision','presupuesto','listo','garantia','norepara','retraso','cobro'];
             ids.forEach(k => {
                 const el = document.getElementById('tpl-' + k);
@@ -12715,18 +12732,21 @@
         function buildWhatsappMsg(type, order) {
             const saved = localStorage.getItem('whatsappTemplates');
             const tpls  = saved ? JSON.parse(saved) : {};
+            const biz   = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+            const bizName = (biz.name || 'Todo Repuestos Nelson').toUpperCase();
             const defaults = {
-                recepcion:   'Hola {cliente}, recibimos tu {equipo}. Orden {orden}. Te avisamos cuando esté listo 🔧',
-                revision:    'Hola {cliente}, tu {equipo} está siendo revisado y diagnosticado. En breve te informamos el estado 🔍',
-                presupuesto: 'Hola {cliente}, el presupuesto para reparar tu {equipo} es de ${valor}. Por favor confírmanos si apruebas la reparación ✅',
-                listo:       'Hola {cliente}, tu {equipo} ya está listo! Valor: ${valor}. Puedes pasar a recogerlo 🎉',
-                garantia:    'Hola {cliente}, recuerda que tu {equipo} tiene garantía de {dias} días desde la fecha de entrega. Estamos a tu servicio 🛡️',
-                norepara:    'Hola {cliente}, lamentamos informarte que tu {equipo} no tiene reparación posible o no conseguimos el repuesto. Puedes pasar a recogerlo cuando gustes 😔',
-                retraso:     'Hola {cliente}, te informamos que la reparación de tu {equipo} está tomando un poco más de tiempo. Te avisamos en cuanto esté listo, gracias por tu paciencia ⏳',
-                cobro:       'Hola {cliente}, tienes un saldo pendiente de ${valor}. Gracias 🙏'
+                recepcion:   '🔧 *{negocio}*\n\nHola {cliente}, recibimos tu {equipo}. Orden {orden}. Te avisamos cuando esté listo. ¡Gracias por confiar en nosotros! 🙌',
+                revision:    '🔧 *{negocio}*\n\nHola {cliente}, tu {equipo} está siendo revisado y diagnosticado. En breve te informamos el estado 🔍',
+                presupuesto: '🔧 *{negocio}*\n\nHola {cliente}, el presupuesto para reparar tu {equipo} es de ${valor}. Por favor confírmanos si apruebas la reparación ✅',
+                listo:       '🔧 *{negocio}*\n\nHola {cliente}, tu {equipo} ya está listo! Valor: ${valor}. Puedes pasar a recogerlo cuando gustes 🎉',
+                garantia:    '🔧 *{negocio}*\n\nHola {cliente}, recuerda que tu {equipo} tiene garantía de {dias} días desde la fecha de entrega. Estamos a tu servicio 🛡️',
+                norepara:    '🔧 *{negocio}*\n\nHola {cliente}, lamentamos informarte que tu {equipo} no tiene reparación posible o no conseguimos el repuesto. Puedes pasar a recogerlo cuando gustes 😔',
+                retraso:     '🔧 *{negocio}*\n\nHola {cliente}, te informamos que la reparación de tu {equipo} está tomando un poco más de tiempo del previsto. Te avisamos en cuanto esté listo, gracias por tu paciencia ⏳',
+                cobro:       '🔧 *{negocio}*\n\nHola {cliente}, tienes un saldo pendiente de ${valor} por la reparación de tu {equipo}. Te agradecemos pasar a cancelar cuando gustes 🙏'
             };
             let msg = tpls[type] || defaults[type] || '';
             msg = msg
+                .replace(/{negocio}/g, bizName)
                 .replace(/{cliente}/g, order.nom || '')
                 .replace(/{equipo}/g,  order.equ || '')
                 .replace(/{valor}/g,   (order.val || 0).toLocaleString())
