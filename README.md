@@ -1,116 +1,62 @@
-# NelsonApp · Migración a TWA (PWABuilder)
+# NelsonApp · Iconos profesionales (versión final)
 
-Paquete PWA optimizado para que **PWABuilder** dé score alto (90-100) y genere un APK gratis y permanente que reemplace Appilix.
+Reemplazo de los iconos viejos por la versión profesional con el diseño de las **dos llaves cruzadas**.
 
----
+## 📁 Contenido
 
-## 📦 ¿Qué hay aquí?
+10 archivos PNG, todos con el mismo diseño (variante A · naranja sobre negro):
 
 ```
-nelson_pwa/
-├── manifest.json          ← Configurado para alto score PWABuilder
-├── service-worker.js      ← Con push handlers (suma puntos)
-├── vercel.json            ← Headers correctos para PWA
-├── icons/                 ← 10 tamaños distintos (PWABuilder los pide todos)
-│   ├── icon-72x72.png
-│   ├── icon-96x96.png
-│   ├── icon-128x128.png
-│   ├── icon-144x144.png
-│   ├── icon-152x152.png
-│   ├── icon-192x192.png
-│   ├── icon-384x384.png
-│   ├── icon-512x512.png
-│   ├── icon-maskable-192x192.png
-│   └── icon-maskable-512x512.png
-└── README.md
+icon-72x72.png
+icon-96x96.png
+icon-128x128.png
+icon-144x144.png
+icon-152x152.png
+icon-192x192.png
+icon-384x384.png
+icon-512x512.png
+icon-maskable-192x192.png   (versión Android adaptive)
+icon-maskable-512x512.png   (versión Android adaptive)
 ```
 
----
+## 🚀 Cómo reemplazarlos en GitHub
 
-## 🚀 Pasos
+### Opción A · Sobrescribir uno por uno (recomendado)
 
-### 1️⃣ Reemplaza estos archivos en tu repo de NelsonApp
+Como los nombres son **idénticos** a los que ya tienes en el repo, simplemente:
 
-Sube los 13 archivos (incluida la carpeta `icons/`) al repo de NelsonApp en GitHub, **manteniendo la estructura** (los iconos deben quedar en `/icons/`).
+1. Entra a tu repo de NelsonApp en github.com
+2. Por cada archivo nuevo (uno a la vez):
+   - Click en el archivo viejo (ej. `icon-512x512.png`)
+   - Click el botón de **lápiz** (Edit) → no, mejor: click los **3 puntitos arriba a la derecha** → **Delete file**
+   - Commit la eliminación
+   - Vuelve atrás y click **Add file → Upload files**
+   - Arrastra el nuevo archivo
+   - Commit
 
-> ⚠️ **No reemplaces tu `index.html`** — esos archivos los conservas como están. Solo agregas/reemplazas: `manifest.json`, `service-worker.js`, `vercel.json` y la carpeta `icons/`.
+### Opción B · Subir todos de una (más rápido)
 
-### 2️⃣ Espera 30 segundos a que Vercel re-despliegue
+1. En el repo, click **Add file → Upload files**
+2. Arrastra **TODOS los 10 PNG** al área de subida
+3. GitHub te avisará que algunos archivos van a sobrescribirse — confirma
+4. Commit con mensaje "Replace icons with professional design"
 
-Vercel detecta el cambio y publica automáticamente. Verifica que tu URL siga abriendo bien.
+> ⚠️ Importante: Los archivos deben quedar en la **raíz** del repo (mismo lugar donde están los actuales), NO dentro de una carpeta `icons/`.
 
-### 3️⃣ Ve a PWABuilder
+## ⏱️ Después de subir
 
-👉 [pwabuilder.com](https://pwabuilder.com)
+1. Vercel re-despliega automáticamente en ~30 segundos
+2. Verifica abriendo: `https://appnew.vercel.app/icon-512x512.png` — debe mostrar el nuevo
+3. **Importante para el APK ya instalado:** El APK guarda en cache el ícono viejo. Para ver el nuevo:
+   - Desinstala el APK del celular
+   - Vuelve a instalarlo
+   - O alternativamente, regenera el APK desde PWABuilder (recomendado para que también lo tenga el splash screen)
 
-- Pega tu URL de NelsonApp en Vercel
-- Click **Start**
-- Espera el análisis (30-60 segundos)
+## 🎨 Detalles del diseño
 
-### 4️⃣ Verifica que el score esté alto
+- **Estilo:** Dark mode profesional, coherente con tu app
+- **Colores:** Negro con gradiente sutil + glow naranja inferior
+- **Ícono:** Llaves cruzadas naranjas con sombra suave
+- **Acabado:** Brillo superior tipo cristal iOS
 
-Deberías ver:
-- ✅ Manifest: 100
-- ✅ Service Worker: 100
-- ✅ Security: 100
-
-Si algo está rojo, haz screenshot y me cuentas.
-
-### 5️⃣ Genera el APK
-
-- Click **Package for Stores**
-- Selecciona **Android**
-- En la pantalla de configuración:
-  - **Package ID:** `com.nelsonapp.taller`
-  - **App name:** `NelsonApp Pro`
-  - **Launcher name:** `NelsonApp`
-  - **Display mode:** Standalone
-  - **Status bar color:** `#f97316`
-  - **Splash color:** `#0f172a`
-- Click **Generate**
-
-### 6️⃣ Signing key (firma digital)
-
-Aquí PWABuilder te pregunta qué hacer con la firma. Escoge:
-
-✅ **"Create a new signing key"** (la primera vez)
-
-PWABuilder te genera una. **MUY IMPORTANTE:** Guarda el archivo `.keystore` que descargues junto con el password en un lugar seguro. Lo necesitas para futuras actualizaciones.
-
-### 7️⃣ Descarga el ZIP
-
-Te da un ZIP con:
-- `app-release-signed.apk` ← este es el que instalas
-- `signing-key-info.txt` ← guarda esto
-- otros archivos para Play Store
-
-### 8️⃣ Instala el APK
-
-Pasas el `.apk` al celular por WhatsApp/USB, lo abres, te pide permiso de "Instalar apps de fuentes desconocidas", lo aceptas, instalas. Listo.
-
----
-
-## ✨ Por qué este TWA es mejor que Appilix
-
-| | Appilix | TWA (PWABuilder) |
-|---|---|---|
-| Costo mensual | $5–10 USD | **Gratis para siempre** |
-| Login Google | ❌ Bloqueado | ✅ Funciona |
-| Notificaciones push | Limitadas | ✅ Nativas |
-| Calidad visual | Básica | Profesional |
-| Splash screen | Genérico | Personalizado naranja |
-| Actualizaciones | Reinstalar APK | Automáticas (es web real) |
-
-Lo mejor: como TWA carga tu URL directamente, **cada vez que actualizas el repo en Vercel, los usuarios ven la nueva versión sin reinstalar el APK**. El APK es solo el "envoltorio".
-
----
-
-## ❓ Si algo falla
-
-**Score bajo en PWABuilder:** Revisa que el archivo `manifest.json` tenga `Content-Type: application/manifest+json` (lo arregla `vercel.json` automáticamente).
-
-**APK no instala:** Asegúrate de que descargaste `app-release-signed.apk`, no `app-release-unsigned.apk`.
-
-**Login Google sigue fallando:** Verifica que en Google Cloud Console el Client ID tiene tu URL de Vercel agregada como "Authorized JavaScript origins".
-
-**No abre offline:** Espera 1-2 cargas iniciales para que el service worker cachee. Después funciona sin internet.
+Se verá excelente en cualquier tamaño, desde 32px en notificaciones hasta 512px en la pantalla de instalación.
