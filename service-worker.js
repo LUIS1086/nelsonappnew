@@ -1,197 +1,168 @@
-// ============================================================
-// service-worker.js — PWA: caché offline robusto
-// NelsonApp Pro — index.html + dashboard.html
-// v3.3 — fix opaque responses + todos los CDNs cacheados
-// ============================================================
+/* ============================================================
+ * NELSONAPP · SERVICE WORKER (PWABuilder optimized)
+ * ────────────────────────────────────────────────────────────
+ *  Estrategia:
+ *  · Shell estática (HTML, manifest, iconos): cache-first con
+ *    revalidación en segundo plano.
+ *  · APIs externas (Google Drive, Gemini, OAuth): se dejan
+ *    pasar al navegador SIN interceptar (tokens y streaming).
+ *  · CDNs: stale-while-revalidate.
+ *  · La app puede mandar UPDATE_CACHE para forzar refresh.
+ *  · push + notificationclick handlers para que PWABuilder
+ *    detecte capacidad de notificaciones (puntúa más alto).
+ * ============================================================ */
 
-const CACHE_NAME = 'nelsonapp-v3.3';
+const CACHE_VERSION = 'nelsonapp-v3.0.0';
+const STATIC_CACHE  = `${CACHE_VERSION}-static`;
+const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
-// Recursos propios (rutas relativas para funcionar en subcarpetas)
-const PRECACHE_ASSETS = [
+const PRECACHE_URLS = [
     './',
     './index.html',
-    './dashboard.html',
     './manifest.json',
     './icons/icon-192x192.png',
-    './icons/icon-512x512.png',
+    './icons/icon-512x512.png'
 ];
 
-// Recursos externos — se cachean en segundo plano (no bloquean install)
-// TODOS los CDNs que la app usa en cualquier momento deben estar aquí
-const EXTERNAL_ASSETS = [
-    'https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,800&display=swap',
-    'https://cdn.tailwindcss.com',
-    'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js',
-    'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js',
-];
-
-// Dominios que NUNCA deben pasar por el SW (siempre van a red directo)
-const BYPASS_DOMAINS = [
-    'googleapis.com',
-    'accounts.google.com',
-    'generativelanguage.googleapis.com',
-    'wa.me',
-    'api.whatsapp.com',
-    'api.anthropic.com',
-    'api.telegram.org',
-];
-
-// Helper para cachear recursos externos con manejo de respuestas opaque
-function cacheExternalAsset(cache, url) {
-    const req = new Request(url, { mode: 'no-cors' });
-    return fetch(req)
-        .then(resp => {
-            if (resp && (resp.status === 200 || resp.type === 'opaque')) {
-                return cache.put(req, resp);
-            }
-            throw new Error('Respuesta invalida: ' + resp.status);
-        })
-        .catch(err => console.warn('[SW] No se pudo cachear externo:', url, err.message));
-}
-
-// Instalacion
+// ──────────────────────── INSTALL ────────────────────────
 self.addEventListener('install', (event) => {
-    console.log('[SW] Instalando NelsonApp v3.3...');
     event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then((cache) => {
-                console.log('[SW] Precacheando recursos propios...');
-                return cache.addAll(PRECACHE_ASSETS);
-            })
-            .then(() => {
-                return caches.open(CACHE_NAME).then(cache => {
-                    return Promise.all(
-                        EXTERNAL_ASSETS.map(url => cacheExternalAsset(cache, url))
-                    );
-                });
-            })
-            .then(() => {
-                console.log('[SW] Instalacion completada');
-                return self.skipWaiting();
-            })
-            .catch(err => console.error('[SW] Error en install:', err))
+        caches.open(STATIC_CACHE)
+            .then(cache => cache.addAll(PRECACHE_URLS))
+            .then(() => self.skipWaiting())
+            .catch(err => console.warn('[SW] Precache parcial:', err))
     );
 });
 
-// Activacion: limpiar caches viejas
+// ──────────────────────── ACTIVATE ────────────────────────
 self.addEventListener('activate', (event) => {
-    console.log('[SW] Activando...');
     event.waitUntil(
         caches.keys()
-            .then((keys) =>
-                Promise.all(
-                    keys
-                        .filter(key => key !== CACHE_NAME)
-                        .map(key => {
-                            console.log('[SW] Eliminando cache vieja:', key);
-                            return caches.delete(key);
-                        })
-                )
-            )
+            .then(names => Promise.all(
+                names
+                    .filter(n => n.startsWith('nelsonapp-') && !n.startsWith(CACHE_VERSION))
+                    .map(n => caches.delete(n))
+            ))
             .then(() => self.clients.claim())
     );
 });
 
-// Fetch: estrategias diferenciadas
+// ──────────────────────── FETCH ────────────────────────
 self.addEventListener('fetch', (event) => {
-    const url = event.request.url;
+    const req = event.request;
+    if (req.method !== 'GET') return;
 
-    if (event.request.method !== 'GET') return;
+    const url = new URL(req.url);
 
-    if (BYPASS_DOMAINS.some(d => url.includes(d))) {
+    // No interceptar APIs externas críticas (login Google, Drive, Gemini)
+    const SKIP_HOSTS = [
+        'googleapis.com',
+        'google.com',
+        'gstatic.com/accounts',
+        'generativelanguage.googleapis.com'
+    ];
+    if (SKIP_HOSTS.some(h => url.hostname.includes(h))) {
         return;
     }
 
-    // Navegaciones (documentos HTML): cache-first con fallback de red
-    if (event.request.mode === 'navigate') {
-        const isDashboard = url.includes('dashboard.html');
-        const cacheKey = isDashboard ? './dashboard.html' : './index.html';
-
+    // HTML: network-first
+    if (req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html')) {
         event.respondWith(
-            caches.match(cacheKey).then(response => {
-                return response || fetch(event.request).catch(() => {
-                    return new Response(
-                        '<html><body style="background:#0d0f1a;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;"><div style="text-align:center"><h1>Sin conexion</h1><p>La app necesita cargarse al menos una vez con internet.</p></div></body></html>',
-                        { headers: { 'Content-Type': 'text/html' } }
-                    );
-                });
-            })
+            fetch(req)
+                .then(resp => {
+                    const copy = resp.clone();
+                    caches.open(STATIC_CACHE).then(c => c.put(req, copy)).catch(() => {});
+                    return resp;
+                })
+                .catch(() => caches.match(req).then(r => r || caches.match('./index.html')))
         );
         return;
     }
 
-    // Recursos cross-origin (CDNs): cache-first con fetch opaque de respaldo
-    const isCrossOrigin = !url.startsWith(self.location.origin);
-
-    if (isCrossOrigin) {
+    // Same-origin (iconos, manifest): cache-first con revalidación
+    if (url.origin === self.location.origin) {
         event.respondWith(
-            caches.match(event.request).then(cached => {
-                if (cached) return cached;
-                const req = new Request(event.request.url, { mode: 'no-cors' });
+            caches.match(req).then(cached => {
+                if (cached) {
+                    fetch(req).then(resp => {
+                        if (resp && resp.status === 200) {
+                            caches.open(STATIC_CACHE).then(c => c.put(req, resp));
+                        }
+                    }).catch(() => {});
+                    return cached;
+                }
                 return fetch(req).then(resp => {
-                    if (resp && (resp.status === 200 || resp.type === 'opaque')) {
-                        const respClone = resp.clone();
-                        caches.open(CACHE_NAME).then(cache =>
-                            cache.put(req, respClone)
-                        );
+                    if (resp && resp.status === 200 && resp.type === 'basic') {
+                        const copy = resp.clone();
+                        caches.open(STATIC_CACHE).then(c => c.put(req, copy));
                     }
                     return resp;
-                }).catch(() => new Response('', { status: 408, statusText: 'Offline' }));
+                }).catch(() => cached);
             })
         );
         return;
     }
 
-    // Recursos same-origin: Stale-While-Revalidate
+    // CDNs externos: stale-while-revalidate
     event.respondWith(
-        caches.match(event.request).then((cachedResponse) => {
-            const fetchPromise = fetch(event.request)
-                .then((networkResponse) => {
-                    if (networkResponse && networkResponse.status === 200) {
-                        caches.open(CACHE_NAME).then(cache =>
-                            cache.put(event.request, networkResponse.clone())
-                        );
+        caches.open(RUNTIME_CACHE).then(cache =>
+            cache.match(req).then(cached => {
+                const fetchPromise = fetch(req).then(resp => {
+                    if (resp && resp.status === 200) {
+                        cache.put(req, resp.clone());
                     }
-                    return networkResponse;
-                })
-                .catch(() => null);
+                    return resp;
+                }).catch(() => cached);
+                return cached || fetchPromise;
+            })
+        )
+    );
+});
 
-            if (cachedResponse) {
-                event.waitUntil(fetchPromise);
-                return cachedResponse;
+// ──────────────────────── PUSH (PWABuilder lo detecta) ────────────────────────
+self.addEventListener('push', (event) => {
+    let data = { title: 'NelsonApp', body: 'Tienes una notificación nueva' };
+    try { if (event.data) data = event.data.json(); } catch(_) {
+        try { if (event.data) data.body = event.data.text(); } catch(_) {}
+    }
+    const options = {
+        body: data.body || '',
+        icon: './icons/icon-192x192.png',
+        badge: './icons/icon-96x96.png',
+        tag: data.tag || 'nelsonapp',
+        renotify: true,
+        data: data.url || '/'
+    };
+    event.waitUntil(self.registration.showNotification(data.title || 'NelsonApp', options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+    const targetUrl = event.notification.data || '/';
+    event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+            for (const c of list) {
+                if ('focus' in c) return c.focus();
             }
-
-            return fetchPromise.then(response => {
-                if (response) return response;
-                return new Response('Recurso no disponible offline', { status: 408 });
-            });
+            if (clients.openWindow) return clients.openWindow(targetUrl);
         })
     );
 });
 
-// Mensajes desde la app
+// ──────────────────────── MENSAJES ────────────────────────
 self.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'SKIP_WAITING') {
-        self.skipWaiting();
-    }
-    if (event.data && event.data.type === 'GET_VERSION') {
-        event.ports[0].postMessage({ version: CACHE_NAME });
-    }
-    if (event.data && event.data.type === 'UPDATE_CACHE') {
+    const data = event.data || {};
+    if (data.type === 'UPDATE_CACHE') {
         event.waitUntil(
-            caches.open(CACHE_NAME).then(cache => {
-                return Promise.all([
-                    ...PRECACHE_ASSETS.map(u => cache.add(u).catch(e => console.warn('[SW] Update fallo:', u, e))),
-                    ...EXTERNAL_ASSETS.map(u => cacheExternalAsset(cache, u))
-                ]);
-            }).then(() => {
-                console.log('[SW] Cache actualizada manualmente');
-                if (event.ports[0]) event.ports[0].postMessage({ updated: true });
-            })
+            caches.keys()
+                .then(names => Promise.all(names.map(n => caches.delete(n))))
+                .then(() => self.skipWaiting())
+                .then(() => self.clients.matchAll().then(clients => {
+                    clients.forEach(c => c.postMessage({ type: 'CACHE_UPDATED' }));
+                }))
         );
+    }
+    if (data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
     }
 });
