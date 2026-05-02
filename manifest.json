@@ -9,7 +9,7 @@
     "display_override": ["window-controls-overlay", "standalone", "browser"],
     "orientation": "portrait",
     "background_color": "#0f172a",
-    "theme_color": "#f97316",
+    "theme_color": "#0f172a",
     "lang": "es-CO",
     "dir": "ltr",
     "categories": ["business", "productivity", "utilities"],
