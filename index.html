@@ -3703,7 +3703,7 @@
                     <div class="export-opt-icon" style="background:linear-gradient(135deg,rgba(249,115,22,0.3),rgba(154,52,18,0.2));">📊</div>
                     <div class="export-opt-text">
                         <p class="export-opt-title">Reporte financiero</p>
-                        <p class="export-opt-sub">Resumen ejecutivo del mes actual</p>
+                        <p class="export-opt-sub" id="exp-sub-reporte">Resumen ejecutivo del periodo</p>
                     </div>
                     <div class="export-opt-count" id="exp-count-reporte">
                         <span style="font-size:12px;">📅</span>
@@ -16192,11 +16192,28 @@
                 if (numInv) numInv.textContent = stock.length;
                 if (boxInv) boxInv.classList.toggle('export-opt-count-empty', stock.length === 0);
 
-                // Reporte: siempre del mes actual
+                // Reporte: refleja el rango seleccionado
                 const meses3 = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-                const now = new Date();
                 const repLabel = document.getElementById('exp-num-reporte');
-                if (repLabel) repLabel.textContent = meses3[now.getMonth()] + ' ' + now.getFullYear();
+                const repSub   = document.getElementById('exp-sub-reporte');
+                const nowR = new Date();
+                if (_exportRange === 'month') {
+                    if (repLabel) repLabel.textContent = meses3[nowR.getMonth()] + ' ' + nowR.getFullYear();
+                    if (repSub)   repSub.textContent   = 'Resumen ejecutivo del mes actual';
+                } else if (_exportRange === 'prevmonth') {
+                    const prev = new Date(nowR.getFullYear(), nowR.getMonth() - 1, 1);
+                    if (repLabel) repLabel.textContent = meses3[prev.getMonth()] + ' ' + prev.getFullYear();
+                    if (repSub)   repSub.textContent   = 'Resumen ejecutivo del mes pasado';
+                } else if (_exportRange === '3months') {
+                    if (repLabel) repLabel.textContent = '3 meses';
+                    if (repSub)   repSub.textContent   = 'Resumen ejecutivo trimestral';
+                } else if (_exportRange === 'year') {
+                    if (repLabel) repLabel.textContent = String(nowR.getFullYear());
+                    if (repSub)   repSub.textContent   = 'Resumen ejecutivo anual';
+                } else if (_exportRange === 'all') {
+                    if (repLabel) repLabel.textContent = 'Todo';
+                    if (repSub)   repSub.textContent   = 'Resumen ejecutivo histórico';
+                }
             } catch(e) { console.warn('[_updateExportCounts]', e); }
         }
 
@@ -16250,26 +16267,26 @@
                     const orders = await getAll('orders');
                     const sales = await getAll('sales');
                     const gastos = await getAll('gastos') || [];
-                    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-                    const monthOrders = orders.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha) >= startOfMonth);
-                    const monthSales = sales.filter(s => s.fecha >= startOfMonth && s.tipo !== 'adelanto' && s.tipo !== 'cobro_entrega');
-                    const monthGastos = gastos.filter(g => g.fecha >= startOfMonth);
-                    const totalRep = monthOrders.reduce((a,b) => a+(b.val||0), 0);
-                    const totalVentas = monthSales.reduce((a,b) => a+(b.val||0), 0);
-                    const totalGastos = monthGastos.reduce((a,b) => a+(b.val||0), 0);
+                    const { label: rangeLabel } = _getExportRange();
+                    const periodOrders = orders.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha || 0) >= from && (o.fechaEntrega || o.fecha || 0) <= to);
+                    const periodSales  = sales.filter(s => (s.fecha || 0) >= from && (s.fecha || 0) <= to && s.tipo !== 'adelanto' && s.tipo !== 'cobro_entrega');
+                    const periodGastos = gastos.filter(g => (g.fecha || 0) >= from && (g.fecha || 0) <= to);
+                    const totalRep    = periodOrders.reduce((a,b) => a+(b.val||0), 0);
+                    const totalVentas = periodSales.reduce((a,b) => a+(b.val||0), 0);
+                    const totalGastos = periodGastos.reduce((a,b) => a+(b.val||0), 0);
                     const neto = totalRep + totalVentas - totalGastos;
                     headers = ['Concepto','Valor'];
                     rows = [
-                        ['Mes', meses[now.getMonth()] + ' ' + now.getFullYear()],
+                        ['Periodo', rangeLabel],
                         ['Ingresos Reparaciones', totalRep],
                         ['Ingresos Ventas Stock', totalVentas],
                         ['Total Gastos', totalGastos],
                         ['GANANCIA NETA', neto],
-                        ['Órdenes entregadas este mes', monthOrders.length],
-                        ['Órdenes en proceso', orders.filter(o => o.sta !== 'entregado' && o.sta !== 'cancelado').length],
-                        ['Ticket promedio', monthOrders.length ? Math.round(totalRep/monthOrders.length) : 0],
+                        ['Órdenes entregadas en el periodo', periodOrders.length],
+                        ['Órdenes en proceso (actual)', orders.filter(o => o.sta !== 'entregado' && o.sta !== 'cancelado').length],
+                        ['Ticket promedio', periodOrders.length ? Math.round(totalRep/periodOrders.length) : 0],
                     ];
-                    filename = `reporte_mes_${dateStr}`;
+                    filename = `reporte_${rangeSlug}`;
                 }
 
                 // Si no hay datos para exportar, avisar y salir (evita PDF/Excel vacíos)
