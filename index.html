@@ -2193,6 +2193,123 @@
         }
         .numpad-btn.enter.disabled:active { transform: scale(1); }
 
+        /* ===== BIOMETRIC / HUELLA DIGITAL ===== */
+        /* Botón premium en el modal de PIN */
+        #biometric-pin-wrap {
+            margin-top: 22px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        #biometric-pin-wrap.hidden { display: none; }
+        .biometric-btn {
+            position: relative;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, rgba(249,115,22,0.16), rgba(249,115,22,0.04));
+            border: 1.5px solid rgba(249,115,22,0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+            box-shadow: 0 8px 24px rgba(249,115,22,0.18), 0 0 0 0 rgba(249,115,22,0.4) inset;
+        }
+        .biometric-btn:active { transform: scale(0.94); }
+        .biometric-btn svg {
+            width: 32px;
+            height: 32px;
+            stroke: #fb923c;
+            transition: stroke 0.25s ease;
+        }
+        .biometric-btn::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(249,115,22,0.25);
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        /* Estado: escaneando (pulso) */
+        .biometric-btn.scanning {
+            border-color: rgba(249,115,22,0.7);
+            animation: bioPulse 1.4s ease-in-out infinite;
+        }
+        .biometric-btn.scanning::before {
+            opacity: 1;
+            animation: bioRing 1.4s ease-in-out infinite;
+        }
+        @keyframes bioPulse {
+            0%, 100% { box-shadow: 0 8px 24px rgba(249,115,22,0.25), 0 0 0 0 rgba(249,115,22,0.4); }
+            50%      { box-shadow: 0 8px 28px rgba(249,115,22,0.45), 0 0 0 8px rgba(249,115,22,0.0); }
+        }
+        @keyframes bioRing {
+            0%   { transform: scale(0.9); opacity: 0.6; }
+            100% { transform: scale(1.4); opacity: 0; }
+        }
+        /* Estado: éxito */
+        .biometric-btn.success {
+            background: linear-gradient(145deg, rgba(34,197,94,0.25), rgba(34,197,94,0.08));
+            border-color: rgba(34,197,94,0.7);
+            box-shadow: 0 8px 28px rgba(34,197,94,0.4);
+        }
+        .biometric-btn.success svg { stroke: #4ade80; }
+        /* Estado: error */
+        .biometric-btn.error {
+            background: linear-gradient(145deg, rgba(244,63,94,0.22), rgba(244,63,94,0.06));
+            border-color: rgba(244,63,94,0.7);
+            animation: bioShake 0.5s cubic-bezier(0.36,0.07,0.19,0.97);
+        }
+        .biometric-btn.error svg { stroke: #f87171; }
+        @keyframes bioShake {
+            10%, 90% { transform: translateX(-2px); }
+            20%, 80% { transform: translateX(3px); }
+            30%, 50%, 70% { transform: translateX(-5px); }
+            40%, 60% { transform: translateX(5px); }
+        }
+        .biometric-pin-label {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.45);
+            margin: 0;
+        }
+
+        /* Switch toggle premium para settings */
+        .bio-switch {
+            position: relative;
+            width: 48px;
+            height: 28px;
+            border-radius: 99px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: background 0.25s ease, border-color 0.25s ease;
+            flex-shrink: 0;
+        }
+        .bio-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #f1f5f9, #cbd5e1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+            transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .bio-switch.active {
+            background: linear-gradient(135deg, #ea580c, #fb923c);
+            border-color: rgba(249,115,22,0.6);
+            box-shadow: 0 0 16px rgba(249,115,22,0.35);
+        }
+        .bio-switch.active::after { transform: translateX(20px); }
+
         /* ===== RESPONSIVE LAYOUT — TABLET & DESKTOP ===== */
         @media (min-width: 768px) {
             body { padding-bottom: 0; }
@@ -2843,6 +2960,21 @@
                 <button class="numpad-btn enter disabled" onclick="pinPad('ok')">OK</button>
             </div>
 
+            <!-- BOTÓN BIOMÉTRICO (huella) -->
+            <div id="biometric-pin-wrap" class="hidden">
+                <button class="biometric-btn" id="biometric-pin-btn" onclick="verifyBiometricUnlock()" aria-label="Desbloquear con huella">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 11v3a3 3 0 0 1-6 0v-1"/>
+                        <path d="M14 8a4 4 0 0 0-8 0v6"/>
+                        <path d="M18 11.5V14a6 6 0 0 1-12 0v-2"/>
+                        <path d="M9.5 4.5A6 6 0 0 1 18 11.5v2.5"/>
+                        <path d="M5 7a8 8 0 0 1 14.5 4.5v3"/>
+                        <path d="M12 17v.01"/>
+                    </svg>
+                </button>
+                <p class="biometric-pin-label" id="biometric-pin-label">Toca para usar huella</p>
+            </div>
+
             <input type="password" id="pin-input" class="hidden" maxlength="6">
         </div>
     </div>
@@ -3364,6 +3496,26 @@
                 <button onclick="openChangePinModal()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
                     <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#92400e,#f59e0b);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(245,158,11,0.35);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#fcd34d;margin:0;">Cambiar PIN</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Actualizar contraseña de acceso</p></div></div>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+
+                <!-- HUELLA DIGITAL (premium) -->
+                <button id="biometric-row" onclick="toggleBiometric()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
+                    <div style="display:flex;align-items:center;gap:14px;min-width:0;flex:1;">
+                        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#0c4a6e,#0ea5e9);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(14,165,233,0.35);">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 11v3a3 3 0 0 1-6 0v-1"/>
+                                <path d="M14 8a4 4 0 0 0-8 0v6"/>
+                                <path d="M18 11.5V14a6 6 0 0 1-12 0v-2"/>
+                                <path d="M9.5 4.5A6 6 0 0 1 18 11.5v2.5"/>
+                                <path d="M5 7a8 8 0 0 1 14.5 4.5v3"/>
+                            </svg>
+                        </div>
+                        <div style="text-align:left;min-width:0;flex:1;">
+                            <p style="font-size:15px;font-weight:700;color:#7dd3fc;margin:0;">Desbloqueo con huella</p>
+                            <p id="biometric-row-sub" style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Acceso rápido y seguro</p>
+                        </div>
+                    </div>
+                    <div class="bio-switch" id="biometric-switch" aria-label="Activar huella"></div>
                 </button>
 
                 <button onclick="openAppHealthModal()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
@@ -6272,6 +6424,41 @@
         }
 
         // ==================== PIN AUTH ====================
+        // Función reutilizable: lo que pasa cuando el usuario se autentica con éxito
+        // (ya sea por PIN correcto o por huella). Centraliza el flujo de desbloqueo.
+        async function _unlockAppFromAuth() {
+            document.getElementById('pin-modal').classList.add('hidden');
+            document.getElementById('app-header').classList.remove('hidden');
+            document.querySelectorAll('.app-view').forEach(v => v.classList.remove('hidden'));
+            await initApp();
+            // Manejar navegación/acción venida desde dashboard.html
+            const dashTab    = sessionStorage.getItem('dashGoTab');
+            const dashAction = sessionStorage.getItem('dashAction');
+            sessionStorage.removeItem('dashGoTab');
+            sessionStorage.removeItem('dashAction');
+            if (dashTab) {
+                tab(dashTab);
+            } else if (dashAction === 'caja' || dashAction === 'report' || dashAction === 'stats') {
+                tab('ventas');
+            } else {
+                tab('taller');
+            }
+            if (dashAction) {
+                setTimeout(() => {
+                    if (dashAction === 'notify') notifyAllReady();
+                    if (dashAction === 'report') exportMonthlyReport();
+                    if (dashAction === 'stats')  openStatsModal();
+                    if (dashAction === 'caja')   openCajaModal();
+                }, 350);
+            }
+            if (!localStorage.getItem('tutorialShown')) {
+                const _biz = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+                const _bizName = _biz.name || 'Todo Repuestos Nelson';
+                setTimeout(() => showAlert(`👋 ¡Bienvenido a ${_bizName}!\n\nDesliza entre pestañas, toca el nombre de un cliente para ver su historial, y usa el escáner 📷 en inventario.`, "info"), 600);
+                localStorage.setItem('tutorialShown', 'true');
+            }
+        }
+
         async function verifyPin() {
             const input = document.getElementById('pin-input').value;
             const inputHash = await _hashPin(input);
@@ -6281,39 +6468,7 @@
                     d.classList.add('success');
                 });
                 if (navigator.vibrate) { try { navigator.vibrate(25); } catch(_) {} }
-                setTimeout(() => {
-                    document.getElementById('pin-modal').classList.add('hidden');
-                    document.getElementById('app-header').classList.remove('hidden');
-                    document.querySelectorAll('.app-view').forEach(v => v.classList.remove('hidden'));
-                    initApp().then(() => {
-                        // Manejar navegación/acción venida desde dashboard.html
-                        const dashTab    = sessionStorage.getItem('dashGoTab');
-                        const dashAction = sessionStorage.getItem('dashAction');
-                        sessionStorage.removeItem('dashGoTab');
-                        sessionStorage.removeItem('dashAction');
-                        // Ir a la pestaña correcta
-                        if (dashTab) {
-                            tab(dashTab);
-                        } else if (dashAction === 'caja' || dashAction === 'report' || dashAction === 'stats') {
-                            tab('ventas');
-                        } else {
-                            tab('taller');
-                        }
-                        // Ejecutar acción específica con pequeño delay para que la vista esté lista
-                        if (dashAction) {
-                            setTimeout(() => {
-                                if (dashAction === 'notify') notifyAllReady();
-                                if (dashAction === 'report') exportMonthlyReport();
-                                if (dashAction === 'stats')  openStatsModal();
-                                if (dashAction === 'caja')   openCajaModal();
-                            }, 350);
-                        }
-                    });
-                    if (!localStorage.getItem('tutorialShown')) {
-                        setTimeout(() => showAlert("👋 ¡Bienvenido a Nelson App Pro!\n\nDesliza entre pestañas, toca el nombre de un cliente para ver su historial, y usa el escáner 📷 en inventario.", "info"), 600);
-                        localStorage.setItem('tutorialShown', 'true');
-                    }
-                }, 300);
+                setTimeout(() => { _unlockAppFromAuth(); }, 300);
             } else {
                 // PIN incorrecto: shake + vibración + dots en rojo
                 const dotsContainer = document.getElementById('pin-dots');
@@ -6353,6 +6508,218 @@
             showAlert("PIN actualizado correctamente. ✅", "success");
         }
         function closePinChangeModal() { document.getElementById('modal-pin-change').classList.add('hidden'); }
+
+        // ==================== HUELLA DIGITAL (WebAuthn) ====================
+        // Implementación premium de biometría usando la API estándar WebAuthn.
+        // Funciona en Chrome (PWABuilder/TWA, Chrome móvil, Chrome desktop).
+        // El "secreto" nunca sale del dispositivo: la verificación es local.
+        const _BIO_KEY_ENABLED = 'appBiometricEnabled';
+        const _BIO_KEY_CRED    = 'appBiometricCredentialId';
+
+        function isBiometricEnabled() {
+            return localStorage.getItem(_BIO_KEY_ENABLED) === '1' && !!localStorage.getItem(_BIO_KEY_CRED);
+        }
+
+        async function _isBiometricAvailable() {
+            if (!window.PublicKeyCredential) return false;
+            if (!window.isSecureContext && location.hostname !== 'localhost') return false;
+            try {
+                return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+            } catch(_) { return false; }
+        }
+
+        // Helpers base64 ↔ ArrayBuffer
+        function _b64ToBuf(b64) {
+            const bin = atob(b64.replace(/-/g,'+').replace(/_/g,'/'));
+            const buf = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+            return buf;
+        }
+        function _bufToB64(buf) {
+            const bytes = new Uint8Array(buf);
+            let bin = '';
+            for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+            return btoa(bin);
+        }
+
+        // Registrar huella nueva (lo invoca el toggle al activarse)
+        async function enableBiometric() {
+            if (!await _isBiometricAvailable()) {
+                showAlert('Tu dispositivo no soporta huella digital o no tienes una huella registrada en el sistema. Configúrala primero en los ajustes de tu teléfono.', 'warning');
+                return false;
+            }
+            try {
+                const biz = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+                const rpName = biz.name || 'Todo Repuestos Nelson';
+                const challenge = crypto.getRandomValues(new Uint8Array(32));
+                const userId    = crypto.getRandomValues(new Uint8Array(16));
+                const cred = await navigator.credentials.create({
+                    publicKey: {
+                        challenge,
+                        rp: { name: rpName },
+                        user: { id: userId, name: 'owner', displayName: rpName },
+                        pubKeyCredParams: [
+                            { type: 'public-key', alg: -7   }, // ES256
+                            { type: 'public-key', alg: -257 }  // RS256
+                        ],
+                        authenticatorSelection: {
+                            authenticatorAttachment: 'platform',
+                            userVerification: 'required',
+                            residentKey: 'preferred'
+                        },
+                        timeout: 60000,
+                        attestation: 'none'
+                    }
+                });
+                if (!cred || !cred.rawId) return false;
+                localStorage.setItem(_BIO_KEY_CRED, _bufToB64(cred.rawId));
+                localStorage.setItem(_BIO_KEY_ENABLED, '1');
+                return true;
+            } catch(e) {
+                console.warn('[biometric register]', e);
+                if (e && e.name === 'NotAllowedError') {
+                    // Usuario canceló o se agotó el tiempo: silencio, no spamear alertas
+                    return false;
+                }
+                showAlert('No se pudo registrar la huella. ' + (e.message || 'Inténtalo de nuevo.'), 'error');
+                return false;
+            }
+        }
+
+        function disableBiometric() {
+            localStorage.removeItem(_BIO_KEY_ENABLED);
+            localStorage.removeItem(_BIO_KEY_CRED);
+        }
+
+        // Verificar huella (intenta autenticar y, si pasa, desbloquea la app)
+        async function verifyBiometricUnlock() {
+            if (!isBiometricEnabled()) return;
+            const btn   = document.getElementById('biometric-pin-btn');
+            const label = document.getElementById('biometric-pin-label');
+            if (!btn) return;
+            // Reset visual
+            btn.classList.remove('success','error');
+            btn.classList.add('scanning');
+            if (label) label.textContent = 'Coloca tu huella…';
+            try {
+                const credIdB64 = localStorage.getItem(_BIO_KEY_CRED);
+                const challenge = crypto.getRandomValues(new Uint8Array(32));
+                const assertion = await navigator.credentials.get({
+                    publicKey: {
+                        challenge,
+                        allowCredentials: [{
+                            type: 'public-key',
+                            id: _b64ToBuf(credIdB64),
+                            transports: ['internal']
+                        }],
+                        userVerification: 'required',
+                        timeout: 60000
+                    }
+                });
+                btn.classList.remove('scanning');
+                if (!assertion) throw new Error('Sin respuesta del autenticador');
+                btn.classList.add('success');
+                if (label) label.textContent = '¡Bienvenido!';
+                if (navigator.vibrate) { try { navigator.vibrate(25); } catch(_) {} }
+                setTimeout(() => { _unlockAppFromAuth(); }, 380);
+            } catch(e) {
+                console.warn('[biometric verify]', e);
+                btn.classList.remove('scanning');
+                btn.classList.add('error');
+                if (label) {
+                    if (e && e.name === 'NotAllowedError') {
+                        label.textContent = 'Cancelado · usa tu PIN';
+                    } else {
+                        label.textContent = 'No reconocida · usa tu PIN';
+                    }
+                }
+                if (navigator.vibrate) { try { navigator.vibrate([60,40,60]); } catch(_) {} }
+                setTimeout(() => {
+                    btn.classList.remove('error');
+                    if (label) label.textContent = 'Toca para usar huella';
+                }, 1800);
+            }
+        }
+
+        // Render del botón de huella en el modal de PIN (mostrar/ocultar según estado)
+        function _renderBiometricInPinModal() {
+            const wrap  = document.getElementById('biometric-pin-wrap');
+            const label = document.getElementById('biometric-pin-label');
+            const btn   = document.getElementById('biometric-pin-btn');
+            if (!wrap) return;
+            if (isBiometricEnabled()) {
+                wrap.classList.remove('hidden');
+                if (btn) btn.classList.remove('scanning','success','error');
+                if (label) label.textContent = 'Toca para usar huella';
+            } else {
+                wrap.classList.add('hidden');
+            }
+        }
+
+        // Render del switch en settings
+        async function _renderBiometricToggle() {
+            const sw  = document.getElementById('biometric-switch');
+            const sub = document.getElementById('biometric-row-sub');
+            const row = document.getElementById('biometric-row');
+            if (!sw) return;
+            const supported = await _isBiometricAvailable();
+            if (!supported) {
+                sw.classList.remove('active');
+                if (sub) sub.textContent = 'No disponible en este dispositivo';
+                if (row) row.style.opacity = '0.55';
+                return;
+            }
+            if (row) row.style.opacity = '';
+            if (isBiometricEnabled()) {
+                sw.classList.add('active');
+                if (sub) sub.textContent = 'Activa · toca para desactivar';
+            } else {
+                sw.classList.remove('active');
+                if (sub) sub.textContent = 'Acceso rápido y seguro';
+            }
+        }
+
+        // Toggle: activar o desactivar huella
+        async function toggleBiometric() {
+            const supported = await _isBiometricAvailable();
+            if (!supported) {
+                showAlert('Tu dispositivo no soporta huella digital, o no tienes una huella registrada en el sistema. Configúrala primero en los ajustes de tu teléfono.', 'warning');
+                return;
+            }
+            if (isBiometricEnabled()) {
+                // Desactivar (con confirmación)
+                if (confirm('¿Desactivar el desbloqueo con huella?\nSeguirás pudiendo entrar con tu PIN.')) {
+                    disableBiometric();
+                    _renderBiometricToggle();
+                    showAlert('Huella desactivada.', 'success');
+                }
+                return;
+            }
+            // Activar: pedir registro de huella
+            const ok = await enableBiometric();
+            await _renderBiometricToggle();
+            if (ok) {
+                if (navigator.vibrate) { try { navigator.vibrate(30); } catch(_) {} }
+                showAlert('✅ Huella registrada.\nLa próxima vez podrás entrar tocando el sensor.', 'success');
+            }
+        }
+
+        // Helper: muestra el modal de PIN y, si la huella está habilitada,
+        // intenta autenticar automáticamente tras un breve delay para que
+        // la animación del modal no se vea interrumpida.
+        function showPinModal() {
+            document.getElementById('pin-modal').classList.remove('hidden');
+            _renderBiometricInPinModal();
+            if (isBiometricEnabled()) {
+                setTimeout(() => {
+                    // Solo auto-trigger si el modal sigue visible (usuario no ha empezado a teclear)
+                    const m = document.getElementById('pin-modal');
+                    if (m && !m.classList.contains('hidden') && pinBuffer === '') {
+                        verifyBiometricUnlock();
+                    }
+                }, 450);
+            }
+        }
 
         // ==================== TEMA CLARO / OSCURO ====================
         // NOTA: modo claro desactivado por ahora. La app mantiene su identidad "Taller Pro"
@@ -6703,6 +7070,7 @@
             updateMetaBar();
             resetLockTimer();
             _refreshTecnicosSelects();
+            _renderBiometricToggle();
 
             // ═══ FASE 2: DEFER SUAVE ═══ Checks y configuraciones que pueden esperar un frame
             setTimeout(() => {
@@ -10673,7 +11041,7 @@
 
         window.onload = async () => {
             await initPinSystem(); // cargar/migrar hash del PIN antes de mostrar el modal
-            document.getElementById('pin-modal').classList.remove('hidden');
+            showPinModal();
         };
 
         // ==================== FOTOS DE ENTREGA ====================
@@ -12309,7 +12677,7 @@
                 splash.classList.add('fade-out');
                 setTimeout(() => {
                     splash.style.display = 'none';
-                    document.getElementById('pin-modal').classList.remove('hidden');
+                    showPinModal();
                 }, 600);
             }, 1800);
         })();
@@ -12507,7 +12875,7 @@
                     document.querySelectorAll('#pin-dots .pin-dot').forEach(d => d.classList.remove('filled'));
                     document.getElementById('pin-input').value = '';
                     document.getElementById('pin-error').innerText = '';
-                    document.getElementById('pin-modal').classList.remove('hidden');
+                    showPinModal();
                     document.getElementById('app-header').classList.add('hidden');
                     document.querySelectorAll('.app-view').forEach(v => v.classList.add('hidden'));
                     showToast('Sesión bloqueada por inactividad', 'warning');
@@ -13641,19 +14009,14 @@
         async function downloadGuidePDF() {
             try {
                 showToast('📄 Generando guía...', 'info');
-                // Cargar jsPDF dinámicamente si no está
-                if (!window.jspdf) {
+                // Usar el helper centralizado: garantiza jsPDF + autoTable
+                if (!window.jspdf || !window.jspdf.jsPDF) {
                     if (!navigator.onLine) {
                         showAlert('Para generar la guía necesitas conexión a Internet (se descarga una librería la primera vez).\n\nIntenta de nuevo cuando tengas señal.', 'info');
                         return;
                     }
-                    await new Promise((resolve, reject) => {
-                        const s = document.createElement('script');
-                        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-                        s.onload = resolve; s.onerror = reject;
-                        document.head.appendChild(s);
-                    });
                 }
+                await _ensurePdfLibsReady();
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
                 const biz = JSON.parse(localStorage.getItem('businessConfig') || '{}');
@@ -16349,15 +16712,25 @@
             }
         }
 
-        async function _exportPDF(headers, rows, filename, bizName, type, cur) {
-            // Cargar jsPDF dinámicamente
-            if (!window.jspdf) {
+        // Helper centralizado: garantiza que jsPDF Y el plugin autoTable
+        // estén disponibles. Cada uno se chequea de forma independiente, así
+        // que si otra función (ej: downloadGuidePDF) ya cargó jsPDF sin el
+        // plugin, este helper carga solo lo que falta.
+        async function _ensurePdfLibsReady() {
+            // 1. jsPDF
+            if (!window.jspdf || !window.jspdf.jsPDF) {
                 await new Promise((resolve, reject) => {
                     const s = document.createElement('script');
                     s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
                     s.onload = resolve; s.onerror = reject;
                     document.head.appendChild(s);
                 });
+            }
+            // 2. autoTable plugin (chequeo independiente)
+            const hasAutoTable = !!(window.jspdf && window.jspdf.jsPDF &&
+                                    window.jspdf.jsPDF.API &&
+                                    typeof window.jspdf.jsPDF.API.autoTable === 'function');
+            if (!hasAutoTable) {
                 await new Promise((resolve, reject) => {
                     const s = document.createElement('script');
                     s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js';
@@ -16365,6 +16738,11 @@
                     document.head.appendChild(s);
                 });
             }
+        }
+
+        async function _exportPDF(headers, rows, filename, bizName, type, cur) {
+            // Cargar libs (jsPDF + autoTable) de forma robusta
+            await _ensurePdfLibsReady();
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ orientation: rows.length > 5 && headers.length > 6 ? 'landscape' : 'portrait', unit: 'mm', format: 'a4' });
             const now = new Date();
@@ -16381,8 +16759,9 @@
             doc.setFontSize(8);
             doc.text('Generado: ' + now.toLocaleString('es-CO'), doc.internal.pageSize.width - 14, 17, { align: 'right' });
 
-            // Table
-            doc.autoTable({
+            // Table — llamada defensiva: usa el método del prototipo si existe,
+            // si no, recurre a la función global standalone que también expone el plugin.
+            const tableOpts = {
                 head: [headers],
                 body: rows,
                 startY: 26,
@@ -16390,7 +16769,14 @@
                 headStyles: { fillColor: [30, 30, 50], textColor: 255, fontStyle: 'bold', fontSize: 8 },
                 alternateRowStyles: { fillColor: [245, 245, 250] },
                 margin: { left: 10, right: 10 },
-            });
+            };
+            if (typeof doc.autoTable === 'function') {
+                doc.autoTable(tableOpts);
+            } else if (typeof window.autoTable === 'function') {
+                window.autoTable(doc, tableOpts);
+            } else {
+                throw new Error('No se pudo cargar el plugin autoTable. Revisa tu conexión a Internet e intenta de nuevo.');
+            }
 
             // Footer
             const pageCount = doc.internal.getNumberOfPages();
