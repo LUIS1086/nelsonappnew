@@ -1015,6 +1015,109 @@ body.light-mode .kpi-val {
   display: flex; align-items: center; gap: 10px;
 }
 
+/* ★ Selector de sucursal */
+.branch-selector {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border-hi);
+  border-radius: 9px;
+  padding: 4px;
+}
+.branch-btn {
+  background: transparent; border: none;
+  color: var(--text2);
+  font-size: 0.7rem; font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+.branch-btn:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+.branch-btn.active {
+  background: var(--accent-dim); color: var(--accent);
+  box-shadow: 0 0 8px rgba(249,115,22,0.15);
+}
+
+/* ★ Tiempo desde último cierre (urgencia visual) */
+.sb-caja-time {
+  font-size: 9px; font-weight: 700; color: var(--amber);
+  margin-top: 4px; letter-spacing: 0.3px;
+  display: flex; align-items: center; gap: 4px;
+}
+.sb-caja-time.urgent { color: var(--red); }
+.sb-caja-time.recent { color: var(--text3); font-weight: 500; }
+
+/* ★ Refresh indicator */
+.refresh-pulse {
+  position: fixed; bottom: 18px; right: 22px; z-index: 90;
+  background: var(--panel2); border: 1px solid var(--border-hi);
+  border-radius: 99px; padding: 6px 12px;
+  font-size: 10px; font-weight: 600; color: var(--text2);
+  font-family: 'JetBrains Mono', monospace;
+  display: flex; align-items: center; gap: 7px;
+  box-shadow: 0 6px 22px rgba(0,0,0,0.4);
+  opacity: 0; transform: translateY(8px);
+  transition: opacity 0.3s, transform 0.3s;
+  pointer-events: none;
+}
+.refresh-pulse.show { opacity: 1; transform: translateY(0); }
+.refresh-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green); box-shadow: 0 0 8px var(--green);
+  animation: livePulse 1.6s ease infinite;
+}
+.refresh-pulse.refreshing .refresh-dot { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+
+/* ★ Scroll-to-top FAB */
+.scroll-top-fab {
+  position: fixed; bottom: 18px; left: 240px; z-index: 90;
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  border: none; cursor: pointer;
+  font-size: 14px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 6px 22px rgba(249,115,22,0.45);
+  opacity: 0; transform: translateY(8px) scale(0.85);
+  transition: opacity 0.25s, transform 0.25s, left 0.3s;
+  pointer-events: none;
+}
+.scroll-top-fab.show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+.scroll-top-fab:hover { transform: translateY(-2px) scale(1.05); }
+.shell.sb-collapsed ~ .scroll-top-fab { left: 70px; }
+
+/* ★ Tooltip universal en KPIs */
+.kpi-info-tip {
+  position: absolute; top: 14px; left: 14px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  color: var(--text3); font-size: 9px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  cursor: help; transition: all 0.15s;
+  font-family: serif; line-height: 1;
+}
+.kpi:hover .kpi-info-tip { background: var(--accent-dim); color: var(--accent); }
+.kpi-info-tip:hover::after {
+  content: attr(data-tip);
+  position: absolute; top: calc(100% + 6px); left: 0;
+  background: var(--panel3); border: 1px solid var(--border-hi);
+  color: var(--text); font-size: 10.5px; font-weight: 500;
+  padding: 7px 10px; border-radius: 8px;
+  white-space: normal; width: 200px; line-height: 1.35;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  z-index: 100;
+}
+
+/* ★ Empty state ilustrado */
+.empty-illust {
+  text-align: center; padding: 32px 16px;
+}
+.empty-illust-icon { font-size: 2.4rem; opacity: 0.35; margin-bottom: 8px; }
+.empty-illust-title { font-size: 12.5px; font-weight: 700; color: var(--text2); margin-bottom: 3px; }
+.empty-illust-sub { font-size: 11px; color: var(--text3); }
+
 /* Better spacing for today's new section */
 .today-stats.three { grid-template-columns: repeat(3, 1fr); }
 @media (max-width: 1100px) {
@@ -1046,6 +1149,7 @@ body.light-mode .kpi-val {
       <div class="sb-caja-label">Caja Neta</div>
       <div class="sb-caja-value" id="sb-cash">$0</div>
       <div class="sb-caja-sub"   id="sb-cash-sub">Desde último cierre</div>
+      <div class="sb-caja-time"  id="sb-cash-time"></div>
     </div>
   </div>
 
@@ -1086,7 +1190,7 @@ body.light-mode .kpi-val {
   <div class="sb-footer">
     <button class="sb-btn" onclick="toggleDashTheme()">🌙 <span>Cambiar tema</span></button>
     <button class="sb-btn primary" onclick="goApp('taller')">← <span>Volver a la app</span></button>
-    <div class="sb-version" id="sb-version">v3.2.0 · NelsonApp Pro</div>
+    <div class="sb-version" id="sb-version">v3.2.0 · Nelson App Pro</div>
   </div>
 </aside>
 
@@ -1097,11 +1201,12 @@ body.light-mode .kpi-val {
       <div class="tb-breadcrumb">TODO REPUESTOS <span>/ Dashboard</span></div>
       <div class="tb-title" id="tb-title">COMMAND CENTER</div>
     </div>
+    <div class="branch-selector" id="branch-selector" title="Filtrar por sucursal"></div>
   </div>
   <div class="tb-right">
     <div class="tb-search">
       <span class="tb-search-icon">🔍</span>
-      <input type="text" id="tb-search-input" placeholder="Buscar cliente u orden..." oninput="dashSearch(this.value)">
+      <input type="text" id="tb-search-input" placeholder="Buscar cliente, orden o repuesto..." oninput="dashSearch(this.value)">
     </div>
     <div class="tb-date"  id="tb-date">—</div>
     <div class="tb-clock" id="tb-clock">00:00:00</div>
@@ -1139,6 +1244,7 @@ body.light-mode .kpi-val {
   <div class="kpi-row">
     <div class="kpi" style="--kpi-glow:rgba(16,217,126,0.12)" onclick="openKpiModal('caja')">
       <div class="kpi-accent-line" style="background:linear-gradient(to right,var(--green),transparent)"></div>
+      <div class="kpi-info-tip" data-tip="Reparaciones entregadas + ventas de mostrador − gastos, todo desde el último cierre de caja.">i</div>
       <div class="kpi-icon" style="background:var(--green-dim);">💵</div>
       <div class="kpi-label">Caja Neta</div>
       <div class="kpi-val" id="kpi-caja">$0</div>
@@ -1150,6 +1256,7 @@ body.light-mode .kpi-val {
     </div>
     <div class="kpi" style="--kpi-glow:rgba(61,184,245,0.1)" onclick="openKpiModal('activas')">
       <div class="kpi-accent-line" style="background:linear-gradient(to right,var(--blue),transparent)"></div>
+      <div class="kpi-info-tip" data-tip="Órdenes que aún no se entregan al cliente: recibidas, en revisión y reparadas (listas para entrega).">i</div>
       <div class="kpi-icon" style="background:var(--blue-dim);">📋</div>
       <div class="kpi-label">Órdenes Activas</div>
       <div class="kpi-val" id="kpi-activas">0</div>
@@ -1161,6 +1268,7 @@ body.light-mode .kpi-val {
     </div>
     <div class="kpi" style="--kpi-glow:rgba(249,115,22,0.1)" onclick="openKpiModal('ingresos')">
       <div class="kpi-accent-line" style="background:linear-gradient(to right,var(--accent),transparent)"></div>
+      <div class="kpi-info-tip" data-tip="Suma de reparaciones entregadas + ventas de mostrador desde el día 1 del mes en curso.">i</div>
       <div class="kpi-icon" style="background:var(--accent-dim);">🔧</div>
       <div class="kpi-label">Ingresos del Mes</div>
       <div class="kpi-val" id="kpi-ingresos">$0</div>
@@ -1172,6 +1280,7 @@ body.light-mode .kpi-val {
     </div>
     <div class="kpi" style="--kpi-glow:rgba(159,122,234,0.1)" onclick="openKpiModal('inventario')">
       <div class="kpi-accent-line" style="background:linear-gradient(to right,var(--violet),transparent)"></div>
+      <div class="kpi-info-tip" data-tip="Valor total del inventario (precio × cantidad de cada repuesto). Click para ver stock crítico.">i</div>
       <div class="kpi-icon" style="background:var(--violet-dim);">📦</div>
       <div class="kpi-label">Valor Inventario</div>
       <div class="kpi-val" id="kpi-inventario">$0</div>
@@ -1361,6 +1470,15 @@ body.light-mode .kpi-val {
 </main>
 </div><!-- /shell -->
 
+<!-- ★ Scroll to top FAB -->
+<button class="scroll-top-fab" id="scroll-top-fab" onclick="document.querySelector('.main').scrollTo({top:0,behavior:'smooth'})" title="Volver arriba">↑</button>
+
+<!-- ★ Refresh indicator -->
+<div class="refresh-pulse" id="refresh-pulse">
+  <div class="refresh-dot"></div>
+  <span id="refresh-pulse-text">actualizado</span>
+</div>
+
 <!-- ★ DASH MODAL ★ -->
 <div class="dash-modal-backdrop" id="dash-modal" onclick="if(event.target===this)closeDashModal()">
   <div class="dash-modal">
@@ -1395,39 +1513,113 @@ function applySidebarState() {
 }
 
 // ════════════════════════════════════════
-//  BÚSQUEDA RÁPIDA EN DASHBOARD
+//  BÚSQUEDA GLOBAL EN DASHBOARD
+//  (clientes, órdenes, repuestos)
 // ════════════════════════════════════════
 let _dashOrders = [];
+function _normalizeText(s) {
+  return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
 function dashSearch(q) {
-  q = q.trim().toLowerCase();
-  if (!q) { document.getElementById('orders-panel').innerHTML && buildOrdersPanel(_dashOrders, JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix||'#', Date.now()); return; }
-  const filtered = _dashOrders.filter(o =>
-    (o.nom||'').toLowerCase().includes(q) ||
-    (o.equ||'').toLowerCase().includes(q) ||
-    String(o.num||'').includes(q)
-  );
-  const el = document.getElementById('orders-panel');
+  q = _normalizeText(q.trim());
+  const ordEl = document.getElementById('orders-panel');
+  const stockEl = document.getElementById('stock-panel');
+  const deudaEl = document.getElementById('deuda-panel');
+
+  // Si el query está vacío, restaurar paneles originales
+  if (!q) {
+    const prefix = JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix||'#';
+    buildOrdersPanel(_dashOrders, prefix, Date.now());
+    const threshold = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
+    buildStockPanel(_dashStock || [], threshold);
+    buildDeudaPanel(_dashClientes || []);
+    return;
+  }
+
   const C2 = () => localStorage.getItem('appCurrency') || '$';
   const fmt2 = v => C2() + Number(v||0).toLocaleString('es-CO');
   const esc2 = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const daysDiff2 = (a,b) => Math.floor((b-a)/86400000);
   const prefix = JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix||'#';
   const now2 = Date.now();
-  if (!filtered.length) { el.innerHTML = '<div class="empty">Sin resultados para "'+q+'"</div>'; return; }
-  const dotClass = { recibido:'pip-recibido','revisión':'pip-revision', reparado:'pip-reparado', entregado:'pip-entregado' };
-  el.innerHTML = filtered.slice(0,8).map(o => {
-    const dias = daysDiff2(o.fecha, now2);
-    const dc = dias > 30 ? 'old' : dias > 7 ? 'medium' : 'fresh';
-    return `<div class="order-item" onclick="openOrdenModal('${o.num}')">
-      <div class="order-status-pip ${dotClass[o.sta]||'pip-recibido'}"></div>
-      <div class="order-num">${prefix}${o.num||'—'}</div>
-      <div class="order-info">
-        <div class="order-client">${esc2(o.nom)}</div>
-        <div class="order-device">${esc2(o.equ)} <span class="order-days ${dc}">${dias}d</span></div>
-      </div>
-      <div class="order-val">${fmt2(o.val||0)}</div>
+
+  // 1) Filtrar órdenes
+  const filteredOrd = _dashOrders.filter(o =>
+    _normalizeText(o.nom).includes(q) ||
+    _normalizeText(o.equ).includes(q) ||
+    _normalizeText(o.tel).includes(q) ||
+    String(o.num||'').includes(q)
+  );
+  if (!filteredOrd.length) {
+    ordEl.innerHTML = `<div class="empty-illust">
+      <div class="empty-illust-icon">🔍</div>
+      <div class="empty-illust-title">Sin órdenes</div>
+      <div class="empty-illust-sub">Para "${esc2(q)}"</div>
     </div>`;
-  }).join('');
+  } else {
+    const dotClass = { recibido:'pip-recibido','revisión':'pip-revision', reparado:'pip-reparado', entregado:'pip-entregado' };
+    ordEl.innerHTML = filteredOrd.slice(0,8).map(o => {
+      const dias = daysDiff2(o.fecha, now2);
+      const dc = dias > 30 ? 'old' : dias > 7 ? 'medium' : 'fresh';
+      return `<div class="order-item" onclick="openOrdenModal('${o.num}')">
+        <div class="order-status-pip ${dotClass[o.sta]||'pip-recibido'}"></div>
+        <div class="order-num">${prefix}${o.num||'—'}</div>
+        <div class="order-info">
+          <div class="order-client">${esc2(o.nom)}</div>
+          <div class="order-device">${esc2(o.equ)} <span class="order-days ${dc}">${dias}d</span></div>
+        </div>
+        <div class="order-val">${fmt2(o.val||0)}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // 2) Filtrar repuestos en stock-panel
+  const filteredStock = (_dashStock || []).filter(s =>
+    _normalizeText(s.n).includes(q) ||
+    _normalizeText(s.cat).includes(q) ||
+    _normalizeText(s.code).includes(q)
+  ).slice(0,6);
+  if (filteredStock.length && stockEl) {
+    stockEl.innerHTML = filteredStock.map(s => {
+      const isOut = s.q === 0;
+      const minS = s.minStock || 3;
+      const pct = isOut ? 100 : Math.min(100, Math.round((s.q / Math.max(minS*2,1))*100));
+      const bar = isOut ? 'var(--red)' : s.q <= minS ? 'var(--amber)' : 'var(--green)';
+      const qColor = isOut ? 'var(--red)' : s.q <= minS ? 'var(--amber)' : 'var(--green)';
+      return `<div class="stock-item">
+        <div class="stock-ico">📦</div>
+        <div class="stock-info">
+          <div class="stock-name">${esc2(s.n)}</div>
+          <div class="stock-mini-bar"><div class="stock-mini-fill" style="width:${pct}%;background:${bar};"></div></div>
+        </div>
+        <div class="stock-right">
+          <div class="stock-price">${fmt2(s.p)}</div>
+          <div class="stock-qty" style="color:${qColor};">${isOut?'AGOTADO':s.q+' uds'}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // 3) Filtrar clientes con deuda
+  const filteredCli = (_dashClientes || []).filter(c =>
+    c.deuda > 0 && (
+      _normalizeText(c.nombre).includes(q) ||
+      _normalizeText(c.telefono).includes(q)
+    )
+  ).slice(0,6);
+  if (filteredCli.length && deudaEl) {
+    deudaEl.innerHTML = filteredCli.map((c,i) =>
+      `<div class="deuda-item" onclick="openClienteDeudaModal(${i})">
+        <div class="deuda-rank">${i+1}</div>
+        <div class="deuda-avatar">👤</div>
+        <div class="deuda-info">
+          <div class="deuda-name">${esc2(c.nombre)}</div>
+          <div class="deuda-since">${esc2(c.telefono||'Sin teléfono')}</div>
+        </div>
+        <div class="deuda-val">${fmt2(c.deuda)}</div>
+      </div>`
+    ).join('');
+  }
 }
 
 // ════════════════════════════════════════
@@ -1560,32 +1752,53 @@ tick(); setInterval(tick, 1000);
 function loadBiz() {
   try {
     const c = JSON.parse(localStorage.getItem('businessConfig') || '{}');
-    const name  = c.name  || 'NELSON';
+    const name  = c.name  || 'Todo Repuestos Nelson';
     const short = c.shortName || 'TODO REPUESTOS';
-    document.getElementById('sb-short').textContent = short;
-    document.getElementById('sb-name').textContent  = name;
-    document.getElementById('tb-title').textContent = name + ' — COMMAND CENTER';
+    const ver   = c.version || localStorage.getItem('appVersion') || '3.2.0';
+    document.getElementById('sb-short').textContent = short.toUpperCase();
+    document.getElementById('sb-name').textContent  = name.toUpperCase().replace('TODO REPUESTOS','').trim() || 'NELSON';
+    document.getElementById('tb-title').textContent = (name.toUpperCase()) + ' — COMMAND CENTER';
+    const verEl = document.getElementById('sb-version');
+    if (verEl) verEl.textContent = `v${ver} · Nelson App Pro`;
     document.title = `${name} — Dashboard`;
+    // Breadcrumb
+    const bc = document.querySelector('.tb-breadcrumb');
+    if (bc) bc.innerHTML = `${esc(short.toUpperCase())} <span>/ Dashboard</span>`;
   } catch {}
 }
 
 // ════════════════════════════════════════
 //  DASHBOARD PRINCIPAL
 // ════════════════════════════════════════
-async function loadDashboard() {
-  showSkeletons();
-  const [orders, stock, sales, gastos, clientes] = await Promise.all([
-    getAll('orders'), getAll('stock'), getAll('sales'), getAll('gastos'), getAll('clientes')
-  ]);
-  _dashOrders = orders;
-  _dashSales = sales;
-  _dashGastos = gastos;
-  _dashStock = stock;
-  _dashClientes = clientes;
+async function loadDashboard(silent) {
+  if (!silent) showSkeletons();
+  showRefreshIndicator('refreshing');
+  try {
+    const [ordersRaw, stockRaw, salesRaw, gastosRaw, clientesRaw] = await Promise.all([
+      getAll('orders'), getAll('stock'), getAll('sales'), getAll('gastos'), getAll('clientes')
+    ]);
+    // Guardar siempre los datos completos (para selector de sucursal)
+    _allOrders = ordersRaw; _allSales = salesRaw; _allGastos = gastosRaw;
 
-  // ★ Panel Hoy + Insights
-  buildTodayPanel(orders, sales, gastos);
-  buildInsights(orders, sales, gastos, stock);
+    // Aplicar filtro de sucursal
+    const orders   = filterByBranch(ordersRaw);
+    const sales    = filterByBranch(salesRaw);
+    const gastos   = filterByBranch(gastosRaw);
+    const stock    = stockRaw;       // stock generalmente es global
+    const clientes = clientesRaw;    // clientes también globales
+
+    _dashOrders = orders;
+    _dashSales = sales;
+    _dashGastos = gastos;
+    _dashStock = stock;
+    _dashClientes = clientes;
+
+    // Reconstruir selector si nuevas sucursales aparecen
+    buildBranchSelector();
+
+    // ★ Panel Hoy + Insights
+    buildTodayPanel(orders, sales, gastos);
+    buildInsights(orders, sales, gastos, stock);
 
   const now        = Date.now();
   const lastCierre = Number(localStorage.getItem('lastCierreCaja')) || 0;
@@ -1696,6 +1909,15 @@ async function loadDashboard() {
 
   // ── FEED ──
   buildFeed(orders, sales, gastos);
+
+  // ── TIEMPO ÚLTIMO CIERRE ──
+  updateCajaTime();
+
+  } catch (e) {
+    console.error('[Dashboard] Error en loadDashboard:', e);
+  } finally {
+    showRefreshIndicator('done');
+  }
 }
 
 // ────────────────────────────────────────
@@ -1790,7 +2012,14 @@ function buildStatusChart(orders) {
 function buildOrdersPanel(orders, prefix, now) {
   const recent = [...orders].sort((a,b) => b.fecha - a.fecha).slice(0, 8);
   const el = document.getElementById('orders-panel');
-  if (!recent.length) { el.innerHTML = '<div class="empty">Sin órdenes</div>'; return; }
+  if (!recent.length) {
+    el.innerHTML = `<div class="empty-illust">
+      <div class="empty-illust-icon">🛠️</div>
+      <div class="empty-illust-title">Sin órdenes aún</div>
+      <div class="empty-illust-sub">Crea una nueva recepción para comenzar</div>
+    </div>`;
+    return;
+  }
   const dotClass = { recibido:'pip-recibido','revisión':'pip-revision', reparado:'pip-reparado', entregado:'pip-entregado' };
   el.innerHTML = recent.map(o => {
     const dias = daysDiff(o.fecha, now);
@@ -1852,7 +2081,14 @@ function buildMovPanel(orders, sales, gastos, lastCierre) {
                         .map(o=>({...o,_t:'repair',_f:o.fechaEntrega||o.fecha}));
   const all = [...mSales,...mGastos,...mOrd].sort((a,b)=>b._f-a._f).slice(0,7);
   const el = document.getElementById('mov-panel');
-  if (!all.length) { el.innerHTML='<div class="empty">Sin movimientos</div>'; return; }
+  if (!all.length) {
+    el.innerHTML = `<div class="empty-illust">
+      <div class="empty-illust-icon">💸</div>
+      <div class="empty-illust-title">Sin movimientos</div>
+      <div class="empty-illust-sub">Desde el último cierre de caja</div>
+    </div>`;
+    return;
+  }
   el.innerHTML = all.map(m => {
     if (m._t==='sale')   return `<div class="mov-item"><div class="mov-icon-wrap sale">🛒</div><div class="mov-info"><div class="mov-name">${esc(m.item||'Venta')}</div><div class="mov-date">${fmtTime(m._f)}</div></div><div class="mov-val pos">+${fmt(m.val||0)}</div></div>`;
     if (m._t==='repair') return `<div class="mov-item"><div class="mov-icon-wrap repair">🔧</div><div class="mov-info"><div class="mov-name">${esc(m.nom||'')} · ${esc(m.equ||'')}</div><div class="mov-date">${fmtTime(m._f)}</div></div><div class="mov-val pos">+${fmt(m.val||0)}</div></div>`;
@@ -1867,7 +2103,14 @@ function buildTopPanel(sales, startMonth) {
   mesSales.forEach(s => { counts[s.item] = (counts[s.item]||0) + (s.qty||1); });
   const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
   const el = document.getElementById('top-panel');
-  if (!sorted.length) { el.innerHTML='<div class="empty">Sin ventas este mes</div>'; return; }
+  if (!sorted.length) {
+    el.innerHTML = `<div class="empty-illust">
+      <div class="empty-illust-icon">🏆</div>
+      <div class="empty-illust-title">Sin ventas este mes</div>
+      <div class="empty-illust-sub">Los más vendidos aparecerán aquí</div>
+    </div>`;
+    return;
+  }
   const rankClass = ['gold','silver','bronze','',''];
   el.innerHTML = sorted.map(([name,qty], i) =>
     `<div class="top-item">
@@ -1885,7 +2128,14 @@ function buildTopPanel(sales, startMonth) {
 function buildDeudaPanel(clientes) {
   const deudores = clientes.filter(c=>c.deuda>0).sort((a,b)=>b.deuda-a.deuda).slice(0,6);
   const el = document.getElementById('deuda-panel');
-  if (!deudores.length) { el.innerHTML='<div class="empty">✅ Sin deudas pendientes</div>'; return; }
+  if (!deudores.length) {
+    el.innerHTML = `<div class="empty-illust">
+      <div class="empty-illust-icon">✅</div>
+      <div class="empty-illust-title">Cartera al día</div>
+      <div class="empty-illust-sub">Sin deudas pendientes</div>
+    </div>`;
+    return;
+  }
   el.innerHTML = deudores.map((c,i) =>
     `<div class="deuda-item" onclick="openClienteDeudaModal(${i})">
       <div class="deuda-rank">${i+1}</div>
@@ -1918,7 +2168,14 @@ function buildGarantiaPanel(orders, now) {
     .slice(0, 6);
 
   const el = document.getElementById('garantia-panel');
-  if (!upcoming.length) { el.innerHTML='<div class="empty">✅ Sin garantías próximas a vencer</div>'; return; }
+  if (!upcoming.length) {
+    el.innerHTML = `<div class="empty-illust">
+      <div class="empty-illust-icon">🛡️</div>
+      <div class="empty-illust-title">Garantías al día</div>
+      <div class="empty-illust-sub">Ninguna próxima a vencer</div>
+    </div>`;
+    return;
+  }
   el.innerHTML = upcoming.map(o => {
     const isHoy = o.diasRestantes === 0;
     const cls   = isHoy ? 'vence-hoy' : 'vence-pronto';
@@ -1938,8 +2195,48 @@ function buildGarantiaPanel(orders, now) {
 function buildStockPanel(stock, threshold) {
   const critical = stock.filter(s=>s.q<=threshold).sort((a,b)=>a.q-b.q).slice(0,6);
   const el = document.getElementById('stock-panel');
-  const catIcons = {'Motores ventilador':'🌀','Motores licuadora':'⚙️','Acoples Samurái':'🔩','Élices':'🌊','Empaques olla':'🍲','Cuchillas licuadora':'🔪','Cuadrantes':'📐','Acoples Oster':'🔩','Suiches':'🔘','Tapones olla':'🔒','Otros':'📦'};
-  if (!critical.length) { el.innerHTML='<div class="empty">✅ Inventario en buen estado</div>'; return; }
+  const catIcons = {
+    // Licuadoras
+    'Cuchillas licuadora':'🔪','Cuchillas':'🔪','Cuchilla':'🔪',
+    'Vasos licuadora':'🥤','Vaso licuadora':'🥤','Vasos':'🥤',
+    'Acoples Oster':'🔩','Acoples':'🔩','Acople':'🔩',
+    'Acoples Samurái':'🔩','Acoples Samurai':'🔩',
+    'Empaques licuadora':'⭕','Empaque licuadora':'⭕',
+    'Motores licuadora':'⚙️','Motor licuadora':'⚙️',
+    'Bases licuadora':'🔌','Base licuadora':'🔌',
+    // Ventiladores
+    'Motores ventilador':'🌀','Motor ventilador':'🌀','Motores':'⚙️',
+    'Aspas ventilador':'🌬️','Aspas':'🌬️','Aspa':'🌬️','Élices':'🌬️','Hélices':'🌬️',
+    'Rejillas ventilador':'🪟','Rejillas':'🪟',
+    'Capacitores':'🔋','Condensadores':'🔋',
+    // Ollas a presión
+    'Empaques olla':'🍲','Empaque olla':'🍲','Empaques':'⭕',
+    'Válvulas olla':'🔘','Válvulas':'🔘','Válvula':'🔘',
+    'Tapones olla':'🔒','Tapones':'🔒',
+    'Mangos olla':'🤚','Mangos':'🤚','Asas':'🤚',
+    'Fusibles olla':'⚡','Fusibles':'⚡',
+    // Freidoras / Sandwicheras / Planchas
+    'Resistencias':'🔥','Resistencia':'🔥',
+    'Termostatos':'🌡️','Termostato':'🌡️',
+    'Cables':'🔌','Cable':'🔌','Cordones':'🔌','Cordón':'🔌',
+    'Enchufes':'🔌','Enchufe':'🔌','Tomas':'🔌',
+    'Suiches':'🔘','Switch':'🔘','Interruptores':'🔘',
+    'Perillas':'🎛️','Perilla':'🎛️','Cuadrantes':'📐',
+    'Patas':'🦶','Patas plástico':'🦶',
+    // Generales
+    'Tornillería':'🔩','Tornillos':'🔩',
+    'Carbones motor':'⚫','Carbones':'⚫',
+    'Rodamientos':'⚙️','Baleros':'⚙️',
+    'Otros':'📦','Varios':'📦'
+  };
+  if (!critical.length) {
+    el.innerHTML = `<div class="empty-illust">
+      <div class="empty-illust-icon">📦</div>
+      <div class="empty-illust-title">Stock saludable</div>
+      <div class="empty-illust-sub">Inventario en buen estado</div>
+    </div>`;
+    return;
+  }
   el.innerHTML = critical.map(s => {
     const isOut = s.q === 0;
     const pct   = isOut ? 100 : Math.min(100, Math.round((s.q / Math.max((s.minStock||threshold)*2,1))*100));
@@ -1968,7 +2265,14 @@ function buildFeed(orders, sales, gastos) {
   ].sort((a,b)=>b.ts-a.ts).slice(0,8);
 
   const el = document.getElementById('feed-panel');
-  if (!events.length) { el.innerHTML='<div class="empty">Sin actividad</div>'; return; }
+  if (!events.length) {
+    el.innerHTML = `<div class="empty-illust">
+      <div class="empty-illust-icon">⏱️</div>
+      <div class="empty-illust-title">Sin actividad reciente</div>
+      <div class="empty-illust-sub">Las acciones aparecerán aquí en vivo</div>
+    </div>`;
+    return;
+  }
 
   const pad = x => String(x).padStart(2,'0');
   el.innerHTML = events.map((e, i) => {
@@ -2112,6 +2416,7 @@ function buildInsights(orders, sales, gastos, stock) {
   const startWeek = hoyStart.getTime() - 6 * 86400000;
   const startPrevWeek = startWeek - 7 * 86400000;
   const startMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
+  const last30 = now - 30 * 86400000;
 
   // 1. Semana actual vs semana anterior
   const semActual = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= startWeek).reduce((a,b)=>a+(b.val||0),0)
@@ -2141,8 +2446,7 @@ function buildInsights(orders, sales, gastos, stock) {
     }
   }
 
-  // 3. Mejor día de la semana
-  const last30 = now - 30 * 86400000;
+  // 3. Mejor día de la semana (últimos 30d)
   const entRec = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= last30);
   if (entRec.length >= 5) {
     const byDay = [0,0,0,0,0,0,0];
@@ -2160,7 +2464,7 @@ function buildInsights(orders, sales, gastos, stock) {
     insights.push({ type:'positive', icon:'🔥', text:`Hoy llevas <strong>${entregasHoy} entregas</strong> — gran ritmo` });
   }
 
-  // 5. Alerta de stock agotado que se vende mucho
+  // 5. Stock agotado que se vende mucho
   const agotados = stock.filter(s => s.q === 0);
   const mesVentas = sales.filter(s => s.fecha >= startMonth);
   if (agotados.length && mesVentas.length) {
@@ -2172,10 +2476,64 @@ function buildInsights(orders, sales, gastos, stock) {
     }
   }
 
-  // 6. Cartera alta (si hay deudas grandes acumuladas)
-  // (el panel de deuda ya lo muestra, skip)
+  // 6. ★ Margen real del mes (ingresos − gastos)
+  const ingMes = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= startMonth).reduce((a,b)=>a+(b.val||0),0)
+               + sales.filter(s => s.fecha >= startMonth).reduce((a,b)=>a+(b.val||0),0);
+  const gastosMes = gastos.filter(g => g.fecha >= startMonth).reduce((a,b)=>a+(b.val||0),0);
+  if (ingMes > 0 && gastosMes > 0) {
+    const margen = ingMes - gastosMes;
+    const margenPct = Math.round((margen / ingMes) * 100);
+    if (margenPct < 30 && gastosMes > 0) {
+      insights.push({ type:'warning', icon:'💰', text:`Margen del mes: <strong>${margenPct}%</strong> (${fmt(margen)}) — gastos altos` });
+    } else if (margenPct >= 60) {
+      insights.push({ type:'positive', icon:'💎', text:`Margen sano del mes: <strong>${margenPct}%</strong> (${fmt(margen)})` });
+    }
+  }
 
-  // Mostrar máximo 3 insights
+  // 7. ★ Cliente más frecuente del mes
+  if (entMes.length >= 4) {
+    const byCli = {};
+    entMes.forEach(o => {
+      const k = (o.nom||'').trim().toLowerCase();
+      if (!k) return;
+      byCli[k] = byCli[k] || { name:o.nom, count:0, total:0 };
+      byCli[k].count++;
+      byCli[k].total += (o.val||0);
+    });
+    const topCli = Object.values(byCli).sort((a,b) => b.count - a.count)[0];
+    if (topCli && topCli.count >= 2) {
+      insights.push({ type:'info', icon:'⭐', text:`<strong>${esc(topCli.name)}</strong> es tu cliente más frecuente del mes (${topCli.count} órdenes)` });
+    }
+  }
+
+  // 8. ★ Hora pico de recepción (últimos 30d)
+  const recientesRec = orders.filter(o => o.fecha >= last30);
+  if (recientesRec.length >= 8) {
+    const byHour = new Array(24).fill(0);
+    recientesRec.forEach(o => { byHour[new Date(o.fecha).getHours()]++; });
+    const peakH = byHour.indexOf(Math.max(...byHour));
+    if (byHour[peakH] >= 3) {
+      const range = `${String(peakH).padStart(2,'0')}:00–${String((peakH+1)%24).padStart(2,'0')}:00`;
+      insights.push({ type:'info', icon:'🕐', text:`Hora pico de recepción: <strong>${range}</strong> (últimos 30d)` });
+    }
+  }
+
+  // 9. ★ Detector de anomalía: día con muchas órdenes hoy
+  const nuevasHoy = orders.filter(o => o.fecha >= hoyStart.getTime()).length;
+  if (recientesRec.length >= 10) {
+    const promDia = recientesRec.length / 30;
+    if (nuevasHoy >= promDia * 2 && nuevasHoy >= 4) {
+      insights.push({ type:'positive', icon:'📈', text:`Hoy llevas <strong>${nuevasHoy} órdenes nuevas</strong> — el doble de tu promedio` });
+    }
+  }
+
+  // 10. ★ Cartera total alta vs ingresos del mes
+  const carteraTotal = (_dashClientes||[]).filter(c=>c.deuda>0).reduce((a,b)=>a+(b.deuda||0),0);
+  if (carteraTotal > 0 && ingMes > 0 && carteraTotal >= ingMes * 0.3) {
+    insights.push({ type:'warning', icon:'💳', text:`Cartera pendiente: <strong>${fmt(carteraTotal)}</strong> — equivale al ${Math.round(carteraTotal/ingMes*100)}% del mes` });
+  }
+
+  // Mostrar máximo 3 insights (los más relevantes según orden de aparición)
   const el = document.getElementById('insights-row');
   if (!insights.length) { el.style.display = 'none'; return; }
   el.style.display = 'grid';
@@ -2838,10 +3196,178 @@ let _dashSales = [];
 let _dashGastos = [];
 let _dashStock = [];
 let _dashClientes = [];
+let _allOrders = [];
+let _allSales = [];
+let _allGastos = [];
 
 // ════════════════════════════════════════
-//  INIT
+//  ★ SUCURSALES — Filtro por sucursal
 // ════════════════════════════════════════
+let _activeBranch = 'all'; // 'all' | nombre de la sucursal
+
+function getBranches() {
+  // Primero busca en businessConfig.branches; si no existe, busca todas las sucursales únicas en órdenes/ventas
+  try {
+    const cfg = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+    if (Array.isArray(cfg.branches) && cfg.branches.length) {
+      return cfg.branches.map(b => typeof b === 'string' ? b : (b.name || b.nombre || ''));
+    }
+  } catch {}
+  // Fallback: detectar de los datos
+  const set = new Set();
+  (_dashOrders || []).forEach(o => { if (o.sucursal) set.add(o.sucursal); });
+  (_dashSales || []).forEach(s => { if (s.sucursal) set.add(s.sucursal); });
+  return Array.from(set).filter(Boolean);
+}
+
+function buildBranchSelector() {
+  const branches = getBranches();
+  const el = document.getElementById('branch-selector');
+  if (!el) return;
+  // Si no hay sucursales detectadas, esconder selector
+  if (!branches.length) { el.style.display = 'none'; return; }
+  el.style.display = 'flex';
+  const items = [{ key:'all', label:'Todas' }, ...branches.map(b => ({ key:b, label:b }))];
+  el.innerHTML = items.map(it =>
+    `<button class="branch-btn ${_activeBranch === it.key ? 'active':''}" data-branch="${esc(it.key)}">${esc(it.label)}</button>`
+  ).join('');
+  el.querySelectorAll('.branch-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      _activeBranch = btn.dataset.branch;
+      localStorage.setItem('dashActiveBranch', _activeBranch);
+      buildBranchSelector(); // refresh estado activo
+      loadDashboard(true);   // recargar con filtro
+    });
+  });
+}
+
+function filterByBranch(arr) {
+  if (_activeBranch === 'all' || !_activeBranch) return arr;
+  return (arr || []).filter(x => (x.sucursal || x.suc || '').toString() === _activeBranch);
+}
+
+// ════════════════════════════════════════
+//  ★ TIEMPO DESDE ÚLTIMO CIERRE
+// ════════════════════════════════════════
+function updateCajaTime() {
+  const lastCierre = Number(localStorage.getItem('lastCierreCaja')) || 0;
+  const el = document.getElementById('sb-cash-time');
+  if (!el) return;
+  if (!lastCierre) { el.textContent = '🆕 Sin cierre previo'; el.className = 'sb-caja-time recent'; return; }
+  const diffMs = Date.now() - lastCierre;
+  const diffH = Math.floor(diffMs / 3600000);
+  const diffD = Math.floor(diffH / 24);
+  let cls = 'recent', txt = '';
+  if (diffD >= 7)      { cls = 'urgent'; txt = `⚠ ${diffD} días sin cerrar`; }
+  else if (diffD >= 3) { cls = '';       txt = `⏱ Hace ${diffD} días`; }
+  else if (diffD >= 1) { cls = 'recent'; txt = `Hace ${diffD} día${diffD>1?'s':''}`; }
+  else if (diffH >= 1) { cls = 'recent'; txt = `Hace ${diffH}h`; }
+  else                 { cls = 'recent'; txt = `Hace pocos minutos`; }
+  el.textContent = txt;
+  el.className = 'sb-caja-time ' + cls;
+}
+
+// ════════════════════════════════════════
+//  ★ INDICADOR DE REFRESH
+// ════════════════════════════════════════
+let _lastRefreshTs = Date.now();
+function showRefreshIndicator(state) {
+  const el = document.getElementById('refresh-pulse');
+  const txt = document.getElementById('refresh-pulse-text');
+  if (!el || !txt) return;
+  if (state === 'refreshing') {
+    el.classList.add('show', 'refreshing');
+    txt.textContent = 'actualizando...';
+  } else if (state === 'done') {
+    el.classList.remove('refreshing');
+    el.classList.add('show');
+    txt.textContent = 'actualizado';
+    _lastRefreshTs = Date.now();
+    clearTimeout(window._refreshHideTimer);
+    window._refreshHideTimer = setTimeout(() => el.classList.remove('show'), 2200);
+  }
+}
+// Cada 10s muestra "hace Xs" si no se está refrescando
+setInterval(() => {
+  const el = document.getElementById('refresh-pulse');
+  const txt = document.getElementById('refresh-pulse-text');
+  if (!el || !txt || el.classList.contains('refreshing')) return;
+  const sec = Math.floor((Date.now() - _lastRefreshTs)/1000);
+  if (sec < 5) return; // recién actualizado, ya tiene texto
+  txt.textContent = sec < 60 ? `hace ${sec}s` : `hace ${Math.floor(sec/60)}m`;
+}, 10000);
+
+// ════════════════════════════════════════
+//  ★ SCROLL TO TOP FAB
+// ════════════════════════════════════════
+function setupScrollFab() {
+  const main = document.querySelector('.main');
+  const fab = document.getElementById('scroll-top-fab');
+  if (!main || !fab) return;
+  main.addEventListener('scroll', () => {
+    if (main.scrollTop > 320) fab.classList.add('show');
+    else fab.classList.remove('show');
+    // Sombra sticky en topbar
+    const tb = document.querySelector('.topbar');
+    if (tb) tb.style.boxShadow = main.scrollTop > 8 ? '0 2px 12px rgba(0,0,0,0.35)' : '';
+  }, { passive: true });
+}
+
+// ════════════════════════════════════════
+//  ★ ATAJOS DE TECLADO
+// ════════════════════════════════════════
+function setupKeyboardShortcuts() {
+  document.addEventListener('keydown', e => {
+    // No interferir con inputs
+    if (e.target.matches('input, textarea, select')) return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+    // / → focus búsqueda
+    if (e.key === '/') {
+      e.preventDefault();
+      document.getElementById('tb-search-input')?.focus();
+      return;
+    }
+    // Escape → limpiar búsqueda
+    if (e.key === 'Escape') {
+      const inp = document.getElementById('tb-search-input');
+      if (inp && inp.value) { inp.value = ''; dashSearch(''); }
+    }
+    // 1-4 → abrir KPI modal
+    if (['1','2','3','4'].includes(e.key)) {
+      const map = { '1':'caja', '2':'activas', '3':'ingresos', '4':'inventario' };
+      openKpiModal(map[e.key]);
+    }
+    // n → nueva orden
+    if (e.key.toLowerCase() === 'n') goApp('taller');
+    // r → ir a reporte
+    if (e.key.toLowerCase() === 'r') goAction('report');
+    // t → toggle tema
+    if (e.key.toLowerCase() === 't') toggleDashTheme();
+    // f → refrescar
+    if (e.key.toLowerCase() === 'f') { loadDashboard(true); }
+  });
+}
+
+// ════════════════════════════════════════
+//  ★ AUTO-REFRESH INTELIGENTE
+//  (pausa cuando la pestaña no es visible)
+// ════════════════════════════════════════
+let _autoRefreshTimer = null;
+function startAutoRefresh() {
+  if (_autoRefreshTimer) clearInterval(_autoRefreshTimer);
+  _autoRefreshTimer = setInterval(() => {
+    if (document.hidden) return; // ahorrar batería
+    loadDashboard(true);
+  }, 30000);
+}
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    // Al volver a la pestaña, refrescar inmediatamente si han pasado >15s
+    const sec = (Date.now() - _lastRefreshTs)/1000;
+    if (sec > 15) loadDashboard(true);
+  }
+});
 window.addEventListener('DOMContentLoaded', async () => {
   // ── Redirección amigable en móvil (< 780px) ──
   if (window.innerWidth < 780) {
@@ -2864,6 +3390,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   applyTheme();
   applySidebarState();
   loadBiz();
+  // Restaurar sucursal activa
+  _activeBranch = localStorage.getItem('dashActiveBranch') || 'all';
   // Arrancar el reloj
   tick();
   setInterval(tick, 1000);
@@ -2875,9 +3403,14 @@ window.addEventListener('DOMContentLoaded', async () => {
     setChartRange(Number(btn.dataset.range));
   });
 
+  // ★ Pulido: scroll FAB, atajos, refresh tiempo caja
+  setupScrollFab();
+  setupKeyboardShortcuts();
+  setInterval(updateCajaTime, 60000); // cada minuto refresca el tiempo
+
   await loadDashboard();
-  // Auto-refresh cada 30s
-  setInterval(loadDashboard, 30000);
+  // ★ Auto-refresh inteligente (pausa cuando pestaña no es visible)
+  startAutoRefresh();
 });
 </script>
 </body>
