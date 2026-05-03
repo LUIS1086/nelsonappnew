@@ -6265,6 +6265,48 @@
         }
         let _pinHash = null; // hash SHA-256 del PIN activo
 
+        // ════════════════ ESTABILIDAD: handlers globales de errores ════════════════
+        // Captura errores no manejados para que no se queden silenciosos.
+        // Solo notifica al usuario una vez cada 60s para no saturar.
+        let _globalErrorLastShown = 0;
+        function _logGlobalError(label, err) {
+            console.error('[' + label + ']', err);
+            const now = Date.now();
+            if (now - _globalErrorLastShown < 60000) return;
+            _globalErrorLastShown = now;
+            try {
+                if (typeof showToast === 'function') {
+                    showToast('⚠️ Algo falló en segundo plano. Si se repite, exporta un respaldo y reinicia la app.', 'warning');
+                }
+            } catch(_){}
+        }
+        window.addEventListener('error', (e) => {
+            // Ignorar errores de scripts externos (CDN) y de carga de imágenes
+            if (e && e.target && (e.target.tagName === 'IMG' || e.target.tagName === 'SCRIPT')) return;
+            _logGlobalError('window.error', e.error || e.message);
+        });
+        window.addEventListener('unhandledrejection', (e) => {
+            _logGlobalError('unhandledrejection', e.reason);
+        });
+
+        // ════════════════ ESTABILIDAD: persistencia de IndexedDB ════════════════
+        // Pide a Android/Chrome que NO borre nuestros datos cuando el almacenamiento esté presionado.
+        // Sin esto, el SO puede limpiar la DB del taller si el celular se llena.
+        async function _requestPersistentStorage() {
+            try {
+                if (navigator.storage && navigator.storage.persist) {
+                    const already = await navigator.storage.persisted();
+                    if (already) { console.log('[storage] ya persistente ✅'); return; }
+                    const granted = await navigator.storage.persist();
+                    console.log('[storage] persistencia ' + (granted ? 'concedida ✅' : 'denegada (datos pueden borrarse si el celular se llena)'));
+                }
+            } catch(e) { console.warn('[storage] no se pudo pedir persistencia:', e); }
+        }
+        // Llamarlo al cargar (sin bloquear)
+        if (typeof window !== 'undefined') {
+            window.addEventListener('load', () => { _requestPersistentStorage(); });
+        }
+
         async function initPinSystem() {
             const stored = localStorage.getItem('appPinHash');
             if (stored) { _pinHash = stored; return; }
@@ -6413,26 +6455,64 @@
                 } catch(e) { resolve([]); }
             });
         }
-        async function getOne(store, key) { await openDB(); return new Promise((resolve) => { const tx = db.transaction(store, 'readonly'); const req = tx.objectStore(store).get(key); req.onsuccess = () => resolve(req.result); }); }
+        async function getOne(store, key) {
+            await openDB();
+            return new Promise((resolve) => {
+                try {
+                    const tx = db.transaction(store, 'readonly');
+                    const req = tx.objectStore(store).get(key);
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => { console.warn('[IDB getOne] error:', req.error); resolve(null); };
+                    tx.onabort = () => { console.warn('[IDB getOne] tx abort:', tx.error); resolve(null); };
+                } catch(e) { console.warn('[IDB getOne] excepción:', e); resolve(null); }
+            });
+        }
+        // Mostrador de error de IDB: solo una vez cada 30s para no saturar al usuario
+        let _idbErrorLastShown = 0;
+        function _idbNotifyError(err, op) {
+            const now = Date.now();
+            if (now - _idbErrorLastShown < 30000) return;
+            _idbErrorLastShown = now;
+            const isQuota = err && (err.name === 'QuotaExceededError' || /quota/i.test(err.message || ''));
+            const msg = isQuota
+                ? '⚠️ Almacenamiento lleno. Exporta un respaldo y elimina órdenes antiguas.'
+                : `⚠️ Error guardando datos (${op}). Intenta de nuevo.`;
+            try { showToast(msg, 'error'); } catch(_){}
+        }
         async function put(store, item) {
             await openDB();
             return new Promise((resolve) => {
-                const tx = db.transaction(store, 'readwrite');
-                tx.objectStore(store).put(item).onsuccess = () => { _invalidateCache(store); resolve(); };
+                try {
+                    const tx = db.transaction(store, 'readwrite');
+                    const req = tx.objectStore(store).put(item);
+                    req.onsuccess = () => { _invalidateCache(store); resolve(true); };
+                    req.onerror = () => { console.warn('[IDB put] error:', req.error); _idbNotifyError(req.error, 'put'); resolve(false); };
+                    tx.onabort = () => { console.warn('[IDB put] tx abort:', tx.error); _idbNotifyError(tx.error, 'put'); resolve(false); };
+                } catch(e) { console.warn('[IDB put] excepción:', e); _idbNotifyError(e, 'put'); resolve(false); }
             });
         }
         async function del(store, id) {
             await openDB();
             return new Promise((resolve) => {
-                const tx = db.transaction(store, 'readwrite');
-                tx.objectStore(store).delete(id).onsuccess = () => { _invalidateCache(store); resolve(); };
+                try {
+                    const tx = db.transaction(store, 'readwrite');
+                    const req = tx.objectStore(store).delete(id);
+                    req.onsuccess = () => { _invalidateCache(store); resolve(true); };
+                    req.onerror = () => { console.warn('[IDB del] error:', req.error); _idbNotifyError(req.error, 'del'); resolve(false); };
+                    tx.onabort = () => { console.warn('[IDB del] tx abort:', tx.error); _idbNotifyError(tx.error, 'del'); resolve(false); };
+                } catch(e) { console.warn('[IDB del] excepción:', e); _idbNotifyError(e, 'del'); resolve(false); }
             });
         }
         async function clearStore(store) {
             await openDB();
             return new Promise((resolve) => {
-                const tx = db.transaction(store, 'readwrite');
-                tx.objectStore(store).clear().onsuccess = () => { _invalidateCache(store); resolve(); };
+                try {
+                    const tx = db.transaction(store, 'readwrite');
+                    const req = tx.objectStore(store).clear();
+                    req.onsuccess = () => { _invalidateCache(store); resolve(true); };
+                    req.onerror = () => { console.warn('[IDB clear] error:', req.error); _idbNotifyError(req.error, 'clear'); resolve(false); };
+                    tx.onabort = () => { console.warn('[IDB clear] tx abort:', tx.error); _idbNotifyError(tx.error, 'clear'); resolve(false); };
+                } catch(e) { console.warn('[IDB clear] excepción:', e); _idbNotifyError(e, 'clear'); resolve(false); }
             });
         }
 
@@ -6465,7 +6545,7 @@
                 }, 350);
             }
             if (!localStorage.getItem('tutorialShown')) {
-                const _biz = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+                const _biz = _safeBizConfig();
                 const _bizName = _biz.name || 'Todo Repuestos Nelson';
                 setTimeout(() => showAlert(`👋 ¡Bienvenido a ${_bizName}!\n\nDesliza entre pestañas, toca el nombre de un cliente para ver su historial, y usa el escáner 📷 en inventario.`, "info"), 600);
                 localStorage.setItem('tutorialShown', 'true');
@@ -6562,7 +6642,7 @@
                 return false;
             }
             try {
-                const biz = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+                const biz = _safeBizConfig();
                 const rpName = biz.name || 'Todo Repuestos Nelson';
                 const challenge = crypto.getRandomValues(new Uint8Array(32));
                 const userId    = crypto.getRandomValues(new Uint8Array(16));
@@ -6828,7 +6908,7 @@
             const amount = parseFloat(document.getElementById('payment-amount').value);
             if (isNaN(amount) || amount <= 0) return showAlert("Monto inválido. Ingresa un valor mayor a 0.", "warning");
             await updateClientDebt(currentClientHistory, amount, true);
-            await put('payments', { id: Date.now(), cliente: currentClientHistory, monto: amount, fecha: Date.now(), tipo: 'pago' });
+            await put('payments', { id: _uid(), cliente: currentClientHistory, monto: amount, fecha: Date.now(), tipo: 'pago' });
             await renderCartera();
             await renderMovimientos();
             closeClientHistory();
@@ -7470,12 +7550,24 @@
                         updateDriveProgress(pct, loaded, total, pct >= 99 ? 'Finalizando...' : 'Subiendo respaldo...');
                     });
                 } else {
-                    // Subida silenciosa (backup automático) - sin UI
-                    result = await fetch(url, {
-                        method,
-                        headers: { Authorization: 'Bearer ' + driveToken },
-                        body: form
-                    }).then(r => r.json());
+                    // Subida silenciosa (backup automático) - sin UI, con timeout de 60s
+                    const ctrl = new AbortController();
+                    const timeoutId = setTimeout(() => ctrl.abort(), 60000);
+                    try {
+                        const resp = await fetch(url, {
+                            method,
+                            headers: { Authorization: 'Bearer ' + driveToken },
+                            body: form,
+                            signal: ctrl.signal
+                        });
+                        clearTimeout(timeoutId);
+                        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                        result = await resp.json();
+                    } catch(err) {
+                        clearTimeout(timeoutId);
+                        if (err.name === 'AbortError') throw new Error('Backup automático: timeout (60s)');
+                        throw err;
+                    }
                 }
 
                 if (result.id) {
@@ -7536,6 +7628,20 @@
         });
 
         function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+        // Lectura defensiva de businessConfig: nunca crashea aunque el JSON esté corrupto
+        function _safeBizConfig() {
+            try {
+                const raw = localStorage.getItem('businessConfig');
+                if (!raw) return {};
+                const obj = JSON.parse(raw);
+                return (obj && typeof obj === 'object') ? obj : {};
+            } catch(e) {
+                console.warn('[bizConfig] JSON corrupto, usando defaults:', e);
+                return {};
+            }
+        }
+        // Genera IDs únicos incluso cuando hay clicks en el mismo milisegundo
+        function _uid() { return Date.now() * 1000 + Math.floor(Math.random() * 1000); }
 
         let cameraMode = 'recepcion';
         async function openCamera(mode = 'recepcion') {
@@ -8515,7 +8621,7 @@
             const o = orders.find(x => x.id === id);
             if (!o) return;
             const numLabel   = o.orderNum ? formatOrderNum(o.orderNum) : '#' + o.id;
-            const business   = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+            const business   = _safeBizConfig();
             const garantiaMsg = localStorage.getItem('garantiaMsg') || 'Garantía cubre solo la falla reparada, no daños por mal uso.';
             const garantiaTexto = (o.garantia > 0)
                 ? `<p style="margin:2px 0;"><strong>GARANTÍA:</strong> ${o.garantia} días</p>`
@@ -8974,7 +9080,7 @@
             const det = document.getElementById('g-det').value.trim().toUpperCase();
             const val = parseInt(document.getElementById('g-val').value);
             if(!det || isNaN(val) || val <= 0) return showAlert("Ingresa un motivo y un valor válido.", "warning");
-            await put('gastos', { id: Date.now(), det, val, fecha: Date.now() });
+            await put('gastos', { id: _uid(), det, val, fecha: Date.now() });
             document.getElementById('g-det').value = ''; document.getElementById('g-val').value = '';
             await updateTotal();
             await renderMovimientos();
@@ -9758,7 +9864,7 @@
             item.q -= qty;
             await put('stock', item); // Solo se descuenta stock — el precio del producto (item.p) NO se toca
             const saleRecord = {
-                id: Date.now(),
+                id: _uid(),
                 item: item.n,
                 val: unitPrice * qty,
                 qty,
@@ -10432,10 +10538,36 @@
             } catch(e) { return null; }
         }
 
+        // ── Validación de respaldos: descarta registros con tipos inválidos ──
+        // Si el archivo viene corrupto o modificado, evita meter basura en IndexedDB.
+        function _validateBackup(data) {
+            if (!data || typeof data !== 'object') return { ok:false, msg:'Archivo vacío o inválido' };
+            if (!Array.isArray(data.orders)) return { ok:false, msg:'No tiene órdenes (formato Nelson incorrecto)' };
+            // Filtros: cada registro debe tener id numérico y campos críticos del tipo correcto
+            const validOrder = (o) => o && typeof o === 'object' && (typeof o.id === 'number' || typeof o.id === 'string') && typeof o.nom === 'string' && typeof o.equ === 'string';
+            const validNum   = (x) => x && typeof x === 'object' && (typeof x.id === 'number' || typeof x.id === 'string') && (typeof x.val === 'number' || typeof x.val === 'undefined');
+            const validKeyed = (x) => x && typeof x === 'object' && (typeof x.id === 'number' || typeof x.id === 'string');
+            data.orders        = data.orders.filter(validOrder);
+            data.stock         = Array.isArray(data.stock) ? data.stock.filter(validKeyed) : [];
+            data.sales         = Array.isArray(data.sales) ? data.sales.filter(validNum) : [];
+            data.gastos        = Array.isArray(data.gastos) ? data.gastos.filter(validNum) : [];
+            data.clientes      = Array.isArray(data.clientes) ? data.clientes.filter(c => c && typeof c === 'object' && typeof c.nombre === 'string') : [];
+            data.payments      = Array.isArray(data.payments) ? data.payments.filter(validKeyed) : [];
+            data.calificaciones= Array.isArray(data.calificaciones) ? data.calificaciones.filter(validKeyed) : [];
+            data.stockHistory  = Array.isArray(data.stockHistory) ? data.stockHistory.filter(validKeyed) : [];
+            data.orderChat     = Array.isArray(data.orderChat) ? data.orderChat.filter(validKeyed) : [];
+            data.paymentPlans  = Array.isArray(data.paymentPlans) ? data.paymentPlans.filter(validKeyed) : [];
+            return { ok:true, data };
+        }
+
         async function importData(e) {
             const file = e.target.files[0];
             e.target.value = '';
             if(!file) return;
+            // Límite de tamaño: respaldos > 100MB son sospechosos
+            if (file.size > 100 * 1024 * 1024) {
+                showAlert("❌ Archivo demasiado grande (>100MB). ¿Estás seguro que es un respaldo Nelson?", "error"); return;
+            }
             let data;
             try {
                 const text = await file.text();
@@ -10443,10 +10575,11 @@
             } catch(err) {
                 showAlert("❌ El archivo no es un JSON válido.", "error"); return;
             }
-            if (!data.orders || !Array.isArray(data.orders)) {
-                showAlert("❌ El archivo no tiene el formato correcto de respaldo Nelson.", "error"); return;
-            }
-            showConfirm("¿Importar este respaldo? Se reemplazará TODA la información actual.", async () => {
+            const v = _validateBackup(data);
+            if (!v.ok) { showAlert("❌ " + v.msg, "error"); return; }
+            data = v.data;
+            const summary = `Órdenes: ${data.orders.length} · Inventario: ${data.stock.length} · Ventas: ${data.sales.length} · Clientes: ${data.clientes.length}`;
+            showConfirm(`¿Importar este respaldo?\n\n${summary}\n\nSe reemplazará TODA la información actual.`, async () => {
                 try {
                     await clearStore('orders'); await clearStore('stock'); await clearStore('sales');
                     await clearStore('gastos'); await clearStore('clientes'); await clearStore('payments');
@@ -10463,15 +10596,15 @@
                         }
                         await put('orders', {...o, fotos, fotosEntrega});
                     }
-                    for(let s of data.stock || []) await put('stock', _normStock(s));
-                    for(let s of data.sales || []) await put('sales', s);
-                    for(let g of data.gastos || []) await put('gastos', g);
-                    for(let c of data.clientes || []) await put('clientes', c);
-                    for(let p of data.payments || []) await put('payments', p);
-                    for(let c of data.calificaciones || []) await put('calificaciones', c);
-                    for(let h of data.stockHistory || []) await put('stockHistory', h);
-                    for(let m of data.orderChat || []) await put('orderChat', m);
-                    for(let p of data.paymentPlans || []) await put('paymentPlans', p);
+                    for(let s of data.stock) await put('stock', _normStock(s));
+                    for(let s of data.sales) await put('sales', s);
+                    for(let g of data.gastos) await put('gastos', g);
+                    for(let c of data.clientes) await put('clientes', c);
+                    for(let p of data.payments) await put('payments', p);
+                    for(let c of data.calificaciones) await put('calificaciones', c);
+                    for(let h of data.stockHistory) await put('stockHistory', h);
+                    for(let m of data.orderChat) await put('orderChat', m);
+                    for(let p of data.paymentPlans) await put('paymentPlans', p);
                     // Limpiar campos duplicados y normalizar tipos por si el backup era viejo
                     await _migrateStockFields();
                     await updateTotal(); await updateSuggestions(); await renderCartera();
@@ -11776,7 +11909,7 @@
 
             const statusCount = { recibido:0, 'revisión':0, reparado:0, entregado:0 };
             orders.forEach(o => { if(statusCount[o.sta] !== undefined) statusCount[o.sta]++; });
-            const business = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+            const business = _safeBizConfig();
             const businessName = business.name || 'TODO REPUESTOS NELSON';
             const businessPhone = business.phone || '';
             const businessAddress = business.address || '';
@@ -12090,9 +12223,8 @@
             showToast('Datos del negocio guardados', 'success');
         }
         function loadBusinessConfig() {
-            const saved = localStorage.getItem('businessConfig');
-            if (saved) {
-                const config = JSON.parse(saved);
+            const config = _safeBizConfig();
+            if (Object.keys(config).length > 0) {
                 document.getElementById('config-business-name').value = config.name || '';
                 document.getElementById('config-business-short').value = config.shortName || '';
                 document.getElementById('config-business-phone').value = config.phone || '';
@@ -12200,9 +12332,8 @@
                 const logoEl = document.getElementById('cfg-header-logo');
                 const bizEl  = document.getElementById('cfg-header-biz');
                 const verEl  = document.getElementById('cfg-header-version');
-                const cfgRaw = localStorage.getItem('businessConfig');
-                if (cfgRaw) {
-                    const cfg = JSON.parse(cfgRaw);
+                const cfg = _safeBizConfig();
+                if (Object.keys(cfg).length > 0) {
                     if (bizEl) bizEl.textContent = cfg.shortName || cfg.name || 'NelsonApp Pro';
                     if (logoEl && cfg.logo) {
                         logoEl.innerHTML = `<img src="${cfg.logo}" alt="logo">`;
@@ -12297,9 +12428,8 @@
                 cfgSetBadge('cfg-apariencia', accentNames[accent] || accent, 'accent');
 
                 // Negocio — completo / falta X
-                const bizRaw = localStorage.getItem('businessConfig');
-                if (bizRaw) {
-                    const b = JSON.parse(bizRaw);
+                const b = _safeBizConfig();
+                if (Object.keys(b).length > 0) {
                     const filled = ['name','phone','address'].filter(k => b[k] && String(b[k]).trim()).length;
                     if (filled === 3 && b.logo) cfgSetBadge('cfg-negocio', 'Completo', 'ok');
                     else if (filled === 0) cfgSetBadge('cfg-negocio', 'Configurar', 'warn');
@@ -13060,7 +13190,7 @@
         function closeTicketMovModal()    { document.getElementById('modal-ticket-mov').classList.add('hidden'); }
 
         function generarTicketMovimientos() {
-            const biz = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+            const biz = _safeBizConfig();
             const now = new Date().toLocaleString('es-ES');
             const list = _allMovimientos;
             const ing = list.filter(m => m.type !== 'gasto').reduce((a,b) => a + (b.val||0), 0);
@@ -13137,7 +13267,7 @@
         }
 
         function formatOrderNum(n) {
-            const config = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+            const config = _safeBizConfig();
             const prefix = config.orderPrefix || '#';
             return prefix + String(n).padStart(4, '0');
         }
@@ -13516,7 +13646,7 @@
         function buildWhatsappMsg(type, order) {
             const saved = localStorage.getItem('whatsappTemplates');
             const tpls  = saved ? JSON.parse(saved) : {};
-            const biz   = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+            const biz   = _safeBizConfig();
             const bizName = ((biz.name || 'Todo Repuestos Nelson').trim()).toUpperCase();
             const defaults = {
                 recepcion:   '🔧 *{negocio}*\n\nHola {cliente}, recibimos tu {equipo}. Orden {orden}. Te avisamos cuando esté listo. ¡Gracias por confiar en nosotros! 🙌',
@@ -14032,7 +14162,7 @@
                 await _ensurePdfLibsReady();
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-                const biz = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+                const biz = _safeBizConfig();
                 const bizName = biz.name || 'Todo Repuestos Nelson';
                 const pageW = doc.internal.pageSize.getWidth();
                 const pageH = doc.internal.pageSize.getHeight();
@@ -14372,7 +14502,7 @@
                                 || provs.find(p => (p.nombre || '').trim().toLowerCase().includes(supplierNorm))
                                 || provs.find(p => supplierNorm.includes((p.nombre || '').trim().toLowerCase()));
 
-                const biz = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+                const biz = _safeBizConfig();
                 const bizName = biz.name || 'Todo Repuestos Nelson';
 
                 let mensaje = `Hola, ${matchProv && matchProv.nombre ? matchProv.nombre.split(' ')[0] : ''}\n\n`;
@@ -14409,7 +14539,7 @@
             const stock  = await getAll('stock');
             const threshold = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
             const bajos  = stock.filter(s => s.q <= (s.minStock || threshold));
-            const biz    = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+            const biz    = _safeBizConfig();
             const notas  = document.getElementById('oc-notas').value.trim();
             const provId = document.getElementById('oc-proveedor').value;
             const provs  = await getAll('proveedores');
@@ -14514,7 +14644,7 @@
             const start  = parseInt(document.getElementById('config-order-start').value) || 1;
             const prefix = document.getElementById('config-order-prefix').value || '#';
             const reset  = document.getElementById('config-order-reset-year').checked;
-            const cfg = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+            const cfg = _safeBizConfig();
             cfg.orderPrefix = prefix;
             localStorage.setItem('businessConfig', JSON.stringify(cfg));
             localStorage.setItem('orderNumStart', start);
@@ -14523,7 +14653,7 @@
         }
         function loadOrderNumConfig() {
             const s = document.getElementById('config-order-start');       if (s) s.value   = localStorage.getItem('orderNumStart') || '1';
-            const p = document.getElementById('config-order-prefix');      if (p) p.value   = JSON.parse(localStorage.getItem('businessConfig') || '{}').orderPrefix || '#';
+            const p = document.getElementById('config-order-prefix');      if (p) p.value   = _safeBizConfig().orderPrefix || '#';
             const r = document.getElementById('config-order-reset-year');  if (r) r.checked = localStorage.getItem('orderResetYear') === 'true';
         }
 
@@ -15300,7 +15430,7 @@
             _qrCurrentItem = item;
             _qrSize = 110;
 
-            const biz   = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+            const biz   = _safeBizConfig();
             const cur   = getCurrency();
 
             // Subtítulo modal
@@ -15445,7 +15575,7 @@
             if (!checked.length) return showAlert('Selecciona al menos un artículo.', 'warning');
 
             const stock   = await getAll('stock');
-            const biz     = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+            const biz     = _safeBizConfig();
             const cur     = getCurrency();
             const logo    = localStorage.getItem('businessLogo');
             const bizName = biz.shortName || biz.name || '';
@@ -15574,7 +15704,7 @@
             const texto = input.value.trim();
             if (!texto || !_chatOrderId) return;
             await put('orderChat', {
-                id: Date.now(), ordenId: _chatOrderId,
+                id: _uid(), ordenId: _chatOrderId,
                 texto, autor: 'Taller', fecha: Date.now()
             });
             input.value = '';
@@ -15584,7 +15714,7 @@
         async function quickChat(texto) {
             if (!_chatOrderId) return;
             await put('orderChat', {
-                id: Date.now(), ordenId: _chatOrderId,
+                id: _uid(), ordenId: _chatOrderId,
                 texto, autor: 'Taller', fecha: Date.now()
             });
             await renderChatMessages();
@@ -15593,7 +15723,7 @@
         // Auto-registrar mensajes del sistema al cambiar estado
         async function logChatSistema(ordenId, texto) {
             await put('orderChat', {
-                id: Date.now(), ordenId,
+                id: _uid(), ordenId,
                 texto, autor: 'Sistema', fecha: Date.now()
             });
         }
@@ -15831,7 +15961,7 @@
             await put('paymentPlans', cuota);
             // Registrar en caja como pago parcial
             await put('sales', {
-                id: Date.now(), item: `Cuota ${cuota.numero}/${cuota.total} — Plan de pago`,
+                id: _uid(), item: `Cuota ${cuota.numero}/${cuota.total} — Plan de pago`,
                 val: cuota.monto, qty: 1, stockId: null,
                 fecha: Date.now(), tipo: 'cuota', ordenId: _planOrderId
             });
@@ -16598,7 +16728,7 @@
             loader.classList.remove('hidden');
             try {
                 const cur = (typeof getCurrency === 'function') ? getCurrency() : '$';
-                const biz = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+                const biz = _safeBizConfig();
                 const bizName = biz.name || 'NelsonApp';
                 const now = new Date();
                 const dateStr = now.toISOString().slice(0,10);
