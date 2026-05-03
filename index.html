@@ -41,6 +41,13 @@
             --text-muted-l: #78716c;
         }
 
+        /* ===== FIX: bloquear auto-escalado de texto del sistema Android/iOS ===== */
+        html {
+            -webkit-text-size-adjust: 100%;
+            -moz-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+
         /* ===== DARK MODE (default) ===== */
         body {
             background: var(--bg-dark);
@@ -62,8 +69,14 @@
             border-radius: 1rem !important;
             padding: 0.75rem 1rem !important;
             color: #e8eaf6 !important;
-            font-size: 1rem;
+            font-size: 1rem !important;
+            line-height: 1.4 !important;
             transition: all 0.2s;
+        }
+        input::placeholder, textarea::placeholder {
+            font-size: 0.95rem !important;
+            font-weight: 500 !important;
+            opacity: 0.55;
         }
         input:focus, textarea:focus, select:focus {
             border-color: var(--accent) !important;
