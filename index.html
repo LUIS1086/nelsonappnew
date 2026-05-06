@@ -2724,12 +2724,223 @@
             #view-ordenes #orders-list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
         }
 
-        /* Mobile — mostrar sidebar oculto */
+        /* Mobile — ocultar sidebar y topbar de escritorio (CRÍTICO) */
         @media (max-width: 767px) {
             #sidebar { display: none !important; }
             #desktop-topbar { display: none !important; }
             #main-content-area { margin-left: 0 !important; }
         }
+
+        /* ═══════════════════════════════════════════════════════════
+           ★ DESKTOP UI REFINEMENT LAYER v1.0
+           Optimizaciones para escritorio sin afectar móvil (<768px)
+           Pensado especialmente para 1920+ pero mejora 1024-1920 también
+           ═══════════════════════════════════════════════════════════ */
+
+        /* ── Utility: bottom-sheet modal centrado en desktop ── */
+        .js-modal-bottom-sheet { align-items: flex-end !important; }
+        @media (min-width: 768px) {
+            .js-modal-bottom-sheet { align-items: center !important; }
+            /* Neutralizar el margin-bottom hardcodeado (era para evitar
+               la nav inferior en móvil, no aplica en desktop centrado) */
+            .js-modal-bottom-sheet > div[style*="margin-bottom"] {
+                margin-bottom: 0 !important;
+            }
+        }
+
+        /* ── Modales bottom-sheet (CSS) → centrados en desktop ── */
+        @media (min-width: 768px) {
+            .modal-product-picker-wrap { align-items: center !important; }
+            .modal-product-picker-wrap > div[style*="border-top-left-radius"] {
+                border-radius: 24px !important;
+                border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+                max-height: 82vh !important;
+            }
+        }
+
+        /* ── Sidebar: ancho gradual en pantallas amplias ── */
+        @media (min-width: 1440px) {
+            #sidebar { width: 264px !important; }
+            #main-content-area { margin-left: 264px !important; }
+        }
+        @media (min-width: 1920px) {
+            #sidebar { width: 280px !important; }
+            #main-content-area { margin-left: 280px !important; }
+        }
+
+        /* ── Contenedor centrado en pantallas grandes ──
+           Evita que la app se vea como un móvil estirado a 1920px.
+           Mantiene una columna de lectura cómoda y aprovecha el ancho. */
+        @media (min-width: 1440px) {
+            .max-container {
+                max-width: 1280px !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+                padding-left: 28px !important;
+                padding-right: 28px !important;
+            }
+        }
+        @media (min-width: 1700px) {
+            .max-container {
+                max-width: 1480px !important;
+                padding-left: 32px !important;
+                padding-right: 32px !important;
+            }
+        }
+
+        /* ── ÓRDENES: grid escalonado más limpio ── */
+        @media (min-width: 1024px) {
+            #view-ordenes #orders-list {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 16px !important;
+            }
+        }
+        @media (min-width: 1440px) {
+            #view-ordenes #orders-list {
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                gap: 18px !important;
+            }
+        }
+        @media (min-width: 1700px) {
+            #view-ordenes #orders-list {
+                grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+                gap: 18px !important;
+            }
+        }
+
+        /* ── TALLER: 2 columnas equilibradas con preview sticky ── */
+        @media (min-width: 1024px) {
+            #view-taller {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) !important;
+                gap: 24px !important;
+                align-items: start !important;
+            }
+            #view-taller > #daily-panel { grid-column: 1 / -1; }
+            #view-taller > .card {
+                max-width: 100% !important;
+                margin: 0 !important;
+            }
+            #taller-preview-panel {
+                position: sticky !important;
+                top: 88px !important;
+                display: block !important;
+            }
+        }
+        @media (min-width: 1600px) {
+            #view-taller {
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+                gap: 32px !important;
+            }
+        }
+
+        /* ── VENTAS: layout limpio sin huecos ──
+           1024+: 2 cols → venta+gasto, cartera+movimientos, inventario span
+           1440+: 3 cols → venta+gasto+cartera, movimientos span, inventario span */
+        @media (min-width: 1024px) {
+            #view-ventas {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+                gap: 20px !important;
+                align-items: start !important;
+            }
+            #view-ventas > .card { min-width: 0; }
+            #view-ventas > .card:nth-child(5) { grid-column: 1 / -1 !important; }
+        }
+        @media (min-width: 1440px) {
+            #view-ventas {
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.05fr) !important;
+            }
+            #view-ventas > .card:nth-child(4) { grid-column: 1 / -1 !important; }
+            #view-ventas > .card:nth-child(5) { grid-column: 1 / -1 !important; }
+        }
+
+        /* ── ADMIN: 2 cols con Drive arriba completo ── */
+        @media (min-width: 1024px) {
+            #view-admin {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+                gap: 20px !important;
+                align-items: start !important;
+            }
+            #view-admin > div { min-width: 0; }
+            #view-admin > div:nth-child(1) { grid-column: 1 / -1 !important; }
+        }
+
+        /* ── Cards: refinamiento sutil en desktop ── */
+        @media (min-width: 1024px) {
+            .card {
+                box-shadow: 0 6px 28px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.04) inset;
+            }
+        }
+
+        /* ── Hover de tarjetas de orden (refuerzo) ── */
+        @media (hover: hover) and (min-width: 768px) {
+            .order-card-pro {
+                transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+            }
+            .order-card-pro:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 14px 36px rgba(0,0,0,0.45), 0 0 0 1px rgba(249,115,22,0.22) !important;
+            }
+        }
+
+        /* ── Topbar más respirado en pantallas grandes ── */
+        @media (min-width: 1024px) {
+            #desktop-topbar { padding: 14px 28px !important; }
+        }
+        @media (min-width: 1440px) {
+            #desktop-topbar { padding: 16px 36px !important; }
+        }
+
+        /* ── Dropdowns / autocompletes: bordes consistentes en desktop ── */
+        @media (min-width: 1024px) {
+            .ac-dropdown { box-shadow: 0 12px 32px rgba(0,0,0,0.45); }
+        }
+
+        /* ── Splash: en desktop más compacto y centrado ── */
+        @media (min-width: 1024px) {
+            #splash-screen { background-size: cover; }
+        }
+
+        /* ── Inputs / selects más cómodos en desktop (mayor padding interno) ── */
+        @media (min-width: 1024px) {
+            input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+            textarea, select {
+                font-size: 0.95rem !important;
+            }
+        }
+
+        /* ── Scrollbar custom para listas largas en desktop ── */
+        @media (min-width: 1024px) {
+            .no-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(249,115,22,0.25) transparent; }
+            .no-scrollbar::-webkit-scrollbar { display: block !important; width: 6px; height: 6px; }
+            .no-scrollbar::-webkit-scrollbar-thumb { background: rgba(249,115,22,0.25); border-radius: 3px; }
+            .no-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(249,115,22,0.45); }
+            .no-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        }
+
+        /* ── Botones de acción rápida en desktop: más anchos ── */
+        @media (min-width: 1024px) {
+            .quick-action {
+                padding: 14px 12px !important;
+            }
+        }
+
+        /* ── Garantías KPI cards: layout grid cómodo en desktop ── */
+        @media (min-width: 1024px) {
+            #garantias-kpi-row {
+                gap: 16px !important;
+            }
+        }
+
+        /* ── Light mode: sombras adaptadas ── */
+        @media (min-width: 1024px) {
+            body.light-mode .card {
+                box-shadow: 0 4px 18px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+            }
+        }
+
     </style>
 </head>
 <body class="swipe-area">
@@ -8751,7 +8962,8 @@
             const waLink = `https://wa.me/${prefix}${num}?text=${encodeURIComponent(msg)}`;
             const modal = document.createElement('div');
             modal.id = 'modal-aviso-reparado';
-            modal.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.85);display:flex;align-items:flex-end;justify-content:center;padding:16px;';
+            modal.className = 'js-modal-bottom-sheet';
+            modal.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.85);display:flex;justify-content:center;padding:16px;';
             modal.innerHTML = `<div style="background:#111827;border:1px solid rgba(16,185,129,0.3);border-radius:24px;width:100%;max-width:400px;overflow:hidden;margin-bottom:90px;">
                 <div style="background:linear-gradient(to right,#059669,#10b981);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;">
                     <div><p style="color:white;font-weight:900;font-size:14px;">✅ EQUIPO REPARADO</p><p style="color:rgba(255,255,255,0.8);font-size:11px;">${escapeHtml(o.nom)} · ${escapeHtml(o.equ)}</p></div>
@@ -8775,7 +8987,8 @@
             const cur = getCurrency();
             const modal = document.createElement('div');
             modal.id = 'modal-entrega-rapida';
-            modal.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.88);display:flex;align-items:flex-end;justify-content:center;padding:16px;';
+            modal.className = 'js-modal-bottom-sheet';
+            modal.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.88);display:flex;justify-content:center;padding:16px;';
             modal.innerHTML = `<div style="background:#111827;border:1px solid rgba(59,130,246,0.3);border-radius:24px;width:100%;max-width:400px;overflow:hidden;margin-bottom:90px;">
                 <div style="background:linear-gradient(to right,#2563eb,#3b82f6);padding:14px 16px;">
                     <p style="color:white;font-weight:900;font-size:15px;">🎉 ENTREGA DE EQUIPO</p>
@@ -8843,7 +9056,8 @@
                 // Mostrar selector de tipo de mensaje
                 const modal = document.createElement('div');
                 modal.id = 'modal-wa-pick';
-                modal.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);display:flex;align-items:flex-end;justify-content:center;padding:16px;';
+                modal.className = 'js-modal-bottom-sheet';
+                modal.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);display:flex;justify-content:center;padding:16px;';
                 modal.innerHTML = `<div style="background:#111827;border:1px solid rgba(255,255,255,0.1);border-radius:24px 24px 24px 24px;width:100%;max-width:400px;overflow:hidden;margin-bottom:80px;">
                     <div style="background:linear-gradient(to right,#16a34a,#15803d);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;">
                         <div><p style="color:white;font-weight:900;font-size:14px;">💬 ENVIAR WHATSAPP</p><p style="color:rgba(255,255,255,0.7);font-size:10px;">${escapeHtml(o.nom)} · ${o.tel}</p></div>
