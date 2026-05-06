@@ -1609,7 +1609,7 @@ function dashSearch(q) {
   ).slice(0,6);
   if (filteredCli.length && deudaEl) {
     deudaEl.innerHTML = filteredCli.map((c,i) =>
-      `<div class="deuda-item" onclick="openClienteDeudaModal(${i})">
+      `<div class="deuda-item" onclick="openClienteDeudaModal('${_encClient(c)}')">
         <div class="deuda-rank">${i+1}</div>
         <div class="deuda-avatar">👤</div>
         <div class="deuda-info">
@@ -2137,12 +2137,12 @@ function buildDeudaPanel(clientes) {
     return;
   }
   el.innerHTML = deudores.map((c,i) =>
-    `<div class="deuda-item" onclick="openClienteDeudaModal(${i})">
+    `<div class="deuda-item" onclick="openClienteDeudaModal('${_encClient(c)}')">
       <div class="deuda-rank">${i+1}</div>
       <div class="deuda-avatar">👤</div>
       <div class="deuda-info">
         <div class="deuda-name">${esc(c.nombre)}</div>
-        <div class="deuda-since">${c.telefono||'Sin teléfono'}</div>
+        <div class="deuda-since">${esc(c.telefono||'Sin teléfono')}</div>
       </div>
       <div class="deuda-val">${fmt(c.deuda)}</div>
     </div>`
@@ -2546,6 +2546,26 @@ function buildInsights(orders, sales, gastos, stock) {
 }
 
 // ════════════════════════════════════════
+//  ★ CLIENT IDENTITY HELPERS (fix bug "elijo X y muestra Y")
+//  Identificamos cada cliente por nombre+telefono (clave estable)
+//  en vez de por índice — así no importa si la lista está
+//  filtrada por búsqueda o por monto de deuda.
+// ════════════════════════════════════════
+function _encClient(c) {
+  return encodeURIComponent(c && c.nombre ? c.nombre : '') + '|' +
+         encodeURIComponent(c && c.telefono ? c.telefono : '');
+}
+function _findClient(key) {
+  if (!key) return null;
+  const parts = String(key).split('|');
+  const n = decodeURIComponent(parts[0] || '');
+  const t = decodeURIComponent(parts[1] || '');
+  return (_dashClientes || []).find(c =>
+    String(c.nombre||'') === n && String(c.telefono||'') === t
+  ) || null;
+}
+
+// ════════════════════════════════════════
 //  ★ MODAL SYSTEM
 // ════════════════════════════════════════
 function openDashModal(opts) {
@@ -2614,9 +2634,8 @@ function contactarClienteOrden(numStr) {
   const msg = `Hola ${o.nom}, te escribo sobre tu ${o.equ||'equipo'} (orden ${prefix}${o.num}) que tenemos pendiente. ¿Podríamos coordinar?`;
   openWhatsApp(o.tel || '', msg);
 }
-function recordarDeudaAction(clienteIdx) {
-  const deudores = (_dashClientes || []).filter(x => x.deuda > 0).sort((a,b) => b.deuda - a.deuda);
-  const c = deudores[clienteIdx];
+function recordarDeudaAction(key) {
+  const c = _findClient(key);
   if (!c) return;
   openWhatsApp(c.telefono || '', buildRecordatorioDeudaMsg(c));
 }
@@ -2946,11 +2965,18 @@ function openOrdenModal(numStr) {
 // ════════════════════════════════════════
 //  ★ MODAL: CLIENTE CON DEUDA
 // ════════════════════════════════════════
-function openClienteDeudaModal(idx) {
-  const c = (_dashClientes || []).filter(x => x.deuda > 0).sort((a,b) => b.deuda - a.deuda)[idx];
+function openClienteDeudaModal(key) {
+  const c = _findClient(key);
   if (!c) return;
-  // Historial: órdenes de este cliente
-  const ordenes = _dashOrders.filter(o => (o.nom||'').toLowerCase() === (c.nombre||'').toLowerCase());
+  // Historial: órdenes de este cliente (match por nombre + tel cuando hay)
+  const cTelClean = String(c.telefono||'').replace(/[^\d]/g,'');
+  const ordenes = _dashOrders.filter(o => {
+    const nameMatch = (o.nom||'').toLowerCase().trim() === (c.nombre||'').toLowerCase().trim();
+    if (!cTelClean) return nameMatch;
+    const oTelClean = String(o.tel||'').replace(/[^\d]/g,'');
+    // Si tenemos teléfono en ambos, usamos eso para evitar colisiones de nombres
+    return oTelClean ? oTelClean.endsWith(cTelClean.slice(-10)) : nameMatch;
+  });
   const totalFacturado = ordenes.filter(o => o.sta==='entregado').reduce((a,b) => a+(b.val||0), 0);
   const prefix = (JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix)||'#';
 
@@ -2985,12 +3011,12 @@ function openClienteDeudaModal(idx) {
         <div class="dd-section-title">📋 Historial de órdenes</div>
         <div class="dd-list">
           ${ordenes.slice(0,8).map(o => `
-            <div class="dd-row" onclick="closeDashModal();openOrdenModal('${o.num}')">
+            <div class="dd-row" onclick="closeDashModal();openOrdenModal('${esc(o.num)}')">
               <div class="dd-row-left">
                 <div class="dd-row-ico">🛠️</div>
                 <div class="dd-row-text">
-                  <div class="dd-row-name">${prefix}${o.num} · ${esc(o.equ||'—')}</div>
-                  <div class="dd-row-sub">${new Date(o.fecha).toLocaleDateString('es-ES')} · ${o.sta}</div>
+                  <div class="dd-row-name">${prefix}${esc(o.num)} · ${esc(o.equ||'—')}</div>
+                  <div class="dd-row-sub">${new Date(o.fecha).toLocaleDateString('es-ES')} · ${esc(o.sta)}</div>
                 </div>
               </div>
               <div class="dd-row-val">${fmt(o.val||0)}</div>
@@ -3001,9 +3027,10 @@ function openClienteDeudaModal(idx) {
     ` : ''}
   `;
 
+  const safeKey = _encClient(c);
   const foot = `
     <button class="btn" onclick="closeDashModal()">Cerrar</button>
-    ${c.telefono ? `<button class="btn primary" onclick="recordarDeudaAction(${idx})">💬 Recordar deuda</button>` : ''}
+    ${c.telefono ? `<button class="btn primary" onclick="recordarDeudaAction('${safeKey}')">💬 Recordar deuda</button>` : ''}
     <button class="btn accent" onclick="goApp('ventas')">Gestionar →</button>
   `;
 
