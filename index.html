@@ -2482,7 +2482,7 @@
             }
 
             /* GRID de 2 columnas en vistas amplias */
-            #view-ventas {
+            #view-ventas:not(.hidden) {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
                 gap: 20px;
@@ -2508,7 +2508,7 @@
             }
 
             /* Vista admin en 2 cols */
-            #view-admin {
+            #view-admin:not(.hidden) {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
                 gap: 20px;
@@ -2544,7 +2544,7 @@
             }
 
             /* ======== VISTA TALLER EN 2 COLUMNAS ======== */
-            #view-taller {
+            #view-taller:not(.hidden) {
                 display: grid;
                 grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
                 gap: 24px;
@@ -2554,10 +2554,9 @@
                 max-width: 100% !important;
                 margin: 0 !important;
             }
-            #taller-preview-panel {
+            #view-taller:not(.hidden) #taller-preview-panel:not(.hidden) {
                 position: sticky;
                 top: 88px;
-                display: block !important;
             }
 
             /* ======== SIDEBAR: CONTADORES POR ESTADO ======== */
@@ -2810,7 +2809,7 @@
 
         /* ── TALLER: 2 columnas equilibradas con preview sticky ── */
         @media (min-width: 1024px) {
-            #view-taller {
+            #view-taller:not(.hidden) {
                 display: grid !important;
                 grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) !important;
                 gap: 24px !important;
@@ -2821,14 +2820,13 @@
                 max-width: 100% !important;
                 margin: 0 !important;
             }
-            #taller-preview-panel {
+            #view-taller:not(.hidden) #taller-preview-panel:not(.hidden) {
                 position: sticky !important;
                 top: 88px !important;
-                display: block !important;
             }
         }
         @media (min-width: 1600px) {
-            #view-taller {
+            #view-taller:not(.hidden) {
                 grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
                 gap: 32px !important;
             }
@@ -2838,7 +2836,7 @@
            1024+: 2 cols → venta+gasto, cartera+movimientos, inventario span
            1440+: 3 cols → venta+gasto+cartera, movimientos span, inventario span */
         @media (min-width: 1024px) {
-            #view-ventas {
+            #view-ventas:not(.hidden) {
                 display: grid !important;
                 grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
                 gap: 20px !important;
@@ -2848,7 +2846,7 @@
             #view-ventas > .card:nth-child(5) { grid-column: 1 / -1 !important; }
         }
         @media (min-width: 1440px) {
-            #view-ventas {
+            #view-ventas:not(.hidden) {
                 grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.05fr) !important;
             }
             #view-ventas > .card:nth-child(4) { grid-column: 1 / -1 !important; }
@@ -2857,7 +2855,7 @@
 
         /* ── ADMIN: 2 cols con Drive arriba completo ── */
         @media (min-width: 1024px) {
-            #view-admin {
+            #view-admin:not(.hidden) {
                 display: grid !important;
                 grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
                 gap: 20px !important;
