@@ -3137,7 +3137,7 @@
         <div class="splash-title" id="splash-biz-name">NELSON</div>
         <div class="splash-sub">Taller &amp; Repuestos</div>
         <div class="splash-bar-track"><div class="splash-bar-fill"></div></div>
-        <div class="splash-version">v3.2.0</div>
+        <div class="splash-version" id="splash-version">v3.3.0</div>
     </div>
 
     <!-- PIN MODAL -->
@@ -3785,7 +3785,7 @@
                                 <p style="font-size:15px;font-weight:900;color:#f1f5f9;margin:0;letter-spacing:-0.3px;">Luis Eduardo Gaviria</p>
                                 <p style="font-size:10px;color:#64748b;margin:3px 0 0;font-weight:700;display:flex;align-items:center;gap:6px;">
                                     <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 6px rgba(16,185,129,0.6);animation:pulseDot 2s ease-in-out infinite;"></span>
-                                    NelsonApp Pro · v3.2.0
+                                    NelsonApp Pro · <span id="credits-version">v3.3.0</span>
                                 </p>
                             </div>
                             <span id="credits-arrow" style="font-size:14px;color:#64748b;transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);flex-shrink:0;">▼</span>
@@ -5749,7 +5749,7 @@
                         <div class="cfg-title-wrap">
                             <p class="cfg-eyebrow">
                                 <span id="cfg-header-biz">NelsonApp Pro</span>
-                                <span class="cfg-version" id="cfg-header-version">v3.3</span>
+                                <span class="cfg-version" id="cfg-header-version">v3.3.0</span>
                             </p>
                             <h3 class="cfg-h1">Configuración</h3>
                         </div>
@@ -6446,6 +6446,7 @@
     <script>
         // ==================== CONFIGURACIÓN INICIAL ====================
         const DB_NAME = 'NelsonAppPro';
+        window.APP_VERSION = 'v3.3.0'; // Única fuente de verdad para la versión de la app
         let db = null;
         let searchDebounceTimer = null;
         let currentPhotos = [];
@@ -6462,6 +6463,18 @@
         // attr: para atributos HTML (escapa comillas dobles agresivamente)
         const escAttr = s => String(s ?? '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         window.escAttr = escAttr;
+
+        // ── Sincroniza la versión en splash y créditos desde window.APP_VERSION ──
+        (function syncAppVersion() {
+            try {
+                const v = window.APP_VERSION || 'v3.3.0';
+                const ids = ['splash-version', 'credits-version', 'cfg-header-version'];
+                ids.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = v;
+                });
+            } catch (e) { /* silencioso, no bloquea arranque */ }
+        })();
 
         // ── PIN: almacenado con hash SHA-256 (nunca en texto plano) ──
         async function _hashPin(pin) {
@@ -12487,7 +12500,7 @@
             });
         }
         function checkUpdate() {
-            showAlert('Actualmente estás en la versión estable v3.2.0. Para actualizar, descarga el nuevo archivo desde tu proveedor.', 'info');
+            showAlert(`Actualmente estás en la versión estable ${window.APP_VERSION}. Para actualizar, descarga el nuevo archivo desde tu proveedor.`, 'info');
         }
         function openAdvancedConfig() {
             loadBusinessConfig();
@@ -12550,7 +12563,7 @@
                         logoEl.innerHTML = '🔧';
                     }
                 }
-                if (verEl) verEl.textContent = (window.APP_VERSION || 'v3.3');
+                if (verEl) verEl.textContent = (window.APP_VERSION || 'v3.3.0');
             } catch(e) {}
         }
 
@@ -12779,7 +12792,7 @@
             const onlineCls = navigator.onLine ? '#34d399' : '#fbbf24';
             const installed = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches ? 'PWA instalada' : 'Navegador';
             const rows = [
-                ['Versión', window.APP_VERSION || 'v3.3'],
+                ['Versión', window.APP_VERSION || 'v3.3.0'],
                 ['Plataforma', platform],
                 ['Entorno', installed],
                 ['Conexión', `<span style="color:${onlineCls};font-weight:800;">${online}</span>`],
