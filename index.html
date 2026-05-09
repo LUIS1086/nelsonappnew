@@ -2507,15 +2507,12 @@
                 padding: 24px 32px;
             }
 
-            /* Vista admin en 2 cols */
+            /* Vista admin: pila vertical centrada (Drive → IA → Menú) */
             #view-admin:not(.hidden) {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 20px;
                 padding: 24px 32px;
-                align-items: start;
+                max-width: 920px;
+                margin: 0 auto;
             }
-            #view-admin > div:first-child { grid-column: 1 / -1; }
 
             /* Modales más grandes en desktop */
             .modal-custom > div {
@@ -2718,8 +2715,6 @@
             #main-content-area { margin-left: 260px; }
             #view-ventas { grid-template-columns: 1fr 1fr 1fr; }
             #view-ventas > .card:last-child { grid-column: 1 / -1; }
-            #view-admin { grid-template-columns: 1fr 1fr 1fr; }
-            #view-admin > div:first-child { grid-column: 1 / 2; }
             /* 3 columnas de órdenes en desktop ancho */
             #view-ordenes #orders-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
         }
@@ -2857,16 +2852,13 @@
             #view-ventas > .card:nth-child(5) { grid-column: 1 / -1 !important; }
         }
 
-        /* ── ADMIN: 2 cols con Drive arriba completo ── */
+        /* ── ADMIN: pila vertical centrada (sin grid de 2 cols) ── */
         @media (min-width: 1024px) {
             #view-admin:not(.hidden) {
-                display: grid !important;
-                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-                gap: 20px !important;
-                align-items: start !important;
+                display: block !important;
+                max-width: 920px !important;
+                margin: 0 auto !important;
             }
-            #view-admin > div { min-width: 0; }
-            #view-admin > div:nth-child(1) { grid-column: 1 / -1 !important; }
         }
 
         /* ── Cards: refinamiento sutil en desktop ── */
