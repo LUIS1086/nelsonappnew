@@ -513,7 +513,7 @@
         /* ===== MODAL EXPORTAR v2 — Rediseño coherente con Taller Pro ===== */
         #modal-export-panel { z-index: 4100; }
         .export-modal-wrap {
-            width: 100%; max-width: 440px; max-height: 92vh;
+            width: min(440px, 95vw); max-height: 92vh; /* min() evita overflow en pantallas <360px */
             display: flex; flex-direction: column;
             border-radius: 24px; overflow: hidden;
             background: linear-gradient(180deg, #0e0a07 0%, #0a0706 100%);
@@ -786,7 +786,7 @@
 
         /* ===== MODAL REPUESTOS USADOS ===== */
         .parts-modal-wrap {
-            width: 100%; max-width: 460px; max-height: 92vh;
+            width: min(460px, 95vw); max-height: 92vh; /* min() evita overflow en pantallas <360px */
             display: flex; flex-direction: column;
             border-radius: 24px; overflow: hidden;
             background: linear-gradient(180deg, #0a1218 0%, #060a0e 100%);
@@ -2333,7 +2333,7 @@
             /* Layout principal: sidebar + contenido */
             #app-layout {
                 display: flex;
-                min-height: 100vh;
+                min-height: 100dvh;
             }
 
             /* SIDEBAR */
@@ -2341,7 +2341,7 @@
                 display: flex;
                 flex-direction: column;
                 width: 240px;
-                min-height: 100vh;
+                min-height: 100dvh; /* dvh = dynamic viewport, evita corte por barra de dirección */
                 position: fixed;
                 left: 0; top: 0; bottom: 0;
                 background: rgba(13,15,26,0.97);
@@ -2446,7 +2446,7 @@
                 flex: 1;
                 display: flex;
                 flex-direction: column;
-                min-height: 100vh;
+                min-height: 100dvh; /* dvh = dynamic viewport */
             }
 
             /* TOPBAR en desktop (reemplaza el header sticky) */
@@ -2729,6 +2729,38 @@
             #main-content-area { margin-left: 0 !important; }
         }
 
+        /* ── TABLET PORTRAIT (768–899px): sidebar más angosto, KPIs compactos ──
+           En este rango hay ~528px disponibles; un sidebar de 240px es demasiado ancho.
+           Reducimos a 200px y ocultamos los KPIs del topbar para evitar overflow horizontal. */
+        @media (min-width: 768px) and (max-width: 899px) {
+            #sidebar {
+                width: 200px !important;
+            }
+            #main-content-area {
+                margin-left: 200px !important;
+            }
+            /* Ocultar KPIs: en 768–899px no caben junto al sidebar y los botones */
+            #topbar-kpis {
+                display: none !important;
+            }
+            /* Reducir padding del topbar para ganar espacio */
+            #desktop-topbar {
+                padding: 12px 16px !important;
+            }
+            /* Botones del topbar más compactos */
+            #desktop-topbar-right button {
+                padding: 8px 10px !important;
+                font-size: 10px !important;
+            }
+            /* Sidebar: labels más compactos */
+            .sidebar-nav-label {
+                font-size: 12px !important;
+            }
+            #sidebar-header {
+                padding: 16px 14px 12px !important;
+            }
+        }
+
         /* ═══════════════════════════════════════════════════════════
            ★ DESKTOP UI REFINEMENT LAYER v1.0
            Optimizaciones para escritorio sin afectar móvil (<768px)
@@ -2784,6 +2816,13 @@
                 padding-left: 32px !important;
                 padding-right: 32px !important;
             }
+        }
+
+        /* ── Clase utilitaria para spans de grid (alternativa robusta a nth-child) ──
+           Usar en cards que siempre deben ocupar el ancho completo del grid:
+           <div class="card grid-full-row">...</div> */
+        @media (min-width: 768px) {
+            .grid-full-row { grid-column: 1 / -1 !important; }
         }
 
         /* ── ÓRDENES: grid escalonado más limpio ── */
