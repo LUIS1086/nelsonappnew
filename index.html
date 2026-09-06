@@ -2936,62 +2936,6 @@
         }
 
     </style>
-
-<style id="nelson-premium-v4">
-:root{
-  --np-radius:16px;
-  --np-radius-sm:12px;
-  --np-shadow-soft:0 3px 14px rgba(0,0,0,.07);
-  --np-transition:160ms cubic-bezier(.22,.8,.24,1);
-}
-.card,.panel,.stat-card,.dashboard-card,.summary-card,.section-card,
-.modal-content,.modal-card,.form-card,.table-container{
-  border-radius:var(--np-radius)!important;
-  box-shadow:var(--np-shadow-soft);
-  transition:box-shadow var(--np-transition),transform var(--np-transition);
-}
-input,select,textarea{
-  border-radius:var(--np-radius-sm)!important;
-  transition:border-color var(--np-transition),box-shadow var(--np-transition);
-}
-input:focus,select:focus,textarea:focus{
-  outline:none;
-  box-shadow:0 0 0 3px rgba(0,0,0,.07);
-}
-button,.btn{
-  border-radius:var(--np-radius-sm)!important;
-  -webkit-tap-highlight-color:transparent;
-  touch-action:manipulation;
-  transition:transform 110ms ease,box-shadow 150ms ease,opacity 110ms ease;
-}
-button:active,.btn:active{transform:scale(.97)}
-.bottom-nav-mobile{
-  -webkit-backdrop-filter:blur(18px);
-  backdrop-filter:blur(18px);
-  box-shadow:0 -4px 22px rgba(0,0,0,.08);
-}
-.badge,.status,.chip,.tag{border-radius:999px!important}
-.app-view,.modal-body,.table-container{
-  -webkit-overflow-scrolling:touch;
-  overscroll-behavior-y:contain;
-}
-@media (prefers-reduced-motion:no-preference){
-  .app-view:not(.hidden){
-    animation:npViewEnter 150ms cubic-bezier(.22,.8,.24,1) both;
-  }
-}
-@keyframes npViewEnter{
-  from{opacity:.90;transform:translate3d(0,4px,0)}
-  to{opacity:1;transform:translate3d(0,0,0)}
-}
-@media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{
-    transition:none!important;
-    animation:none!important;
-  }
-}
-</style>
-
 </head>
 <body class="swipe-area">
 
