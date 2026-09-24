@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prueba de cámara</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; padding: 16px; background: #10141c; color: #e6eaf2; font: 15px/1.5 system-ui, sans-serif; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  p.sub { margin: 0 0 16px; color: #93a0b8; }
+  button { width: 100%; padding: 14px; margin: 6px 0; border: 0; border-radius: 10px; font-size: 16px; font-weight: 700; background: #f97316; color: #fff; }
+  button.sec { background: #2a3345; color: #e6eaf2; }
+  video { width: 100%; max-height: 300px; background: #000; border-radius: 10px; margin-top: 8px; display: none; }
+  pre { white-space: pre-wrap; word-break: break-word; background: #0a0d13; border: 1px solid #263044; border-radius: 10px; padding: 12px; font-size: 13px; margin-top: 12px; min-height: 80px; }
+  .ok { color: #4ade80; } .bad { color: #f87171; }
+</style>
+</head>
+<body>
+<h1>Prueba de cámara</h1>
+<p class="sub">Abre esta página en Chrome y toca el botón. Al final, copia el reporte y envíamelo.</p>
+
+<button id="run">Probar cámara</button>
+<button id="copy" class="sec">Copiar reporte</button>
+<video id="v" autoplay muted playsinline></video>
+<pre id="log">Esperando…</pre>
+
+<script>
+const logEl = document.getElementById('log');
+const video = document.getElementById('v');
+let lines = [];
+function log(t, cls) {
+  lines.push(t);
+  const d = document.createElement('div');
+  d.textContent = t;
+  if (cls) d.className = cls;
+  if (lines.length === 1) logEl.textContent = '';
+  logEl.appendChild(d);
+}
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function stop(s) { if (s) s.getTracks().forEach(t => t.stop()); }
+function errStr(e) { return (e && e.name || 'Error') + (e && e.message ? ': ' + e.message : ''); }
+
+async function attempt(label, constraints) {
+  let s = null;
+  try {
+    s = await navigator.mediaDevices.getUserMedia(constraints);
+    const tr = s.getVideoTracks()[0];
+    const st = tr.getSettings ? tr.getSettings() : {};
+    log('✔ ' + label + ' → abrió (' + (tr.label || 'sin nombre') + ', ' + (st.width || '?') + 'x' + (st.height || '?') + ')', 'ok');
+    await sleep(400);
+    log('   estado tras 0.4 s: ' + tr.readyState + (tr.muted ? ' (silenciada)' : ''));
+    video.style.display = 'block';
+    video.srcObject = s;
+    try { await video.play(); log('   video.play(): correcto', 'ok'); }
+    catch (pe) { log('   video.play() falló → ' + errStr(pe), 'bad'); }
+    await sleep(600);
+    log('   tamaño del video: ' + video.videoWidth + 'x' + video.videoHeight);
+    stop(s);
+    video.srcObject = null;
+    return true;
+  } catch (e) {
+    log('✘ ' + label + ' → ' + errStr(e), 'bad');
+    stop(s);
+    return false;
+  }
+}
+
+document.getElementById('run').onclick = async () => {
+  lines = []; logEl.textContent = '';
+  log('Navegador: ' + navigator.userAgent);
+  log('Dirección: ' + location.href);
+  log('HTTPS/contexto seguro: ' + window.isSecureContext);
+  log('Dentro de otra página (iframe): ' + (window.top !== window.self));
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    log('Este navegador no ofrece acceso a la cámara en esta dirección.', 'bad');
+    return;
+  }
+  try {
+    if (navigator.permissions && navigator.permissions.query) {
+      const p = await navigator.permissions.query({ name: 'camera' });
+      log('Permiso de cámara: ' + p.state);
+    }
+  } catch (e) { log('Permiso de cámara: no se pudo leer'); }
+
+  log('— Pruebas —');
+  const results = [];
+  results.push(await attempt('Cámara trasera 1280x720', { video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false }));
+  results.push(await attempt('Cámara trasera (sin resolución)', { video: { facingMode: { ideal: 'environment' } }, audio: false }));
+  results.push(await attempt('Cualquier cámara', { video: true, audio: false }));
+  results.push(await attempt('Cámara frontal', { video: { facingMode: 'user' }, audio: false }));
+
+  try {
+    const devs = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'videoinput');
+    log('— Cámaras detectadas: ' + devs.length + ' —');
+    for (let i = 0; i < devs.length; i++) {
+      const d = devs[i];
+      await attempt('Lente ' + (i + 1) + ' (' + (d.label || 'sin nombre') + ')', { video: { deviceId: { exact: d.deviceId } }, audio: false });
+    }
+  } catch (e) { log('No se pudo listar las cámaras: ' + errStr(e), 'bad'); }
+
+  log('— Fin —');
+  log(results.some(Boolean) ? 'Al menos una prueba abrió la cámara.' : 'Ninguna prueba abrió la cámara en este navegador.', results.some(Boolean) ? 'ok' : 'bad');
+};
+
+document.getElementById('copy').onclick = async () => {
+  const text = lines.join('\n');
+  try { await navigator.clipboard.writeText(text); alert('Reporte copiado'); }
+  catch (e) {
+    const r = document.createRange(); r.selectNodeContents(logEl);
+    const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    alert('Selecciona y copia el texto manualmente');
+  }
+};
+</script>
+</body>
+</html>
