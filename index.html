@@ -7861,49 +7861,17 @@
         // Genera IDs únicos incluso cuando hay clicks en el mismo milisegundo
         function _uid() { return Date.now() * 1000 + Math.floor(Math.random() * 1000); }
 
-        // ═══ CÁMARA: helper robusto + mensajes de error específicos ═══
-        async function _getCamStream() {
-            if (!window.isSecureContext) {
-                throw Object.assign(new Error('Contexto no seguro'), { name: 'InsecureContext' });
-            }
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                throw Object.assign(new Error('Sin mediaDevices'), { name: 'NoMediaDevices' });
-            }
-            try {
-                return await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
-            } catch (e1) {
-                // Permiso denegado no se reintenta; otros errores sí (cámara sin facingMode, etc.)
-                if (e1 && (e1.name === 'NotAllowedError' || e1.name === 'SecurityError')) throw e1;
-                return await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-            }
-        }
-        function _camErrorMsg(e) {
-            const n = (e && e.name) || '';
-            if (n === 'NotAllowedError' || n === 'PermissionDeniedError')
-                return 'Permiso de cámara bloqueado. Toca el candado/ícono junto a la dirección → Permisos → Cámara → Permitir. Si es la app instalada: Ajustes del celular → Apps → Nelson App (o el navegador) → Permisos → Cámara.';
-            if (n === 'NotFoundError' || n === 'DevicesNotFoundError') return 'No se encontró ninguna cámara en este dispositivo.';
-            if (n === 'NotReadableError' || n === 'TrackStartError') return 'La cámara está siendo usada por otra app. Ciérrala (o reinicia el navegador) e intenta de nuevo.';
-            if (n === 'InsecureContext' || n === 'NoMediaDevices') return 'La cámara solo funciona con HTTPS. Abre la app desde su dirección https:// (no http:// ni un archivo local).';
-            if (n === 'SecurityError') return 'El navegador bloqueó la cámara por seguridad (¿la app está dentro de otra app o un iframe?). Ábrela directo en Chrome/Safari.';
-            if (n === 'AbortError' || n === 'NotSupportedError') return 'No se pudo iniciar el video de la cámara. Recarga la app e intenta de nuevo.';
-            return 'Error de cámara: ' + (n || 'desconocido') + (e && e.message ? ' — ' + e.message : '');
-        }
-
         let cameraMode = 'recepcion';
         async function openCamera(mode = 'recepcion') {
             cameraMode = mode;
             if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
             try {
-                stream = await _getCamStream();
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
                 const video = document.getElementById('video');
                 video.srcObject = stream;
                 await video.play();
                 document.getElementById('camera-modal').classList.remove('hidden');
-            } catch(e) {
-                console.error('[cámara]', e);
-                if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-                showAlert(_camErrorMsg(e), "error");
-            }
+            } catch(e) { showAlert("No se pudo acceder a la cámara. Verifica los permisos.", "error"); }
         }
         function closeCamera() {
             if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
@@ -9317,16 +9285,14 @@
                 cameraMode = 'retomar-recepcion';
                 if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
                 try {
-                    stream = await _getCamStream();
+                    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
                     const video = document.getElementById('video');
                     video.srcObject = stream;
                     await video.play();
                     document.getElementById('camera-modal').classList.remove('hidden');
                     showToast('Captura la nueva foto de recepción', 'info');
                 } catch(e) {
-                    console.error('[cámara]', e);
-                    if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-                    showAlert(_camErrorMsg(e), 'error');
+                    showAlert('No se pudo acceder a la cámara. Verifica los permisos.', 'error');
                 }
             }
         }
@@ -10877,7 +10843,7 @@
             cameraMode = 'barcode';
             if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
             try {
-                stream = await _getCamStream();
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
                 const video = document.getElementById('video'); video.srcObject = stream; await video.play();
                 document.getElementById('camera-modal').classList.remove('hidden');
                 const detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'code_93', 'codabar', 'itf', 'qr_code'] });
@@ -10906,11 +10872,7 @@
                         }
                     }
                 }, 1000);
-            } catch(e) {
-                console.error('[cámara]', e);
-                if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-                showAlert(_camErrorMsg(e), "error");
-            }
+            } catch(e) { showAlert("Error al iniciar cámara: " + e.message, "error"); }
         }
 
         // Swipe entre tabs — DESACTIVADO
@@ -15609,14 +15571,15 @@
             document.getElementById('modal-qr-scanner').classList.remove('hidden');
             document.getElementById('qr-manual-input').value = '';
             try {
-                _qrStream = await _getCamStream();
+                _qrStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+                });
                 const video = document.getElementById('qr-video');
                 video.srcObject = _qrStream;
                 await video.play();
                 _startQRDetection(video);
             } catch(e) {
-                console.error('[cámara QR]', e);
-                showToast(_camErrorMsg(e), 'warning');
+                showToast('Sin acceso a cámara — usa el campo manual', 'warning');
             }
         }
 
