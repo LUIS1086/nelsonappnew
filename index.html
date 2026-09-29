@@ -1,22 +1,43 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
+    <meta charset="UTF-8">
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NelsonApp">
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#f97316">
     <title>Nelson App Pro | Taller & Ventas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <script>
+    // Si el navegador bloquea localStorage/sessionStorage (cookies bloqueadas), usa memoria en vez de romper la app
+    (function(){
+        function mem(){ var d = {}; return {
+            getItem: function(k){ return Object.prototype.hasOwnProperty.call(d,k) ? d[k] : null; },
+            setItem: function(k,v){ d[k] = String(v); },
+            removeItem: function(k){ delete d[k]; },
+            clear: function(){ d = {}; },
+            key: function(i){ return Object.keys(d)[i] || null; },
+            get length(){ return Object.keys(d).length; }
+        }; }
+        ['localStorage','sessionStorage'].forEach(function(n){
+            try { var probe = window[n]; void probe; }
+            catch(e){ try { Object.defineProperty(window, n, { value: mem(), configurable: true }); } catch(_){} }
+        });
+    })();
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,800&display=swap" rel="stylesheet">
     <style>
-        * { font-family: 'Inter', sans-serif; }
+        * { font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
 
         /* ===== VARIABLES DE COLOR ===== */
         :root {
@@ -43,6 +64,7 @@
 
         /* ===== FIX: bloquear auto-escalado de texto del sistema Android/iOS ===== */
         html {
+            color-scheme: dark;
             -webkit-text-size-adjust: 100%;
             -moz-text-size-adjust: 100%;
             text-size-adjust: 100%;
@@ -54,8 +76,11 @@
             color: var(--text-dark);
             padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
             -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation; /* sin zoom por doble toque, pero conserva pellizcar para ampliar */
+            color-scheme: dark;
             transition: background 0.35s ease, color 0.35s ease;
         }
+        body.light-mode { color-scheme: light; }
         .card {
             background: var(--card-dark);
             border-radius: 1.5rem;
@@ -85,12 +110,12 @@
         }
         .filter-toggle {
             background: rgba(255,255,255,0.04);
-            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
             border: 1px solid rgba(255,255,255,0.08);
             transition: all 0.2s;
         }
         .filter-toggle:hover { background: rgba(249,115,22,0.15); border-color: rgba(249,115,22,0.35); }
-        .modal-custom { background: rgba(5,6,15,0.88); backdrop-filter: blur(16px); }
+        .modal-custom { background: rgba(5,6,15,0.88); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
         .suggestion-box { background: #1e2235; border: 1px solid rgba(255,255,255,0.08); border-radius: 0.75rem; padding: 0.5rem; margin-top: 4px; max-height: 120px; overflow-y: auto; display: none; }
         .suggestion-item { padding: 6px 10px; border-radius: 0.5rem; cursor: pointer; font-size: 12px; font-weight: 700; color: var(--accent); }
         .suggestion-item:hover { background: rgba(249,115,22,0.15); }
@@ -264,7 +289,7 @@
         body.light-mode .bg-\[#111827\] *,
         body.light-mode .bg-slate-800 *  { color: var(--text-light); }
         body.light-mode .suggestion-box  { background: #f0ece3; border-color: var(--border-light); }
-        body.light-mode .modal-custom    { background: rgba(200,195,185,0.75); backdrop-filter: blur(16px); }
+        body.light-mode .modal-custom    { background: rgba(200,195,185,0.75); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
         body.light-mode .cfg-section     { border-color: var(--border-light); }
         body.light-mode .order-num       { color: var(--accent); }
         /* Textos de saldo/montos en light mode */
@@ -304,6 +329,7 @@
 
         @media (prefers-color-scheme: light) {
             body:not(.dark-mode) {
+                color-scheme: light;
                 background: var(--bg-light);
                 color: var(--text-light);
             }
@@ -460,7 +486,7 @@
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .filter-panel { transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease; overflow: hidden; max-height: 0; opacity: 0; }
         .filter-panel.open { max-height: 450px; opacity: 1; }
-        .photo-modal { background: rgba(0,0,0,0.96); backdrop-filter: blur(16px); }
+        .photo-modal { background: rgba(0,0,0,0.96); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .btn-icon { transition: transform 0.1s ease; }
         .btn-icon:active { transform: scale(0.92); }
@@ -1509,6 +1535,7 @@
             width: 100%;
             max-width: 480px;
             max-height: 92vh;
+            max-height: 92dvh;
             display: flex;
             flex-direction: column;
             border-radius: 24px;
@@ -2334,6 +2361,7 @@
             #app-layout {
                 display: flex;
                 min-height: 100vh;
+                min-height: 100dvh;
             }
 
             /* SIDEBAR */
@@ -2342,11 +2370,12 @@
                 flex-direction: column;
                 width: 240px;
                 min-height: 100vh;
+                min-height: 100dvh;
                 position: fixed;
                 left: 0; top: 0; bottom: 0;
                 background: rgba(13,15,26,0.97);
                 border-right: 1px solid rgba(249,115,22,0.12);
-                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
                 z-index: 100;
                 padding: 0;
                 box-shadow: 4px 0 40px rgba(0,0,0,0.4);
@@ -2447,6 +2476,7 @@
                 display: flex;
                 flex-direction: column;
                 min-height: 100vh;
+                min-height: 100dvh;
             }
 
             /* TOPBAR en desktop (reemplaza el header sticky) */
@@ -2455,7 +2485,7 @@
                 align-items: center; justify-content: space-between;
                 padding: 16px 32px;
                 background: rgba(13,15,26,0.85);
-                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
                 border-bottom: 1px solid rgba(249,115,22,0.1);
                 position: sticky; top: 0; z-index: 50;
                 box-shadow: 0 1px 0 rgba(249,115,22,0.08), 0 4px 20px rgba(0,0,0,0.3);
@@ -2672,7 +2702,7 @@
         #shortcuts-overlay {
             position: fixed; inset: 0;
             background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
             z-index: 9000;
             display: none;
             align-items: center; justify-content: center;
@@ -2753,6 +2783,7 @@
                 border-radius: 24px !important;
                 border-bottom: 1px solid rgba(255,255,255,0.06) !important;
                 max-height: 82vh !important;
+                max-height: 82dvh !important;
             }
         }
 
@@ -3286,7 +3317,7 @@
                         </div>
                         <div style="position:relative;">
                             <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:13px;pointer-events:none;z-index:2;">📱</span>
-                            <input type="tel" id="c-tel" placeholder="Número de WhatsApp" class="w-full" style="padding-left:38px;">
+                            <input type="tel" inputmode="tel" id="c-tel" placeholder="Número de WhatsApp" class="w-full" style="padding-left:38px;">
                         </div>
                     </div>
                 </div>
@@ -3324,7 +3355,7 @@
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">🛡️ GARANTÍA (días)</label>
-                                <input type="number" id="c-garantia" placeholder="30" class="w-full text-center font-bold" min="0" value="30">
+                                <input type="number" inputmode="decimal" id="c-garantia" placeholder="30" class="w-full text-center font-bold" min="0" value="30">
                             </div>
                             <div>
                                 <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">📋 PRESUPUESTO</label>
@@ -3369,11 +3400,11 @@
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">💰 VALOR ESTIMADO</label>
-                                <input type="number" id="c-val" placeholder="$0" class="text-emerald-400 font-black text-center text-lg w-full" min="0" step="1000" oninput="calcSaldoPreview()">
+                                <input type="number" inputmode="decimal" id="c-val" placeholder="$0" class="text-emerald-400 font-black text-center text-lg w-full" min="0" step="1000" oninput="calcSaldoPreview()">
                             </div>
                             <div>
                                 <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">💵 ADELANTO</label>
-                                <input type="number" id="c-adelanto" placeholder="$0" class="text-blue-400 font-black text-center text-lg w-full" min="0" step="1000" oninput="calcSaldoPreview()">
+                                <input type="number" inputmode="decimal" id="c-adelanto" placeholder="$0" class="text-blue-400 font-black text-center text-lg w-full" min="0" step="1000" oninput="calcSaldoPreview()">
                             </div>
                         </div>
                         <div id="val-error" class="text-[10px] text-rose-400 font-bold min-h-[15px]"></div>
@@ -3526,7 +3557,7 @@
             </div>
 
             <div class="flex gap-3">
-                <input type="number" id="v-qty" placeholder="CANT." class="w-24 text-center font-black" min="1" oninput="updatePriceCardTotal()">
+                <input type="number" inputmode="decimal" id="v-qty" placeholder="CANT." class="w-24 text-center font-black" min="1" oninput="updatePriceCardTotal()">
                 <button onclick="processSale()" id="v-confirm-btn" class="flex-1 bg-emerald-600 py-3 rounded-xl font-black uppercase text-xs shadow-md active:scale-95 transition">CONFIRMAR VENTA</button>
             </div>
             <!-- Total calculado (aparece cuando hay producto + cantidad) -->
@@ -3538,7 +3569,7 @@
         <div class="card p-5 space-y-3 bg-gradient-to-br from-rose-900/20 to-transparent border-rose-500/10">
             <h3 class="text-center text-[11px] font-black text-rose-400 uppercase tracking-widest">💸 REGISTRAR GASTO</h3>
             <input type="text" id="g-det" placeholder="Motivo (Ej. Pago luz, Repuestos...)" class="w-full font-bold uppercase text-sm">
-            <input type="number" id="g-val" placeholder="VALOR $" class="w-full text-center font-black text-rose-400" min="1">
+            <input type="number" inputmode="decimal" id="g-val" placeholder="VALOR $" class="w-full text-center font-black text-rose-400" min="1">
             <button onclick="saveGasto()" class="w-full bg-rose-600 py-3 rounded-xl font-black uppercase text-xs shadow-md active:scale-95 transition">💾 GUARDAR GASTO</button>
         </div>
 
@@ -3879,7 +3910,7 @@
     <!-- ===== MODAL CHAT INTERNO DE ORDEN ===== -->
     <!-- ===== MODAL SELECTOR DE PRODUCTO (reemplaza select nativo) ===== -->
     <div id="modal-product-picker" class="hidden fixed inset-0 z-[4200] modal-product-picker-wrap" onclick="if(event.target===this)closeProductPicker()" style="background:rgba(5,6,15,0.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);">
-        <div id="pp-sheet" style="width:100%;max-width:560px;background:linear-gradient(180deg,#14172a 0%,#0d0f1a 100%);border-top-left-radius:28px;border-top-right-radius:28px;border:1px solid rgba(16,185,129,0.2);border-bottom:none;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 -20px 60px rgba(0,0,0,0.6);">
+        <div id="pp-sheet" style="width:100%;max-width:560px;background:linear-gradient(180deg,#14172a 0%,#0d0f1a 100%);border-top-left-radius:28px;border-top-right-radius:28px;border:1px solid rgba(16,185,129,0.2);border-bottom:none;max-height:85vh;max-height:85dvh;display:flex;flex-direction:column;box-shadow:0 -20px 60px rgba(0,0,0,0.6);">
             <!-- Handle decorativo -->
             <div style="display:flex;justify-content:center;padding:10px 0 4px;">
                 <div style="width:40px;height:4px;border-radius:2px;background:rgba(255,255,255,0.15);"></div>
@@ -3906,7 +3937,7 @@
 
     <!-- ===== MODAL EDITOR DE PRECIO (rebaja / ajuste puntual) ===== -->
     <div id="modal-price-editor" class="hidden fixed inset-0 z-[4300] modal-product-picker-wrap" onclick="if(event.target===this)closePriceEditor()" style="background:rgba(5,6,15,0.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);">
-        <div style="width:100%;max-width:560px;background:linear-gradient(180deg,#14172a 0%,#0d0f1a 100%);border-top-left-radius:28px;border-top-right-radius:28px;border:1px solid rgba(251,146,60,0.25);border-bottom:none;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 -20px 60px rgba(0,0,0,0.6);">
+        <div style="width:100%;max-width:560px;background:linear-gradient(180deg,#14172a 0%,#0d0f1a 100%);border-top-left-radius:28px;border-top-right-radius:28px;border:1px solid rgba(251,146,60,0.25);border-bottom:none;max-height:92vh;max-height:92dvh;display:flex;flex-direction:column;box-shadow:0 -20px 60px rgba(0,0,0,0.6);">
             <!-- Handle -->
             <div style="display:flex;justify-content:center;padding:10px 0 4px;">
                 <div style="width:40px;height:4px;border-radius:2px;background:rgba(255,255,255,0.15);"></div>
@@ -4107,7 +4138,7 @@
     </div>
 
     <div id="modal-order-chat" class="hidden fixed inset-0 z-[3800] modal-custom flex flex-col items-center justify-center p-4">
-        <div class="bg-[#111827] border border-white/10 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl view-enter flex flex-col" style="max-height:88vh;">
+        <div class="bg-[#111827] border border-white/10 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl view-enter flex flex-col" style="max-height:88vh;max-height:88dvh;">
             <div class="bg-gradient-to-r from-cyan-700 to-cyan-500 p-4 flex justify-between items-center flex-shrink-0">
                 <div>
                     <h3 class="text-white font-black text-base">💬 NOTAS DE SEGUIMIENTO</h3>
@@ -4190,7 +4221,7 @@
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="text-[9px] text-slate-500 font-bold block mb-1">N° DE CUOTAS</label>
-                            <input type="number" id="plan-ncuotas" value="3" min="1" max="24" class="w-full text-center font-black text-blue-400" oninput="previewCuotas()">
+                            <input type="number" inputmode="decimal" id="plan-ncuotas" value="3" min="1" max="24" class="w-full text-center font-black text-blue-400" oninput="previewCuotas()">
                         </div>
                         <div>
                             <label class="text-[9px] text-slate-500 font-bold block mb-1">VALOR POR CUOTA</label>
@@ -4521,13 +4552,13 @@
             <div class="p-4 space-y-3 max-h-[70vh] overflow-y-auto no-scrollbar">
                 <input type="hidden" id="prov-id">
                 <input type="text" id="prov-nombre" placeholder="NOMBRE DEL PROVEEDOR" class="w-full uppercase font-bold">
-                <input type="tel" id="prov-tel" placeholder="TELÉFONO / WHATSAPP" class="w-full">
+                <input type="tel" inputmode="tel" id="prov-tel" placeholder="TELÉFONO / WHATSAPP" class="w-full">
                 <input type="text" id="prov-ciudad" placeholder="Ciudad" class="w-full text-sm">
                 <input type="text" id="prov-catalogo" placeholder="Productos que suministra..." class="w-full text-sm">
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="text-[10px] text-slate-400 font-bold block mb-1">⏱ ENTREGA (días)</label>
-                        <input type="number" id="prov-tiempo" placeholder="3" min="0" class="w-full text-center font-bold text-amber-400">
+                        <input type="number" inputmode="decimal" id="prov-tiempo" placeholder="3" min="0" class="w-full text-center font-bold text-amber-400">
                     </div>
                     <div>
                         <label class="text-[10px] text-slate-400 font-bold block mb-1">⭐ CALIFICACIÓN</label>
@@ -4618,7 +4649,7 @@
             </div>
             <button onclick="closeQRScanner()" class="bg-white/15 backdrop-blur w-11 h-11 rounded-full text-xl text-white border border-white/20">✕</button>
         </div>
-        <video id="qr-video" autoplay playsinline muted style="width:100%;max-width:480px;max-height:65vh;object-fit:cover;border-radius:16px;"></video>
+        <video id="qr-video" autoplay playsinline muted style="width:100%;max-width:480px;max-height:65vh;max-height:65dvh;object-fit:cover;border-radius:16px;"></video>
         <!-- Marco de escaneo -->
         <div style="position:absolute;width:220px;height:220px;border:3px solid #f97316;border-radius:18px;box-shadow:0 0 0 9999px rgba(0,0,0,0.55);pointer-events:none;top:50%;left:50%;transform:translate(-50%,-58%);"></div>
         <div class="absolute bottom-0 left-0 right-0 p-6" style="background:linear-gradient(to top,rgba(0,0,0,0.9),transparent);">
@@ -4677,7 +4708,7 @@
             </div>
             <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto no-scrollbar">
                 <input type="text" id="edit-nom" placeholder="CLIENTE" class="w-full uppercase">
-                <input type="tel" id="edit-tel" placeholder="WHATSAPP" class="w-full">
+                <input type="tel" inputmode="tel" id="edit-tel" placeholder="WHATSAPP" class="w-full">
                 <input type="text" id="edit-equ" placeholder="EQUIPO" class="w-full uppercase">
                 <div>
                     <label class="text-[10px] text-slate-400 block mb-1">👷 TÉCNICO</label>
@@ -4688,11 +4719,11 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="text-[10px] text-slate-400 block mb-1">💰 VALOR TOTAL</label>
-                        <input type="number" id="edit-val" placeholder="$0" class="w-full text-emerald-400 font-black text-center" min="0">
+                        <input type="number" inputmode="decimal" id="edit-val" placeholder="$0" class="w-full text-emerald-400 font-black text-center" min="0">
                     </div>
                     <div>
                         <label class="text-[10px] text-slate-400 block mb-1">💵 ADELANTO</label>
-                        <input type="number" id="edit-adelanto" placeholder="$0" class="w-full text-blue-400 font-black text-center" min="0">
+                        <input type="number" inputmode="decimal" id="edit-adelanto" placeholder="$0" class="w-full text-blue-400 font-black text-center" min="0">
                     </div>
                 </div>
                 <div id="edit-saldo-info" class="hidden bg-slate-800/60 rounded-xl px-4 py-2 flex justify-between items-center text-xs font-bold">
@@ -4707,7 +4738,7 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="text-[10px] text-slate-400 block mb-1">🛡️ GARANTÍA (días)</label>
-                        <input type="number" id="edit-garantia" placeholder="0" class="w-full text-sm font-bold text-emerald-400 text-center" min="0" max="365">
+                        <input type="number" inputmode="decimal" id="edit-garantia" placeholder="0" class="w-full text-sm font-bold text-emerald-400 text-center" min="0" max="365">
                         <p class="text-[9px] text-slate-500 mt-1">0 = sin garantía</p>
                     </div>
                     <div>
@@ -5102,7 +5133,7 @@
 
 
     <div id="modal-client-history" class="hidden fixed inset-0 z-[3000] modal-custom flex flex-col items-center justify-center p-4">
-        <div class="w-full max-w-md view-enter" style="background:linear-gradient(180deg,#14172a 0%,#0d0f1a 100%);border:1px solid rgba(249,115,22,0.25);border-radius:24px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.7);max-height:90vh;display:flex;flex-direction:column;">
+        <div class="w-full max-w-md view-enter" style="background:linear-gradient(180deg,#14172a 0%,#0d0f1a 100%);border:1px solid rgba(249,115,22,0.25);border-radius:24px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.7);max-height:90vh;max-height:90dvh;display:flex;flex-direction:column;">
             <!-- HEADER con avatar, nombre y botón cerrar -->
             <div id="client-history-header" style="position:relative;padding:18px 18px 16px;background:linear-gradient(135deg,rgba(249,115,22,0.2) 0%,rgba(234,88,12,0.1) 50%,transparent 100%);border-bottom:1px solid rgba(255,255,255,0.04);overflow:hidden;">
                 <!-- Contenido del header se llena dinámicamente -->
@@ -5112,7 +5143,7 @@
             <div style="padding:14px 18px;border-top:1px solid rgba(255,255,255,0.06);background:rgba(5,6,15,0.4);">
                 <div style="font-size:9px;font-weight:900;color:#64748b;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">💵 Registrar pago</div>
                 <div style="display:flex;gap:8px;">
-                    <input type="number" id="payment-amount" placeholder="Monto" class="flex-1 text-center font-black" style="background:rgba(15,23,42,0.6);">
+                    <input type="number" inputmode="decimal" id="payment-amount" placeholder="Monto" class="flex-1 text-center font-black" style="background:rgba(15,23,42,0.6);">
                     <button onclick="recordPayment()" style="padding:10px 16px;background:linear-gradient(135deg,#059669,#10b981);border:none;border-radius:12px;color:#fff;font-size:11px;font-weight:900;letter-spacing:1px;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 12px rgba(16,185,129,0.3);" class="active:scale-95 transition">✓ Registrar</button>
                 </div>
             </div>
@@ -5170,7 +5201,7 @@
                 </div>
                 <div>
                     <label class="text-[10px] text-slate-400 block mb-1">VALOR PRESUPUESTADO</label>
-                    <input type="number" id="presupuesto-valor" placeholder="$0" class="w-full text-center font-black text-blue-400" min="0">
+                    <input type="number" inputmode="decimal" id="presupuesto-valor" placeholder="$0" class="w-full text-center font-black text-blue-400" min="0">
                 </div>
                 <div class="flex gap-3">
                     <button onclick="closePresupuestoModal()" class="flex-1 bg-slate-700 py-2 rounded-xl font-bold">CANCELAR</button>
@@ -5232,11 +5263,11 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="text-[10px] text-slate-400 block mb-1">PRECIO COSTO</label>
-                        <input type="number" id="stock-modal-cost" placeholder="$0" class="w-full text-rose-400 font-black text-center text-sm" min="0">
+                        <input type="number" inputmode="decimal" id="stock-modal-cost" placeholder="$0" class="w-full text-rose-400 font-black text-center text-sm" min="0">
                     </div>
                     <div>
                         <label class="text-[10px] text-slate-400 block mb-1">PRECIO VENTA</label>
-                        <input type="number" id="stock-modal-price" placeholder="$0" class="w-full text-emerald-400 font-black text-center text-sm" min="0" oninput="calcMargen()">
+                        <input type="number" inputmode="decimal" id="stock-modal-price" placeholder="$0" class="w-full text-emerald-400 font-black text-center text-sm" min="0" oninput="calcMargen()">
                     </div>
                 </div>
                 <!-- Margen calculado -->
@@ -5245,11 +5276,11 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="text-[10px] text-slate-400 block mb-1">CANTIDAD</label>
-                        <input type="number" id="stock-modal-qty" placeholder="0" class="w-full font-black text-center" min="0">
+                        <input type="number" inputmode="decimal" id="stock-modal-qty" placeholder="0" class="w-full font-black text-center" min="0">
                     </div>
                     <div>
                         <label class="text-[10px] text-slate-400 block mb-1">STOCK MÍNIMO</label>
-                        <input type="number" id="stock-modal-min" placeholder="Ej: 3" class="w-full font-black text-center text-amber-400" min="0">
+                        <input type="number" inputmode="decimal" id="stock-modal-min" placeholder="Ej: 3" class="w-full font-black text-center text-amber-400" min="0">
                     </div>
                 </div>
                 <!-- Proveedor y notas -->
@@ -5285,7 +5316,7 @@
                         <option value="salida">⬇️ Salida</option>
                         <option value="ajuste">🔄 Ajuste</option>
                     </select>
-                    <input type="number" id="stock-mov-qty" placeholder="Cant." class="w-20 text-center text-sm font-black" min="1">
+                    <input type="number" inputmode="decimal" id="stock-mov-qty" placeholder="Cant." class="w-20 text-center text-sm font-black" min="1">
                     <input type="text" id="stock-mov-note" placeholder="Motivo..." class="flex-1 text-xs">
                 </div>
                 <button onclick="saveStockMovement()" class="w-full bg-blue-600 py-2 rounded-xl text-xs font-black uppercase active:scale-95 transition">REGISTRAR</button>
@@ -5321,7 +5352,7 @@
 
     <!-- MODAL REPORTE MENSUAL -->
     <div id="modal-monthly-report" class="hidden fixed inset-0 z-[3600] modal-custom flex flex-col items-center justify-center p-4">
-        <div class="w-full max-w-md view-enter" style="background:linear-gradient(180deg,#14172a 0%,#0d0f1a 100%);border:1px solid rgba(96,165,250,0.22);border-radius:24px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.7);max-height:92vh;display:flex;flex-direction:column;">
+        <div class="w-full max-w-md view-enter" style="background:linear-gradient(180deg,#14172a 0%,#0d0f1a 100%);border:1px solid rgba(96,165,250,0.22);border-radius:24px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.7);max-height:92vh;max-height:92dvh;display:flex;flex-direction:column;">
             <!-- Header limpio -->
             <div style="position:relative;padding:16px 18px;background:linear-gradient(135deg,rgba(59,130,246,0.18) 0%,rgba(14,165,233,0.08) 60%,transparent 100%);border-bottom:1px solid rgba(255,255,255,0.04);overflow:hidden;">
                 <div style="position:absolute;top:-30px;right:-30px;width:140px;height:140px;background:radial-gradient(circle,rgba(59,130,246,0.2),transparent 70%);pointer-events:none;"></div>
@@ -5558,6 +5589,7 @@
         }
         #modal-config .ios-scroll-area {
             max-height: 76vh;
+            max-height: 76dvh;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             padding: 14px 14px 24px;
@@ -5844,11 +5876,11 @@
                             <div id="auto-theme-hours" class="hidden grid grid-cols-2 gap-3">
                                 <div>
                                     <span class="ios-input-label">☀️ Hora modo claro</span>
-                                    <input type="number" id="auto-theme-day" min="0" max="23" value="7" class="w-full text-center font-black text-amber-400 text-sm" oninput="saveAutoThemeConfig()">
+                                    <input type="number" inputmode="decimal" id="auto-theme-day" min="0" max="23" value="7" class="w-full text-center font-black text-amber-400 text-sm" oninput="saveAutoThemeConfig()">
                                 </div>
                                 <div>
                                     <span class="ios-input-label">🌙 Hora modo oscuro</span>
-                                    <input type="number" id="auto-theme-night" min="0" max="23" value="19" class="w-full text-center font-black text-blue-400 text-sm" oninput="saveAutoThemeConfig()">
+                                    <input type="number" inputmode="decimal" id="auto-theme-night" min="0" max="23" value="19" class="w-full text-center font-black text-blue-400 text-sm" oninput="saveAutoThemeConfig()">
                                 </div>
                             </div>
                             <div>
@@ -5976,7 +6008,7 @@
                             </div>
                             <div style="padding-top:12px;">
                                 <span class="ios-input-label">Días de alerta previa</span>
-                                <input type="number" id="config-warranty-days" placeholder="Ej: 3" min="1" max="30" class="w-full text-sm text-center">
+                                <input type="number" inputmode="decimal" id="config-warranty-days" placeholder="Ej: 3" min="1" max="30" class="w-full text-sm text-center">
                                 <button onclick="saveWarrantyAlertConfig()" class="ios-save-btn" style="background:#ffd60a;color:#000;">💾 Guardar</button>
                             </div>
                         </div>
@@ -6076,7 +6108,7 @@
                                 <span class="ios-input-label">Meta mensual</span>
                                 <div class="flex gap-2 items-center">
                                     <span style="color:#8e8e93;font-weight:700;">$</span>
-                                    <input type="number" id="config-meta" placeholder="Ej: 5000000" class="flex-1 text-sm font-black text-emerald-400 text-center" min="0">
+                                    <input type="number" inputmode="decimal" id="config-meta" placeholder="Ej: 5000000" class="flex-1 text-sm font-black text-emerald-400 text-center" min="0">
                                 </div>
                             </div>
                             <div class="ios-toggle-wrap">
@@ -6090,7 +6122,7 @@
                                 <span class="ios-input-label">Meta semanal</span>
                                 <div class="flex gap-2 items-center">
                                     <span style="color:#8e8e93;font-weight:700;">$</span>
-                                    <input type="number" id="config-meta-semanal" placeholder="Ej: 1200000" class="flex-1 text-sm font-black text-cyan-400 text-center" min="0">
+                                    <input type="number" inputmode="decimal" id="config-meta-semanal" placeholder="Ej: 1200000" class="flex-1 text-sm font-black text-cyan-400 text-center" min="0">
                                 </div>
                             </div>
                             <button onclick="saveMetaConfig()" class="ios-save-btn" style="background:#30d158;color:white;">💾 Guardar metas</button>
@@ -6114,12 +6146,12 @@
                                 </div>
                                 <div>
                                     <span class="ios-input-label">Sin movimiento (días)</span>
-                                    <input type="number" id="config-sin-mov" placeholder="Ej: 7" min="1" max="60" class="w-full text-sm text-center">
+                                    <input type="number" inputmode="decimal" id="config-sin-mov" placeholder="Ej: 7" min="1" max="60" class="w-full text-sm text-center">
                                 </div>
                             </div>
                             <div>
                                 <span class="ios-input-label">Sin recoger (días)</span>
-                                <input type="number" id="config-sin-recoger" placeholder="Ej: 7" min="1" max="30" class="w-full text-sm text-center">
+                                <input type="number" inputmode="decimal" id="config-sin-recoger" placeholder="Ej: 7" min="1" max="30" class="w-full text-sm text-center">
                             </div>
                             <button onclick="saveReminderConfig()" class="ios-save-btn" style="background:#64d2ff;color:#000;">💾 Guardar</button>
                         </div>
@@ -6168,7 +6200,7 @@
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <span class="ios-input-label">Número inicial</span>
-                                    <input type="number" id="config-order-start" placeholder="Ej: 1" min="1" class="w-full text-sm text-center font-black">
+                                    <input type="number" inputmode="decimal" id="config-order-start" placeholder="Ej: 1" min="1" class="w-full text-sm text-center font-black">
                                 </div>
                                 <div>
                                     <span class="ios-input-label">Prefijo</span>
@@ -6197,7 +6229,7 @@
                     <div id="cfg-inventario" class="ios-body">
                         <div class="ios-body-inner space-y-3">
                             <span class="ios-input-label">Alertar cuando queden menos de X unidades</span>
-                            <input type="number" id="config-low-stock" min="1" max="20" class="w-full text-center text-sm">
+                            <input type="number" inputmode="decimal" id="config-low-stock" min="1" max="20" class="w-full text-center text-sm">
                             <button onclick="saveLowStockThreshold()" class="ios-save-btn" style="background:#0a84ff;color:white;">💾 Guardar</button>
                         </div>
                     </div>
@@ -6447,6 +6479,68 @@
         // ==================== CONFIGURACIÓN INICIAL ====================
         const DB_NAME = 'NelsonAppPro';
         window.APP_VERSION = 'v3.3.0'; // Única fuente de verdad para la versión de la app
+
+        // ── Compatibilidad entre navegadores ──
+        // Fecha local YYYY-MM-DD (toISOString() usa UTC y en Colombia da "mañana" después de las 7 p.m.)
+        window._ymdLocal = function(d) {
+            d = d instanceof Date ? d : new Date(d);
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        };
+        // Copiar al portapapeles con respaldo para WebViews, http y Safari antiguo
+        window._copyText = async function(text) {
+            text = String(text == null ? '' : text);
+            try {
+                if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; }
+            } catch (_) {}
+            const ta = document.createElement('textarea');
+            ta.value = text; ta.setAttribute('readonly', '');
+            ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;font-size:16px;';
+            document.body.appendChild(ta);
+            ta.focus(); ta.select();
+            try { ta.setSelectionRange(0, text.length); } catch (_) {}
+            let ok = false;
+            try { ok = document.execCommand('copy'); } catch (_) {}
+            ta.remove();
+            if (!ok) throw new Error('No se pudo copiar');
+            return true;
+        };
+        // Redimensiona y comprime una imagen (File/Blob) antes de guardarla. Evita llenar localStorage/IndexedDB con fotos de 5-10 MB.
+        window._resizeImage = function(file, maxDim, quality, mime) {
+            return new Promise(function(resolve, reject) {
+                const url = URL.createObjectURL(file);
+                const img = new Image();
+                img.onload = function() {
+                    try {
+                        let w = img.naturalWidth, h = img.naturalHeight;
+                        const k = Math.min(1, maxDim / Math.max(w, h));
+                        w = Math.max(1, Math.round(w * k)); h = Math.max(1, Math.round(h * k));
+                        const c = document.createElement('canvas');
+                        c.width = w; c.height = h;
+                        const ctx = c.getContext('2d');
+                        if (mime === 'image/jpeg') { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); }
+                        ctx.drawImage(img, 0, 0, w, h);
+                        resolve(c.toDataURL(mime, quality));
+                    } catch (e) { reject(e); }
+                    finally { URL.revokeObjectURL(url); }
+                };
+                img.onerror = function() { URL.revokeObjectURL(url); reject(new Error('Imagen no válida')); };
+                img.src = url;
+            });
+        };
+        // Escáner: Chrome/Edge lo traen nativo; en Safari/iPhone/Firefox se carga un polyfill solo cuando se necesita
+        window._ensureBarcodeDetector = function() {
+            if ('BarcodeDetector' in window) return Promise.resolve(true);
+            if (window._bdPromise) return window._bdPromise;
+            window._bdPromise = new Promise(function(resolve) {
+                const sc = document.createElement('script');
+                sc.src = 'https://cdn.jsdelivr.net/npm/barcode-detector@3.2.2/dist/iife/polyfill.min.js';
+                sc.async = true;
+                sc.onload  = function() { resolve('BarcodeDetector' in window); };
+                sc.onerror = function() { window._bdPromise = null; resolve(false); };
+                document.head.appendChild(sc);
+            });
+            return window._bdPromise;
+        };
         let db = null;
         let searchDebounceTimer = null;
         let currentPhotos = [];
@@ -6587,7 +6681,7 @@
         function _showDBError(msg) {
             // Pantalla de error crítico en vez de pantalla negra
             document.body.innerHTML = `
-            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:#0d0f1a;color:#e8eaf6;padding:32px;text-align:center;font-family:sans-serif;">
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;min-height:100dvh;background:#0d0f1a;color:#e8eaf6;padding:32px;text-align:center;font-family:sans-serif;">
                 <div style="font-size:3rem;margin-bottom:16px;">⚠️</div>
                 <h2 style="font-size:18px;font-weight:900;color:#f43f5e;margin-bottom:8px;">Error de Base de Datos</h2>
                 <p style="font-size:13px;color:#6b7a99;max-width:320px;line-height:1.6;margin-bottom:24px;">${msg}<br><br>Intenta cerrar y volver a abrir la app. Si el problema persiste, exporta tus datos desde Configuración antes de reinstalar.</p>
@@ -6599,6 +6693,7 @@
             return new Promise((resolve, reject) => {
                 if (db && db.name === DB_NAME) return resolve(db);
                 const request = indexedDB.open(DB_NAME, 15);
+                request.onblocked = () => { try { showAlert('Cierra las otras pestañas o ventanas de la app y vuelve a intentar.', 'warning'); } catch(_) {} };
                 request.onerror = (e) => {
                     const err = request.error || e.target.error;
                     _showDBError('No se pudo abrir la base de datos local. (' + (err?.message || 'Error desconocido') + ')');
@@ -6606,6 +6701,11 @@
                 };
                 request.onsuccess = () => {
                     db = request.result;
+                    db.onversionchange = () => {
+                        try { db.close(); } catch(_) {}
+                        db = null;
+                        try { showAlert('Se abrió una versión más nueva de la app en otra pestaña. Recarga esta página.', 'warning'); } catch(_) {}
+                    };
                     // Manejar errores en transacciones futuras
                     db.onerror = (e) => console.warn('IndexedDB error:', e.target.error);
                     resolve(db);
@@ -7082,7 +7182,7 @@
         async function checkUnclaimedRepairs() {
             try {
                 // Solo si ya se mostró hoy, no repetir (una sola vez al día para no molestar)
-                const today = new Date().toISOString().slice(0, 10);
+                const today = _ymdLocal(new Date());
                 const lastShown = localStorage.getItem('unclaimedCheckDate');
                 if (lastShown === today) return;
 
@@ -7697,7 +7797,7 @@
 
         // Modificar driveBackupNow para aceptar parámetro silent
         async function driveBackupNow(silent = false) {
-            if (!driveToken) { if(!silent) showAlert('Primero conecta tu cuenta de Google.', 'warning'); return; }
+            if (!driveToken && !(await _driveEnsureFresh())) { if(!silent) showAlert('Primero conecta tu cuenta de Google.', 'warning'); return; }
 
             // Chequeo offline: si no hay red, no intentar backup
             if (!navigator.onLine) {
@@ -7705,7 +7805,7 @@
                 return;
             }
 
-            const fileName = `nelson_backup_${new Date().toISOString().slice(0,10)}.json`;
+            const fileName = `nelson_backup_${_ymdLocal(new Date())}.json`;
             if (!silent) showDriveProgress(fileName);
 
             try {
@@ -7717,6 +7817,9 @@
                 const clientes = await getAll('clientes');
                 const payments = await getAll('payments');
                 const calificaciones = await getAll('calificaciones');
+                const stockHistory = await getAll('stockHistory');
+                const orderChat    = await getAll('orderChat');
+                const paymentPlans = await getAll('paymentPlans');
 
                 if (!silent) updateDriveProgress(0, 0, 0, 'Empaquetando fotos...');
                 const exportOrders = [];
@@ -7724,8 +7827,9 @@
                     exportOrders.push({ ...o, fotos: await blobsToB64(o.fotos || []), fotosEntrega: await blobsToB64(o.fotosEntrega || []) });
                 }
 
-                const jsonStr  = JSON.stringify({ orders: exportOrders, stock, sales, gastos, clientes, payments, calificaciones, date: new Date().toISOString() });
+                const jsonStr  = JSON.stringify({ orders: exportOrders, stock, sales, gastos, clientes, payments, calificaciones, stockHistory, orderChat, paymentPlans, date: new Date().toISOString() });
                 const folderId = await ensureDriveFolder();
+                if (!folderId) throw new Error('No se pudo preparar la carpeta de respaldo en Drive');
 
                 const blob = new Blob([jsonStr], { type: 'application/json' });
                 let url    = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
@@ -7736,9 +7840,8 @@
 
                 // Verificar si ya existe un archivo con ese nombre para sobreescribirlo
                 try {
-                    const searchExisting = await fetch(
-                        `https://www.googleapis.com/drive/v3/files?q=name='${fileName}' and '${folderId}' in parents and trashed=false&fields=files(id)`,
-                        { headers: { Authorization: 'Bearer ' + driveToken } }
+                    const searchExisting = await driveFetch(
+                        `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(`name='${fileName}' and '${folderId}' in parents and trashed=false`)}&fields=files(id)`
                     ).then(r => r.json());
 
                     if (searchExisting.files && searchExisting.files.length > 0) {
@@ -7790,6 +7893,7 @@
 
                 if (result.id) {
                     localStorage.setItem('driveLastBackup', new Date().toLocaleString('es-ES'));
+                    driveApplyRetention(folderId);   // sin await: no retrasa el mensaje de éxito
                     if (!silent) {
                         updateDriveProgress(100, blob.size, blob.size, '✓ Respaldo completado');
                         hideDriveProgress(900);
@@ -7893,9 +7997,10 @@
             const video = document.getElementById('video');
             if (!video.videoWidth) return;
             const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
+            const _k = Math.min(1, 1600 / Math.max(video.videoWidth, video.videoHeight));
+            canvas.width = Math.round(video.videoWidth * _k);
+            canvas.height = Math.round(video.videoHeight * _k);
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
             const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.7));
 
             if (cameraMode === 'retomar-recepcion') {
@@ -9010,7 +9115,7 @@
                     ${saldoPendiente > 0 ? `
                     <div>
                         <label style="font-size:10px;color:#64748b;font-weight:700;">COBRO AL ENTREGAR</label>
-                        <input type="number" id="entrega-cobro" placeholder="${cur}${saldoPendiente.toLocaleString()}" value="${saldoPendiente}" style="background:#1e2235;border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;color:#fff;font-size:16px;font-weight:900;text-align:center;width:100%;margin-top:6px;">
+                        <input type="number" inputmode="decimal" id="entrega-cobro" placeholder="${cur}${saldoPendiente.toLocaleString()}" value="${saldoPendiente}" style="background:#1e2235;border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;color:#fff;font-size:16px;font-weight:900;text-align:center;width:100%;margin-top:6px;">
                     </div>` : '<p style="color:#34d399;text-align:center;font-weight:900;font-size:13px;">✅ Pagado completo</p>'}
                     <button onclick="_confirmarEntrega(${o.id}, ${saldoPendiente})" style="background:linear-gradient(to right,#2563eb,#3b82f6);color:white;padding:14px;border-radius:14px;font-weight:900;font-size:13px;">
                         ✅ CONFIRMAR ENTREGA
@@ -9070,7 +9175,7 @@
                         <div><p style="color:white;font-weight:900;font-size:14px;">💬 ENVIAR WHATSAPP</p><p style="color:rgba(255,255,255,0.7);font-size:10px;">${escapeHtml(o.nom)} · ${o.tel}</p></div>
                         <button onclick="document.getElementById('modal-wa-pick').remove()" style="color:white;background:rgba(0,0,0,0.3);width:28px;height:28px;border-radius:50%;font-size:14px;">✕</button>
                     </div>
-                    <div style="padding:16px;display:flex;flex-direction:column;gap:10px;max-height:72vh;overflow-y:auto;">
+                    <div style="padding:16px;display:flex;flex-direction:column;gap:10px;max-height:72vh;max-height:72dvh;overflow-y:auto;">
                         <button onclick="waPickSend('recepcion',${id})" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#93c5fd;padding:14px;border-radius:14px;font-weight:900;font-size:12px;text-align:left;">📥 Mensaje de recepción<br><span style="font-weight:400;font-size:10px;opacity:0.7;">Confirmar que recibiste el equipo</span></button>
                         <button onclick="waPickSend('revision',${id})" style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:#fde68a;padding:14px;border-radius:14px;font-weight:900;font-size:12px;text-align:left;">🔍 En revisión<br><span style="font-weight:400;font-size:10px;opacity:0.7;">Equipo siendo diagnosticado</span></button>
                         <button onclick="waPickSend('presupuesto',${id})" style="background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);color:#c4b5fd;padding:14px;border-radius:14px;font-weight:900;font-size:12px;text-align:left;">💼 Enviar presupuesto<br><span style="font-weight:400;font-size:10px;opacity:0.7;">Informar valor de la reparación</span></button>
@@ -9214,7 +9319,7 @@
                 // Botón borrar foto individual
                 const delBtn = document.createElement('button');
                 delBtn.innerHTML = '🗑️';
-                delBtn.style.cssText = 'position:absolute;top:10px;right:10px;background:rgba(220,38,38,0.85);backdrop-filter:blur(4px);border:none;color:white;width:36px;height:36px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.5);';
+                delBtn.style.cssText = 'position:absolute;top:10px;right:10px;background:rgba(220,38,38,0.85);-webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);border:none;color:white;width:36px;height:36px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.5);';
                 delBtn.title = 'Borrar esta foto';
                 delBtn.onclick = () => borrarFotoIndividual(idx);
                 wrapper.appendChild(img);
@@ -9477,13 +9582,11 @@
 
         function previewStockImg(input) {
             if (!input.files || !input.files[0]) return;
-            const reader = new FileReader();
-            reader.onload = e => {
+            _resizeImage(input.files[0], 800, 0.75, 'image/jpeg').then(data => {
                 const el = document.getElementById('stock-img-preview');
-                if (el) el.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;">`;
-                input._imgData = e.target.result;
-            };
-            reader.readAsDataURL(input.files[0]);
+                if (el) el.innerHTML = `<img src="${data}" style="width:100%;height:100%;object-fit:cover;">`;
+                input._imgData = data;
+            }).catch(() => { try { showAlert('No se pudo leer la imagen. Prueba con otra foto.', 'warning'); } catch(_) {} });
         }
 
         function calcMargen() {
@@ -10664,7 +10767,7 @@
                 }
 
                 const jsonStr = JSON.stringify({orders:exportOrders, stock, sales, gastos, clientes, payments, calificaciones, stockHistory, orderChat, paymentPlans});
-                const fileName = `nelson_backup_${new Date().toISOString().slice(0,10)}.json`;
+                const fileName = `nelson_backup_${_ymdLocal(new Date())}.json`;
                 loading.remove();
 
                 if (navigator.share && navigator.canShare) {
@@ -10734,7 +10837,7 @@
         async function exportViaCopy(encodedJson) {
             try {
                 const jsonStr = decodeURIComponent(encodedJson);
-                await navigator.clipboard.writeText(jsonStr);
+                await _copyText(jsonStr);
                 showAlert('✅ Contenido copiado al portapapeles. Pégalo en un archivo .json para guardarlo.', 'success');
                 document.getElementById('modal-export-fallback')?.remove();
             } catch(e) { showAlert('No se pudo copiar: ' + e.message, 'error'); }
@@ -10781,6 +10884,61 @@
             return { ok:true, data };
         }
 
+        // Copia de seguridad automática ANTES de reemplazar los datos al restaurar/importar.
+        // Va a Drive si hay sesión y red; si no, se descarga como archivo en el dispositivo.
+        async function _preRestoreSnapshot() {
+            try {
+                const names = ['orders','stock','sales','gastos','clientes','payments','calificaciones','stockHistory','orderChat','paymentPlans'];
+                const [orders, stock, sales, gastos, clientes, payments, calificaciones, stockHistory, orderChat, paymentPlans] = await Promise.all(names.map(n => getAll(n)));
+                // Base vacía (instalación nueva): no hay nada que proteger
+                if (!orders.length && !stock.length && !sales.length && !gastos.length && !clientes.length) return { ok: true, where: 'skip' };
+
+                const exportOrders = [];
+                for (const o of orders) exportOrders.push({ ...o, fotos: await blobsToB64(o.fotos || []), fotosEntrega: await blobsToB64(o.fotosEntrega || []) });
+                const jsonStr = JSON.stringify({ orders: exportOrders, stock, sales, gastos, clientes, payments, calificaciones, stockHistory, orderChat, paymentPlans, date: new Date().toISOString(), snapshot: 'pre-restore' });
+                const d = new Date();
+                const stamp = _ymdLocal(d) + '_' + String(d.getHours()).padStart(2, '0') + String(d.getMinutes()).padStart(2, '0');
+                const fileName = `nelson_backup_prerestore_${stamp}.json`;
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+
+                // 1) Drive (si hay sesión y red)
+                if (localStorage.getItem('driveEmail') && navigator.onLine && await _driveEnsureFresh() && driveToken) {
+                    try {
+                        showDriveProgress(fileName);
+                        updateDriveProgress(0, 0, blob.size, 'Guardando copia de seguridad antes de restaurar...');
+                        const folderId = await ensureDriveFolder();
+                        if (!folderId) throw new Error('sin carpeta en Drive');
+                        const form = new FormData();
+                        form.append('metadata', new Blob([JSON.stringify({ name: fileName, parents: [folderId] })], { type: 'application/json' }));
+                        form.append('file', blob);
+                        const res = await uploadToDriveWithProgress('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', 'POST', form, driveToken,
+                            (pct, loaded, total) => updateDriveProgress(pct, loaded, total, 'Guardando copia de seguridad...'));
+                        if (!res || !res.id) throw new Error('Drive no confirmó el archivo');
+                        updateDriveProgress(100, blob.size, blob.size, '✓ Copia de seguridad guardada');
+                        hideDriveProgress(500);
+                        await new Promise(r => setTimeout(r, 550));
+                        driveApplyRetention(folderId);
+                        return { ok: true, where: 'drive', fileName };
+                    } catch (e) {
+                        hideDriveProgress();
+                        console.warn('[Restore] Copia previa a Drive falló, se descargará local:', e.message);
+                    }
+                }
+
+                // 2) Respaldo local: descarga del archivo
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+                return { ok: true, where: 'local', fileName };
+            } catch (e) {
+                return { ok: false, reason: e.message || 'error desconocido' };
+            }
+        }
+
         async function importData(e) {
             const file = e.target.files[0];
             e.target.value = '';
@@ -10800,7 +10958,7 @@
             if (!v.ok) { showAlert("❌ " + v.msg, "error"); return; }
             data = v.data;
             const summary = `Órdenes: ${data.orders.length} · Inventario: ${data.stock.length} · Ventas: ${data.sales.length} · Clientes: ${data.clientes.length}`;
-            showConfirm(`¿Importar este respaldo?\n\n${summary}\n\nSe reemplazará TODA la información actual.`, async () => {
+            const _runImport = async () => {
                 try {
                     await clearStore('orders'); await clearStore('stock'); await clearStore('sales');
                     await clearStore('gastos'); await clearStore('clientes'); await clearStore('payments');
@@ -10831,12 +10989,21 @@
                     await updateTotal(); await updateSuggestions(); await renderCartera();
                     showAlert("✅ Importación exitosa. La app se recargará.", "success", () => location.reload());
                 } catch(err) { showAlert("Error al importar: " + err.message, "error"); }
+            };
+            showConfirm(`¿Importar este respaldo?\n\n${summary}\n\nSe reemplazará TODA la información actual.\nAntes se guardará una copia de seguridad de tus datos actuales.`, async () => {
+                const snap = await _preRestoreSnapshot();
+                if (snap.ok) {
+                    if (snap.where === 'local') showToast('Copia de seguridad descargada en tu dispositivo', 'info');
+                    await _runImport();
+                } else {
+                    showConfirm(`No se pudo crear la copia de seguridad previa (${snap.reason}).\n\n¿Restaurar de todos modos? Se perderán los datos actuales.`, _runImport);
+                }
             });
         }
 
         // Escáner de código de barras
         async function scanBarcode() {
-            if (!('BarcodeDetector' in window)) {
+            if (!(await window._ensureBarcodeDetector())) {
                 showAlert("Tu navegador no soporta escaneo de códigos. Usa la búsqueda manual.", "warning");
                 return;
             }
@@ -11044,7 +11211,7 @@
             try {
                 const orders = await getAll('orders');
                 const today = new Date();
-                const todayYMD = today.toISOString().slice(0,10);
+                const todayYMD = _ymdLocal(today);
 
                 let todayCount = 0;
                 let pendingCount = 0;  // recibido + revisión (no entregadas)
@@ -11054,7 +11221,7 @@
 
                 for (const o of orders) {
                     const oDate = new Date(o.fecha);
-                    const oYMD = oDate.toISOString().slice(0,10);
+                    const oYMD = _ymdLocal(oDate);
                     if (oYMD === todayYMD) todayCount++;
 
                     if (o.sta && o.sta !== 'entregado') {
@@ -11389,9 +11556,13 @@
         };
 
         // Primer disparo al cargar + listeners globales
+        let _resizeTimer = null;
         window.addEventListener('resize', () => {
-            toggleTallerPreviewPanel();
-            updateDesktopStats();
+            clearTimeout(_resizeTimer);
+            _resizeTimer = setTimeout(() => {
+                toggleTallerPreviewPanel();
+                updateDesktopStats();
+            }, 200);
         });
 
         // Inicializar tras un delay para que DB esté lista
@@ -11840,8 +12011,7 @@
             }
             const phones = list.map(o => (o.tel || '').replace(/\D/g, '')).filter(Boolean);
             if (!phones.length) return showAlert('No hay números para copiar', 'warning');
-            navigator.clipboard.writeText(phones.join(', '));
-            showToast(`${phones.length} número${phones.length !== 1 ? 's' : ''} copiado${phones.length !== 1 ? 's' : ''}`, 'success');
+            _copyText(phones.join(', ')).then(() => showToast(`${phones.length} número${phones.length !== 1 ? 's' : ''} copiado${phones.length !== 1 ? 's' : ''}`, 'success')).catch(() => showAlert('No se pudo copiar los números', 'warning'));
         }
 
         function closeReadyModal() { document.getElementById('modal-ready-list').classList.add('hidden'); }
@@ -12310,7 +12480,7 @@
             if (!el) return;
             try {
                 const canvas = await html2canvas(el, { backgroundColor: '#0a0e1a', scale: 2, useCORS: true });
-                await downloadImageCompat(canvas, `reporte_mensual_${new Date().toISOString().slice(0,10)}.png`);
+                await downloadImageCompat(canvas, `reporte_mensual_${_ymdLocal(new Date())}.png`);
             } catch(e) { showAlert('Error al generar imagen', 'error'); }
         }
 
@@ -13159,15 +13329,15 @@
         // ==================== LOGO ====================
         function previewLogo(input) {
             if (!input.files || !input.files[0]) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const data = e.target.result;
-                localStorage.setItem('businessLogo', data);
+            const f = input.files[0];
+            const mime = f.type === 'image/png' ? 'image/png' : 'image/jpeg'; // PNG conserva transparencia
+            _resizeImage(f, 512, 0.85, mime).then(data => {
+                try { localStorage.setItem('businessLogo', data); }
+                catch (err) { showToast('No se pudo guardar el logo: almacenamiento lleno', 'error'); return; }
                 const el = document.getElementById('logo-preview');
                 if (el) el.innerHTML = `<img src="${data}" style="width:100%;height:100%;object-fit:cover;">`;
                 showToast('Logo guardado', 'success');
-            };
-            reader.readAsDataURL(input.files[0]);
+            }).catch(() => showToast('No se pudo leer la imagen', 'error'));
         }
 
         // ==================== REGIONAL ====================
@@ -13462,7 +13632,7 @@
             if (!el || typeof html2canvas === 'undefined') { showAlert('html2canvas no disponible', 'error'); return; }
             try {
                 const canvas = await html2canvas(el, { backgroundColor: '#ffffff', scale: 2 });
-                await downloadImageCompat(canvas, `movimientos_${new Date().toISOString().slice(0,10)}.png`);
+                await downloadImageCompat(canvas, `movimientos_${_ymdLocal(new Date())}.png`);
             } catch(e) { showAlert('Error al generar imagen', 'error'); }
         }
 
@@ -13561,6 +13731,58 @@
         }
 
 
+        // fetch a Drive con token, timeout y reintento automático si el token expiró (401)
+        async function driveFetch(url, opts = {}, _retried = false) {
+            if (!driveToken) throw Object.assign(new Error('No conectado a Drive'), { status: 401 });
+            const { timeout = 30000, ...fetchOpts } = opts;
+            const ctrl = new AbortController();
+            const timer = setTimeout(() => ctrl.abort(), timeout);
+            try {
+                const resp = await fetch(url, {
+                    ...fetchOpts,
+                    headers: { ...(fetchOpts.headers || {}), Authorization: 'Bearer ' + driveToken },
+                    signal: ctrl.signal
+                });
+                if (resp.status === 401 && !_retried) {
+                    clearTimeout(timer);
+                    await driveSilentRefresh();          // si falla, lanza y el llamador muestra "reconectar"
+                    return driveFetch(url, opts, true);
+                }
+                return resp;
+            } catch (e) {
+                if (e.name === 'AbortError') throw new Error('Drive tardó demasiado en responder');
+                throw e;
+            } finally { clearTimeout(timer); }
+        }
+
+        // Garantiza un token vigente antes de respaldar/restaurar (renueva en silencio si está por vencer)
+        async function _driveEnsureFresh() {
+            if (!localStorage.getItem('driveEmail')) return !!driveToken;
+            if (driveToken && (!driveTokenExpiresAt || driveTokenExpiresAt > Date.now() + 2 * 60 * 1000)) return true;
+            try { await driveSilentRefresh(); return true; }
+            catch (_) { return !!driveToken && driveTokenExpiresAt > Date.now(); }
+        }
+
+        // Retención: conserva los últimos N respaldos diarios y manda los más viejos a la papelera de Drive (recuperables 30 días)
+        const DRIVE_KEEP_BACKUPS = 30;
+        const DRIVE_KEEP_SAFETY  = 5;   // copias de seguridad previas a restaurar
+        async function driveApplyRetention(folderId) {
+            try {
+                if (!folderId) return;
+                const q = `'${folderId}' in parents and name contains 'nelson_backup_' and trashed=false`;
+                const r = await driveFetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&orderBy=name desc&pageSize=200&fields=files(id,name)`);
+                if (!r.ok) return;
+                const all = (await r.json()).files || [];
+                const daily  = all.filter(f => /^nelson_backup_\d{4}-\d{2}-\d{2}\.json$/.test(f.name));
+                const safety = all.filter(f => /^nelson_backup_prerestore_/.test(f.name));
+                for (const f of [...daily.slice(DRIVE_KEEP_BACKUPS), ...safety.slice(DRIVE_KEEP_SAFETY)]) {
+                    await driveFetch(`https://www.googleapis.com/drive/v3/files/${f.id}`, {
+                        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ trashed: true })
+                    });
+                }
+            } catch (e) { console.warn('[Drive] Retención falló:', e.message); }
+        }
+
         function driveSignIn() {
             if (!navigator.onLine) {
                 showAlert('Sin conexión. Conecta a internet para iniciar sesión con Google.', 'warning'); return;
@@ -13593,7 +13815,7 @@
         }
 
         function driveSignOut() {
-            driveToken = null; driveFolderId = null;
+            driveToken = null; driveFolderId = null; _driveFolderCheckedAt = 0;
             driveTokenExpiresAt = 0;
             if (driveRefreshTimerId) { clearTimeout(driveRefreshTimerId); driveRefreshTimerId = null; }
             sessionStorage.removeItem('driveToken');
@@ -13625,26 +13847,34 @@
             }
         }
 
+        let _driveFolderCheckedAt = 0;
         async function ensureDriveFolder() {
             if (!driveToken) return null;
             try {
+                // Carpeta ya verificada hace poco: no repetir la consulta
+                if (driveFolderId && Date.now() - _driveFolderCheckedAt < 10 * 60 * 1000) return driveFolderId;
                 const saved = localStorage.getItem('driveFolderId');
-                if (saved) { driveFolderId = saved; return driveFolderId; }
-                const search = await fetch(
-                    `https://www.googleapis.com/drive/v3/files?q=name='${DRIVE_FOLDER}' and mimeType='application/vnd.google-apps.folder' and trashed=false&fields=files(id,name)`,
-                    { headers: { Authorization: 'Bearer ' + driveToken } }
-                ).then(r => r.json());
+                if (saved) {
+                    const chk = await driveFetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(saved)}?fields=id,trashed`);
+                    if (chk.ok) {
+                        const meta = await chk.json();
+                        if (!meta.trashed) { driveFolderId = saved; _driveFolderCheckedAt = Date.now(); return saved; }
+                    }
+                    localStorage.removeItem('driveFolderId');   // la borraron o está en la papelera → buscar/recrear
+                    driveFolderId = null;
+                }
+                const q = `name='${DRIVE_FOLDER}' and mimeType='application/vnd.google-apps.folder' and trashed=false`;
+                const search = await driveFetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name)`).then(r => r.json());
                 if (search.files && search.files.length > 0) {
                     driveFolderId = search.files[0].id;
                 } else {
-                    const created = await fetch('https://www.googleapis.com/drive/v3/files', {
-                        method: 'POST',
-                        headers: { Authorization: 'Bearer ' + driveToken, 'Content-Type': 'application/json' },
+                    const created = await driveFetch('https://www.googleapis.com/drive/v3/files', {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ name: DRIVE_FOLDER, mimeType: 'application/vnd.google-apps.folder' })
                     }).then(r => r.json());
-                    driveFolderId = created.id;
+                    driveFolderId = created.id || null;
                 }
-                localStorage.setItem('driveFolderId', driveFolderId);
+                if (driveFolderId) { localStorage.setItem('driveFolderId', driveFolderId); _driveFolderCheckedAt = Date.now(); }
                 return driveFolderId;
             } catch(e) { console.warn('Drive folder error:', e); return null; }
         }
@@ -13702,7 +13932,7 @@
         }
 
         async function driveRestore() {
-            if (!driveToken) { showAlert('Primero conecta tu cuenta de Google.', 'warning'); return; }
+            if (!driveToken && !(await _driveEnsureFresh())) { showAlert('Primero conecta tu cuenta de Google.', 'warning'); return; }
             if (!navigator.onLine) { showAlert('Sin conexión. Conecta a internet para restaurar desde Drive.', 'warning'); return; }
             showToast('Buscando respaldos en Drive...', 'info');
             try {
@@ -13710,9 +13940,8 @@
                 const query    = folderId
                     ? `'${folderId}' in parents and name contains 'nelson_backup' and trashed=false`
                     : `name contains 'nelson_backup' and trashed=false`;
-                const list = await fetch(
-                    `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&orderBy=modifiedTime desc&pageSize=10&fields=files(id,name,modifiedTime)`,
-                    { headers: { Authorization: 'Bearer ' + driveToken } }
+                const list = await driveFetch(
+                    `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&orderBy=modifiedTime desc&pageSize=30&fields=files(id,name,modifiedTime,size)`
                 ).then(r => r.json());
 
                 if (!list.files || !list.files.length) { showAlert('No se encontraron respaldos en Drive.', 'info'); return; }
@@ -13720,11 +13949,18 @@
                 const modal = document.createElement('div');
                 modal.id = 'modal-drive-restore';
                 modal.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;padding:16px;';
-                const items = list.files.map(f => {
+                const _fmtSize = (n) => { n = Number(n) || 0; return n >= 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB'; };
+                const _isSafety = (n) => /^nelson_backup_prerestore_/.test(n);
+                const _firstRegular = list.files.findIndex(f => !_isSafety(f.name));
+                const items = list.files.map((f, i) => {
                     const date = new Date(f.modifiedTime).toLocaleString('es-ES');
-                    return `<button onclick="driveRestoreFile('${f.id}','${f.name}')" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px;margin-bottom:8px;text-align:left;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='rgba(59,130,246,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
-                        <p style="color:#fff;font-weight:900;font-size:13px;">📄 ${f.name}</p>
-                        <p style="color:#64748b;font-size:11px;margin-top:2px;">📅 ${date}</p>
+                    const safeName = escapeHtml(f.name);
+                    const badge = _isSafety(f.name)
+                        ? '<span style="background:#f59e0b;color:#111;font-size:9px;font-weight:900;padding:2px 8px;border-radius:99px;margin-left:8px;">COPIA PREVIA</span>'
+                        : (i === _firstRegular ? '<span style="background:#10b981;color:#fff;font-size:9px;font-weight:900;padding:2px 8px;border-radius:99px;margin-left:8px;">MÁS RECIENTE</span>' : '');
+                    return `<button onclick="driveRestoreFile('${escapeHtml(String(f.id))}', decodeURIComponent('${encodeURIComponent(f.name)}'))" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px;margin-bottom:8px;text-align:left;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='rgba(59,130,246,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+                        <p style="color:#fff;font-weight:900;font-size:13px;">📄 ${safeName}${badge}</p>
+                        <p style="color:#64748b;font-size:11px;margin-top:2px;">📅 ${date} · 💾 ${_fmtSize(f.size)}</p>
                     </button>`;
                 }).join('');
                 modal.innerHTML = `<div style="background:#111827;border:1px solid rgba(255,255,255,0.1);border-radius:24px;width:100%;max-width:400px;overflow:hidden;">
@@ -13732,7 +13968,7 @@
                         <h3 style="color:white;font-weight:900;font-size:16px;">⬇️ RESTAURAR DESDE DRIVE</h3>
                         <button onclick="document.getElementById('modal-drive-restore').remove()" style="color:white;background:rgba(0,0,0,0.3);width:32px;height:32px;border-radius:50%;font-weight:bold;">✕</button>
                     </div>
-                    <div style="padding:16px;max-height:60vh;overflow-y:auto;">${items}</div>
+                    <div style="padding:16px;max-height:60vh;max-height:60dvh;overflow-y:auto;">${items}</div>
                 </div>`;
                 document.body.appendChild(modal);
             } catch(e) { showAlert('Error al acceder a Drive: ' + e.message, 'error'); }
@@ -13742,6 +13978,7 @@
             document.getElementById('modal-drive-restore')?.remove();
             showConfirm(`¿Restaurar "${fileName}"?\nEsto reemplazará TODOS los datos actuales.`, async () => {
                 // Reutilizo el overlay de progreso (mismo estilo que la subida pero en verde)
+                await _driveEnsureFresh();
                 showDriveProgress(fileName, 'download');
                 updateDriveProgress(0, 0, 0, 'Conectando con Drive...');
                 try {
@@ -14130,7 +14367,7 @@
                             ${hasSupplier ? `<p class="text-[9.5px] text-cyan-400 font-bold mt-1">📌 ${escapeHtml(supplierShort)}</p>` : ''}
                         </div>
                         <div class="flex items-center gap-1 flex-shrink-0">
-                            <input type="number" value="${Math.max(1,(s.minStock||threshold)*2 - s.q)}"
+                            <input type="number" inputmode="decimal" value="${Math.max(1,(s.minStock||threshold)*2 - s.q)}"
                                 min="1" class="w-12 text-center text-xs font-black text-amber-400"
                                 id="oc-qty-${s.id}">
                             <span class="text-[10px] text-slate-500 mr-1">uds</span>
@@ -14605,7 +14842,7 @@
                 doc.setTextColor(156, 163, 175);
                 doc.text('Página 2 de 2', pageW / 2, pageH - 8, { align: 'center' });
 
-                const today = new Date().toISOString().slice(0, 10);
+                const today = _ymdLocal(new Date());
                 doc.save(`Guia-Rapida-${today}.pdf`);
                 showToast('✅ Guía descargada · Imprímela y tenla cerca del taller', 'success');
             } catch (e) {
@@ -14744,7 +14981,7 @@
                 } else {
                     // No hay match con teléfono → solo copiar el mensaje al portapapeles
                     try {
-                        await navigator.clipboard.writeText(mensaje);
+                        await _copyText(mensaje);
                         showAlert(`El proveedor "${item.supplier}" no tiene teléfono guardado.\n\nEl mensaje se copió al portapapeles — pégalo en tu WhatsApp.`, 'info');
                     } catch (e) {
                         showAlert(`Proveedor "${item.supplier}" no encontrado.\n\nNo se pudo armar el WhatsApp automático. Llámalo directamente.`, 'info');
@@ -14791,7 +15028,7 @@
         async function copyOCText() {
             const { txt } = await _buildOCText();
             try {
-                await navigator.clipboard.writeText(txt);
+                await _copyText(txt);
                 showToast('Orden copiada al portapapeles ✅', 'success');
             } catch(e) {
                 showAlert('No se pudo copiar automáticamente. Selecciona el texto manualmente.', 'info');
@@ -15429,7 +15666,7 @@
 
         // Notificaciones automáticas: órdenes vencidas + stock bajo
         async function checkAndNotifyOverdue() {
-            if (Notification.permission !== 'granted') return;
+            if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
             const orders = await getAll('orders');
             const now    = Date.now();
             const vencidas = orders.filter(o =>
@@ -15446,7 +15683,7 @@
         }
 
         async function checkAndNotifyLowStock() {
-            if (Notification.permission !== 'granted') return;
+            if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
             const stock     = await getAll('stock');
             const threshold = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
             const bajos     = stock.filter(s => s.q !== undefined && Number(s.q) <= (s.minStock || threshold));
@@ -15583,9 +15820,10 @@
             }
         }
 
-        function _startQRDetection(video) {
+        async function _startQRDetection(video) {
             // Usar BarcodeDetector si el navegador lo soporta (Chrome Android ≥ 83)
-            if (!('BarcodeDetector' in window)) return;
+            if (!(await window._ensureBarcodeDetector())) { if (typeof showToast === 'function') showToast('Este navegador no soporta el escaneo automático. Escribe el código a mano.', 'warning'); return; }
+            if (!_qrStream) return;
             const detector = new BarcodeDetector({ formats: ['qr_code','code_128','code_39','ean_13','ean_8','upc_a','upc_e','data_matrix'] });
             function detect() {
                 if (!_qrStream) return;
@@ -15974,7 +16212,7 @@
             const hoy    = new Date();
             // Inicio de la semana actual + offset
             const startOfWeek = new Date(hoy);
-            startOfWeek.setDate(hoy.getDate() - hoy.getDay() + 1 + (_calOffset * 7)); // lunes
+            startOfWeek.setDate(hoy.getDate() - ((hoy.getDay() + 6) % 7) + (_calOffset * 7)); // lunes
             startOfWeek.setHours(0,0,0,0);
 
             const weekDays = Array.from({length:7}, (_,i) => {
@@ -15996,8 +16234,8 @@
             const dayNames = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
             const grid = document.getElementById('cal-grid');
             grid.innerHTML = weekDays.map((d, i) => {
-                const dStr    = d.toISOString().slice(0,10);
-                const todayStr= hoy.toISOString().slice(0,10);
+                const dStr    = _ymdLocal(d);
+                const todayStr= _ymdLocal(hoy);
                 const isToday = dStr === todayStr;
                 const isSel   = _calSelectedDay === dStr;
                 const dayOrds = activas.filter(o => o.fechaEstimada === dStr);
@@ -16851,7 +17089,7 @@
             if (_exportRange === '3months') return `${y}-${m}-3m`;
             if (_exportRange === 'year')    return `${y}`;
             if (_exportRange === 'all')     return 'todo';
-            return now.toISOString().slice(0,10);
+            return _ymdLocal(now);
         }
 
         function openExportPanel() {
@@ -16952,7 +17190,7 @@
                 const biz = _safeBizConfig();
                 const bizName = biz.name || 'NelsonApp';
                 const now = new Date();
-                const dateStr = now.toISOString().slice(0,10);
+                const dateStr = _ymdLocal(now);
                 const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
                 const { from, to } = _getExportRange();
                 const rangeSlug = _exportRangeFileSlug();
@@ -17204,7 +17442,7 @@
         }
 
         async function checkAndNotify() {
-            if (Notification.permission !== 'granted') return;
+            if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
             try {
                 const orders = await getAll('orders');
                 const stock = (await getAll('stock')) || [];
@@ -17411,7 +17649,7 @@
     </script>
     <!-- ===== MODAL SALUD DE LA APP ===== -->
     <div id="modal-app-health" class="hidden fixed inset-0 z-[9800] modal-custom flex items-end justify-center p-4">
-        <div class="bg-[#0d0f1a] border border-white/10 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl view-enter" style="max-height:88vh;display:flex;flex-direction:column;">
+        <div class="bg-[#0d0f1a] border border-white/10 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl view-enter" style="max-height:88vh;max-height:88dvh;display:flex;flex-direction:column;">
             <!-- Header -->
             <div style="background:linear-gradient(135deg,#065f46,#047857);padding:18px 20px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
                 <div>
@@ -17533,7 +17771,9 @@
             width: 100%;
             max-width: 540px;
             height: 92vh;
+            height: 92dvh;
             max-height: 92vh;
+            max-height: 92dvh;
             background:
                 radial-gradient(circle at 100% 0%, rgba(249,115,22,0.12) 0%, transparent 40%),
                 radial-gradient(circle at 0% 100%, rgba(34,211,238,0.08) 0%, transparent 40%),
@@ -17741,7 +17981,7 @@
             cursor: pointer;
             white-space: nowrap;
             transition: all 0.2s;
-            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
         }
         .nia-chip:hover {
             background: linear-gradient(135deg, rgba(249,115,22,0.18), rgba(234,88,12,0.1));
@@ -17781,7 +18021,7 @@
             min-height: 44px;
             line-height: 1.4;
             transition: all 0.2s;
-            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
         }
         #nia-input::placeholder { color: #64748b; }
         #nia-input:focus {
@@ -18441,7 +18681,7 @@
             const ahora = Date.now();
             const hoy = new Date();
             const ctx = {
-                fechaActual: hoy.toISOString().slice(0,10),
+                fechaActual: _ymdLocal(hoy),
                 errores: []
             };
 
@@ -18453,7 +18693,7 @@
             const T_HACE_7_DIAS  = ahora - (7*86400000);
             const T_HACE_30_DIAS = ahora - (30*86400000);
             const T_HACE_90_DIAS = ahora - (90*86400000);
-            const tsToFecha = (ts) => ts ? new Date(ts).toISOString().slice(0,10) : '';
+            const tsToFecha = (ts) => ts ? _ymdLocal(new Date(ts)) : '';
 
             // Leer todo con catch individual
             let orders=[], stock=[], sales=[], gastos=[], clientes=[], payments=[];
