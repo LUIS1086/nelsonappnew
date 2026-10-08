@@ -1,0 +1,223 @@
+{
+  "nota": "Recuentos estáticos aproximados; no son mediciones reales de velocidad.",
+  "html_bytes": 259360,
+  "css_bytes": 164209,
+  "total_js_bytes": 1378747,
+  "js_files": 18,
+  "totales": {
+    "listeners": 52,
+    "storage_references": 459,
+    "intervals": 22,
+    "timeouts": 164,
+    "dom_queries": 1795,
+    "fetch": 11,
+    "inline_handlers_html": 380
+  },
+  "archivos": [
+    {
+      "archivo": "js/app-core.original.js",
+      "bytes": 663737,
+      "funciones": 459,
+      "listeners": 26,
+      "storage_references": 226,
+      "intervals": 11,
+      "timeouts": 80,
+      "dom_queries": 884,
+      "fetch": 5
+    },
+    {
+      "archivo": "js/core/credits.js",
+      "bytes": 973,
+      "funciones": 1,
+      "listeners": 0,
+      "storage_references": 0,
+      "intervals": 0,
+      "timeouts": 0,
+      "dom_queries": 3,
+      "fetch": 0
+    },
+    {
+      "archivo": "js/core/performance.js",
+      "bytes": 813,
+      "funciones": 0,
+      "listeners": 0,
+      "storage_references": 0,
+      "intervals": 0,
+      "timeouts": 1,
+      "dom_queries": 0,
+      "fetch": 0
+    },
+    {
+      "archivo": "js/core/storage-fallback.js",
+      "bytes": 821,
+      "funciones": 1,
+      "listeners": 0,
+      "storage_references": 0,
+      "intervals": 0,
+      "timeouts": 0,
+      "dom_queries": 0,
+      "fetch": 0
+    },
+    {
+      "archivo": "js/modules/00-foundation.js",
+      "bytes": 41421,
+      "funciones": 40,
+      "listeners": 3,
+      "storage_references": 24,
+      "intervals": 1,
+      "timeouts": 10,
+      "dom_queries": 39,
+      "fetch": 0
+    },
+    {
+      "archivo": "js/modules/10-orders-clients.js",
+      "bytes": 149208,
+      "funciones": 74,
+      "listeners": 6,
+      "storage_references": 18,
+      "intervals": 2,
+      "timeouts": 18,
+      "dom_queries": 157,
+      "fetch": 1
+    },
+    {
+      "archivo": "js/modules/20-inventory.js",
+      "bytes": 103128,
+      "funciones": 70,
+      "listeners": 1,
+      "storage_references": 5,
+      "intervals": 1,
+      "timeouts": 8,
+      "dom_queries": 177,
+      "fetch": 0
+    },
+    {
+      "archivo": "js/modules/30-workshop-ux.js",
+      "bytes": 89068,
+      "funciones": 49,
+      "listeners": 4,
+      "storage_references": 4,
+      "intervals": 2,
+      "timeouts": 7,
+      "dom_queries": 106,
+      "fetch": 0
+    },
+    {
+      "archivo": "js/modules/40-settings.js",
+      "bytes": 61293,
+      "funciones": 65,
+      "listeners": 3,
+      "storage_references": 76,
+      "intervals": 0,
+      "timeouts": 10,
+      "dom_queries": 117,
+      "fetch": 0
+    },
+    {
+      "archivo": "js/modules/50-drive-reports.js",
+      "bytes": 78484,
+      "funciones": 49,
+      "listeners": 1,
+      "storage_references": 49,
+      "intervals": 1,
+      "timeouts": 10,
+      "dom_queries": 73,
+      "fetch": 4
+    },
+    {
+      "archivo": "js/modules/60-connectivity-reports.js",
+      "bytes": 42320,
+      "funciones": 35,
+      "listeners": 3,
+      "storage_references": 25,
+      "intervals": 3,
+      "timeouts": 8,
+      "dom_queries": 74,
+      "fetch": 0
+    },
+    {
+      "archivo": "js/modules/70-qr.js",
+      "bytes": 15837,
+      "funciones": 16,
+      "listeners": 0,
+      "storage_references": 2,
+      "intervals": 0,
+      "timeouts": 4,
+      "dom_queries": 31,
+      "fetch": 0
+    },
+    {
+      "archivo": "js/modules/80-productivity.js",
+      "bytes": 31839,
+      "funciones": 36,
+      "listeners": 0,
+      "storage_references": 10,
+      "intervals": 0,
+      "timeouts": 0,
+      "dom_queries": 63,
+      "fetch": 0
+    },
+    {
+      "archivo": "js/modules/90-pwa-dashboard.js",
+      "bytes": 18335,
+      "funciones": 7,
+      "listeners": 4,
+      "storage_references": 3,
+      "intervals": 0,
+      "timeouts": 2,
+      "dom_queries": 18,
+      "fetch": 0
+    },
+    {
+      "archivo": "js/modules/91-exports.js",
+      "bytes": 20058,
+      "funciones": 12,
+      "listeners": 0,
+      "storage_references": 0,
+      "intervals": 0,
+      "timeouts": 0,
+      "dom_queries": 15,
+      "fetch": 0
+    },
+    {
+      "archivo": "js/modules/92-push.js",
+      "bytes": 5626,
+      "funciones": 4,
+      "listeners": 1,
+      "storage_references": 7,
+      "intervals": 1,
+      "timeouts": 3,
+      "dom_queries": 2,
+      "fetch": 0
+    },
+    {
+      "archivo": "js/modules/93-health.js",
+      "bytes": 9150,
+      "funciones": 2,
+      "listeners": 0,
+      "storage_references": 3,
+      "intervals": 0,
+      "timeouts": 0,
+      "dom_queries": 12,
+      "fetch": 0
+    },
+    {
+      "archivo": "js/nelson-ia.js",
+      "bytes": 46636,
+      "funciones": 14,
+      "listeners": 0,
+      "storage_references": 7,
+      "intervals": 0,
+      "timeouts": 3,
+      "dom_queries": 24,
+      "fetch": 1
+    }
+  ],
+  "cambios": [
+    "Helper opcional NelsonPerf.idle / raf / afterPaint.",
+    "Preconnect para orígenes externos ya usados, si faltaban.",
+    "Se conserva el orden de scripts; no se añade defer/async indiscriminadamente.",
+    "No se reescribe lógica de negocio ni almacenamiento."
+  ],
+  "validacion": "Todos los archivos JS pasan node --check."
+}
