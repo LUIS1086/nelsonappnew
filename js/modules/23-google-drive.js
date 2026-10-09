@@ -69,7 +69,12 @@
             const client = getDriveTokenClient();
             if (!client) { showAlert('Google API aún cargando. Intenta en unos segundos.', 'warning'); return; }
             client.callback = async (resp) => {
-                if (resp.error) { showAlert('Error al conectar con Google: ' + resp.error, 'error'); return; }
+                if (!resp || resp.error || !resp.access_token) {
+                    const reason = resp && resp.error ? resp.error : 'respuesta OAuth vacía';
+                    console.error('[Drive OAuth] No se recibió token:', reason, resp);
+                    showAlert('Google no completó el inicio de sesión (' + reason + '). Si la ventana queda en blanco, revisa que el origen https://nelsonappnew.vercel.app esté autorizado en el cliente OAuth de Google Cloud.', 'error');
+                    return;
+                }
                 driveToken = resp.access_token;
                 sessionStorage.setItem('driveToken', driveToken);
                 // Guardar timestamp de expiración para el sistema de refresh automático
@@ -87,7 +92,14 @@
                 await ensureDriveFolder();
                 startAutoBackup(); // reiniciar respaldo automático al conectar
             };
-            client.requestAccessToken();
+            try {
+                // Se invoca directamente desde el toque del usuario para que el navegador
+                // no bloquee la ventana OAuth como popup no solicitado.
+                client.requestAccessToken();
+            } catch (e) {
+                console.error('[Drive OAuth] No se pudo abrir el flujo OAuth:', e);
+                showAlert('No se pudo abrir el inicio de sesión de Google. Permite las ventanas emergentes para este sitio y vuelve a intentarlo. Detalle: ' + (e && e.message ? e.message : 'error desconocido'), 'error');
+            }
         }
 
         function driveSignOut() {

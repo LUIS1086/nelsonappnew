@@ -50,100 +50,18 @@
         // Genera IDs únicos incluso cuando hay clicks en el mismo milisegundo
         function _uid() { return Date.now() * 1000 + Math.floor(Math.random() * 1000); }
 
-        
-let cameraMode = 'recepcion';
-
-async function openCamera(mode = 'recepcion') {
-    cameraMode = mode;
-
-    // Comprobar que el navegador ofrece la API de cámara.
-    if (!navigator.mediaDevices?.getUserMedia) {
-        showAlert(
-            'Este navegador no permite acceder a la cámara en este contexto. Abre NelsonApp mediante HTTPS.',
-            'error'
-        );
-        return;
-    }
-
-    // Liberar una cámara anterior antes de abrir otra.
-    if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-        stream = null;
-    }
-
-    const video = document.getElementById('video');
-
-    try {
-        stream = await navigator.mediaDevices.getUserMedia({
-            video: {
-                facingMode: { ideal: 'environment' }
-            },
-            audio: false
-        });
-
-        video.srcObject = stream;
-        video.muted = true;
-        video.playsInline = true;
-
-        await video.play();
-
-        document.getElementById('camera-modal')
-            .classList.remove('hidden');
-
-        console.info('[NelsonApp][Cámara] Cámara iniciada correctamente');
-
-    } catch (error) {
-        console.error('[NelsonApp][Cámara] Error real:', {
-            name: error.name,
-            message: error.message,
-            secureContext: window.isSecureContext,
-            mediaDevicesAvailable: !!navigator.mediaDevices
-        });
-
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-            stream = null;
+        let cameraMode = 'recepcion';
+        async function openCamera(mode = 'recepcion') {
+            cameraMode = mode;
+            if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+            try {
+                stream = await requestAppCameraStream();
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+                await video.play();
+                document.getElementById('camera-modal').classList.remove('hidden');
+            } catch(e) { showAlert(getAppCameraErrorMessage(e), "error"); }
         }
-
-        video.srcObject = null;
-
-        let message = 'No se pudo abrir la cámara.';
-
-        switch (error.name) {
-            case 'NotAllowedError':
-            case 'SecurityError':
-                message =
-                    'El navegador bloqueó la cámara. Revisa los permisos del sitio y del celular.';
-                break;
-
-            case 'NotFoundError':
-                message =
-                    'No se encontró una cámara disponible en el dispositivo.';
-                break;
-
-            case 'NotReadableError':
-                message =
-                    'La cámara está ocupada o no se puede utilizar. Cierra otras aplicaciones que la usen.';
-                break;
-
-            case 'OverconstrainedError':
-                message =
-                    'La cámara no admite la configuración solicitada.';
-                break;
-
-            case 'AbortError':
-                message =
-                    'La apertura de la cámara fue interrumpida. Inténtalo de nuevo.';
-                break;
-
-            default:
-                message += ' Error técnico: ' + error.name;
-        }
-
-        showAlert(message, 'error');
-    }
-}
-
         function closeCamera() {
             if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
             document.getElementById('camera-modal').classList.add('hidden');
