@@ -4,7 +4,7 @@
 
         // ==================== CONFIGURACIÓN INICIAL ====================
         const DB_NAME = 'NelsonAppPro';
-        window.APP_VERSION = 'v3.4.2'; // Única fuente de verdad para la versión de la app
+        window.APP_VERSION = 'v3.4.3'; // Única fuente de verdad para la versión de la app
         let db = null;
         let searchDebounceTimer = null;
         let currentPhotos = [];
@@ -22,15 +22,22 @@
         const escAttr = s => String(s ?? '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         window.escAttr = escAttr;
 
-        // Acceso uniforme a cámara para Chrome, Brave y Firefox.
-        // No exige obligatoriamente la cámara trasera: algunos navegadores móviles
-        // rechazan la restricción estricta aunque sí tengan una cámara disponible.
-        async function requestAppCameraStream() {
-            if (!window.isSecureContext || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                const err = new Error('La cámara requiere HTTPS y un navegador compatible.');
-                err.name = 'AppCameraUnsupportedError';
-                throw err;
-            }
+        // Acceso uniforme a cámara para Chrome, Brave, Firefox y Samsung Internet.
+        // · Solo hay UNA cámara activa a la vez: antes de pedir otra se libera la anterior
+        //   (Chrome en Android responde NotReadableError si la misma página la abre dos veces).
+        // · Un doble toque comparte la misma solicitud (no se abren dos streams).
+        // · Si el hardware aún se está liberando, se reintenta una vez antes de rendirse.
+        // · No exige la cámara trasera: algunos navegadores rechazan la restricción estricta.
+        const _appCamStreams = new Set();
+        let _appCamInflight = null;
+        const _camWait = (ms) => new Promise(r => setTimeout(r, ms));
+        function _camLive(s) { try { return s.getTracks().some(t => t.readyState === 'live'); } catch (_) { return false; } }
+        function releaseAppCameraStreams() {
+            _appCamStreams.forEach(s => { try { s.getTracks().forEach(t => t.stop()); } catch (_) {} });
+            _appCamStreams.clear();
+        }
+        window.releaseAppCameraStreams = releaseAppCameraStreams;
+        async function _openCameraWithFallback() {
             try {
                 return await navigator.mediaDevices.getUserMedia({
                     video: { facingMode: { ideal: 'environment' } },
@@ -45,7 +52,37 @@
                 throw err;
             }
         }
+        async function requestAppCameraStream() {
+            if (!window.isSecureContext || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                const err = new Error('La cámara requiere HTTPS y un navegador compatible.');
+                err.name = 'AppCameraUnsupportedError';
+                throw err;
+            }
+            if (_appCamInflight) return _appCamInflight; // doble toque: misma solicitud
+            _appCamInflight = (async () => {
+                const hadLive = [..._appCamStreams].some(_camLive);
+                releaseAppCameraStreams();
+                if (hadLive) await _camWait(250); // dar tiempo a que el hardware se libere
+                let s;
+                try {
+                    s = await _openCameraWithFallback();
+                } catch (err) {
+                    if (err && ['NotReadableError', 'TrackStartError', 'AbortError'].includes(err.name)) {
+                        await _camWait(600); // un reintento: la cámara a veces tarda en quedar libre
+                        try { s = await navigator.mediaDevices.getUserMedia({ video: true, audio: false }); }
+                        catch (_) { throw err; } // se informa el error original
+                    } else {
+                        throw err;
+                    }
+                }
+                _appCamStreams.add(s);
+                return s;
+            })();
+            try { return await _appCamInflight; } finally { _appCamInflight = null; }
+        }
         window.requestAppCameraStream = requestAppCameraStream;
+        // Al salir de la página, soltar la cámara
+        window.addEventListener('pagehide', releaseAppCameraStreams);
 
         function getAppCameraErrorMessage(err) {
             const name = err && err.name ? err.name : '';
@@ -57,7 +94,8 @@
             if (name === 'NotFoundError' || name === 'DevicesNotFoundError')
                 return 'No se encontró una cámara disponible en este dispositivo.';
             if (name === 'NotReadableError' || name === 'TrackStartError')
-                return 'La cámara está ocupada por otra aplicación. Cierra otras apps que la usen y vuelve a intentarlo.';
+                return 'La cámara está ocupada por otra aplicación o pestaña. Cierra otras apps y navegadores que la usen (incluido Firefox si lo tienes abierto) y vuelve a intentarlo.'
+                    + ' [Detalle: ' + name + (err && err.message ? ' · ' + String(err.message).slice(0, 80) : '') + ']';
             if (name === 'OverconstrainedError' || name === 'ConstraintNotSatisfiedError')
                 return 'No se encontró una cámara compatible. Prueba cerrar y volver a abrir la cámara.';
             return 'No se pudo iniciar la cámara (' + (name || 'error desconocido') + '). Revisa los permisos del sitio y vuelve a intentarlo.';
@@ -67,7 +105,7 @@
         // ── Sincroniza la versión en splash y créditos desde window.APP_VERSION ──
         (function syncAppVersion() {
             try {
-                const v = window.APP_VERSION || 'v3.4.2';
+                const v = window.APP_VERSION || 'v3.4.3';
                 const ids = ['splash-version', 'credits-version', 'cfg-header-version'];
                 ids.forEach(id => {
                     const el = document.getElementById(id);
