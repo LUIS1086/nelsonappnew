@@ -1,8 +1,0 @@
-[{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "app.vercel.nelsonappnew.twa",
-        "sha256_cert_fingerprints": ["EF:EA:93:00:D8:58:3C:99:37:17:84:0A:D8:CB:95:A0:29:7F:EC:99:79:7D:12:57:BA:CF:1D:F9:DA:41:F1:DC"]
-      }
-    }]

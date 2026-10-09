@@ -1,1 +1,0 @@
-La app Nelson pro es un proyecto propio con fines educativos y de venta
