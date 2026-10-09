@@ -1,0 +1,616 @@
+/* Nelson App Pro · css/11-responsive-escritorio.css
+   Layout tablet/escritorio, sidebar, topbar, atajos
+   (extraido sin cambios de index.html; el orden de carga importa) */
+        /* ===== RESPONSIVE LAYOUT — TABLET & DESKTOP ===== */
+        @media (min-width: 768px) {
+            body { padding-bottom: 0; }
+
+            /* Ocultar nav bottom en desktop/tablet */
+            nav.bottom-nav-mobile { display: none !important; }
+
+            /* Layout principal: sidebar + contenido */
+            #app-layout {
+                display: flex;
+                min-height: 100vh;
+            }
+
+            /* SIDEBAR */
+            #sidebar {
+                display: flex;
+                flex-direction: column;
+                width: 240px;
+                min-height: 100vh;
+                position: fixed;
+                left: 0; top: 0; bottom: 0;
+                background: rgba(13,15,26,0.97);
+                border-right: 1px solid rgba(249,115,22,0.12);
+                backdrop-filter: blur(20px);
+                z-index: 100;
+                padding: 0;
+                box-shadow: 4px 0 40px rgba(0,0,0,0.4);
+            }
+            body.light-mode #sidebar {
+                background: rgba(253,252,249,0.97);
+                border-right-color: #ddd8ce;
+            }
+
+            #sidebar-header {
+                padding: 24px 20px 16px;
+                border-bottom: 1px solid rgba(255,255,255,0.06);
+            }
+            body.light-mode #sidebar-header { border-bottom-color: #ddd8ce; }
+
+            #sidebar-logo {
+                display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+            }
+            #sidebar-logo-icon {
+                width: 40px; height: 40px; border-radius: 12px;
+                background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+                display: flex; align-items: center; justify-content: center;
+                font-size: 1.2rem;
+                box-shadow: 0 4px 12px rgba(249,115,22,0.35);
+                flex-shrink: 0;
+            }
+            #sidebar-biz { flex: 1; min-width: 0; }
+            #sidebar-biz-short {
+                font-size: 8px; font-weight: 900;
+                color: var(--accent); letter-spacing: 3px; text-transform: uppercase;
+            }
+            #sidebar-biz-name {
+                font-size: 16px; font-weight: 900; font-style: italic;
+                white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            }
+            #sidebar-cash {
+                background: rgba(16,185,129,0.1);
+                border: 1px solid rgba(16,185,129,0.2);
+                border-radius: 12px; padding: 10px 14px;
+                display: flex; justify-content: space-between; align-items: center;
+                margin-top: 8px;
+            }
+            #sidebar-cash-label { font-size: 8px; font-weight: 800; color: #64748b; letter-spacing: 2px; text-transform: uppercase; }
+            #sidebar-cash-value { font-size: 18px; font-weight: 900; color: #10b981; }
+
+            #sidebar-meta-wrap { margin-top: 10px; }
+            #sidebar-meta-label { display: flex; justify-content: space-between; font-size: 8px; font-weight: 700; color: #64748b; margin-bottom: 4px; }
+
+            /* NAV ITEMS en sidebar */
+            #sidebar-nav {
+                padding: 12px 12px; flex: 1;
+                display: flex; flex-direction: column; gap: 4px;
+            }
+            .sidebar-nav-item {
+                display: flex; align-items: center; gap: 14px;
+                padding: 13px 16px; border-radius: 14px;
+                cursor: pointer; transition: all 0.2s;
+                color: #64748b; font-weight: 700; font-size: 13px;
+                border: 1px solid transparent;
+                -webkit-tap-highlight-color: transparent;
+            }
+            .sidebar-nav-item:hover {
+                background: rgba(249,115,22,0.08);
+                color: var(--accent);
+                border-color: rgba(249,115,22,0.15);
+            }
+            .sidebar-nav-item.active {
+                background: linear-gradient(135deg, rgba(249,115,22,0.18), rgba(249,115,22,0.08));
+                color: var(--accent);
+                border-color: rgba(249,115,22,0.3);
+                box-shadow: 0 2px 12px rgba(249,115,22,0.12);
+            }
+            body.light-mode .sidebar-nav-item:hover { background: rgba(249,115,22,0.06); }
+            body.light-mode .sidebar-nav-item.active { background: rgba(249,115,22,0.1); }
+            .sidebar-nav-icon { font-size: 1.3rem; width: 28px; text-align: center; flex-shrink: 0; }
+            .sidebar-nav-label { font-size: 13px; font-weight: 700; }
+
+            /* Botones rápidos en sidebar footer */
+            #sidebar-footer {
+                padding: 12px; border-top: 1px solid rgba(255,255,255,0.06);
+                display: flex; gap: 8px;
+            }
+            body.light-mode #sidebar-footer { border-top-color: #ddd8ce; }
+            #sidebar-footer button {
+                flex: 1; padding: 10px; border-radius: 12px;
+                font-size: 11px; font-weight: 800; text-transform: uppercase;
+                letter-spacing: 0.5px; cursor: pointer; transition: all 0.2s;
+                border: 1px solid rgba(255,255,255,0.08);
+                background: rgba(255,255,255,0.04);
+                color: #94a3b8;
+            }
+            #sidebar-footer button:hover { background: rgba(249,115,22,0.15); color: var(--accent); border-color: rgba(249,115,22,0.3); }
+
+            /* CONTENIDO PRINCIPAL desplazado por sidebar */
+            #main-content-area {
+                margin-left: 240px;
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                min-height: 100vh;
+            }
+
+            /* TOPBAR en desktop (reemplaza el header sticky) */
+            #desktop-topbar {
+                display: flex !important;
+                align-items: center; justify-content: space-between;
+                padding: 16px 32px;
+                background: rgba(13,15,26,0.85);
+                backdrop-filter: blur(20px);
+                border-bottom: 1px solid rgba(249,115,22,0.1);
+                position: sticky; top: 0; z-index: 50;
+                box-shadow: 0 1px 0 rgba(249,115,22,0.08), 0 4px 20px rgba(0,0,0,0.3);
+            }
+            body.light-mode #desktop-topbar {
+                background: rgba(245,243,238,0.92);
+                border-bottom-color: #ddd8ce;
+            }
+            #desktop-topbar-title { font-size: 20px; font-weight: 900; font-style: italic; }
+            #desktop-topbar-subtitle { font-size: 9px; color: var(--accent); font-weight: 800; letter-spacing: 3px; text-transform: uppercase; }
+            #desktop-topbar-right { display: flex; gap: 10px; align-items: center; }
+
+            /* Ocultar header mobile en desktop */
+            #app-header { display: none !important; }
+
+            /* Contenedores de vistas — más anchos en desktop */
+            .max-container {
+                max-width: 100%;
+                padding: 0 32px;
+            }
+            .app-view {
+                padding-top: 8px;
+                padding-bottom: 24px;
+            }
+
+            /* GRID de 2 columnas en vistas amplias */
+            #view-ventas:not(.hidden) {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                align-items: start;
+                padding: 24px 32px;
+            }
+            #view-ventas > .card:last-child {
+                grid-column: 1 / -1;
+            }
+
+            /* Vista taller en desktop: más espaciosa */
+            #view-taller {
+                padding: 24px 32px;
+            }
+            #view-taller .card {
+                max-width: 700px;
+                margin: 0 auto;
+            }
+
+            /* Vista órdenes */
+            #view-ordenes {
+                padding: 24px 32px;
+            }
+
+            /* Vista admin: pila vertical centrada (Drive → IA → Menú) */
+            #view-admin:not(.hidden) {
+                padding: 24px 32px;
+                max-width: 920px;
+                margin: 0 auto;
+            }
+
+            /* Modales más grandes en desktop */
+            .modal-custom > div {
+                max-width: 520px !important;
+            }
+
+            /* ======== ÓRDENES EN GRID ======== */
+            #view-ordenes #orders-list {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 14px;
+                align-items: start;
+            }
+            /* La tarjeta empty-state debe ocupar todo el ancho */
+            #view-ordenes #orders-list > div:only-child:not(.card) {
+                grid-column: 1 / -1;
+            }
+            /* Hover en tarjetas de órdenes */
+            #view-ordenes .card {
+                transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+                cursor: default;
+            }
+            #view-ordenes .card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 12px 32px rgba(0,0,0,0.35), 0 0 0 1px rgba(249,115,22,0.15);
+            }
+
+            /* ======== VISTA TALLER EN 2 COLUMNAS ======== */
+            #view-taller:not(.hidden) {
+                display: grid;
+                grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+                gap: 24px;
+                align-items: start;
+            }
+            /* Daily panel SIEMPRE ocupa fila completa arriba (no deja col vacía) */
+            #view-taller > #daily-panel {
+                grid-column: 1 / -1;
+            }
+            #view-taller .card {
+                max-width: 100% !important;
+                margin: 0 !important;
+            }
+            #view-taller:not(.hidden) #taller-preview-panel:not(.hidden) {
+                position: sticky;
+                top: 88px;
+            }
+
+            /* ======== SIDEBAR: CONTADORES POR ESTADO ======== */
+            .sidebar-nav-item {
+                position: relative;
+            }
+            .sidebar-nav-count {
+                margin-left: auto;
+                min-width: 22px; height: 22px; padding: 0 6px;
+                border-radius: 11px;
+                background: rgba(249,115,22,0.18);
+                color: var(--accent);
+                font-size: 10px; font-weight: 900;
+                display: inline-flex; align-items: center; justify-content: center;
+                line-height: 1;
+            }
+            .sidebar-nav-item.active .sidebar-nav-count {
+                background: rgba(249,115,22,0.3);
+                color: #fff;
+            }
+            body.light-mode .sidebar-nav-count { background: rgba(249,115,22,0.12); }
+
+            #sidebar-status-breakdown {
+                padding: 0 12px 12px;
+            }
+            #sidebar-status-breakdown-title {
+                font-size: 9px; font-weight: 800;
+                color: #475569; letter-spacing: 2px;
+                text-transform: uppercase;
+                padding: 0 4px 8px;
+            }
+            .status-row {
+                display: flex; align-items: center; justify-content: space-between;
+                padding: 6px 12px; border-radius: 10px;
+                cursor: pointer; transition: background 0.15s ease;
+                font-size: 11px; font-weight: 700;
+            }
+            .status-row:hover { background: rgba(255,255,255,0.04); }
+            body.light-mode .status-row:hover { background: rgba(0,0,0,0.04); }
+            .status-row-label { display: flex; align-items: center; gap: 8px; color: #94a3b8; }
+            .status-row-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+            .status-row-count {
+                font-size: 11px; font-weight: 900;
+                color: #cbd5e1;
+                min-width: 20px; text-align: right;
+            }
+            body.light-mode .status-row-label { color: #64748b; }
+            body.light-mode .status-row-count { color: #334155; }
+
+            /* ======== TOPBAR KPIs ======== */
+            #topbar-kpis {
+                display: flex; gap: 18px; align-items: center;
+                padding: 0 20px; margin-right: auto;
+                border-left: 1px solid rgba(255,255,255,0.06);
+                margin-left: 16px;
+            }
+            body.light-mode #topbar-kpis { border-left-color: #ddd8ce; }
+            .topbar-kpi {
+                display: flex; flex-direction: column; gap: 2px;
+                min-width: 68px;
+            }
+            .topbar-kpi-label {
+                font-size: 8px; font-weight: 800; letter-spacing: 1.5px;
+                color: #64748b; text-transform: uppercase;
+            }
+            .topbar-kpi-value {
+                font-size: 18px; font-weight: 900;
+                color: #f1f5f9;
+                line-height: 1;
+            }
+            body.light-mode .topbar-kpi-value { color: #1c1917; }
+            .topbar-kpi-value.success { color: #10b981; }
+            .topbar-kpi-value.warn    { color: #fbbf24; }
+            .topbar-kpi-value.danger  { color: #f43f5e; }
+            .topbar-kpi-value.accent  { color: var(--accent); }
+
+            /* Botón de acción principal en topbar (nueva orden) */
+            #topbar-primary-action {
+                background: linear-gradient(135deg, var(--accent), var(--accent-dark)) !important;
+                color: #fff !important;
+                border: none !important;
+                padding: 10px 18px !important;
+                font-weight: 900 !important;
+                font-size: 11px !important;
+                letter-spacing: 1px !important;
+                box-shadow: 0 4px 14px rgba(249,115,22,0.35) !important;
+                display: flex; align-items: center; gap: 6px;
+                transition: all 0.2s ease !important;
+            }
+            #topbar-primary-action:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 6px 20px rgba(249,115,22,0.5) !important;
+            }
+
+            /* Shortcut hint en topbar (kbd style) */
+            .kbd-hint {
+                display: inline-flex; align-items: center; justify-content: center;
+                min-width: 18px; height: 18px; padding: 0 5px;
+                border-radius: 5px;
+                background: rgba(255,255,255,0.08);
+                border: 1px solid rgba(255,255,255,0.12);
+                border-bottom-width: 2px;
+                font-size: 9px; font-weight: 700;
+                color: #cbd5e1;
+                font-family: monospace;
+                margin-left: 6px;
+            }
+            body.light-mode .kbd-hint { background: #e7e3d8; border-color: #c9c3b4; color: #44403c; }
+        }
+
+        /* ======== ATAJOS OVERLAY — global (afuera de media query para que display:none aplique en móvil) ======== */
+        #shortcuts-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            z-index: 9000;
+            display: none;
+            align-items: center; justify-content: center;
+            padding: 24px;
+        }
+        #shortcuts-overlay.show { display: flex; }
+        #shortcuts-overlay > div {
+            background: var(--card-dark);
+            border: 1px solid rgba(249,115,22,0.2);
+            border-radius: 20px;
+            padding: 28px;
+            max-width: 480px; width: 100%;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+        }
+        body.light-mode #shortcuts-overlay > div { background: var(--card-light); border-color: #e7d8c3; }
+        .shortcut-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .shortcut-row:last-child { border-bottom: none; }
+        body.light-mode .shortcut-row { border-bottom-color: #e7e3d8; }
+
+        /* kbd-hint también debe estar disponible fuera de desktop (por si se usa) */
+        .kbd-hint {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 18px; height: 18px; padding: 0 5px;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-bottom-width: 2px;
+            font-size: 9px; font-weight: 700;
+            color: #cbd5e1;
+            font-family: monospace;
+            margin-left: 6px;
+        }
+
+        @media (min-width: 1200px) {
+            #sidebar { width: 260px; }
+            #main-content-area { margin-left: 260px; }
+            #view-ventas { grid-template-columns: 1fr 1fr 1fr; }
+            #view-ventas > .card:last-child { grid-column: 1 / -1; }
+            /* 3 columnas de órdenes en desktop ancho */
+            #view-ordenes #orders-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+        @media (min-width: 1600px) {
+            #view-ordenes #orders-list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        }
+
+        /* Mobile — ocultar sidebar y topbar de escritorio (CRÍTICO) */
+        @media (max-width: 767px) {
+            #sidebar { display: none !important; }
+            #desktop-topbar { display: none !important; }
+            #main-content-area { margin-left: 0 !important; }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           ★ DESKTOP UI REFINEMENT LAYER v1.0
+           Optimizaciones para escritorio sin afectar móvil (<768px)
+           Pensado especialmente para 1920+ pero mejora 1024-1920 también
+           ═══════════════════════════════════════════════════════════ */
+
+        /* ── Utility: bottom-sheet modal centrado en desktop ── */
+        .js-modal-bottom-sheet { align-items: flex-end !important; }
+        @media (min-width: 768px) {
+            .js-modal-bottom-sheet { align-items: center !important; }
+            /* Neutralizar el margin-bottom hardcodeado (era para evitar
+               la nav inferior en móvil, no aplica en desktop centrado) */
+            .js-modal-bottom-sheet > div[style*="margin-bottom"] {
+                margin-bottom: 0 !important;
+            }
+        }
+
+        /* ── Modales bottom-sheet (CSS) → centrados en desktop ── */
+        @media (min-width: 768px) {
+            .modal-product-picker-wrap { align-items: center !important; }
+            .modal-product-picker-wrap > div[style*="border-top-left-radius"] {
+                border-radius: 24px !important;
+                border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+                max-height: 82vh !important;
+            }
+        }
+
+        /* ── Sidebar: ancho gradual en pantallas amplias ── */
+        @media (min-width: 1440px) {
+            #sidebar { width: 264px !important; }
+            #main-content-area { margin-left: 264px !important; }
+        }
+        @media (min-width: 1920px) {
+            #sidebar { width: 280px !important; }
+            #main-content-area { margin-left: 280px !important; }
+        }
+
+        /* ── Contenedor centrado en pantallas grandes ──
+           Evita que la app se vea como un móvil estirado a 1920px.
+           Mantiene una columna de lectura cómoda y aprovecha el ancho. */
+        @media (min-width: 1440px) {
+            .max-container {
+                max-width: 1280px !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+                padding-left: 28px !important;
+                padding-right: 28px !important;
+            }
+        }
+        @media (min-width: 1700px) {
+            .max-container {
+                max-width: 1480px !important;
+                padding-left: 32px !important;
+                padding-right: 32px !important;
+            }
+        }
+
+        /* ── ÓRDENES: grid escalonado más limpio ── */
+        @media (min-width: 1024px) {
+            #view-ordenes #orders-list {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 16px !important;
+            }
+        }
+        @media (min-width: 1440px) {
+            #view-ordenes #orders-list {
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                gap: 18px !important;
+            }
+        }
+        @media (min-width: 1700px) {
+            #view-ordenes #orders-list {
+                grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+                gap: 18px !important;
+            }
+        }
+
+        /* ── TALLER: 2 columnas equilibradas con preview sticky ── */
+        @media (min-width: 1024px) {
+            #view-taller:not(.hidden) {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) !important;
+                gap: 24px !important;
+                align-items: start !important;
+            }
+            #view-taller > #daily-panel { grid-column: 1 / -1; }
+            #view-taller > .card {
+                max-width: 100% !important;
+                margin: 0 !important;
+            }
+            #view-taller:not(.hidden) #taller-preview-panel:not(.hidden) {
+                position: sticky !important;
+                top: 88px !important;
+            }
+        }
+        @media (min-width: 1600px) {
+            #view-taller:not(.hidden) {
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+                gap: 32px !important;
+            }
+        }
+
+        /* ── VENTAS: layout limpio sin huecos ──
+           1024+: 2 cols → venta+gasto, cartera+movimientos, inventario span
+           1440+: 3 cols → venta+gasto+cartera, movimientos span, inventario span */
+        @media (min-width: 1024px) {
+            #view-ventas:not(.hidden) {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+                gap: 20px !important;
+                align-items: start !important;
+            }
+            #view-ventas > .card { min-width: 0; }
+            #view-ventas > .card:nth-child(5) { grid-column: 1 / -1 !important; }
+        }
+        @media (min-width: 1440px) {
+            #view-ventas:not(.hidden) {
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.05fr) !important;
+            }
+            #view-ventas > .card:nth-child(4) { grid-column: 1 / -1 !important; }
+            #view-ventas > .card:nth-child(5) { grid-column: 1 / -1 !important; }
+        }
+
+        /* ── ADMIN: pila vertical centrada (sin grid de 2 cols) ── */
+        @media (min-width: 1024px) {
+            #view-admin:not(.hidden) {
+                display: block !important;
+                max-width: 920px !important;
+                margin: 0 auto !important;
+            }
+        }
+
+        /* ── Cards: refinamiento sutil en desktop ── */
+        @media (min-width: 1024px) {
+            .card {
+                box-shadow: 0 6px 28px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.04) inset;
+            }
+        }
+
+        /* ── Hover de tarjetas de orden (refuerzo) ── */
+        @media (hover: hover) and (min-width: 768px) {
+            .order-card-pro {
+                transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+            }
+            .order-card-pro:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 14px 36px rgba(0,0,0,0.45), 0 0 0 1px rgba(249,115,22,0.22) !important;
+            }
+        }
+
+        /* ── Topbar más respirado en pantallas grandes ── */
+        @media (min-width: 1024px) {
+            #desktop-topbar { padding: 14px 28px !important; }
+        }
+        @media (min-width: 1440px) {
+            #desktop-topbar { padding: 16px 36px !important; }
+        }
+
+        /* ── Dropdowns / autocompletes: bordes consistentes en desktop ── */
+        @media (min-width: 1024px) {
+            .ac-dropdown { box-shadow: 0 12px 32px rgba(0,0,0,0.45); }
+        }
+
+        /* ── Splash: en desktop más compacto y centrado ── */
+        @media (min-width: 1024px) {
+            #splash-screen { background-size: cover; }
+        }
+
+        /* ── Inputs / selects más cómodos en desktop (mayor padding interno) ── */
+        @media (min-width: 1024px) {
+            input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+            textarea, select {
+                font-size: 0.95rem !important;
+            }
+        }
+
+        /* ── Scrollbar custom para listas largas en desktop ── */
+        @media (min-width: 1024px) {
+            .no-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(249,115,22,0.25) transparent; }
+            .no-scrollbar::-webkit-scrollbar { display: block !important; width: 6px; height: 6px; }
+            .no-scrollbar::-webkit-scrollbar-thumb { background: rgba(249,115,22,0.25); border-radius: 3px; }
+            .no-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(249,115,22,0.45); }
+            .no-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        }
+
+        /* ── Botones de acción rápida en desktop: más anchos ── */
+        @media (min-width: 1024px) {
+            .quick-action {
+                padding: 14px 12px !important;
+            }
+        }
+
+        /* ── Garantías KPI cards: layout grid cómodo en desktop ── */
+        @media (min-width: 1024px) {
+            #garantias-kpi-row {
+                gap: 16px !important;
+            }
+        }
+
+        /* ── Light mode: sombras adaptadas ── */
+        @media (min-width: 1024px) {
+            body.light-mode .card {
+                box-shadow: 0 4px 18px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+            }
+        }
+
+    

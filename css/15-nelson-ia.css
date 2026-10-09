@@ -1,0 +1,510 @@
+/* Nelson App Pro · css/15-nelson-ia.css
+   Estilos de Nelson IA
+   (extraido sin cambios de index.html; el orden de carga importa) */
+
+        /* ═══════════════════════════════════════════════════════
+           NELSON IA — Estilo "Taller Pro Neural"
+           Paleta: ámbar-naranja (#f97316), cyan-eléctrico (#22d3ee),
+           esmeralda (#10b981), azul profundo (#1e293b → #0a0c17)
+           ═══════════════════════════════════════════════════════ */
+
+        /* Botón flotante (FAB) — glow doble, ring cyan pulsante */
+        #nia-fab {
+            position: fixed;
+            right: 16px;
+            bottom: calc(104px + env(safe-area-inset-bottom, 0px));
+            width: 56px; height: 56px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 55%, #c2410c 100%);
+            box-shadow:
+                0 10px 28px rgba(249,115,22,0.5),
+                0 0 0 1px rgba(255,255,255,0.12) inset,
+                0 -2px 10px rgba(0,0,0,0.25) inset;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px;
+            border: none;
+            cursor: pointer;
+            z-index: 9500;
+            transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1);
+            animation: nia-pulse 2.8s ease-in-out infinite;
+        }
+        #nia-fab::before {
+            /* Ring cyan exterior animado */
+            content: '';
+            position: absolute;
+            inset: -6px;
+            border-radius: 22px;
+            border: 1.5px solid rgba(34,211,238,0.35);
+            animation: nia-ring 2.4s ease-in-out infinite;
+            pointer-events: none;
+        }
+        #nia-fab::after {
+            content: 'IA';
+            position: absolute;
+            top: -5px; right: -5px;
+            background: linear-gradient(135deg,#10b981,#059669);
+            color: #fff;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            padding: 2px 6px;
+            border-radius: 7px;
+            border: 2px solid #0d0f1a;
+            box-shadow: 0 2px 8px rgba(16,185,129,0.55);
+            line-height: 1;
+        }
+        #nia-fab:hover { transform: scale(1.08) rotate(-3deg); }
+        #nia-fab:active { transform: scale(0.92); }
+        @keyframes nia-pulse {
+            0%, 100% { box-shadow: 0 10px 28px rgba(249,115,22,0.5), 0 0 0 1px rgba(255,255,255,0.12) inset, 0 -2px 10px rgba(0,0,0,0.25) inset, 0 0 0 0 rgba(249,115,22,0.45); }
+            50%      { box-shadow: 0 10px 28px rgba(249,115,22,0.5), 0 0 0 1px rgba(255,255,255,0.12) inset, 0 -2px 10px rgba(0,0,0,0.25) inset, 0 0 0 14px rgba(249,115,22,0); }
+        }
+        @keyframes nia-ring {
+            0%, 100% { transform: scale(1); opacity: 0.6; }
+            50%      { transform: scale(1.12); opacity: 0; }
+        }
+        body.nia-open #nia-fab { display: none; }
+        @media (min-width: 768px) {
+            #nia-fab { bottom: 32px; right: 32px; width: 62px; height: 62px; font-size: 28px; }
+            #nia-fab::after { font-size: 10px; padding: 3px 7px; }
+        }
+        body.light-mode #nia-fab::after { border-color: #f5f3ee; }
+
+        /* ═══ Modal backdrop ═══ */
+        #nia-modal {
+            position: fixed; inset: 0;
+            z-index: 9600;
+            background: radial-gradient(ellipse at 50% 30%, rgba(249,115,22,0.18) 0%, rgba(5,6,15,0.92) 45%, rgba(2,3,8,0.96) 100%);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            display: none;
+            align-items: flex-end; justify-content: center;
+            padding: 0;
+        }
+        #nia-modal.open { display: flex; animation: nia-fade-in 0.28s ease; }
+        @keyframes nia-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+        /* ═══ Panel principal ═══ */
+        #nia-panel {
+            width: 100%;
+            max-width: 540px;
+            height: 92vh;
+            max-height: 92vh;
+            background:
+                radial-gradient(circle at 100% 0%, rgba(249,115,22,0.12) 0%, transparent 40%),
+                radial-gradient(circle at 0% 100%, rgba(34,211,238,0.08) 0%, transparent 40%),
+                linear-gradient(180deg, #0f1424 0%, #0a0c17 100%);
+            border-radius: 28px 28px 0 0;
+            border: 1px solid rgba(249,115,22,0.22);
+            border-bottom: none;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            box-shadow:
+                0 -20px 60px rgba(0,0,0,0.7),
+                0 0 0 1px rgba(255,255,255,0.03) inset;
+            animation: nia-slide-up 0.4s cubic-bezier(0.16,1,0.3,1);
+            position: relative;
+        }
+        /* Líneas decorativas sutiles en el panel */
+        #nia-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, rgba(249,115,22,0.6) 20%, rgba(34,211,238,0.5) 80%, transparent 100%);
+            pointer-events: none;
+        }
+        @keyframes nia-slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        @media (min-width: 768px) {
+            #nia-modal { align-items: center; padding: 20px; }
+            #nia-panel { border-radius: 28px; border-bottom: 1px solid rgba(249,115,22,0.22); height: 85vh; max-height: 800px; }
+        }
+
+        /* ═══ Header ═══ */
+        #nia-header {
+            padding: 18px 20px 16px;
+            display: flex; align-items: center; gap: 14px;
+            background:
+                linear-gradient(180deg, rgba(249,115,22,0.1) 0%, transparent 100%),
+                repeating-linear-gradient(90deg, transparent 0, transparent 32px, rgba(255,255,255,0.015) 32px, rgba(255,255,255,0.015) 33px);
+            border-bottom: 1px solid rgba(249,115,22,0.1);
+            flex-shrink: 0;
+            position: relative;
+        }
+        #nia-avatar {
+            width: 48px; height: 48px; border-radius: 15px;
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 60%, #c2410c 100%);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+            box-shadow:
+                0 8px 20px rgba(249,115,22,0.45),
+                0 0 0 1px rgba(255,255,255,0.12) inset,
+                0 -2px 6px rgba(0,0,0,0.25) inset;
+            position: relative;
+            flex-shrink: 0;
+        }
+        /* Punto "online" verde en el avatar */
+        #nia-avatar::after {
+            content: '';
+            position: absolute;
+            bottom: -2px; right: -2px;
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            background: #10b981;
+            border: 2.5px solid #0a0c17;
+            box-shadow: 0 0 8px rgba(16,185,129,0.6);
+            animation: nia-dot-pulse 1.8s ease-in-out infinite;
+        }
+        #nia-title-wrap { flex: 1; min-width: 0; }
+        #nia-title {
+            font-family: 'Syne', system-ui, sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.3px;
+            line-height: 1.1;
+        }
+        #nia-subtitle {
+            font-size: 10px;
+            font-weight: 800;
+            color: #22d3ee;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            margin-top: 4px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        #nia-subtitle::before {
+            content: '';
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: #22d3ee;
+            box-shadow: 0 0 6px #22d3ee;
+            animation: nia-dot-pulse 1.8s ease-in-out infinite;
+        }
+        #nia-close {
+            width: 36px; height: 36px; border-radius: 11px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #cbd5e1; font-size: 15px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+        #nia-close:hover { background: rgba(244,63,94,0.15); border-color: rgba(244,63,94,0.4); color: #fca5a5; }
+        #nia-close:active { transform: scale(0.9); }
+
+        /* ═══ Área de mensajes ═══ */
+        #nia-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 18px 16px 10px;
+            display: flex; flex-direction: column; gap: 12px;
+            scroll-behavior: smooth;
+            position: relative;
+        }
+        #nia-messages::-webkit-scrollbar { width: 4px; }
+        #nia-messages::-webkit-scrollbar-thumb { background: rgba(249,115,22,0.2); border-radius: 10px; }
+
+        .nia-msg {
+            max-width: 86%;
+            padding: 12px 15px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.55;
+            word-wrap: break-word;
+            animation: nia-msg-in 0.3s cubic-bezier(0.16,1,0.3,1);
+            position: relative;
+        }
+        @keyframes nia-msg-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .nia-msg.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: #fff;
+            border-bottom-right-radius: 6px;
+            box-shadow:
+                0 6px 18px rgba(249,115,22,0.4),
+                0 0 0 1px rgba(255,255,255,0.1) inset;
+            font-weight: 500;
+        }
+        .nia-msg.assistant {
+            align-self: flex-start;
+            background: linear-gradient(180deg, #1a1f36 0%, #151929 100%);
+            color: #e8eaf6;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-bottom-left-radius: 6px;
+            white-space: pre-wrap;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+        }
+        .nia-msg.assistant strong { color: #fb923c; font-weight: 800; }
+        .nia-msg.assistant code {
+            background: rgba(34,211,238,0.12);
+            color: #67e8f9;
+            padding: 1px 7px; border-radius: 6px;
+            font-size: 13px; font-weight: 700;
+            border: 1px solid rgba(34,211,238,0.2);
+        }
+        .nia-msg.error {
+            align-self: center;
+            background: rgba(244,63,94,0.1);
+            color: #fca5a5;
+            border: 1px solid rgba(244,63,94,0.25);
+            font-size: 12px;
+            border-radius: 12px;
+        }
+
+        /* Indicador de "escribiendo" mejorado */
+        .nia-typing {
+            align-self: flex-start;
+            background: linear-gradient(180deg, #1a1f36 0%, #151929 100%);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 18px;
+            border-bottom-left-radius: 6px;
+            padding: 14px 18px;
+            display: flex; gap: 6px;
+            align-items: center;
+        }
+        .nia-typing span {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            animation: nia-bounce 1.4s infinite ease-in-out;
+            box-shadow: 0 0 8px rgba(249,115,22,0.5);
+        }
+        .nia-typing span:nth-child(2) { animation-delay: 0.2s; }
+        .nia-typing span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes nia-bounce {
+            0%, 80%, 100% { transform: scale(0.5); opacity: 0.4; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        /* ═══ Sugerencias (chips) ═══ */
+        #nia-suggestions {
+            padding: 6px 16px 10px;
+            display: flex; gap: 8px;
+            overflow-x: auto;
+            flex-shrink: 0;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        #nia-suggestions::-webkit-scrollbar { display: none; }
+        .nia-chip {
+            flex-shrink: 0;
+            background: linear-gradient(135deg, rgba(249,115,22,0.08), rgba(234,88,12,0.05));
+            border: 1px solid rgba(249,115,22,0.28);
+            color: #fdba74;
+            padding: 9px 15px;
+            border-radius: 999px;
+            font-size: 12px; font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+            backdrop-filter: blur(8px);
+        }
+        .nia-chip:hover {
+            background: linear-gradient(135deg, rgba(249,115,22,0.18), rgba(234,88,12,0.1));
+            border-color: rgba(249,115,22,0.5);
+            transform: translateY(-1px);
+        }
+        .nia-chip:active { transform: scale(0.96); }
+
+        /* ═══ Input ═══ */
+        #nia-input-wrap {
+            padding: 12px 14px calc(14px + env(safe-area-inset-bottom, 0px));
+            border-top: 1px solid rgba(255,255,255,0.05);
+            display: flex; gap: 10px; align-items: flex-end;
+            background:
+                linear-gradient(180deg, transparent 0%, rgba(10,12,23,0.8) 100%);
+            flex-shrink: 0;
+            position: relative;
+        }
+        #nia-input-wrap::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 20%; right: 20%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(249,115,22,0.3), transparent);
+        }
+        #nia-input {
+            flex: 1;
+            background: rgba(30,34,53,0.6) !important;
+            border: 1px solid rgba(255,255,255,0.08) !important;
+            border-radius: 16px !important;
+            padding: 12px 16px !important;
+            color: #e8eaf6 !important;
+            font-size: 14px !important;
+            font-family: inherit;
+            resize: none;
+            max-height: 110px;
+            min-height: 44px;
+            line-height: 1.4;
+            transition: all 0.2s;
+            backdrop-filter: blur(8px);
+        }
+        #nia-input::placeholder { color: #64748b; }
+        #nia-input:focus {
+            border-color: rgba(249,115,22,0.5) !important;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(249,115,22,0.15), 0 0 20px rgba(249,115,22,0.1);
+            background: rgba(30,34,53,0.9) !important;
+        }
+        #nia-send {
+            width: 44px; height: 44px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            border: none;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            flex-shrink: 0;
+            box-shadow:
+                0 6px 18px rgba(249,115,22,0.45),
+                0 0 0 1px rgba(255,255,255,0.12) inset;
+            transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #nia-send:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(249,115,22,0.55), 0 0 0 1px rgba(255,255,255,0.15) inset; }
+        #nia-send:active { transform: scale(0.92); }
+        #nia-send:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+        /* ═══ Pantalla de configuración ═══ */
+        #nia-setup {
+            padding: 22px;
+            flex: 1;
+            overflow-y: auto;
+            display: none;
+            flex-direction: column;
+            gap: 14px;
+        }
+        #nia-setup.active { display: flex; }
+        #nia-setup h3 {
+            font-family: 'Syne', system-ui, sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            color: #fff;
+            margin: 0;
+            letter-spacing: -0.3px;
+        }
+        #nia-setup p { font-size: 13px; color: #94a3b8; line-height: 1.6; margin: 0; }
+        #nia-setup .nia-step {
+            background: linear-gradient(135deg, rgba(249,115,22,0.06), rgba(234,88,12,0.03));
+            border: 1px solid rgba(249,115,22,0.18);
+            padding: 13px 15px;
+            border-radius: 14px;
+            display: flex; gap: 12px; align-items: flex-start;
+        }
+        #nia-setup .nia-step-num {
+            width: 28px; height: 28px; border-radius: 9px;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: #fff; font-weight: 900; font-size: 13px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(249,115,22,0.4);
+        }
+        #nia-setup .nia-step-text { font-size: 12.5px; color: #cbd5e1; line-height: 1.55; }
+        #nia-setup .nia-step-text a { color: #fb923c; font-weight: 800; text-decoration: underline; }
+        #nia-setup input {
+            background: rgba(30,34,53,0.8) !important;
+            border: 1px solid rgba(249,115,22,0.3) !important;
+            color: #fff !important;
+            padding: 13px 15px !important;
+            border-radius: 13px !important;
+            font-size: 13px !important;
+            font-family: monospace !important;
+        }
+        #nia-save-key {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: #fff;
+            border: none;
+            padding: 15px;
+            border-radius: 14px;
+            font-size: 13px; font-weight: 900;
+            letter-spacing: 1.2px; text-transform: uppercase;
+            cursor: pointer;
+            box-shadow:
+                0 8px 22px rgba(249,115,22,0.4),
+                0 0 0 1px rgba(255,255,255,0.1) inset;
+            transition: all 0.2s;
+        }
+        #nia-save-key:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(249,115,22,0.5), 0 0 0 1px rgba(255,255,255,0.15) inset; }
+        #nia-save-key:active { transform: scale(0.98); }
+
+        /* ═══ Botones de acción WhatsApp ═══ */
+        .nia-actions {
+            align-self: flex-start;
+            max-width: 92%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 2px;
+            animation: nia-msg-in 0.35s ease 0.1s both;
+        }
+        .nia-actions-label {
+            font-size: 10px;
+            font-weight: 800;
+            color: #10b981;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 0 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .nia-actions-label::before {
+            content: '';
+            width: 6px; height: 6px;
+            background: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 0 3px rgba(16,185,129,0.2);
+            animation: nia-dot-pulse 1.8s ease-in-out infinite;
+        }
+        @keyframes nia-dot-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .nia-action-btn {
+            background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(5,150,105,0.1));
+            border: 1px solid rgba(16,185,129,0.35);
+            color: #6ee7b7;
+            padding: 12px 14px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 800;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .nia-action-btn:hover {
+            background: linear-gradient(135deg, rgba(16,185,129,0.25), rgba(5,150,105,0.18));
+            border-color: rgba(16,185,129,0.55);
+            transform: translateX(2px);
+        }
+        .nia-action-btn:active { transform: scale(0.97); }
+        .nia-action-btn .nia-action-arrow {
+            margin-left: auto;
+            font-size: 14px;
+            color: #10b981;
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+        .nia-action-btn .nia-action-text {
+            flex: 1;
+            min-width: 0;
+            line-height: 1.35;
+        }
+        body.light-mode .nia-action-btn {
+            background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(5,150,105,0.06));
+            color: #047857;
+        }
+
+        /* Light mode */
+        body.light-mode #nia-panel { background: linear-gradient(180deg, #fdfcf9 0%, #f5f3ee 100%); }
+        body.light-mode #nia-title { color: #1c1917; }
+        body.light-mode .nia-msg.assistant { background: #fff; color: #1c1917; border-color: #e5e0d3; }
+        body.light-mode #nia-input { background: #f0ece3 !important; color: #1c1917 !important; border-color: #cdc8bc !important; }
+        body.light-mode #nia-input-wrap { background: rgba(245,243,238,0.7); }
+        body.light-mode #nia-close { background: #f0ece3; color: #1c1917; border-color: #cdc8bc; }
+    

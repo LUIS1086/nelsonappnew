@@ -1,0 +1,189 @@
+/* Nelson App Pro · css/04-navegacion-movil.css
+   Bottom nav movil y boton de voz
+   (extraido sin cambios de index.html; el orden de carga importa) */
+        /* ======== BOTTOM NAV PREMIUM (MOBILE) ======== */
+        nav.bottom-nav-mobile {
+            background: rgba(13,15,26,0.85);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow:
+                0 10px 40px rgba(0,0,0,0.5),
+                0 1px 0 rgba(255,255,255,0.05) inset,
+                0 -1px 0 rgba(0,0,0,0.3) inset;
+        }
+        .nav-btn {
+            position: relative;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 10px 4px;
+            border-radius: 20px;
+            color: #64748b;
+            transition: color 0.25s ease, transform 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            min-height: 62px;
+        }
+        .nav-btn:active { transform: scale(0.92); }
+        .nav-btn .nav-icon-wrap {
+            position: relative;
+            width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .nav-btn .nav-icon-wrap svg {
+            width: 28px; height: 28px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: stroke-width 0.2s ease;
+        }
+        .nav-btn .nav-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            transition: font-weight 0.2s ease, opacity 0.2s ease;
+            opacity: 0.85;
+        }
+        /* ACTIVO: pill naranja con glow */
+        .nav-btn.nav-active {
+            color: #fb923c;
+        }
+        .nav-btn.nav-active::before {
+            content: '';
+            position: absolute;
+            top: 5px; left: 50%;
+            width: 66px; height: 38px;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, rgba(249,115,22,0.22), rgba(249,115,22,0.08));
+            border: 1px solid rgba(249,115,22,0.35);
+            border-radius: 16px;
+            box-shadow:
+                0 4px 14px rgba(249,115,22,0.25),
+                0 1px 0 rgba(255,255,255,0.08) inset;
+            z-index: 0;
+            animation: navPillPop 0.35s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        @keyframes navPillPop {
+            0%   { transform: translateX(-50%) scale(0.5); opacity: 0; }
+            100% { transform: translateX(-50%) scale(1); opacity: 1; }
+        }
+        .nav-btn.nav-active .nav-icon-wrap {
+            transform: translateY(-1px) scale(1.08);
+            position: relative; z-index: 1;
+        }
+        .nav-btn.nav-active .nav-icon-wrap svg {
+            stroke-width: 2.3;
+            filter: drop-shadow(0 2px 6px rgba(249,115,22,0.5));
+        }
+        .nav-btn.nav-active .nav-label {
+            font-weight: 900;
+            opacity: 1;
+            position: relative; z-index: 1;
+        }
+
+        /* Badge de notificación (contador) */
+        .nav-badge {
+            position: absolute;
+            top: -2px; right: -6px;
+            min-width: 18px; height: 18px;
+            padding: 0 5px;
+            background: linear-gradient(135deg, #f43f5e, #e11d48);
+            color: #fff;
+            font-size: 10px; font-weight: 900;
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid rgba(13,15,26,0.95);
+            box-shadow: 0 2px 8px rgba(244,63,94,0.5);
+            z-index: 2;
+            line-height: 1;
+            animation: badgePop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        @keyframes badgePop {
+            0%   { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+        /* Badge naranja para stock bajo */
+        .nav-badge.warn {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            box-shadow: 0 2px 8px rgba(249,115,22,0.5);
+        }
+        /* Dot pulsante (indicador sutil sin número) */
+        .nav-dot {
+            position: absolute;
+            top: 2px; right: 2px;
+            width: 8px; height: 8px;
+            background: #f43f5e;
+            border: 2px solid rgba(13,15,26,0.95);
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(244,63,94,0.6);
+            animation: navDotPulse 2s ease-in-out infinite;
+            z-index: 2;
+        }
+        @keyframes navDotPulse {
+            0%,100% { box-shadow: 0 0 0 0 rgba(244,63,94,0.6); }
+            50%     { box-shadow: 0 0 0 6px rgba(244,63,94,0); }
+        }
+        .max-container { max-width: 600px; margin: 0 auto; }
+        .view-enter { animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .filter-panel { transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease; overflow: hidden; max-height: 0; opacity: 0; }
+        .filter-panel.open { max-height: 450px; opacity: 1; }
+        .photo-modal { background: rgba(0,0,0,0.96); backdrop-filter: blur(16px); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .btn-icon { transition: transform 0.1s ease; }
+        .btn-icon:active { transform: scale(0.92); }
+        .camera-btn {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            width: 70px; height: 70px; border-radius: 35px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 8px 24px rgba(249,115,22,0.35);
+            transition: transform 0.1s ease;
+        }
+        .camera-btn:active { transform: scale(0.95); }
+        .order-card.overdue { border-left-color: var(--danger) !important; background: rgba(244,63,94,0.05); }
+        .filter-toggle .arrow { transition: transform 0.3s ease; }
+        .filter-toggle.open .arrow { transform: rotate(180deg); }
+        input[list]::-webkit-calendar-picker-indicator { opacity: 0; width: 0; padding: 0; position: absolute; right: 0; pointer-events: none; }
+        input[list]::-moz-calendar-picker-indicator { display: none; }
+        #search-orders::-webkit-calendar-picker-indicator { opacity: 0.4; width: 14px; position: static; pointer-events: auto; }
+        .loading-spinner {
+            display: inline-block; width: 20px; height: 20px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 50%; border-top-color: var(--accent);
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes shakeField {
+            0%,100% { transform: translateX(0); }
+            20%      { transform: translateX(-6px); }
+            40%      { transform: translateX(6px); }
+            60%      { transform: translateX(-4px); }
+            80%      { transform: translateX(4px); }
+        }
+        canvas { max-height: 250px; width: 100% !important; }
+
+        /* ===== VOZ: botón micrófono ===== */
+        .voice-mic-btn {
+            width: 30px; height: 30px; border-radius: 10px;
+            background: rgba(249,115,22,0.15); border: 1px solid rgba(249,115,22,0.3);
+            font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; flex-shrink: 0; z-index: 2;
+        }
+        .voice-mic-btn:hover { background: rgba(249,115,22,0.3); }
+        .voice-mic-btn.listening {
+            background: rgba(244,63,94,0.25); border-color: rgba(244,63,94,0.6);
+            animation: pulse-mic 0.8s ease infinite;
+        }
+        @keyframes pulse-mic { 0%,100%{box-shadow:0 0 0 0 rgba(244,63,94,0.4)} 50%{box-shadow:0 0 0 6px rgba(244,63,94,0)} }
+        @keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.85)} }
+
