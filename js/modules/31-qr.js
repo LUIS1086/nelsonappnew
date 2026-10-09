@@ -14,6 +14,7 @@
                 await video.play();
                 _startQRDetection(video);
             } catch(e) {
+                releaseAppCameraStreams(); _qrStream = null;
                 showAlert(getAppCameraErrorMessage(e) + ' Puedes usar el campo manual mientras tanto.', 'warning');
             }
         }

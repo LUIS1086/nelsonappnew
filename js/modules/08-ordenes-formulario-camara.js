@@ -60,7 +60,7 @@
                 video.srcObject = stream;
                 await video.play();
                 document.getElementById('camera-modal').classList.remove('hidden');
-            } catch(e) { showAlert(getAppCameraErrorMessage(e), "error"); }
+            } catch(e) { releaseAppCameraStreams(); stream = null; showAlert(getAppCameraErrorMessage(e), "error"); }
         }
         function closeCamera() {
             if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }

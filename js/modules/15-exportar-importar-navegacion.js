@@ -173,7 +173,7 @@
                         }
                     }
                 }, 1000);
-            } catch(e) { showAlert(getAppCameraErrorMessage(e), "error"); }
+            } catch(e) { releaseAppCameraStreams(); stream = null; showAlert(getAppCameraErrorMessage(e), "error"); }
         }
 
         // Swipe entre tabs — DESACTIVADO

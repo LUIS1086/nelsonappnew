@@ -196,6 +196,7 @@
                     document.getElementById('camera-modal').classList.remove('hidden');
                     showToast('Captura la nueva foto de recepción', 'info');
                 } catch(e) {
+                    releaseAppCameraStreams(); stream = null;
                     showAlert(getAppCameraErrorMessage(e), 'error');
                 }
             }
