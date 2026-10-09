@@ -3,15 +3,47 @@
    (extraido sin cambios de index.html; el orden de carga importa) */
         // Crea (o retorna) el cliente OAuth. Reutilizamos el mismo cliente para todas
         // las operaciones (sign in inicial + renovaciones silenciosas).
+        // Estado del flujo OAuth en curso (para que NUNCA quede "pegado" esperando a Google).
+        // · driveAutoPaused: tras fallar una renovación automática (ventana bloqueada/cerrada,
+        //   típico en Firefox móvil) se dejan de abrir ventanas solas; el usuario toca RECONECTAR.
+        let _driveFlow = null;
+        let driveAutoPaused = false;
+        let driveSilentTimeoutMs = 20000;
+        function _driveFlowEnd() { if (_driveFlow && _driveFlow.timer) clearTimeout(_driveFlow.timer); _driveFlow = null; }
+
+        // Crea (o retorna) el cliente OAuth. Reutilizamos el mismo cliente para todas
+        // las operaciones (sign in inicial + renovaciones silenciosas).
         function getDriveTokenClient() {
             if (driveTokenClient) return driveTokenClient;
             if (!window.google || !google.accounts) return null;
             driveTokenClient = google.accounts.oauth2.initTokenClient({
                 client_id: DRIVE_CLIENT_ID,
                 scope: DRIVE_SCOPES,
-                callback: () => {} // sobrescrito antes de cada requestAccessToken
+                callback: () => {}, // sobrescrito antes de cada requestAccessToken
+                // GIS NO llama a callback cuando la ventana no se abre o se cierra:
+                // sin este manejador la app se quedaba esperando para siempre.
+                error_callback: (err) => {
+                    const type = (err && err.type) || 'unknown';
+                    console.warn('[Drive OAuth] error_callback:', type, err);
+                    const flow = _driveFlow; _driveFlowEnd();
+                    if (flow && flow.onError) flow.onError(type, err);
+                }
             });
             return driveTokenClient;
+        }
+
+        // Estado visual cuando hay que volver a iniciar sesión con un toque del usuario
+        function driveMarkNeedsReconnect() {
+            const email = localStorage.getItem('driveEmail') || '';
+            const statusText = document.getElementById('drive-status-text');
+            const connectBtn = document.getElementById('drive-connect-btn');
+            const actions    = document.getElementById('drive-actions');
+            if (!statusText || !connectBtn) return;
+            statusText.innerHTML = `<span class="text-amber-400 font-bold">⚠️ ${esc(email) || 'Google'} · sesión vencida</span>`;
+            connectBtn.innerText = 'RECONECTAR';
+            connectBtn.onclick = driveSignIn;
+            connectBtn.className = 'text-[10px] bg-blue-600 text-white px-4 py-2 rounded-xl font-black uppercase active:scale-95 transition';
+            if (actions) actions.classList.add('hidden');
         }
 
         // Renueva el token SIN mostrar popup, usando la sesión activa de Google.
@@ -21,11 +53,23 @@
                 if (!navigator.onLine) { reject(new Error('sin conexión')); return; }
                 const client = getDriveTokenClient();
                 if (!client) { reject(new Error('GIS no cargado aún')); return; }
+                if (driveAutoPaused) { reject(new Error('renovación automática en pausa')); return; }
+                if (_driveFlow && _driveFlow.kind === 'interactive') { reject(new Error('inicio de sesión en curso')); return; }
+                const fail = (msg) => { _driveFlowEnd(); driveAutoPaused = true; driveMarkNeedsReconnect(); reject(new Error(msg)); };
+                _driveFlowEnd();
+                _driveFlow = {
+                    kind: 'silent',
+                    onError: (type) => fail(type),
+                    timer: setTimeout(() => fail('timeout'), driveSilentTimeoutMs)
+                };
                 // prompt '' = intento silencioso (no pide confirmación al usuario)
                 client.callback = (resp) => {
-                    if (resp && resp.error) { reject(new Error(resp.error)); return; }
-                    if (!resp || !resp.access_token) { reject(new Error('sin token')); return; }
+                    _driveFlowEnd();
+                    if (resp && resp.error) { fail(resp.error); return; }
+                    if (!resp || !resp.access_token) { fail('sin token'); return; }
                     driveToken = resp.access_token;
+                    // Si Google respondió tarde (después del límite), la app se recupera sola
+                    if (driveAutoPaused) { driveAutoPaused = false; updateDriveUI(true, localStorage.getItem('driveEmail') || 'Conectado'); }
                     sessionStorage.setItem('driveToken', driveToken);
                     const lifeMs = (parseInt(resp.expires_in, 10) || 3600) * 1000;
                     driveTokenExpiresAt = Date.now() + lifeMs;
@@ -36,7 +80,7 @@
                 };
                 try {
                     client.requestAccessToken({ prompt: '' });
-                } catch(e) { reject(e); }
+                } catch(e) { fail((e && e.message) || 'no se pudo abrir'); }
             });
         }
 
@@ -50,10 +94,13 @@
             driveRefreshTimerId = setTimeout(() => {
                 driveSilentRefresh().catch(e => {
                     console.warn('[Drive] Refresh proactivo falló:', e.message);
-                    // Reintentar en 2 minutos si falló
-                    driveRefreshTimerId = setTimeout(() => {
-                        driveSilentRefresh().catch(() => {});
-                    }, 2 * 60 * 1000);
+                    // Solo reintentar si fue un problema de red; si fue la ventana de Google,
+                    // esperar a que el usuario toque RECONECTAR (no abrir ventanas solas).
+                    if (!driveAutoPaused) {
+                        driveRefreshTimerId = setTimeout(() => {
+                            driveSilentRefresh().catch(() => {});
+                        }, 2 * 60 * 1000);
+                    }
                 });
             }, delay);
         }
@@ -68,7 +115,19 @@
             }
             const client = getDriveTokenClient();
             if (!client) { showAlert('Google API aún cargando. Intenta en unos segundos.', 'warning'); return; }
+            _driveFlowEnd();
+            _driveFlow = {
+                kind: 'interactive',
+                onError: (type) => {
+                    const msg = {
+                        popup_failed_to_open: 'El navegador bloqueó la ventana de Google. Permite las ventanas emergentes de este sitio y vuelve a tocar CONECTAR.',
+                        popup_closed: 'Cerraste la ventana de Google antes de terminar. Toca CONECTAR para intentarlo de nuevo.'
+                    }[type] || ('Google no pudo completar el inicio de sesión (' + type + '). Si tu navegador deja la ventana en blanco, abre NelsonApp en Chrome para conectar Drive.');
+                    showAlert(msg, 'warning');
+                }
+            };
             client.callback = async (resp) => {
+                _driveFlowEnd();
                 if (!resp || resp.error || !resp.access_token) {
                     const reason = resp && resp.error ? resp.error : 'respuesta OAuth vacía';
                     console.error('[Drive OAuth] No se recibió token:', reason, resp);
@@ -76,6 +135,7 @@
                     return;
                 }
                 driveToken = resp.access_token;
+                driveAutoPaused = false; // sesión recuperada: se reanudan las renovaciones automáticas
                 sessionStorage.setItem('driveToken', driveToken);
                 // Guardar timestamp de expiración para el sistema de refresh automático
                 const lifeMs = (parseInt(resp.expires_in, 10) || 3600) * 1000;
@@ -97,6 +157,7 @@
                 // no bloquee la ventana OAuth como popup no solicitado.
                 client.requestAccessToken();
             } catch (e) {
+                _driveFlowEnd();
                 console.error('[Drive OAuth] No se pudo abrir el flujo OAuth:', e);
                 showAlert('No se pudo abrir el inicio de sesión de Google. Permite las ventanas emergentes para este sitio y vuelve a intentarlo. Detalle: ' + (e && e.message ? e.message : 'error desconocido'), 'error');
             }
@@ -323,6 +384,7 @@
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState !== 'visible') return;
             if (!localStorage.getItem('driveEmail')) return; // no estaba conectado
+            if (driveAutoPaused) return; // esperando que el usuario toque RECONECTAR
             const now = Date.now();
             const needsRefresh = !driveToken || !driveTokenExpiresAt || driveTokenExpiresAt <= now + 10 * 60 * 1000;
             if (needsRefresh) {
