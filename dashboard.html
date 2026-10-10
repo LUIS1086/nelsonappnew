@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#07080f" id="meta-theme-color">
 <title>NelsonApp — Command Center</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -1433,6 +1434,334 @@ body.light-mode .panel-head { background: linear-gradient(180deg, rgba(31,41,65,
   .main { scroll-behavior: auto; }
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   PREMIUM v3 — Dashboard estilo premium (iPhone · Android · PC)
+   · Barra superior fija real (content-col) y scroll de página
+   · Móvil: barra inferior tipo app + hoja "Más" + modales como sheet
+   · Escritorio: contenedor centrado, jerarquía y bordes de cristal
+   Solo CSS/estructura: no cambia la lógica de datos del dashboard.
+══════════════════════════════════════════════════════════════ */
+:root {
+  --text3: #566086;              /* contraste mejorado en tema oscuro */
+  --nav-h: 62px;
+  --nav-total: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));
+  --content-max: 1560px;
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+  --glass-line: linear-gradient(150deg, rgba(255,255,255,.16), rgba(255,255,255,.03) 38%, rgba(255,255,255,0) 62%, rgba(249,115,22,.14));
+}
+body.light-mode { --text3: #7a829c; --glass-line: linear-gradient(150deg, rgba(255,255,255,.95), rgba(31,41,65,.05) 45%, rgba(31,41,65,.02)); }
+
+html { scrollbar-width: thin; scrollbar-color: rgba(120,130,170,.35) transparent; }
+body { min-height: 100vh; min-height: 100dvh; }
+body::-webkit-scrollbar { width: 8px; }
+body::-webkit-scrollbar-thumb { background: rgba(120,130,170,.28); border-radius: 99px; }
+
+/* ── Estructura: columna de contenido (topbar sticky de verdad) ── */
+.shell { min-height: 100vh; min-height: 100dvh; }
+.sidebar { height: 100vh; height: 100dvh; }
+.content-col {
+  grid-column: 2; grid-row: 1 / 3;
+  min-width: 0; min-height: 0;
+  display: flex; flex-direction: column;
+}
+.topbar {
+  grid-column: auto; grid-row: auto;
+  position: sticky; top: 0; z-index: 60;
+  flex: none; height: 60px;
+  padding-inline: max(24px, calc((100% - var(--content-max)) / 2));
+  background: rgba(9,10,19,.78);
+  -webkit-backdrop-filter: saturate(1.5) blur(18px);
+  backdrop-filter: saturate(1.5) blur(18px);
+  transition: box-shadow .25s ease;
+}
+.topbar.is-scrolled { box-shadow: 0 10px 30px rgba(0,0,0,.28); }
+body.light-mode .topbar { background: rgba(248,249,255,.82); }
+body.light-mode .topbar.is-scrolled { box-shadow: 0 10px 28px rgba(31,41,65,.08); }
+.main {
+  grid-column: auto; grid-row: auto;
+  flex: 1 1 auto; min-width: 0;
+  overflow: visible;
+  padding: 26px max(24px, calc((100% - var(--content-max)) / 2)) 56px;
+  gap: 20px;
+}
+.branch-slot { display: none; }
+
+/* ── Jerarquía de acciones del topbar: 1 CTA principal + fantasmas ── */
+.tb-title { font-size: 18px; }
+.tb-action.green, .tb-action.blue {
+  background: rgba(255,255,255,.035); border-color: var(--border-hi); color: var(--text2);
+}
+.tb-action.green:hover { background: var(--green-dim); border-color: rgba(16,217,126,.3); color: var(--green); }
+.tb-action.blue:hover  { background: var(--blue-dim);  border-color: rgba(61,184,245,.3); color: var(--blue); }
+.tb-action.accent {
+  background: linear-gradient(135deg, #fb923c, #ea580c);
+  border-color: rgba(255,255,255,.18); color: #fff;
+  box-shadow: 0 8px 20px rgba(249,115,22,.32), inset 0 1px 0 rgba(255,255,255,.28);
+}
+.tb-action.accent:hover { background: linear-gradient(135deg, #fdba74, #f97316); }
+.tb-action:active, .tb-icon-btn:active, .sb-btn:active { transform: scale(.96); }
+body.light-mode .tb-action.green, body.light-mode .tb-action.blue { background: #fff; }
+
+/* ── Superficies de cristal con borde degradado ── */
+.kpi::before, .panel-card::before {
+  content: ''; position: absolute; inset: 0; z-index: 1;
+  border-radius: inherit; border: 0; padding: 1px;
+  background: var(--glass-line);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  pointer-events: none;
+}
+.panel-card { position: relative; }
+.kpi:first-child {
+  background-image:
+    radial-gradient(120% 110% at 0% 0%, rgba(16,217,126,.11), transparent 58%),
+    linear-gradient(145deg, rgba(255,255,255,.018), transparent 52%);
+}
+.kpi-val { letter-spacing: -.6px; }
+.kpi-icon { box-shadow: inset 0 1px 0 rgba(255,255,255,.08); }
+.panel-head-title { font-size: 11.5px; }
+.panel-link {
+  padding: 6px 12px; border-radius: 99px;
+  background: var(--accent-dim); opacity: .95;
+}
+.panel-link:hover { background: rgba(249,115,22,.18); }
+.today-stat-val { font-size: clamp(1.25rem, 1.5vw, 1.6rem); letter-spacing: -.4px; }
+.today-stat { border-radius: 14px; }
+.sep { letter-spacing: 3.5px; margin: 4px 0; }
+.nav-item.active { background: linear-gradient(90deg, rgba(249,115,22,.16), rgba(249,115,22,.05)); }
+
+/* ── Barras inferior + hoja "Más" (solo móvil, ocultas por defecto) ── */
+.bnav, .sheet, .sheet-backdrop { display: none; }
+
+/* ── Escritorio ── */
+@media (min-width: 1280px) {
+  .kpi-row { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  .kpi { padding: 22px 22px 18px; }
+  .kpi-val { font-size: clamp(26px, 2.1vw, 34px); margin-bottom: 12px; }
+}
+@media (min-width: 1101px) {
+  .mid-grid { grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr); gap: 16px; }
+  .bottom-grid { gap: 16px; }
+}
+@media (min-width: 781px) and (max-width: 1279px) {
+  .kpi-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+}
+@media (min-width: 1101px) and (max-width: 1279px) { .tb-date { display: none; } }
+@media (min-width: 1800px) { html { font-size: 15px; } :root { --content-max: 1720px; } }
+@media (hover: hover) and (pointer: fine) {
+  .panel-card, .kpi { transition: transform .25s var(--ease-out), box-shadow .25s, border-color .2s; }
+  .panel-card:hover { transform: translateY(-1px); }
+}
+
+/* ── Tablet (rail lateral): márgenes más ajustados ── */
+@media (min-width: 781px) and (max-width: 1100px) {
+  .topbar { padding-inline: 16px; }
+  .main { padding: 18px 16px 40px; }
+}
+/* Tablets/táctiles grandes: objetivos de toque cómodos */
+@media (hover: none) and (min-width: 781px) {
+  .nav-item { min-height: 44px; }
+  .tb-action, .tb-icon-btn, .branch-btn { min-height: 40px; }
+  .kpi-info-tip { display: none; }
+}
+
+/* ═══════════ MÓVIL (iPhone / Android) ═══════════ */
+@media (max-width: 780px) {
+  /* Menos capas de GPU en equipos de gama media/baja */
+  body::before, body::after, .glow-3 { display: none; }
+  .glow-orb { filter: blur(70px); opacity: .8; }
+
+  /* El menú lateral se reemplaza por la barra inferior */
+  .sidebar { display: none !important; }
+  .shell { display: block; min-height: 100dvh; }
+  .content-col { display: flex; grid-column: auto; grid-row: auto; }
+
+  /* Cabecera: el título se desplaza y el buscador queda fijo */
+  .topbar {
+    top: calc(env(safe-area-inset-top, 0px) - 60px);
+    height: auto; min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: 40px 44px;
+    gap: 10px;
+    padding: 10px 14px;
+    align-items: center;
+    background: rgba(9,10,19,.84);
+    box-shadow: none;
+  }
+  body.light-mode .topbar { background: rgba(248,249,255,.88); }
+  .tb-left, .tb-right { display: contents; }
+  .tb-left > div:first-child {
+    grid-column: 1; grid-row: 1; min-width: 0;
+    display: grid; grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 11px; align-items: center;
+  }
+  .tb-left > div:first-child::before {
+    content: '🔧'; grid-row: 1 / 3;
+    width: 38px; height: 38px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; font-size: 1.15rem;
+    background: linear-gradient(135deg, var(--accent), #c2410c);
+    box-shadow: 0 0 20px var(--accent-glow), inset 0 1px 0 rgba(255,255,255,.25);
+  }
+  .tb-breadcrumb { display: flex; font-size: 8.5px; letter-spacing: 2.4px; white-space: nowrap; overflow: hidden; }
+  .tb-title { font-size: 17px; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #theme-btn { grid-column: 2; grid-row: 1; width: 40px; height: 40px; border-radius: 13px; }
+  .tb-search { grid-column: 1 / -1; grid-row: 2; width: 100%; max-width: none; height: 44px; padding: 0 14px; border-radius: 14px; }
+  .tb-search input { width: 100%; font-size: 16px; }   /* 16px evita el zoom automático de iOS */
+  .tb-date, .tb-clock, .tb-action { display: none; }
+  .branch-selector { grid-column: 1 / -1; }
+
+  /* Selector de sucursal como chips, dentro del contenido */
+  .branch-slot { display: block; }
+  .branch-slot:empty, .branch-slot:has(.branch-selector[style*="none"]) { display: none; }
+  .branch-slot .branch-selector {
+    display: flex; gap: 8px; padding: 2px 0; background: none; border: 0; box-shadow: none;
+    overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .branch-slot .branch-selector::-webkit-scrollbar { display: none; }
+  .branch-slot .branch-btn {
+    flex: 0 0 auto; min-height: 36px; padding: 0 16px; border-radius: 99px;
+    border: 1px solid var(--border-hi); background: var(--panel); font-size: .74rem;
+  }
+  .branch-slot .branch-btn.active {
+    background: linear-gradient(135deg, #fb923c, #ea580c); color: #fff; border-color: transparent;
+    box-shadow: 0 6px 16px rgba(249,115,22,.32);
+  }
+
+  .main { padding: 6px 14px calc(var(--nav-total) + 28px); gap: 14px; }
+
+  /* KPIs: Caja Neta como tarjeta destacada */
+  .kpi-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .kpi:first-child, .kpi:last-child { grid-column: 1 / -1; }
+  .kpi:first-child .kpi-val { font-size: clamp(30px, 9.5vw, 40px); }
+  .kpi:first-child .kpi-label { font-size: 9px; }
+  .kpi-info-tip { display: none; }
+  .kpi, .today-stat, .order-item, .panel-link, .alert-chip { -webkit-tap-highlight-color: transparent; }
+  .kpi:active, .today-stat:active, .panel-link:active, .alert-chip:active { transform: scale(.985); }
+  .panel-head-title { font-size: 11px; }
+  .order-item:hover { margin: 0; padding-left: 0; padding-right: 0; background: none; }
+  .bar-chart:has(.bar-col:nth-child(20)) { gap: 2px; }
+  .bar-chart:has(.bar-col:nth-child(20)) .bar-fill { border-radius: 3px 3px 0 0; }
+
+  /* Botón subir y aviso de actualización por encima de la barra inferior */
+  .scroll-top-fab { right: 14px; bottom: calc(var(--nav-total) + 14px); }
+  .refresh-pulse { left: 14px; right: auto; bottom: calc(var(--nav-total) + 14px); }
+
+  /* Modales del dashboard como hoja inferior */
+  .dash-modal-backdrop { align-items: flex-end; padding: 0; }
+  .dash-modal {
+    max-width: none; width: 100%; max-height: 90vh; max-height: 90dvh;
+    border-radius: 26px 26px 0 0; border-bottom: 0; overflow: hidden;
+    transform: translateY(48px); transition: transform .38s var(--ease-out);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .dash-modal-backdrop.open .dash-modal { transform: none; }
+  .dash-modal::before {
+    content: ''; flex: none; width: 40px; height: 5px; border-radius: 99px;
+    background: var(--border-hi); margin: 9px auto 0;
+  }
+  .dash-modal-head { padding: 14px 18px 12px; }
+  .dash-modal-body { min-height: 0; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 14px 18px; }
+  .dash-modal-foot { padding: 12px 18px 14px; }
+  body:has(.dash-modal-backdrop.open), body.sheet-open { overflow: hidden; }
+
+  /* Barra inferior */
+  .bnav {
+    display: flex; align-items: stretch; justify-content: space-around;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 200;
+    height: var(--nav-total);
+    padding: 6px 8px env(safe-area-inset-bottom, 0px);
+    background: rgba(11,13,26,.84);
+    -webkit-backdrop-filter: saturate(1.6) blur(22px);
+    backdrop-filter: saturate(1.6) blur(22px);
+    border-top: 1px solid var(--border-hi);
+    box-shadow: 0 -10px 30px rgba(0,0,0,.25);
+  }
+  body.light-mode .bnav { background: rgba(255,255,255,.86); box-shadow: 0 -8px 26px rgba(31,41,65,.08); }
+  .bnav-item {
+    flex: 1 1 0; min-width: 0; position: relative;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    background: none; border: 0; cursor: pointer; color: var(--text2);
+    font: 600 10px/1 'Inter', sans-serif; letter-spacing: .2px;
+    -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    transition: color .15s, transform .15s;
+  }
+  .bnav-item svg { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .bnav-item:active { transform: scale(.92); }
+  .bnav-item.active { color: var(--accent); }
+  .bnav-item.active::before {
+    content: ''; position: absolute; top: -7px; width: 28px; height: 3px;
+    border-radius: 0 0 4px 4px; background: var(--accent); box-shadow: 0 0 12px var(--accent-glow);
+  }
+  .bnav-item:focus-visible { outline: 2px solid rgba(249,115,22,.8); outline-offset: -4px; border-radius: 14px; }
+  .bnav-cta { flex: 0 0 68px; }
+  .bnav-fab {
+    width: 52px; height: 52px; margin-top: -24px; border-radius: 18px; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #fb923c, #ea580c);
+    box-shadow: 0 12px 26px rgba(249,115,22,.45), inset 0 1px 0 rgba(255,255,255,.32);
+  }
+  .bnav-fab svg { width: 26px; height: 26px; stroke-width: 2.2; }
+  .bnav-cta > span:last-child { margin-top: -2px; color: var(--text2); }
+  .bnav-badge {
+    min-width: 16px; height: 16px; padding: 0 4px; border-radius: 99px;
+    background: var(--red); color: #fff; font: 800 9px/16px 'Inter', sans-serif; text-align: center;
+    box-shadow: 0 0 0 2px rgba(11,13,26,.9);
+  }
+  .bnav-badge[hidden] { display: none; }
+  .bnav-item > .bnav-badge { position: absolute; top: 6px; left: calc(50% + 6px); }
+
+  /* Hoja "Más" */
+  .sheet-backdrop {
+    display: block; position: fixed; inset: 0; z-index: 300;
+    background: rgba(4,5,12,.6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    opacity: 0; pointer-events: none; transition: opacity .28s;
+  }
+  .sheet-backdrop.open { opacity: 1; pointer-events: auto; }
+  .sheet {
+    display: block; position: fixed; left: 0; right: 0; bottom: 0; z-index: 310;
+    max-height: 86vh; max-height: 86dvh; overflow-y: auto; overscroll-behavior: contain;
+    padding: 10px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(180deg, var(--panel2), var(--panel));
+    border: 1px solid var(--border-hi); border-bottom: 0; border-radius: 26px 26px 0 0;
+    box-shadow: 0 -20px 60px rgba(0,0,0,.5);
+    transform: translateY(105%); visibility: hidden;
+    transition: transform .4s var(--ease-out), visibility 0s linear .4s;
+  }
+  .sheet.open { transform: none; visibility: visible; transition: transform .4s var(--ease-out), visibility 0s; }
+  .sheet-grab { width: 40px; height: 5px; border-radius: 99px; background: var(--border-hi); margin: 0 auto 14px; }
+  .sheet-title { font-size: 10px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--text3); margin: 2px 4px 10px; }
+  .sheet-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .sheet-tile {
+    position: relative; min-height: 58px; padding: 12px; border-radius: 16px; text-align: left;
+    display: flex; align-items: center; gap: 11px;
+    background: var(--panel3); border: 1px solid var(--border); color: var(--text);
+    font: 600 12.5px/1.2 'Inter', sans-serif; cursor: pointer;
+    -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: transform .15s;
+  }
+  .sheet-tile:active { transform: scale(.97); }
+  .sheet-tile .ic {
+    flex: none; width: 36px; height: 36px; border-radius: 11px; font-size: 1.05rem;
+    display: flex; align-items: center; justify-content: center; background: var(--accent-dim);
+  }
+  .sheet-tile .bnav-badge { margin-left: auto; position: static; background: var(--green); color: #04120b; box-shadow: none; }
+  .sheet-tile.wide { grid-column: 1 / -1; }
+  .sheet-tile.primary { background: var(--accent-dim); border-color: rgba(249,115,22,.28); color: var(--accent); }
+}
+@media (max-width: 780px) and (max-height: 480px) {
+  :root { --nav-h: 50px; }
+  .bnav-item { flex-direction: row; gap: 6px; }
+  .bnav-fab { width: 42px; height: 42px; margin-top: -14px; border-radius: 14px; }
+  .bnav-cta > span:last-child { display: none; }
+  .kpi-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .kpi:first-child, .kpi:last-child { grid-column: auto; }
+}
+@media (max-width: 360px) {
+  .bnav-item { font-size: 9px; }
+  .sheet-grid { grid-template-columns: 1fr; }
+}
+
 </style>
 </head>
 <body>
@@ -1503,6 +1832,9 @@ body.light-mode .panel-head { background: linear-gradient(180deg, rgba(31,41,65,
   </div>
 </aside>
 
+<!-- ══ COLUMNA DE CONTENIDO (topbar fija + main) ══ -->
+<div class="content-col">
+
 <!-- ══ TOPBAR ══ -->
 <header class="topbar">
   <div class="tb-left">
@@ -1528,6 +1860,9 @@ body.light-mode .panel-head { background: linear-gradient(180deg, rgba(31,41,65,
 
 <!-- ══ MAIN ══ -->
 <main class="main" id="main-content">
+
+  <!-- Slot móvil: aquí se reubica el selector de sucursal -->
+  <div class="branch-slot" id="branch-slot"></div>
 
   <!-- ★ PANEL HOY ★ -->
   <div class="today-panel">
@@ -1777,10 +2112,51 @@ body.light-mode .panel-head { background: linear-gradient(180deg, rgba(31,41,65,
   </div>
 
 </main>
+</div><!-- /content-col -->
 </div><!-- /shell -->
 
 <!-- ★ Scroll to top FAB -->
-<button class="scroll-top-fab" id="scroll-top-fab" onclick="document.querySelector('.main').scrollTo({top:0,behavior:'smooth'})" title="Volver arriba">↑</button>
+<button class="scroll-top-fab" id="scroll-top-fab" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Volver arriba" aria-label="Volver arriba">↑</button>
+
+<!-- ★ BARRA INFERIOR (solo móvil) -->
+<nav class="bnav" id="bnav" aria-label="Navegación principal">
+  <button type="button" class="bnav-item active" aria-current="page" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+    <span>Inicio</span>
+  </button>
+  <button type="button" class="bnav-item" onclick="goApp('ordenes')">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9zM9 12h6M9 16h4"/></svg>
+    <span>Órdenes</span>
+    <span class="bnav-badge" id="bn-badge-ordenes" hidden></span>
+  </button>
+  <button type="button" class="bnav-item bnav-cta" onclick="goApp('taller')" aria-label="Nueva recepción">
+    <span class="bnav-fab"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>
+    <span>Nueva</span>
+  </button>
+  <button type="button" class="bnav-item" onclick="goApp('ventas')">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18"/><circle cx="16.5" cy="14.5" r="1.2"/></svg>
+    <span>Caja</span>
+  </button>
+  <button type="button" class="bnav-item" id="bn-more" aria-haspopup="dialog" aria-expanded="false" onclick="openMoreSheet()">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg>
+    <span>Más</span>
+  </button>
+</nav>
+
+<div class="sheet-backdrop" id="sheet-backdrop" onclick="closeMoreSheet()"></div>
+<div class="sheet" id="more-sheet" role="dialog" aria-modal="true" aria-label="Más opciones">
+  <div class="sheet-grab"></div>
+  <div class="sheet-title">Acciones rápidas</div>
+  <div class="sheet-grid">
+    <button type="button" class="sheet-tile" onclick="goAction('notify')"><span class="ic">💬</span><span>Avisar listos</span><span class="bnav-badge" id="sh-badge-listos" hidden></span></button>
+    <button type="button" class="sheet-tile" onclick="goAction('report')"><span class="ic">📄</span><span>Reporte del mes</span></button>
+    <button type="button" class="sheet-tile" onclick="goAction('stats')"><span class="ic">📊</span><span>Estadísticas</span></button>
+    <button type="button" class="sheet-tile" onclick="goAction('caja')"><span class="ic">💵</span><span>Cierre de caja</span></button>
+    <button type="button" class="sheet-tile" onclick="goApp('admin')"><span class="ic">⚙️</span><span>Configuración</span></button>
+    <button type="button" class="sheet-tile" onclick="toggleDashTheme()"><span class="ic">🌓</span><span>Cambiar tema</span></button>
+    <button type="button" class="sheet-tile wide primary" onclick="goApp('taller')"><span class="ic">←</span><span>Volver a la app</span></button>
+  </div>
+</div>
 
 <!-- ★ Refresh indicator -->
 <div class="refresh-pulse" id="refresh-pulse">
@@ -2611,6 +2987,7 @@ function toggleDashTheme() {
   localStorage.setItem('appTheme', light ? 'light' : 'dark');
   const icon = light ? '☀️' : '🌙';
   document.getElementById('theme-btn').textContent = icon;
+  syncThemeColor();
 }
 function applyTheme() {
   const saved = localStorage.getItem('appTheme');
@@ -2619,6 +2996,7 @@ function applyTheme() {
     document.body.classList.add('light-mode');
     document.getElementById('theme-btn').textContent = '☀️';
   }
+  syncThemeColor();
 }
 
 // ════════════════════════════════════════
@@ -3637,16 +4015,78 @@ setInterval(() => {
 //  ★ SCROLL TO TOP FAB
 // ════════════════════════════════════════
 function setupScrollFab() {
-  const main = document.querySelector('.main');
   const fab = document.getElementById('scroll-top-fab');
-  if (!main || !fab) return;
-  main.addEventListener('scroll', () => {
-    if (main.scrollTop > 320) fab.classList.add('show');
-    else fab.classList.remove('show');
-    // Sombra sticky en topbar
-    const tb = document.querySelector('.topbar');
-    if (tb) tb.style.boxShadow = main.scrollTop > 8 ? '0 2px 12px rgba(0,0,0,0.35)' : '';
-  }, { passive: true });
+  const tb  = document.querySelector('.topbar');
+  if (!fab) return;
+  let ticking = false;
+  const onScroll = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const y = window.scrollY || document.documentElement.scrollTop || 0;
+      fab.classList.toggle('show', y > 320);
+      if (tb) tb.classList.toggle('is-scrolled', y > 8);   // sombra de la barra fija
+      ticking = false;
+    });
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+}
+
+// ════════════════════════════════════════
+//  ★ PREMIUM v3 — shell móvil (barra inferior, hoja "Más", tema)
+// ════════════════════════════════════════
+function syncThemeColor() {
+  const m = document.getElementById('meta-theme-color');
+  if (m) m.setAttribute('content', document.body.classList.contains('light-mode') ? '#f0f2f8' : '#07080f');
+}
+function openMoreSheet() {
+  const sh = document.getElementById('more-sheet');
+  const bd = document.getElementById('sheet-backdrop');
+  if (!sh || !bd) return;
+  sh.classList.add('open'); bd.classList.add('open');
+  document.body.classList.add('sheet-open');
+  const b = document.getElementById('bn-more'); if (b) b.setAttribute('aria-expanded', 'true');
+}
+function closeMoreSheet() {
+  const sh = document.getElementById('more-sheet');
+  const bd = document.getElementById('sheet-backdrop');
+  if (sh) sh.classList.remove('open');
+  if (bd) bd.classList.remove('open');
+  document.body.classList.remove('sheet-open');
+  const b = document.getElementById('bn-more'); if (b) b.setAttribute('aria-expanded', 'false');
+}
+function setupMobileShell() {
+  const mq   = window.matchMedia('(max-width: 780px)');
+  const sel  = document.getElementById('branch-selector');
+  const slot = document.getElementById('branch-slot');
+  const left = document.querySelector('.tb-left');
+  // En móvil el selector de sucursal pasa al contenido (chips); en escritorio vuelve al topbar
+  const place = () => {
+    if (!sel || !slot || !left) return;
+    if (mq.matches) { if (sel.parentElement !== slot) slot.appendChild(sel); }
+    else { if (sel.parentElement !== left) left.appendChild(sel); closeMoreSheet(); }
+  };
+  place();
+  if (mq.addEventListener) mq.addEventListener('change', place); else if (mq.addListener) mq.addListener(place);
+
+  // Insignias de la barra inferior reflejan las del menú lateral
+  const pairs = [['sb-badge-activas', 'bn-badge-ordenes'], ['sb-badge-listos', 'sh-badge-listos']];
+  const sync = () => pairs.forEach(([from, to]) => {
+    const a = document.getElementById(from), b = document.getElementById(to);
+    if (!a || !b) return;
+    const n = parseInt(a.textContent, 10);
+    const has = Number.isFinite(n) && n > 0;
+    b.textContent = has ? (n > 99 ? '99+' : String(n)) : '';
+    b.hidden = !has;
+  });
+  pairs.forEach(([from]) => {
+    const a = document.getElementById(from);
+    if (a) new MutationObserver(sync).observe(a, { childList: true, characterData: true, subtree: true });
+  });
+  sync();
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMoreSheet(); });
+  syncThemeColor();
 }
 
 // ════════════════════════════════════════
@@ -3725,6 +4165,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   // ★ Pulido: scroll FAB, atajos, refresh tiempo caja
   setupScrollFab();
+  setupMobileShell();
   setupKeyboardShortcuts();
   setInterval(updateCajaTime, 60000); // cada minuto refresca el tiempo
 
