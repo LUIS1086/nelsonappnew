@@ -8,15 +8,13 @@
             document.getElementById('modal-qr-scanner').classList.remove('hidden');
             document.getElementById('qr-manual-input').value = '';
             try {
-                _qrStream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
-                });
+                _qrStream = await requestAppCameraStream();
                 const video = document.getElementById('qr-video');
                 video.srcObject = _qrStream;
                 await video.play();
                 _startQRDetection(video);
             } catch(e) {
-                showToast('Sin acceso a cámara — usa el campo manual', 'warning');
+                showAlert(getAppCameraErrorMessage(e) + ' Puedes usar el campo manual mientras tanto.', 'warning');
             }
         }
 

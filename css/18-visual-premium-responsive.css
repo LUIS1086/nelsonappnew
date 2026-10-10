@@ -1,0 +1,111 @@
+/* NelsonAppNew · capa visual premium responsive v1.0
+   Solo presentación y adaptación visual; no modifica lógica ni estructura funcional. */
+:root {
+  --na-radius-card: 20px;
+  --na-border-soft: rgba(148, 163, 184, .14);
+  --na-shadow-card: 0 12px 34px rgba(0, 0, 0, .18);
+  --na-content-gutter: clamp(14px, 2.4vw, 32px);
+}
+
+html { scroll-behavior: smooth; }
+body { background-image: radial-gradient(ellipse at 85% -10%, rgba(249,115,22,.055), transparent 38%); }
+#main-content-area { min-width: 0; }
+#main-content-area main.app-view { width: 100%; }
+#main-content-area .max-container { margin-inline: auto; }
+
+/* Unifica superficies sin alterar los colores semánticos de estados */
+.card {
+  border-radius: var(--na-radius-card);
+  border-color: var(--na-border-soft);
+  box-shadow: var(--na-shadow-card), inset 0 1px 0 rgba(255,255,255,.025);
+}
+.card:hover { border-color: rgba(249,115,22,.2); }
+body.light-mode .card {
+  box-shadow: 0 10px 28px rgba(41, 37, 36, .055), inset 0 1px 0 rgba(255,255,255,.85);
+}
+
+/* Interacciones más limpias en mouse; en táctil no añadimos hover invasivo */
+@media (hover: hover) and (pointer: fine) {
+  #main-content-area button:not(:disabled),
+  #main-content-area [role="button"]:not([aria-disabled="true"]) {
+    transition: transform .16s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease;
+  }
+  #main-content-area button:not(:disabled):hover { filter: brightness(1.045); }
+  #main-content-area button:not(:disabled):active { transform: translateY(1px); }
+}
+
+/* Formularios: contraste, lectura y alineación coherentes */
+:where(input, select, textarea) { min-width: 0; }
+:where(input, select, textarea):focus-visible { outline-offset: 1px; }
+label { overflow-wrap: anywhere; }
+:where(.ios-row, .sidebar-nav-item, .nav-btn) { user-select: none; }
+
+/* Tablas y listados anchos: desplazan internamente en vez de romper el viewport */
+.table-responsive, .overflow-x-auto, [data-table-scroll] {
+  max-width: 100%;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+}
+#main-content-area table { max-width: 100%; }
+
+/* Escritorio ancho: más aire y mejor límite de lectura */
+@media (min-width: 1280px) {
+  #main-content-area .max-container { max-width: 1560px; }
+  #main-content-area main.app-view { padding-inline: clamp(24px, 2.2vw, 40px); }
+}
+
+/* Tablet: conserva el menú lateral, reduce densidad sin comprimir el contenido */
+@media (min-width: 768px) and (max-width: 1100px) {
+  #main-content-area .max-container { padding-inline: 18px; }
+  #main-content-area main.app-view { gap: 16px; }
+  #sidebar-nav { padding-inline: 9px; }
+  .sidebar-nav-item { gap: 10px; padding: 12px 11px; }
+}
+
+/* Móvil: prioridad al contenido, navegación segura y controles cómodos */
+@media (max-width: 767px) {
+  body { background-image: radial-gradient(ellipse at 50% -10%, rgba(249,115,22,.06), transparent 42%); }
+  #main-content-area main.app-view {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+    padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  #main-content-area .max-container { padding-inline: 0; }
+  .card { border-radius: 18px; }
+  nav.bottom-nav-mobile {
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+    left: 10px !important;
+    right: 10px !important;
+    width: auto !important;
+    max-width: none !important;
+    min-height: 68px;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+    border-color: rgba(255,255,255,.1);
+    box-shadow: 0 12px 36px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.045);
+  }
+  .nav-btn { min-width: 0; padding-inline: 2px; }
+  .nav-btn .nav-label { font-size: clamp(9px, 2.5vw, 11px); }
+  .nav-btn.nav-active::before { width: min(66px, 90%); }
+  .modal-custom, .modal, [role="dialog"] { overscroll-behavior: contain; }
+  /* Evita que tarjetas de dos columnas queden demasiado estrechas */
+  .grid.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid > *, .flex > * { min-width: 0; }
+}
+
+@media (max-width: 380px) {
+  #main-content-area main.app-view { padding-left: 10px !important; padding-right: 10px !important; }
+  .nav-btn .nav-icon-wrap { width: 28px; height: 28px; }
+  .nav-btn .nav-icon-wrap svg { width: 24px; height: 24px; }
+  .nav-btn .nav-label { font-size: 9px; letter-spacing: 0; }
+}
+
+body.light-mode { background-image: radial-gradient(ellipse at 85% -10%, rgba(249,115,22,.045), transparent 38%); }
+body.light-mode nav.bottom-nav-mobile {
+  background: rgba(253,252,249,.94);
+  border-color: rgba(120,113,108,.2);
+  box-shadow: 0 12px 32px rgba(41,37,36,.14), inset 0 1px 0 rgba(255,255,255,.8);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}

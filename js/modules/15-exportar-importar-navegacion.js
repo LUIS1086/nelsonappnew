@@ -144,7 +144,7 @@
             cameraMode = 'barcode';
             if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
             try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                stream = await requestAppCameraStream();
                 const video = document.getElementById('video'); video.srcObject = stream; await video.play();
                 document.getElementById('camera-modal').classList.remove('hidden');
                 const detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'code_93', 'codabar', 'itf', 'qr_code'] });
@@ -173,7 +173,7 @@
                         }
                     }
                 }, 1000);
-            } catch(e) { showAlert("Error al iniciar cámara: " + e.message, "error"); }
+            } catch(e) { showAlert(getAppCameraErrorMessage(e), "error"); }
         }
 
         // Swipe entre tabs — DESACTIVADO

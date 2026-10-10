@@ -189,14 +189,14 @@
                 cameraMode = 'retomar-recepcion';
                 if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
                 try {
-                    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                    stream = await requestAppCameraStream();
                     const video = document.getElementById('video');
                     video.srcObject = stream;
                     await video.play();
                     document.getElementById('camera-modal').classList.remove('hidden');
                     showToast('Captura la nueva foto de recepción', 'info');
                 } catch(e) {
-                    showAlert('No se pudo acceder a la cámara. Verifica los permisos.', 'error');
+                    showAlert(getAppCameraErrorMessage(e), 'error');
                 }
             }
         }

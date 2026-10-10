@@ -1,0 +1,12 @@
+{
+  "name": "nelsonapp-tailwind",
+  "private": true,
+  "description": "Compila css/tailwind.css (reemplaza el CDN). Vive en tools/ para que Vercel no lo instale.",
+  "scripts": {
+    "build": "tailwindcss -c tailwind.config.js -i input.css -o ../../css/tailwind.css --minify",
+    "watch": "tailwindcss -c tailwind.config.js -i input.css -o ../../css/tailwind.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "3.4.17"
+  }
+}

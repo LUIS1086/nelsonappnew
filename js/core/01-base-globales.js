@@ -4,7 +4,7 @@
 
         // ==================== CONFIGURACIÓN INICIAL ====================
         const DB_NAME = 'NelsonAppPro';
-        window.APP_VERSION = 'v3.3.0'; // Única fuente de verdad para la versión de la app
+        window.APP_VERSION = 'v3.4.6'; // Única fuente de verdad para la versión de la app
         let db = null;
         let searchDebounceTimer = null;
         let currentPhotos = [];
@@ -22,10 +22,52 @@
         const escAttr = s => String(s ?? '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         window.escAttr = escAttr;
 
+        // Acceso uniforme a cámara para Chrome, Brave y Firefox.
+        // No exige obligatoriamente la cámara trasera: algunos navegadores móviles
+        // rechazan la restricción estricta aunque sí tengan una cámara disponible.
+        async function requestAppCameraStream() {
+            if (!window.isSecureContext || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                const err = new Error('La cámara requiere HTTPS y un navegador compatible.');
+                err.name = 'AppCameraUnsupportedError';
+                throw err;
+            }
+            try {
+                return await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: { ideal: 'environment' } },
+                    audio: false
+                });
+            } catch (err) {
+                // Si el dispositivo no admite la preferencia de cámara trasera,
+                // intentar con la cámara disponible. Nunca repetir un error de permiso.
+                if (err && ['OverconstrainedError', 'ConstraintNotSatisfiedError', 'NotFoundError'].includes(err.name)) {
+                    return await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                }
+                throw err;
+            }
+        }
+        window.requestAppCameraStream = requestAppCameraStream;
+
+        function getAppCameraErrorMessage(err) {
+            const name = err && err.name ? err.name : '';
+            console.warn('[NelsonApp cámara]', name, err && err.message ? err.message : err);
+            if (name === 'AppCameraUnsupportedError' || name === 'SecurityError')
+                return 'La cámara necesita abrir NelsonApp desde su dirección HTTPS. No funciona desde un archivo local o un contexto no seguro.';
+            if (name === 'NotAllowedError' || name === 'PermissionDeniedError')
+                return 'El navegador bloqueó el permiso de cámara. En la configuración del sitio, permite Cámara y vuelve a intentarlo; revisa también el permiso de cámara de Android para el navegador.';
+            if (name === 'NotFoundError' || name === 'DevicesNotFoundError')
+                return 'No se encontró una cámara disponible en este dispositivo.';
+            if (name === 'NotReadableError' || name === 'TrackStartError')
+                return 'La cámara está ocupada por otra aplicación. Cierra otras apps que la usen y vuelve a intentarlo.';
+            if (name === 'OverconstrainedError' || name === 'ConstraintNotSatisfiedError')
+                return 'No se encontró una cámara compatible. Prueba cerrar y volver a abrir la cámara.';
+            return 'No se pudo iniciar la cámara (' + (name || 'error desconocido') + '). Revisa los permisos del sitio y vuelve a intentarlo.';
+        }
+        window.getAppCameraErrorMessage = getAppCameraErrorMessage;
+
         // ── Sincroniza la versión en splash y créditos desde window.APP_VERSION ──
         (function syncAppVersion() {
             try {
-                const v = window.APP_VERSION || 'v3.3.0';
+                const v = window.APP_VERSION || 'v3.4.2';
                 const ids = ['splash-version', 'credits-version', 'cfg-header-version'];
                 ids.forEach(id => {
                     const el = document.getElementById(id);
