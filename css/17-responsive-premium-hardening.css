@@ -1,0 +1,242 @@
+/* NelsonAppNew · Responsive Premium Hardening
+   Capa de compatibilidad visual. No sustituye estilos ni lógica existentes.
+   Objetivo: evitar desbordamientos y mejorar legibilidad/tacto en móvil,
+   tablet y escritorio sin alterar navegación ni módulos funcionales. */
+
+:root {
+  --na-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --na-safe-top: env(safe-area-inset-top, 0px);
+  --na-content-max: 1600px;
+  --na-focus-ring: rgba(249, 115, 22, .72);
+}
+
+/* Base fluida: evita que contenido largo rompa el viewport. */
+html {
+  width: 100%;
+  min-width: 0;
+  scroll-padding-top: 5rem;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+body {
+  width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+}
+#main-content-area {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+}
+main, section, article, header, footer, aside,
+.max-container, .card, .app-view {
+  min-width: 0;
+}
+img, video, canvas, svg {
+  max-width: 100%;
+}
+pre, code {
+  overflow-wrap: anywhere;
+}
+table {
+  max-width: 100%;
+}
+input, select, textarea, button {
+  font: inherit;
+}
+input, select, textarea {
+  max-width: 100%;
+  min-width: 0;
+}
+button, [role="button"], .nav-btn {
+  touch-action: manipulation;
+}
+button:focus-visible, a:focus-visible, input:focus-visible,
+select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--na-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Contenedores principales: ancho útil, márgenes consistentes. */
+.max-container {
+  width: 100%;
+  max-width: var(--na-content-max);
+  margin-left: auto;
+  margin-right: auto;
+}
+#app-header {
+  padding-top: max(0.75rem, var(--na-safe-top));
+}
+#app-header .max-container {
+  gap: clamp(.75rem, 2vw, 1.5rem);
+}
+.app-view {
+  width: 100%;
+  max-width: 100%;
+  padding-left: clamp(.75rem, 2.5vw, 1.5rem);
+  padding-right: clamp(.75rem, 2.5vw, 1.5rem);
+  padding-bottom: calc(1.25rem + var(--na-safe-bottom));
+}
+.card, .panel, .modal-content {
+  overflow-wrap: anywhere;
+}
+#sidebar {
+  overscroll-behavior: contain;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+#sidebar nav, #sidebar .sidebar-nav {
+  min-width: 0;
+}
+#sidebar button, #sidebar a {
+  max-width: 100%;
+}
+
+/* Formularios compactos en teléfonos, sin cambiar sus IDs ni eventos. */
+label {
+  overflow-wrap: anywhere;
+}
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+select, textarea {
+  box-sizing: border-box;
+  min-height: 42px;
+}
+textarea {
+  resize: vertical;
+}
+input[type="checkbox"], input[type="radio"], input[type="range"] {
+  accent-color: #f97316;
+}
+button, .btn, [role="button"] {
+  max-width: 100%;
+}
+pre, .overflow-x-auto, [class*="overflow-x-auto"] {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Cámara y vistas previas: mantener proporciones dentro del formulario. */
+video, #camera-preview, .camera-preview, .foto-preview img {
+  object-fit: contain;
+}
+video {
+  height: auto;
+}
+dialog, .modal, [role="dialog"] {
+  max-width: min(100vw - 1rem, 56rem);
+}
+.modal, [role="dialog"] {
+  max-height: calc(100dvh - 1rem - var(--na-safe-top) - var(--na-safe-bottom));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Teléfonos */
+@media (max-width: 479px) {
+  #app-header {
+    padding-left: .75rem;
+    padding-right: .75rem;
+  }
+  #app-header h1 {
+    letter-spacing: .16em;
+  }
+  #app-header .text-3xl {
+    font-size: clamp(1.35rem, 7vw, 1.8rem);
+    line-height: 1.15;
+  }
+  .app-view {
+    padding-left: .75rem;
+    padding-right: .75rem;
+  }
+  .grid.grid-cols-2 {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .grid.grid-cols-3, .grid.grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  nav.bottom-nav-mobile {
+    padding-bottom: max(.25rem, var(--na-safe-bottom));
+  }
+  .nav-btn {
+    min-width: 0;
+    padding-left: 2px;
+    padding-right: 2px;
+    border-radius: 14px;
+  }
+  .nav-btn .nav-icon-wrap {
+    width: 28px;
+    height: 28px;
+  }
+  .nav-btn .nav-icon-wrap svg {
+    width: 24px;
+    height: 24px;
+  }
+  .nav-btn span, .nav-btn .nav-label {
+    max-width: 100%;
+    font-size: 9px;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+  }
+  .card {
+    border-radius: 16px;
+  }
+  table {
+    font-size: 12px;
+  }
+}
+
+/* Teléfonos grandes y tabletas pequeñas: aprovechar espacio sin apretar. */
+@media (min-width: 480px) and (max-width: 767px) {
+  .app-view {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  .grid.grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Tablet y escritorio: área de contenido estable junto al sidebar. */
+@media (min-width: 768px) {
+  #main-content-area {
+    min-height: 100vh;
+    width: calc(100% - 240px);
+    margin-left: 240px;
+  }
+  #app-header {
+    padding-left: clamp(1rem, 2vw, 2rem);
+    padding-right: clamp(1rem, 2vw, 2rem);
+  }
+  .app-view {
+    padding-top: clamp(1rem, 2vw, 1.5rem);
+    padding-bottom: 2rem;
+  }
+  .max-container {
+    max-width: 1480px;
+  }
+  .grid {
+    min-width: 0;
+  }
+  .grid > * {
+    min-width: 0;
+  }
+}
+@media (min-width: 1280px) {
+  #main-content-area {
+    width: calc(100% - 260px);
+    margin-left: 260px;
+  }
+  .max-container {
+    max-width: 1600px;
+  }
+}
+
+/* Reduce animaciones para personas que lo solicitan en el sistema. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
