@@ -21,7 +21,7 @@ const m=JSON.parse(fs.readFileSync(path.join(root,'manifest.json'),'utf8'));
 m.icons.forEach(i=>{ if(!fs.existsSync(path.join(root,i.src))) err('Icono del manifest no existe: '+i.src); });
 const vj=fs.readFileSync(path.join(root,'vercel.json'),'utf8');
 if(!/Content-Security-Policy/.test(vj)) err('vercel.json no tiene Content-Security-Policy');
-for(const f of fs.readdirSync(path.join(root,'js'),{recursive:true})){ if(!String(f).endsWith('.js')||String(f).includes('vendor')) continue;
+for(const f of fs.readdirSync(path.join(root,'js'),{recursive:true})){ if(!String(f).endsWith('.js')||String(f).includes('libs')) continue;
   if(/[?&]key=\$\{/.test(fs.readFileSync(path.join(root,'js',String(f)),'utf8'))) err('La llave de API va en la URL (usa la cabecera x-goog-api-key): js/'+f); }
 console.log(errores?`\n${errores} problema(s) encontrados`:`✓ Todo en orden (${refs.length} archivos css/js, precache y manifest correctos)`);
 process.exit(errores?1:0);
