@@ -11,7 +11,11 @@ Google Drive (respaldo) · PWA/TWA (PWABuilder) · Vercel.
 
 ```
 index.html              Solo estructura HTML (carga css/ y js/ en orden)
-dashboard.html          Panel de indicadores
+dashboard.html          Panel de indicadores (solo estructura)
+css/dashboard.css       Estilos base del panel
+css/dashboard-premium.css  Capa premium del panel (quita su <link> para volver al diseño anterior)
+js/dashboard.js         Lógica del panel
+js/vendor/              html2canvas y qrcode locales (funcionan sin internet)
 service-worker.js       Offline + actualización (CACHE_VERSION)
 manifest.json           Manifiesto PWA
 vercel.json             Cabeceras y caché
@@ -60,3 +64,12 @@ Luego sube el `css/tailwind.css` nuevo junto con tus cambios. Las clases armadas
 ## Despliegue
 
 Vercel (sitio estático, sin build). Para el APK: PWABuilder con la URL de Vercel.
+
+## Seguridad
+
+- **PIN:** PBKDF2-SHA256 (150.000 iteraciones) con sal aleatoria. Los PIN guardados con el formato antiguo se migran solos al primer desbloqueo.
+- **Bloqueo por intentos:** 5 por defecto, persistente (recargar no lo salta) y progresivo: 30 s, 1, 2, 4… hasta 15 min.
+- **CSP y Permissions-Policy:** definidas en `vercel.json`. Si añades un servicio externo, agrega su dominio a `connect-src` (o `script-src`/`img-src`) o el navegador lo bloqueará.
+- **Llave de Gemini:** viaja en la cabecera `x-goog-api-key`, no en la URL. `tools/verificar.js` falla si vuelve a aparecer en la URL.
+- **Texto libre en `innerHTML`:** usa siempre `escapeHtml(String(valor ?? ''))`.
+

@@ -10,8 +10,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#f97316">
     <title>Nelson App Pro | Taller & Ventas</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="js/vendor/html2canvas.min.js" defer></script>
+    <script src="js/vendor/qrcode.min.js" defer></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/01-tema-variables.css">
@@ -28,6 +30,10 @@
     <link rel="stylesheet" href="css/16-aviso-actualizacion.css">
     <link rel="stylesheet" href="css/tailwind.css">
     <link rel="stylesheet" href="css/17-responsive-premium-hardening.css">
+    <link rel="stylesheet" href="css/12-extras-1.css">
+    <link rel="stylesheet" href="css/13-extras-2.css">
+    <link rel="stylesheet" href="css/14-configuracion-command-center.css">
+    <link rel="stylesheet" href="css/15-nelson-ia.css">
 </head>
 <body class="swipe-area">
 
@@ -1482,7 +1488,6 @@
             </div>
         </div>
     </div>
-    <link rel="stylesheet" href="css/12-extras-1.css">
 
     <!-- ===== MODAL REPUESTOS USADOS EN ORDEN (integración stock ↔ órdenes) ===== -->
     <div id="modal-parts-used" class="hidden fixed inset-0 z-[3500] modal-custom flex items-center justify-center p-3">
@@ -1875,7 +1880,6 @@
             <div id="garantias-list" class="garantias-list"></div>
         </div>
     </div>
-    <link rel="stylesheet" href="css/13-extras-2.css">
 
     <div id="modal-stats" class="hidden fixed inset-0 z-[3000] modal-custom flex items-center justify-center p-3">
         <div class="stats-modal-wrap view-enter">
@@ -2332,7 +2336,6 @@
     </div>
 
     <!-- NUEVO MODAL: CONFIGURACIÓN AVANZADA (PRO REDESIGN v3.3) -->
-    <link rel="stylesheet" href="css/14-configuracion-command-center.css">
     <div id="modal-config" class="hidden fixed inset-0 z-[4000] modal-custom flex flex-col items-center justify-center p-3">
         <div class="ios-modal-wrap view-enter">
 
@@ -3111,7 +3114,6 @@
          NELSON IA — ASISTENTE INTELIGENTE DEL TALLER (Gemini Flash · Gratis)
          Módulo autocontenido. No modifica nada del código existente.
          ══════════════════════════════════════════════════════════════════════ -->
-    <link rel="stylesheet" href="css/15-nelson-ia.css">
 
     <!-- Botón flotante -->
     <!-- Botón flotante (oculto por defecto - la entrada principal ahora está en la pestaña Datos) -->
