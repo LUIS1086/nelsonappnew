@@ -811,11 +811,11 @@ ${JSON.stringify(context, null, 2)}`;
 
             for (let i = 0; i < modelsToTry.length; i++) {
                 const model = modelsToTry[i];
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
                 try {
                     const resp = await fetch(url, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
                         body: JSON.stringify(body)
                     });
 
