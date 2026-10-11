@@ -3,7 +3,8 @@
 // Revisa: archivos referenciados existen · sintaxis de cada .js · todo esta en el precache del SW.
 const fs=require('fs'),path=require('path'),cp=require('child_process');
 const root=path.resolve(__dirname,'..');
-const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const html=['index.html','dashboard.html'].map(f=>fs.readFileSync(path.join(root,f),'utf8')).join('\n');
+const idx=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const sw=fs.readFileSync(path.join(root,'service-worker.js'),'utf8');
 const refs=[...html.matchAll(/(?:href|src)="((?:css|js)\/[^"]+)"/g)].map(m=>m[1]);
 const pre=new Set([...sw.matchAll(/'\.\/((?:css|js|icons)\/[^']+)'/g)].map(m=>m[1]));
@@ -14,7 +15,13 @@ refs.forEach(r=>{
   if(r.endsWith('.js')){ try{cp.execFileSync(process.execPath,['--check',path.join(root,r)],{stdio:'pipe'});}catch(e){err('Error de sintaxis en '+r+'\n'+String(e.stderr).split('\n').slice(0,4).join('\n'));} }
 });
 pre.forEach(p=>{ if(!fs.existsSync(path.join(root,p))) err('PRECACHE apunta a un archivo que no existe: '+p); });
+const body=idx.slice(idx.indexOf('<body'));
+if(/<link[^>]+rel="stylesheet"/.test(body)) err('Hay <link rel="stylesheet"> dentro del <body> de index.html (deben ir en el <head>)');
 const m=JSON.parse(fs.readFileSync(path.join(root,'manifest.json'),'utf8'));
 m.icons.forEach(i=>{ if(!fs.existsSync(path.join(root,i.src))) err('Icono del manifest no existe: '+i.src); });
+const vj=fs.readFileSync(path.join(root,'vercel.json'),'utf8');
+if(!/Content-Security-Policy/.test(vj)) err('vercel.json no tiene Content-Security-Policy');
+for(const f of fs.readdirSync(path.join(root,'js'),{recursive:true})){ if(!String(f).endsWith('.js')||String(f).includes('vendor')) continue;
+  if(/[?&]key=\$\{/.test(fs.readFileSync(path.join(root,'js',String(f)),'utf8'))) err('La llave de API va en la URL (usa la cabecera x-goog-api-key): js/'+f); }
 console.log(errores?`\n${errores} problema(s) encontrados`:`✓ Todo en orden (${refs.length} archivos css/js, precache y manifest correctos)`);
 process.exit(errores?1:0);
