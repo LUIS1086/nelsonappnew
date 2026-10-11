@@ -39,8 +39,16 @@
 
         async function verifyPin() {
             const input = document.getElementById('pin-input').value;
-            const inputHash = await _hashPin(input);
-            if (inputHash === _pinHash) {
+            const ok = await _verifyPin(input);
+            window._lastPinOk = ok;
+            if (ok) {
+                // Migra un PIN guardado con el formato antiguo (SHA-256 sin sal) al formato nuevo
+                if (_pinIsLegacy(_pinHash)) {
+                    try { _pinHash = await _hashPin(input); localStorage.setItem('appPinHash', _pinHash); } catch (_) {}
+                }
+                if (input === '1234') {
+                    setTimeout(() => { try { showToast('🔐 Sigues usando el PIN de fábrica (1234). Cámbialo en Configuración.', 'warning'); } catch (_) {} }, 1500);
+                }
                 // Animación de éxito en dots + pequeña vibración positiva
                 document.querySelectorAll('#pin-dots .pin-dot').forEach(d => {
                     d.classList.add('success');

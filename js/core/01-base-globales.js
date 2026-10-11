@@ -114,12 +114,38 @@
             } catch (e) { /* silencioso, no bloquea arranque */ }
         })();
 
-        // ── PIN: almacenado con hash SHA-256 (nunca en texto plano) ──
-        async function _hashPin(pin) {
-            const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pin + '_nelsonapp_v1'));
-            return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+        // ── PIN: PBKDF2-SHA256 con sal aleatoria (nunca en texto plano) ──
+        // Formato guardado: "pbkdf2$<iteraciones>$<sal hex>$<hash hex>".
+        // Los PIN antiguos (SHA-256 sin sal) se siguen aceptando y se migran solos al desbloquear.
+        const _PIN_ITER = 150000;
+        function _toHex(buf) { return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join(''); }
+        function _fromHex(hex) { const out = new Uint8Array(hex.length / 2); for (let i = 0; i < out.length; i++) out[i] = parseInt(hex.substr(i * 2, 2), 16); return out; }
+        async function _pbkdf2Hex(pin, salt, iter) {
+            const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveBits']);
+            return _toHex(await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: salt, iterations: iter }, key, 256));
         }
-        let _pinHash = null; // hash SHA-256 del PIN activo
+        async function _hashPin(pin) {
+            const salt = crypto.getRandomValues(new Uint8Array(16));
+            return 'pbkdf2$' + _PIN_ITER + '$' + _toHex(salt) + '$' + await _pbkdf2Hex(pin, salt, _PIN_ITER);
+        }
+        function _pinIsLegacy(stored) { return !stored || stored.indexOf('pbkdf2$') !== 0; }
+        async function _verifyPin(pin, stored) {
+            stored = stored || _pinHash;
+            if (!stored) return false;
+            let a, b;
+            if (_pinIsLegacy(stored)) {
+                const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pin + '_nelsonapp_v1'));
+                a = _toHex(buf); b = stored;
+            } else {
+                const p = stored.split('$');
+                if (p.length !== 4) return false;
+                a = await _pbkdf2Hex(pin, _fromHex(p[2]), parseInt(p[1], 10) || _PIN_ITER); b = p[3];
+            }
+            if (a.length !== b.length) return false;
+            let diff = 0; for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+            return diff === 0;
+        }
+        let _pinHash = null; // hash PBKDF2 del PIN activo
 
         // ════════════════ ESTABILIDAD: handlers globales de errores ════════════════
         // Captura errores no manejados para que no se queden silenciosos.

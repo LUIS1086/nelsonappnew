@@ -29,7 +29,7 @@
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:#0d0f1a;color:#e8eaf6;padding:32px;text-align:center;font-family:sans-serif;">
                 <div style="font-size:3rem;margin-bottom:16px;">⚠️</div>
                 <h2 style="font-size:18px;font-weight:900;color:#f43f5e;margin-bottom:8px;">Error de Base de Datos</h2>
-                <p style="font-size:13px;color:#6b7a99;max-width:320px;line-height:1.6;margin-bottom:24px;">${msg}<br><br>Intenta cerrar y volver a abrir la app. Si el problema persiste, exporta tus datos desde Configuración antes de reinstalar.</p>
+                <p style="font-size:13px;color:#6b7a99;max-width:320px;line-height:1.6;margin-bottom:24px;">${String(msg).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}<br><br>Intenta cerrar y volver a abrir la app. Si el problema persiste, exporta tus datos desde Configuración antes de reinstalar.</p>
                 <button onclick="location.reload()" style="background:#f97316;color:white;border:none;padding:14px 28px;border-radius:14px;font-size:14px;font-weight:900;cursor:pointer;">🔄 Reintentar</button>
             </div>`;
         }
