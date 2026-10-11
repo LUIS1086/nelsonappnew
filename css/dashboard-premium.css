@@ -1,0 +1,124 @@
+/* ══════════════════════════════════════════════════════════
+   Nelson App Pro · Command Center — capa premium
+   Se carga DESPUÉS de dashboard.css: solo refina, no reemplaza.
+   Para volver al diseño anterior, quita el <link> de este archivo.
+   ══════════════════════════════════════════════════════════ */
+
+:root { color-scheme: dark; }
+body.light-mode { color-scheme: light; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+* { -webkit-tap-highlight-color: transparent; }
+.shell, .main { min-width: 0; }
+.main { overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--text3) transparent; }
+
+/* ── Cifras: lo más importante del tablero se lee de un vistazo ── */
+.kpi-val, .mov-val, .dd-row-val, .dd-summary-val, .today-stat-val, .sb-caja-value, .tb-clock {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "zero" 1;
+}
+.kpi-val {
+  font-size: clamp(26px, 2.1vw + 12px, 34px);
+  letter-spacing: -0.02em;
+  color: var(--text);
+  background: none;
+  -webkit-text-fill-color: currentColor;   /* texto sólido: mejor contraste y se imprime bien */
+}
+.kpi-val.up   { color: var(--green); }
+.kpi-val.down { color: var(--red); }
+
+/* ── Etiquetas: frase normal, sin mayúsculas espaciadas ── */
+.kpi-label, .panel-head-title, .sb-section-label, .tb-breadcrumb {
+  text-transform: none;
+  letter-spacing: 0;
+}
+.kpi-label       { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 12px; }
+.panel-head-title { font-size: 13.5px; font-weight: 700; }
+.panel-head-sub  { font-size: 11.5px; }
+.sb-section-label { font-size: 11px; font-weight: 600; }
+.tb-breadcrumb   { font-size: 11px; font-weight: 600; }
+.kpi-sub, .kpi-vs { font-size: 11.5px; }
+.text3-fix, .kpi-vs, .tb-date { color: var(--text2); }   /* --text3 es muy tenue para texto */
+
+/* ── Superficies: borde fino + brillo superior, sombra solo al interactuar ── */
+.kpi, .panel-card, .meta-card, .today-panel, .insight-card {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.045), 0 1px 2px rgba(0,0,0,0.25);
+}
+.kpi { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+.kpi:hover { transform: translateY(-1px); border-color: var(--border-hi); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 10px 30px rgba(0,0,0,0.38); }
+.panel-card:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,0.045), 0 1px 2px rgba(0,0,0,0.25); }
+body.light-mode .kpi, body.light-mode .panel-card, body.light-mode .meta-card,
+body.light-mode .today-panel, body.light-mode .insight-card {
+  box-shadow: 0 1px 2px rgba(20,24,50,0.06), 0 6px 18px rgba(20,24,50,0.05);
+}
+
+/* ── Movimiento: una sola entrada orquestada (los KPIs); lo demás queda quieto ── */
+.panel-card { animation: none; }
+.kpi:nth-child(1) { animation-delay: 0ms;   }
+.kpi:nth-child(2) { animation-delay: 60ms;  }
+.kpi:nth-child(3) { animation-delay: 120ms; }
+.kpi:nth-child(4) { animation-delay: 180ms; }
+
+/* ── Teclado y accesibilidad ── */
+:where(a, button, [role="button"], [tabindex]:not([tabindex="-1"]), input, select, textarea, summary):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+:where(button, [role="button"]) { touch-action: manipulation; }
+.panel-link { opacity: .85; }
+.panel-link:hover, .panel-link:focus-visible { opacity: 1; text-decoration: underline; text-underline-offset: 3px; }
+
+/* ── Nombres largos (clientes, equipos) no rompen la tarjeta ── */
+.order-item, .top-item, .stock-item, .mov-item, .feed-text { min-width: 0; }
+.order-item *, .top-item *, .stock-item *, .feed-text { overflow-wrap: anywhere; }
+
+/* ── Táctil (iPhone / Android): objetivos de 44 px y zonas seguras ── */
+@media (pointer: coarse) {
+  .tb-icon-btn, .tb-action, .range-btn, .branch-btn, .sb-btn, .nav-item, .bnav-item { min-height: 44px; }
+  .tb-icon-btn { min-width: 44px; }
+  .range-btn, .branch-btn { padding-inline: 14px; }
+}
+.topbar { padding-top: env(safe-area-inset-top, 0px); padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); }
+.bnav   { padding-bottom: env(safe-area-inset-bottom, 0px); }
+@media (max-width: 780px) {
+  .topbar { padding-left: max(14px, env(safe-area-inset-left, 0px)); padding-right: max(14px, env(safe-area-inset-right, 0px)); }
+  .main   { padding-inline: max(14px, env(safe-area-inset-left, 0px)) max(14px, env(safe-area-inset-right, 0px)); padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+  .kpi    { padding: 16px 14px 13px; }
+  .kpi-val { font-size: clamp(22px, 7vw, 28px); }
+}
+
+/* ── Pantallas grandes (PC / TV): el contenido no se estira sin fin ── */
+@media (min-width: 1500px) {
+  .main { padding-inline: clamp(24px, 3vw, 48px); }
+  .kpi-row { gap: 16px; }
+}
+
+/* ── Estados vacíos y carga ── */
+.skel-line { border-radius: 6px; }
+.empty-state, .empty { color: var(--text2); text-align: center; padding: 28px 16px; font-size: 13px; line-height: 1.5; }
+
+/* ── Respeto por quien reduce el movimiento ── */
+@media (prefers-reduced-motion: reduce) {
+  .kpi, .kpi:hover { animation: none; transition: none; transform: none; }
+}
+
+/* ── Impresión: solo los datos ── */
+@media print {
+  .sidebar, .bnav, .topbar, .scroll-top-fab, .glow-orb { display: none !important; }
+  .shell { display: block; }
+  .kpi, .panel-card { box-shadow: none; break-inside: avoid; border-color: #ccc; }
+}
+
+/* ── Modo claro: textos que estaban fijos en blanco ── */
+body.light-mode .tb-title, body.light-mode .sb-biz-name, body.light-mode .efic-val { color: var(--text); }
+
+/* ── Título de la barra superior: una línea, con puntos suspensivos si no cabe ── */
+.tb-left { min-width: 0; }
+.tb-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; max-width: 100%; }
+
+/* ── Etiquetas del panel de hoy y caja en frase normal ── */
+.today-title, .today-date, .today-stat-label, .sb-caja-label { text-transform: none; letter-spacing: 0; }
+.today-title { font-size: 14px; }
+.today-stat-label { font-size: 11.5px; font-weight: 600; }
+.today-date { font-size: 12px; }
+.sb-caja-label { font-size: 11px; font-weight: 600; }
