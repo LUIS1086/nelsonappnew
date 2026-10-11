@@ -252,10 +252,10 @@
                 <div id="invoice-printable" data-order-id="${o.id}" style="font-family:monospace;max-width:340px;margin:0 auto;background:white;color:black;padding:20px;">
                     <div style="text-align:center;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:15px;">
                         ${logoHtml}
-                        <h2 style="margin:0;font-size:16px;">${business.name || 'TODO REPUESTOS NELSON'}</h2>
+                        <h2 style="margin:0;font-size:16px;">${escapeHtml(String(business.name || 'TODO REPUESTOS NELSON'))}</h2>
                         ${business.nit ? `<p style="margin:2px 0;font-size:11px;">NIT: ${business.nit}</p>` : ''}
                         ${business.address ? `<p style="margin:2px 0;font-size:11px;">${business.address}</p>` : ''}
-                        ${business.phone  ? `<p style="margin:2px 0;font-size:11px;">Tel: ${business.phone}</p>` : ''}
+                        ${business.phone  ? `<p style="margin:2px 0;font-size:11px;">Tel: ${escapeHtml(String(business.phone ?? ''))}</p>` : ''}
                     </div>
                     <div style="margin-bottom:15px;font-size:13px;">
                         <p style="margin:3px 0;"><strong>FACTURA No:</strong> ${numLabel}</p>
@@ -268,8 +268,8 @@
                     <div style="border-top:1px dashed #000;border-bottom:1px dashed #000;padding:10px 0;margin:10px 0;text-align:right;">
                         <strong style="font-size:16px;">TOTAL: ${cur}${o.val.toLocaleString()}</strong>
                     </div>
-                    ${o.garantia > 0 ? `<div style="font-size:9px;color:#555;margin:10px 0;padding:8px;border:1px dashed #ccc;border-radius:4px;">⚠️ ${garantiaMsg}</div>` : ''}
-                    <div style="text-align:center;font-size:10px;margin-top:16px;color:#666;">${footerMsg}</div>
+                    ${o.garantia > 0 ? `<div style="font-size:9px;color:#555;margin:10px 0;padding:8px;border:1px dashed #ccc;border-radius:4px;">⚠️ ${escapeHtml(String(garantiaMsg ?? ''))}</div>` : ''}
+                    <div style="text-align:center;font-size:10px;margin-top:16px;color:#666;">${escapeHtml(String(footerMsg ?? ''))}</div>
                 </div>`;
             document.getElementById('modal-invoice').classList.remove('hidden');
         }
@@ -467,7 +467,7 @@
                 modal.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);display:flex;justify-content:center;padding:16px;';
                 modal.innerHTML = `<div style="background:#111827;border:1px solid rgba(255,255,255,0.1);border-radius:24px 24px 24px 24px;width:100%;max-width:400px;overflow:hidden;margin-bottom:80px;">
                     <div style="background:linear-gradient(to right,#16a34a,#15803d);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;">
-                        <div><p style="color:white;font-weight:900;font-size:14px;">💬 ENVIAR WHATSAPP</p><p style="color:rgba(255,255,255,0.7);font-size:10px;">${escapeHtml(o.nom)} · ${o.tel}</p></div>
+                        <div><p style="color:white;font-weight:900;font-size:14px;">💬 ENVIAR WHATSAPP</p><p style="color:rgba(255,255,255,0.7);font-size:10px;">${escapeHtml(o.nom)} · ${escapeHtml(String(o.tel ?? ''))}</p></div>
                         <button onclick="document.getElementById('modal-wa-pick').remove()" style="color:white;background:rgba(0,0,0,0.3);width:28px;height:28px;border-radius:50%;font-size:14px;">✕</button>
                     </div>
                     <div style="padding:16px;display:flex;flex-direction:column;gap:10px;max-height:72vh;overflow-y:auto;">

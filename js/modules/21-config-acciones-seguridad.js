@@ -414,33 +414,43 @@
         document.addEventListener('touchstart', resetLockTimer, { passive: true });
         document.addEventListener('click', resetLockTimer);
 
-        // Extender verifyPin con bloqueo por intentos (sin sobreescribir)
+        // Bloqueo por intentos fallidos. El estado se guarda en localStorage (recargar la app no lo salta)
+        // y el castigo crece: 30 s, 1 min, 2 min, 4 min… hasta 15 min. Sin configurar = 5 intentos.
+        function _pinLockState() { try { return JSON.parse(localStorage.getItem('pinLockState') || '{}') || {}; } catch (_) { return {}; } }
+        function _pinLockSave(st) { try { localStorage.setItem('pinLockState', JSON.stringify(st)); } catch (_) {} }
+        function _pinMaxAttempts() {
+            const raw = localStorage.getItem('maxPinAttempts');
+            return raw === null ? 5 : (parseInt(raw, 10) || 0); // "0" = desactivado a propósito
+        }
+        function _pinWaitText(ms) { const s = Math.ceil(ms / 1000); return s >= 60 ? Math.ceil(s / 60) + ' min' : s + ' s'; }
+        function _pinClearDots() {
+            pinBuffer = '';
+            document.querySelectorAll('#pin-dots .pin-dot').forEach(d => d.classList.remove('filled'));
+        }
         async function verifyPinConBloqueo() {
-            const maxAttempts = parseInt(localStorage.getItem('maxPinAttempts')) || 0;
-            if (maxAttempts > 0 && Date.now() < _lockUntil) {
-                const secs = Math.ceil((_lockUntil - Date.now()) / 1000);
-                document.getElementById('pin-error').innerText = `🔒 Bloqueado. Espera ${secs}s`;
-                pinBuffer = '';
-                document.querySelectorAll('#pin-dots .pin-dot').forEach(d => d.classList.remove('filled'));
+            const maxAttempts = _pinMaxAttempts();
+            const st = _pinLockState();
+            if (maxAttempts > 0 && Date.now() < (st.until || 0)) {
+                document.getElementById('pin-error').innerText = `🔒 Bloqueado. Espera ${_pinWaitText(st.until - Date.now())}`;
+                _pinClearDots();
                 return;
             }
-            const input     = document.getElementById('pin-input').value;
-            const inputHash = await _hashPin(input);
-            if (inputHash !== _pinHash) {
-                _pinAttempts++;
-                if (maxAttempts > 0 && _pinAttempts >= maxAttempts) {
-                    _lockUntil = Date.now() + 30000;
-                    _pinAttempts = 0;
-                    document.getElementById('pin-error').innerText = '🔒 Bloqueado 30 segundos';
-                    pinBuffer = '';
-                    document.querySelectorAll('#pin-dots .pin-dot').forEach(d => d.classList.remove('filled'));
-                    return;
-                }
-            } else {
-                _pinAttempts = 0;
-                resetLockTimer();
-            }
             await verifyPin();
+            if (window._lastPinOk) { _pinLockSave({}); resetLockTimer(); return; }
+            if (maxAttempts > 0) {
+                st.fails = (st.fails || 0) + 1;
+                if (st.fails >= maxAttempts) {
+                    st.level = (st.level || 0) + 1;
+                    const wait = Math.min(30000 * Math.pow(2, st.level - 1), 900000);
+                    st.until = Date.now() + wait;
+                    st.fails = 0;
+                    document.getElementById('pin-error').innerText = `🔒 Demasiados intentos. Espera ${_pinWaitText(wait)}`;
+                    _pinClearDots();
+                } else {
+                    document.getElementById('pin-error').innerText = `⚠️ PIN incorrecto · te quedan ${maxAttempts - st.fails} intento(s)`;
+                }
+                _pinLockSave(st);
+            }
         }
 
         function fmtMoney(val) {

@@ -129,14 +129,14 @@
                         <div style="font-size:18px;font-weight:900;color:#f1f5f9;line-height:1.15;margin-bottom:6px;word-break:break-word;">${escapeHtml(nombre)}</div>
                         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
                             <span style="padding:3px 10px;border-radius:99px;background:${tierBg};border:1px solid ${tierColor}44;color:${tierColor};font-size:9px;font-weight:900;letter-spacing:1.5px;">${tierIcon} ${tier}</span>
-                            ${telefono ? `<span style="font-size:10px;color:#94a3b8;font-weight:600;">📱 ${telefono}</span>` : '<span style="font-size:10px;color:#64748b;font-weight:600;">Sin teléfono</span>'}
+                            ${telefono ? `<span style="font-size:10px;color:#94a3b8;font-weight:600;">📱 ${escapeHtml(String(telefono ?? ''))}</span>` : '<span style="font-size:10px;color:#64748b;font-weight:600;">Sin teléfono</span>'}
                         </div>
                     </div>
                     <button onclick="closeClientHistory()" style="flex-shrink:0;width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;font-size:14px;cursor:pointer;">✕</button>
                 </div>
                 ${telefono ? `<div style="margin-top:12px;display:flex;gap:6px;">
                     <a href="${waUrl}" target="_blank" style="flex:1;padding:8px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);border-radius:10px;color:#34d399;font-size:10px;font-weight:900;text-align:center;text-decoration:none;letter-spacing:1px;text-transform:uppercase;">💬 WhatsApp</a>
-                    <a href="tel:${telefono}" style="flex:1;padding:8px;background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.3);border-radius:10px;color:#60a5fa;font-size:10px;font-weight:900;text-align:center;text-decoration:none;letter-spacing:1px;text-transform:uppercase;">📞 Llamar</a>
+                    <a href="tel:${escapeHtml(String(telefono ?? ''))}" style="flex:1;padding:8px;background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.3);border-radius:10px;color:#60a5fa;font-size:10px;font-weight:900;text-align:center;text-decoration:none;letter-spacing:1px;text-transform:uppercase;">📞 Llamar</a>
                 </div>` : ''}
             `;
 

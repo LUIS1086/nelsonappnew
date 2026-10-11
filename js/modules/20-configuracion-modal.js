@@ -96,7 +96,7 @@
             document.getElementById('config-warranty-alert').checked = localStorage.getItem('warrantyAlert') === 'true';
             document.getElementById('config-warranty-days').value = localStorage.getItem('warrantyAlertDays') || '3';
             document.getElementById('config-auto-lock').value = localStorage.getItem('autoLockMinutes') || '0';
-            document.getElementById('config-max-attempts').value = localStorage.getItem('maxPinAttempts') || '0';
+            document.getElementById('config-max-attempts').value = localStorage.getItem('maxPinAttempts') ?? '5';
             const accent = localStorage.getItem('appAccentColor') || 'orange';
             document.querySelectorAll('#accent-color-btns button').forEach(btn => {
                 btn.style.borderColor = btn.dataset.color === accent ? '#fff' : 'transparent';
