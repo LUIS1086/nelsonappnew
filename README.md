@@ -15,7 +15,7 @@ dashboard.html          Panel de indicadores (solo estructura)
 css/dashboard.css       Estilos base del panel
 css/dashboard-premium.css  Capa premium del panel (quita su <link> para volver al diseño anterior)
 js/dashboard.js         Lógica del panel
-js/vendor/              html2canvas y qrcode locales (funcionan sin internet)
+js/libs/              html2canvas y qrcode locales (funcionan sin internet)
 service-worker.js       Offline + actualización (CACHE_VERSION)
 manifest.json           Manifiesto PWA
 vercel.json             Cabeceras y caché
@@ -72,4 +72,10 @@ Vercel (sitio estático, sin build). Para el APK: PWABuilder con la URL de Verce
 - **CSP y Permissions-Policy:** definidas en `vercel.json`. Si añades un servicio externo, agrega su dominio a `connect-src` (o `script-src`/`img-src`) o el navegador lo bloqueará.
 - **Llave de Gemini:** viaja en la cabecera `x-goog-api-key`, no en la URL. `tools/verificar.js` falla si vuelve a aparecer en la URL.
 - **Texto libre en `innerHTML`:** usa siempre `escapeHtml(String(valor ?? ''))`.
+
+## Sensación de app nativa
+
+- `css/18-native-premium.css`: capa visual (cabecera compacta, barra inferior flotante, ventanas como hoja inferior, botones con respuesta al toque, campos legibles). Quita su `<link>` para volver al diseño anterior.
+- `js/modules/38-native-feel.js`: vibración sutil (Android; se apaga con `localStorage.hapticsOff = '1'`), transición entre pestañas, barra inferior que se esconde con el teclado, botón flotante "Nueva recepción" y cerrar ventanas deslizando hacia abajo.
+- Las librerías externas viven en `js/libs/` (en minúscula, para que Vercel las encuentre).
 
