@@ -145,7 +145,7 @@
 
         async function runExport(type) {
             const loader = document.getElementById('export-loading');
-            loader.classList.remove('hidden');
+            if (loader) loader.classList.remove('hidden');
             try {
                 const cur = (typeof getCurrency === 'function') ? getCurrency() : '$';
                 const biz = _safeBizConfig();
@@ -163,10 +163,10 @@
                     orders = orders.filter(o => (o.fecha || 0) >= from && (o.fecha || 0) <= to);
                     headers = ['#Orden','Cliente','Teléfono','Equipo','Falla','Estado','Valor','Adelanto','Saldo','Fecha','Entrega Estimada','Técnico'];
                     rows = orders.map((o,i) => [
-                        i+1, o.nom||'', o.tel||'', o.equ||'', (o.fal||'').replace(/,/g,' '),
+                        i+1, o.nom||'', o.tel||'', o.equ||'', (o.det||o.fal||'').replace(/,/g,' '),
                         o.sta||'', o.val||0, o.adelanto||0, (o.val||0)-(o.adelanto||0),
                         o.fecha ? new Date(o.fecha).toLocaleDateString('es-CO') : '',
-                        o.deadline ? new Date(o.deadline).toLocaleDateString('es-CO') : '',
+                        (o.fechaEstimada || o.deadline) ? new Date(o.fechaEstimada || o.deadline).toLocaleDateString('es-CO') : '',
                         o.tecnico||''
                     ]);
                     filename = `ordenes_${rangeSlug}`;
@@ -176,9 +176,13 @@
                     sales  = sales.filter(s  => (s.fecha || 0) >= from && (s.fecha || 0) <= to);
                     gastos = gastos.filter(g => (g.fecha || 0) >= from && (g.fecha || 0) <= to);
                     headers = ['Tipo','Descripción','Ítem','Cantidad','Valor','Fecha'];
-                    const saleRows = sales.map(s => [s.tipo||'venta', s.det||s.item||'', s.item||'', s.qty||1, s.val||0, s.fecha ? new Date(s.fecha).toLocaleDateString('es-CO') : '']);
-                    const gastoRows = gastos.map(g => ['gasto', g.det||'', '', 1, -(g.val||0), g.fecha ? new Date(g.fecha).toLocaleDateString('es-CO') : '']);
-                    rows = [...saleRows, ...gastoRows].sort((a,b) => new Date(b[5]) - new Date(a[5]));
+                    // Ordenar por timestamp original antes de formatear la fecha.
+                    // new Date('dd/mm/yyyy') no es portable entre navegadores.
+                    const movimientos = [
+                        ...sales.map(s => ({ fechaTs: Number(s.fecha) || 0, row: [s.tipo||'venta', s.det||s.item||'', s.item||'', s.qty||1, s.val||0, s.fecha ? new Date(s.fecha).toLocaleDateString('es-CO') : ''] })),
+                        ...gastos.map(g => ({ fechaTs: Number(g.fecha) || 0, row: ['gasto', g.det||'', '', 1, -(g.val||0), g.fecha ? new Date(g.fecha).toLocaleDateString('es-CO') : ''] }))
+                    ];
+                    rows = movimientos.sort((a, b) => b.fechaTs - a.fechaTs).map(m => m.row);
                     filename = `ventas_${rangeSlug}`;
                 } else if (type === 'inventario') {
                     const stock = await getAll('stock');
@@ -234,7 +238,7 @@
                 console.error('Export error:', err);
                 showToast('❌ Error al exportar: ' + ((err && err.message) || 'no se pudo generar el archivo'), 'error');
             } finally {
-                loader.classList.add('hidden');
+                if (loader) loader.classList.add('hidden');
             }
         }
 
@@ -264,7 +268,8 @@
                 await new Promise((resolve, reject) => {
                     const s = document.createElement('script');
                     s.src = 'js/libs/xlsx.full.min.js';
-                    s.onload = resolve; s.onerror = () => reject(new Error('No se pudo cargar ' + s.src.split('/').pop() + '. Recarga la app e intenta de nuevo.'));
+                    s.onload = () => window.XLSX ? resolve() : reject(new Error('SheetJS se cargó, pero no está disponible. Actualiza la app y vuelve a intentarlo.'));
+                    s.onerror = () => reject(new Error('No se pudo cargar ' + s.src.split('/').pop() + '. Comprueba la conexión y actualiza la app.'));
                     document.head.appendChild(s);
                 });
                 const wsData = [headers, ...rows];
@@ -288,7 +293,7 @@
                 await new Promise((resolve, reject) => {
                     const s = document.createElement('script');
                     s.src = 'js/libs/jspdf.umd.min.js';
-                    s.onload = resolve; s.onerror = () => reject(new Error('No se pudo cargar ' + s.src.split('/').pop() + '. Recarga la app e intenta de nuevo.'));
+                    s.onload = resolve; s.onerror = () => reject(new Error('No se pudo cargar ' + s.src.split('/').pop() + '. Comprueba la conexión y actualiza la app.'));
                     document.head.appendChild(s);
                 });
             }
@@ -300,7 +305,7 @@
                 await new Promise((resolve, reject) => {
                     const s = document.createElement('script');
                     s.src = 'js/libs/jspdf.plugin.autotable.min.js';
-                    s.onload = resolve; s.onerror = () => reject(new Error('No se pudo cargar ' + s.src.split('/').pop() + '. Recarga la app e intenta de nuevo.'));
+                    s.onload = resolve; s.onerror = () => reject(new Error('No se pudo cargar ' + s.src.split('/').pop() + '. Comprueba la conexión y actualiza la app.'));
                     document.head.appendChild(s);
                 });
             }
