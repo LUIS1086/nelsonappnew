@@ -60,7 +60,7 @@
     const nav = document.querySelector('nav.bottom-nav-mobile');
     if (nav) { nav.setAttribute('role', 'tablist'); nav.setAttribute('aria-label', 'Secciones'); }
 
-    // 6) Botón flotante "Nueva recepción" (visible en móvil fuera de la pestaña Taller)
+    // 6) Botón flotante "Nueva recepción" (solo en móvil y solo en la pestaña Órdenes)
     const fab = document.createElement('button');
     fab.id = 'fab-nueva'; fab.type = 'button'; fab.hidden = true;
     fab.setAttribute('aria-label', 'Nueva recepción');
@@ -75,9 +75,10 @@
     document.body.appendChild(fab);
 
     function syncChrome() {
-        const taller = document.getElementById('view-taller');
+        // Solo en Órdenes: en Caja/Datos taparía los botones de cada fila
+        const ord = document.getElementById('view-ordenes');
         const appOn = hdr && !hdr.classList.contains('hidden');
-        fab.hidden = !(appOn && taller && taller.classList.contains('hidden') && isMobile());
+        fab.hidden = !(appOn && ord && !ord.classList.contains('hidden') && isMobile());
         document.querySelectorAll('nav.bottom-nav-mobile .nav-btn').forEach(function (b) {
             const on = b.classList.contains('nav-active');
             b.setAttribute('role', 'tab'); b.setAttribute('aria-selected', on ? 'true' : 'false');
