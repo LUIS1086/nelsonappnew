@@ -232,7 +232,7 @@
                 closeExportPanel();
             } catch(err) {
                 console.error('Export error:', err);
-                showToast('❌ Error al exportar: ' + err.message, 'error');
+                showToast('❌ Error al exportar: ' + ((err && err.message) || 'no se pudo generar el archivo'), 'error');
             } finally {
                 loader.classList.add('hidden');
             }
@@ -244,8 +244,11 @@
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url; a.download = filename; a.click();
-            URL.revokeObjectURL(url);
+            a.href = url; a.download = filename; a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            // No liberar el archivo de inmediato: algunos navegadores cancelan la descarga si se revoca al instante
+            setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 4000);
         }
 
         async function _exportExcel(headers, rows, filename, bizName, type) {
@@ -260,8 +263,8 @@
                 // Cargar SheetJS dinámicamente
                 await new Promise((resolve, reject) => {
                     const s = document.createElement('script');
-                    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
-                    s.onload = resolve; s.onerror = reject;
+                    s.src = 'js/libs/xlsx.full.min.js';
+                    s.onload = resolve; s.onerror = () => reject(new Error('No se pudo cargar ' + s.src.split('/').pop() + '. Recarga la app e intenta de nuevo.'));
                     document.head.appendChild(s);
                 });
                 const wsData = [headers, ...rows];
@@ -284,8 +287,8 @@
             if (!window.jspdf || !window.jspdf.jsPDF) {
                 await new Promise((resolve, reject) => {
                     const s = document.createElement('script');
-                    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-                    s.onload = resolve; s.onerror = reject;
+                    s.src = 'js/libs/jspdf.umd.min.js';
+                    s.onload = resolve; s.onerror = () => reject(new Error('No se pudo cargar ' + s.src.split('/').pop() + '. Recarga la app e intenta de nuevo.'));
                     document.head.appendChild(s);
                 });
             }
@@ -296,8 +299,8 @@
             if (!hasAutoTable) {
                 await new Promise((resolve, reject) => {
                     const s = document.createElement('script');
-                    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js';
-                    s.onload = resolve; s.onerror = reject;
+                    s.src = 'js/libs/jspdf.plugin.autotable.min.js';
+                    s.onload = resolve; s.onerror = () => reject(new Error('No se pudo cargar ' + s.src.split('/').pop() + '. Recarga la app e intenta de nuevo.'));
                     document.head.appendChild(s);
                 });
             }

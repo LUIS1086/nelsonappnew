@@ -326,7 +326,7 @@
         function loadChartJs(cb) {
             if (window.Chart) { cb(); return; }
             const s = document.createElement('script');
-            s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+            s.src = 'js/libs/chart.umd.js';
             s.onload = cb;
             s.onerror = () => console.warn('No se pudo cargar Chart.js');
             document.head.appendChild(s);
