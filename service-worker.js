@@ -12,7 +12,7 @@
  *    detecte capacidad de notificaciones (puntúa más alto).
  * ============================================================ */
 
-const CACHE_VERSION = 'nelsonapp-v3.7.1';
+const CACHE_VERSION = 'nelsonapp-v3.7.2';
 const STATIC_CACHE  = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
