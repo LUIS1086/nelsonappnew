@@ -1,0 +1,103 @@
+/* ══════════════════════════════════════════════════════════
+   Nelson App Pro · css/19-desktop-premium.css
+   Mejoras SOLO para escritorio/tablet (≥768 px). El móvil no cambia.
+   Para desactivarlo, quita su <link> en index.html.
+   ══════════════════════════════════════════════════════════ */
+
+/* Ancho del menú lateral (lo usa la barra superior para no quedar debajo de él) */
+:root { --sb-w: 240px; }
+@media (min-width: 1200px) { :root { --sb-w: 260px; } }
+@media (min-width: 1440px) { :root { --sb-w: 264px; } }
+@media (min-width: 1920px) { :root { --sb-w: 280px; } }
+
+@media (min-width: 768px) {
+
+  /* ── 1. Barra superior: antes ocupaba todo el ancho y el menú lateral tapaba el título ── */
+  #desktop-topbar { margin-left: var(--sb-w); padding: 12px 24px !important; min-height: 68px; gap: 16px; }
+  #desktop-topbar-right { gap: 8px !important; flex-shrink: 0; }
+  #desktop-topbar-title { font-size: 20px; font-style: normal !important; letter-spacing: -.01em; line-height: 1.15; }
+  #desktop-topbar-subtitle { font-size: 10px !important; letter-spacing: .22em !important; }
+  #desktop-topbar > div:first-child { white-space: nowrap; flex-shrink: 0; }
+  #desktop-topbar button { white-space: nowrap; }
+  #topbar-kpis { display: flex; gap: 10px; margin-right: auto; }
+  .topbar-kpi { white-space: nowrap; }
+  .topbar-kpi {
+    display: flex; flex-direction: column; gap: 1px; padding: 6px 12px; border-radius: 12px;
+    background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.06); min-width: 0;
+  }
+  .topbar-kpi-label { font-size: 10px !important; letter-spacing: .06em !important; text-transform: none !important; opacity: .75; }
+  .topbar-kpi-value { font-size: 18px !important; font-variant-numeric: tabular-nums; line-height: 1.1; }
+
+  /* ── 2. Menú lateral: más compacto, con scroll si la pantalla es baja ── */
+  #sidebar { overflow-y: auto; scrollbar-width: thin; }
+  #sidebar-nav { padding: 10px 12px; gap: 2px; }
+  .sidebar-nav-item { padding: 11px 14px; gap: 12px; position: relative; }
+  .sidebar-nav-item.active::before {
+    content: ""; position: absolute; left: -12px; top: 22%; bottom: 22%; width: 4px; border-radius: 0 4px 4px 0; background: var(--accent);
+  }
+  .sidebar-nav-icon { font-size: 1.15rem; width: 26px; }
+  #sidebar-status-breakdown-title, #sidebar-nav ~ div > p { letter-spacing: .12em !important; }
+
+  /* ── 3. Rejillas: las tarjetas arrancan alineadas (antes un margen heredado las desnivelaba) ── */
+  #view-taller > *, #view-ventas > * { margin-top: 0 !important; }
+  #view-taller { align-items: start; }
+  #view-ventas { align-items: stretch; }
+  #view-ventas > .card { align-self: stretch !important; }
+  #taller-preview-panel { top: 92px !important; }
+  #view-taller #taller-preview-panel > .card + .card { margin-top: 16px !important; }
+
+  /* ── 4. Órdenes: los 3 accesos rápidos como botones compactos, no franjas gigantes ── */
+  #view-ordenes .grid.grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 230px)) !important; justify-content: start; gap: 12px; }
+  #view-ordenes .quick-action { flex-direction: row; justify-content: flex-start; align-items: center; gap: 12px; min-height: 60px; padding: 10px 16px; text-align: left; }
+  #view-ordenes .qa-label { text-align: left; font-size: 12.5px !important; }
+
+  /* ── 5. Datos: dos columnas, y el menú en cuadrícula en vez de una lista larguísima ── */
+
+  #view-admin > * { margin-top: 0 !important; }
+  #view-admin > #admin-menu-card { grid-column: 1 / -1; }
+  .admin-menu-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; padding: 14px 18px 18px !important; }
+  .admin-menu-list > p, .admin-menu-list > div[style*="height:1px"], .admin-menu-list > div[style*="height: 1px"] { grid-column: 1 / -1; }
+  .admin-menu-list > p { margin-top: 6px !important; }
+  /* Textos que estaban casi invisibles (#2a3a55 sobre fondo oscuro) */
+  .admin-menu-list [style*="color:#2a3a55"], .admin-menu-list [style*="color: #2a3a55"] { color: #7b8aa5 !important; }
+  .admin-menu-list button div[style*="font-size:11px"], .admin-menu-list button div[style*="font-size: 11px"] { color: #7b8aa5 !important; }
+  .admin-menu-list > button {
+    border: 1px solid rgba(255,255,255,.05) !important; background: rgba(255,255,255,.02) !important;
+    border-radius: 16px !important; transition: background-color .18s ease, border-color .18s ease;
+  }
+  .admin-menu-list > button:hover { background: rgba(249,115,22,.07) !important; border-color: rgba(249,115,22,.28) !important; }
+
+  /* ── 6. Interacción con ratón ── */
+  button, [onclick], .sidebar-nav-item, .quick-action { cursor: pointer; }
+  @media (hover: hover) {
+    button:not(:disabled):not(.nav-btn):hover { filter: brightness(1.09); }
+    .card { transition: border-color .2s ease, box-shadow .2s ease; }
+    .card:hover { border-color: rgba(255,255,255,.12); }
+  }
+  * { scrollbar-width: thin; scrollbar-color: #2a3350 transparent; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: #2a3350; border-radius: 99px; border: 2px solid transparent; background-clip: padding-box; }
+  ::-webkit-scrollbar-thumb:hover { background: #3a4670; background-clip: padding-box; border: 2px solid transparent; }
+
+  /* ── 7. Ventanas: más anchas y siempre dentro de la pantalla ── */
+  .modal-custom > div.max-w-md { max-width: 560px !important; }
+  .modal-custom > div:first-child { max-height: calc(100vh - 48px); overflow-y: auto; }
+}
+
+/* Pantallas medianas: sin espacio para los indicadores en la barra superior (siguen en el menú lateral) */
+@media (min-width: 768px) and (max-width: 1439px) {
+  #topbar-kpis { display: none !important; }
+  #desktop-topbar { justify-content: space-between; }
+}
+
+/* Datos en dos columnas (reemplaza la pila vertical de 920 px definida en 11-responsive-escritorio.css) */
+@media (min-width: 1024px) {
+  #view-admin:not(.hidden) {
+    display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: stretch;
+    max-width: 1180px !important; margin: 0 auto !important;
+  }
+}
+
+@media (min-width: 1600px) {
+  .admin-menu-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
