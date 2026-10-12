@@ -23,5 +23,11 @@ const vj=fs.readFileSync(path.join(root,'vercel.json'),'utf8');
 if(!/Content-Security-Policy/.test(vj)) err('vercel.json no tiene Content-Security-Policy');
 for(const f of fs.readdirSync(path.join(root,'js'),{recursive:true})){ if(!String(f).endsWith('.js')||String(f).includes('libs')) continue;
   if(/[?&]key=\$\{/.test(fs.readFileSync(path.join(root,'js',String(f)),'utf8'))) err('La llave de API va en la URL (usa la cabecera x-goog-api-key): js/'+f); }
+const walk=d=>fs.readdirSync(d,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(path.join(d,e.name)):[path.join(d,e.name)]);
+for(const f of walk(path.join(root,'js')).filter(f=>f.endsWith('.js')&&!f.includes(path.sep+'libs'+path.sep))){
+  const t=fs.readFileSync(f,'utf8');
+  for(const m of t.matchAll(/['"](js\/libs\/[A-Za-z0-9._-]+)['"]/g)) if(!fs.existsSync(path.join(root,m[1]))) err('Falta la librería '+m[1]+' (citada en '+path.relative(root,f)+')');
+  if(/\.src\s*=\s*['"]https?:\/\/(cdnjs|cdn\.jsdelivr|unpkg)/.test(t)) err('Carga un script de CDN (la CSP lo bloquea; alójalo en js/libs): '+path.relative(root,f));
+}
 console.log(errores?`\n${errores} problema(s) encontrados`:`✓ Todo en orden (${refs.length} archivos css/js, precache y manifest correctos)`);
 process.exit(errores?1:0);
