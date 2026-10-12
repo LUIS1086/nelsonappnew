@@ -76,6 +76,13 @@ Vercel (sitio estático, sin build). Para el APK: PWABuilder con la URL de Verce
 ## Sensación de app nativa
 
 - `css/18-native-premium.css`: capa visual (cabecera compacta, barra inferior flotante, ventanas como hoja inferior, botones con respuesta al toque, campos legibles). Quita su `<link>` para volver al diseño anterior.
-- `js/modules/38-native-feel.js`: vibración sutil (Android; se apaga con `localStorage.hapticsOff = '1'`), transición entre pestañas, barra inferior que se esconde con el teclado, botón flotante "Nueva recepción" y cerrar ventanas deslizando hacia abajo.
+- `js/modules/38-native-feel.js`: vibración sutil (Android; se apaga con `localStorage.hapticsOff = '1'`), transición entre pestañas, barra inferior que se esconde con el teclado, botón flotante "Nueva recepción" (solo en Órdenes) y cerrar ventanas deslizando hacia abajo.
 - Las librerías externas viven en `js/libs/` (en minúscula, para que Vercel las encuentre).
+
+## Escritorio (≥768 px)
+
+- `css/19-desktop-premium.css`: solo afecta a escritorio/tablet; el móvil queda igual. Quita su `<link>` para volver al diseño anterior.
+- La barra superior ya no queda debajo del menú lateral (usa la variable `--sb-w`, el ancho del menú). Por debajo de 1440 px se ocultan sus 4 indicadores para que quepan los botones.
+- Rejillas alineadas (Taller y Caja), accesos rápidos de Órdenes compactos y Datos en dos columnas con el menú en cuadrícula.
+- Si cambias el ancho del menú lateral en `11-responsive-escritorio.css`, actualiza también `--sb-w` en el archivo 19.
 

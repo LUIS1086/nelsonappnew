@@ -37,6 +37,7 @@
     <link rel="stylesheet" href="css/14-configuracion-command-center.css">
     <link rel="stylesheet" href="css/15-nelson-ia.css">
     <link rel="stylesheet" href="css/18-native-premium.css">
+    <link rel="stylesheet" href="css/19-desktop-premium.css">
 </head>
 <body class="swipe-area">
 
@@ -673,7 +674,7 @@
             <!-- Búsqueda y ordenar -->
             <div class="flex gap-2 mb-3">
                 <div class="relative flex-1">
-                    <input type="text" id="stock-search" placeholder="🔍 Buscar nombre o código..." class="w-full text-xs py-2 pl-3 pr-9 rounded-xl" oninput="renderStock()">
+                    <input type="text" id="stock-search" placeholder="🔍 Buscar repuesto" class="w-full text-xs py-2 pl-3 pr-9 rounded-xl" oninput="renderStock()">
                     <button onclick="openQRScanner('stock')" class="absolute right-2 top-1/2 -translate-y-1/2 text-violet-400 text-base leading-none active:scale-90 transition hidden" title="Escanear código QR/barras">📷</button>
                 </div>
                 <select id="stock-sort" class="text-xs py-2 px-2 rounded-xl w-28 flex-shrink-0" onchange="renderStock()">
@@ -761,7 +762,7 @@
         </div>
 
         <!-- Menú iOS Premium -->
-        <div style="border-radius:24px;overflow:hidden;background:#0d1117;border:1px solid #1a2235;">
+        <div id="admin-menu-card" style="border-radius:24px;overflow:hidden;background:#0d1117;border:1px solid #1a2235;">
 
             <div style="background:linear-gradient(135deg,#0f172a,#1e293b);padding:22px 20px 18px;text-align:center;border-bottom:1px solid #1a2235;">
                 <div style="width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,rgba(255,107,26,0.25),rgba(255,107,26,0.08));border:1.5px solid rgba(255,107,26,0.35);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;">
@@ -771,7 +772,7 @@
                 <h3 style="font-size:20px;font-weight:900;color:#f0f4ff;margin:0;">Menú de Datos</h3>
             </div>
 
-            <div style="padding:10px 12px;">
+            <div class="admin-menu-list" style="padding:10px 12px;">
 
                 <p style="font-size:9px;font-weight:900;letter-spacing:3px;color:#2a3a55;text-transform:uppercase;padding:10px 4px 6px;margin:0;">ANÁLISIS</p>
 
