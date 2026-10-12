@@ -12,7 +12,7 @@
  *    detecte capacidad de notificaciones (puntúa más alto).
  * ============================================================ */
 
-const CACHE_VERSION = 'nelsonapp-v3.7.0';
+const CACHE_VERSION = 'nelsonapp-v3.7.1';
 const STATIC_CACHE  = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -42,6 +42,10 @@ const PRECACHE_URLS = [
     './css/17-responsive-premium-hardening.css',
     './js/libs/html2canvas.min.js',
     './js/libs/qrcode.min.js',
+    './js/libs/jspdf.umd.min.js',
+    './js/libs/jspdf.plugin.autotable.min.js',
+    './js/libs/xlsx.full.min.js',
+    './js/libs/chart.umd.js',
     './dashboard.html',
     './css/dashboard.css',
     './css/dashboard-premium.css',

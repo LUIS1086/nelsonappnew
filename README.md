@@ -86,3 +86,7 @@ Vercel (sitio estático, sin build). Para el APK: PWABuilder con la URL de Verce
 - Rejillas alineadas (Taller y Caja), accesos rápidos de Órdenes compactos y Datos en dos columnas con el menú en cuadrícula.
 - Si cambias el ancho del menú lateral en `11-responsive-escritorio.css`, actualiza también `--sb-w` en el archivo 19.
 
+## Librerías externas
+
+Todas viven en `js/libs/` (jsPDF, autoTable, SheetJS, Chart.js, html2canvas, qrcode). **No cargues scripts desde un CDN**: la CSP de `vercel.json` los bloquea y la exportación a PDF/Excel dejaría de funcionar. `tools/verificar.js` avisa si alguien lo intenta.
+
