@@ -4,93 +4,235 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seguimiento de Orden | Todo Repuestos Nelson</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f1f5f9;
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #1e293b;
+            border-bottom: 1px solid #334155;
+            padding: 1rem;
+            text-align: center;
+        }
+        header h1 {
+            color: #fbbf24;
+            margin: 0;
+            font-size: 1.25rem;
+        }
+        header p {
+            color: #94a3b8;
+            margin: 0.25rem 0 0 0;
+            font-size: 0.75rem;
+        }
+        main {
+            max-width: 500px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 1.5rem 1rem;
+            flex-grow: 1;
+            box-sizing: border-box;
+        }
+        .card {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+        }
+        h2 {
+            font-size: 1.1rem;
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+        }
+        .search-box {
+            display: flex;
+            gap: 0.5rem;
+        }
+        input {
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            color: #f1f5f9;
+            border-radius: 0.75rem;
+            padding: 0.5rem 1rem;
+            width: 100%;
+            font-size: 1rem;
+            text-transform: uppercase;
+        }
+        input:focus {
+            outline: none;
+            border-color: #fbbf24;
+        }
+        button {
+            background-color: #fbbf24;
+            color: #0f172a;
+            border: none;
+            font-weight: bold;
+            padding: 0.5rem 1.25rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background-color: #f59e0b;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .badge {
+            background-color: rgba(251, 191, 36, 0.1);
+            color: #fbbf24;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 0.75rem;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .text-slate-400 {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            margin: 0;
+        }
+        .diagnostico-box {
+            background-color: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            color: #cbd5e1;
+        }
+        .timeline {
+            border-left: 2px solid #334155;
+            margin-left: 0.75rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        .step {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        .step-dot {
+            position: absolute;
+            left: -31px;
+            top: 2px;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background-color: #334155;
+            border: 2px solid #0f172a;
+            transition: all 0.3s;
+        }
+        .step-dot.active {
+            background-color: #fbbf24;
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+        }
+        .step-title {
+            font-size: 0.875rem;
+            font-weight: bold;
+            color: #e2e8f0;
+            margin: 0;
+        }
+        .step-desc {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin: 0.25rem 0 0 0;
+        }
+        .error-msg {
+            background-color: rgba(244, 63, 94, 0.1);
+            border: 1px solid rgba(244, 63, 94, 0.3);
+            color: #fb7185;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+        footer {
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.75rem;
+            color: #64748b;
+            border-top: 1px solid #1e293b;
+        }
+    </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between">
-
-    <!-- Header -->
-    <header class="bg-slate-800 border-b border-slate-700 p-4 shadow-md text-center">
-        <h1 class="text-xl font-bold text-amber-400"><i class="fa-solid fa-screwdriver-wrench mr-2"></i>Todo Repuestos Nelson</h1>
-        <p class="text-xs text-slate-400">Portal de Seguimiento de Reparaciones</p>
+<body>
+    <header>
+        <h1>🔧 Todo Repuestos Nelson</h1>
+        <p>Portal de Seguimiento de Reparaciones</p>
     </header>
 
-    <!-- Contenido Principal -->
-    <main class="container mx-auto px-4 py-8 max-w-lg flex-grow">
-        
-        <!-- Buscador de Orden -->
-        <div id="seccion-buscar" class="bg-slate-800 p-6 rounded-2xl shadow-xl border border-slate-700 mb-6">
-            <h2 class="text-lg font-semibold mb-3">Consulta el estado de tu equipo</h2>
-            <div class="flex gap-2">
-                <input type="text" id="input-codigo" placeholder="Ej: ORD-1042" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 w-full focus:outline-none focus:border-amber-400 uppercase">
-                <button onclick="consultarOrden()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-5 py-2 rounded-xl transition">
-                    <i class="fa-solid fa-search"></i>
-                </button>
+    <main>
+        <div class="card">
+            <h2>Consulta el estado de tu equipo</h2>
+            <div class="search-box">
+                <input type="text" id="input-codigo" placeholder="Ej: ORD-012">
+                <button onclick="consultarOrden()">🔍</button>
             </div>
         </div>
 
-        <!-- Tarjeta de Resultados -->
-        <div id="resultado-orden" class="hidden bg-slate-800 p-6 rounded-2xl shadow-xl border border-slate-700">
-            <div class="flex justify-between items-center border-b border-slate-700 pb-4 mb-4">
+        <div id="resultado-orden" class="card hidden">
+            <div class="flex-between" style="border-bottom: 1px solid #334155; padding-bottom: 1rem; margin-bottom: 1rem;">
                 <div>
-                    <span id="lbl-codigo" class="text-xs bg-amber-400/10 text-amber-400 px-2.5 py-1 rounded-full font-mono font-bold">--</span>
-                    <h3 id="lbl-equipo" class="text-xl font-bold mt-2">--</h3>
+                    <span id="lbl-codigo" class="badge">--</span>
+                    <h3 id="lbl-equipo" style="margin: 0.5rem 0 0 0; font-size: 1.2rem;">--</h3>
                 </div>
                 <div class="text-right">
-                    <p class="text-xs text-slate-400">Fecha Ingreso</p>
-                    <p id="lbl-fecha" class="text-sm font-medium">--</p>
+                    <p class="text-slate-400">Fecha Ingreso</p>
+                    <p id="lbl-fecha" style="font-size: 0.875rem; margin: 0; font-weight: 500;">--</p>
                 </div>
             </div>
 
-            <div class="mb-6">
-                <p class="text-xs text-slate-400 mb-1">Diagnóstico / Observaciones:</p>
-                <p id="lbl-diagnostico" class="text-sm bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 text-slate-300">--</p>
+            <div style="margin-bottom: 1.5rem;">
+                <p class="text-slate-400" style="margin-bottom: 0.25rem;">Diagnóstico / Observaciones:</p>
+                <div id="lbl-diagnostico" class="diagnostico-box">--</div>
             </div>
 
-            <!-- Línea de Tiempo / Progreso -->
-            <h4 class="text-sm font-semibold mb-4 text-slate-300">Estado de la Reparación:</h4>
-            <div class="space-y-6 relative border-l-2 border-slate-700 ml-3 pl-6">
-                
-                <!-- Paso 1 -->
-                <div class="relative" id="step-1">
-                    <div class="absolute -left-[31px] bg-slate-700 w-4 h-4 rounded-full border-2 border-slate-900 transition-all"></div>
-                    <p class="text-sm font-bold text-slate-200">1. Equipo Recibido / En Diagnóstico</p>
-                    <p class="text-xs text-slate-400">Su electrodoméstico ha ingresado al taller para revisión técnica.</p>
+            <h4 style="font-size: 0.875rem; margin-bottom: 1rem; color: #cbd5e1;">Estado de la Reparación:</h4>
+            <div class="timeline">
+                <div class="step" id="step-1">
+                    <div class="step-dot"></div>
+                    <p class="step-title">1. Equipo Recibido / En Diagnóstico</p>
+                    <p class="step-desc">Su electrodoméstico ha ingresado al taller para revisión técnica.</p>
                 </div>
-
-                <!-- Paso 2 -->
-                <div class="relative" id="step-2">
-                    <div class="absolute -left-[31px] bg-slate-700 w-4 h-4 rounded-full border-2 border-slate-900 transition-all"></div>
-                    <p class="text-sm font-bold text-slate-200">2. Presupuesto Aprobado</p>
-                    <p class="text-xs text-slate-400">Se definieron los repuestos y costos de reparación.</p>
+                <div class="step" id="step-2">
+                    <div class="step-dot"></div>
+                    <p class="step-title">2. Presupuesto Aprobado</p>
+                    <p class="step-desc">Se definieron los repuestos y costos de reparación.</p>
                 </div>
-
-                <!-- Paso 3 -->
-                <div class="relative" id="step-3">
-                    <div class="absolute -left-[31px] bg-slate-700 w-4 h-4 rounded-full border-2 border-slate-900 transition-all"></div>
-                    <p class="text-sm font-bold text-slate-200">3. En Proceso de Reparación</p>
-                    <p class="text-xs text-slate-400">El técnico está trabajando en la solución de la falla.</p>
+                <div class="step" id="step-3">
+                    <div class="step-dot"></div>
+                    <p class="step-title">3. En Proceso de Reparación</p>
+                    <p class="step-desc">El técnico está trabajando en la solución de la falla.</p>
                 </div>
-
-                <!-- Paso 4 -->
-                <div class="relative" id="step-4">
-                    <div class="absolute -left-[31px] bg-slate-700 w-4 h-4 rounded-full border-2 border-slate-900 transition-all"></div>
-                    <p class="text-sm font-bold text-slate-200">4. ¡Listo para Retirar!</p>
-                    <p class="text-xs text-slate-400">El equipo ha superado las pruebas y puede pasar a recogerlo.</p>
+                <div class="step" id="step-4">
+                    <div class="step-dot" style="margin-bottom: 0;"></div>
+                    <p class="step-title">4. ¡Listo para Retirar!</p>
+                    <p class="step-desc" style="margin-bottom: 0;">El equipo ha superado las pruebas y puede pasar a recogerlo.</p>
                 </div>
-
             </div>
         </div>
 
-        <!-- Mensaje de Error -->
-        <div id="error-orden" class="hidden bg-rose-500/10 border border-rose-500/30 p-4 rounded-xl text-center text-rose-400 text-sm">
+        <div id="error-orden" class="error-msg hidden">
             No se encontró ninguna orden con ese código. Verifique e intente nuevamente.
         </div>
-
     </main>
 
-    <!-- Footer -->
-    <footer class="text-center py-4 text-xs text-slate-500 border-t border-slate-800">
+    <footer>
         &copy; 2026 Todo Repuestos Nelson - Todos los derechos reservados.
     </footer>
 
@@ -132,8 +274,8 @@
 
         function actualizarPasosProgreso(estado) {
             for (let i = 1; i <= 4; i++) {
-                const step = document.querySelector(`#step-${i} div`);
-                step.className = "absolute -left-[31px] bg-slate-700 w-4 h-4 rounded-full border-2 border-slate-900 transition-all";
+                const dot = document.querySelector(`#step-${i} .step-dot`);
+                dot.classList.remove('active');
             }
 
             let pasoActual = 1;
@@ -142,8 +284,8 @@
             if (estado === 'listo' || estado === 'entregado') pasoActual = 4;
 
             for (let i = 1; i <= pasoActual; i++) {
-                const step = document.querySelector(`#step-${i} div`);
-                step.className = "absolute -left-[31px] bg-amber-400 w-4 h-4 rounded-full border-2 border-slate-900 shadow-[0_0_10px_rgba(251,191,36,0.5)] transition-all";
+                const dot = document.querySelector(`#step-${i} .step-dot`);
+                dot.classList.add('active');
             }
         }
     </script>
