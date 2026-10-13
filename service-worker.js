@@ -12,7 +12,7 @@
  *    detecte capacidad de notificaciones (puntúa más alto).
  * ============================================================ */
 
-const CACHE_VERSION = 'nelsonapp-v3.7.4';
+const CACHE_VERSION = 'nelsonapp-v3.7.5';
 const STATIC_CACHE  = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -51,6 +51,7 @@ const PRECACHE_URLS = [
     './css/dashboard-premium.css',
     './css/18-native-premium.css',
     './css/19-desktop-premium.css',
+    './css/20-responsive-pro.css',
     './js/modules/38-native-feel.js',
     './js/dashboard.js',
     './css/tailwind.css',
