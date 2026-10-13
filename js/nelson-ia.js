@@ -79,7 +79,7 @@
                 if (niaHistory.length === 0) niaShowWelcome();
                 setTimeout(() => {
                     const inp = document.getElementById('nia-input');
-                    if (inp && window.innerWidth >= 768) inp.focus();
+                    if (inp && window.innerWidth >= 1024) inp.focus();
                 }, 300);
             }
         };
