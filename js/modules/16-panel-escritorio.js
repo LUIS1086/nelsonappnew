@@ -111,8 +111,8 @@
 
         // ==================== DESKTOP/TABLET UX ENHANCEMENTS ====================
 
-        // Detectar si estamos en vista desktop/tablet (>= 768px)
-        function isDesktopView() { return window.matchMedia('(min-width: 768px)').matches; }
+        // Detectar si estamos en vista de escritorio (>= 1024px; por debajo se usa el layout móvil)
+        function isDesktopView() { return window.matchMedia('(min-width: 1024px)').matches; }
 
         // --- KPIs del topbar + contadores del sidebar + badges nav mobile ---
         async function updateDesktopStats() {

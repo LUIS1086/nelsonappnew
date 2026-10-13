@@ -5,7 +5,7 @@
 (function () {
     'use strict';
     const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const isMobile = () => window.matchMedia && matchMedia('(max-width: 780px)').matches;
+    const isMobile = () => window.matchMedia && matchMedia('(max-width: 1023px)').matches;
 
     // 1) Vibración sutil (Android; iPhone no la permite). Se apaga con localStorage.hapticsOff = '1'
     function haptic(kind) {
