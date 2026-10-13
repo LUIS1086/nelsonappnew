@@ -44,13 +44,13 @@ input[style*="padding-left:38px"], input[style*="padding-left: 38px"], #c-tel { 
 
 /* ── 5. Tarjetas ── */
 .card { border-radius: 22px; border: 1px solid rgba(255,255,255,.07); box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 8px 24px rgba(0,0,0,.26); }
-@media (max-width: 780px) {
+@media (max-width: 1023px) {
   #view-ordenes .grid.grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
   .quick-action { min-height: 92px; padding: 12px 6px; }
 }
 
 /* ── 6. Móvil: cabecera compacta, barra inferior flotante y espacio para ella ── */
-@media (max-width: 780px) {
+@media (max-width: 1023px) {
   #app-header {
     padding: calc(env(safe-area-inset-top, 0px) + 10px) 16px 10px !important;
     transition: padding .22s ease, box-shadow .22s ease, background-color .22s ease;
@@ -89,7 +89,7 @@ input[style*="padding-left:38px"], input[style*="padding-left: 38px"], #c-tel { 
 #fab-nueva svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; }
 #fab-nueva[hidden] { display: none; }
 body.kb-open #fab-nueva { transform: scale(0); opacity: 0; pointer-events: none; }
-@media (min-width: 781px) { #fab-nueva { display: none !important; } }
+@media (min-width: 1024px) { #fab-nueva { display: none !important; } }
 
 /* ── 8. Ventanas: hoja inferior en móvil (con manija y gesto de deslizar para cerrar) ── */
 @keyframes nn-fade { from { opacity: 0; } to { opacity: 1; } }

@@ -2,7 +2,9 @@
    Layout tablet/escritorio, sidebar, topbar, atajos
    (extraido sin cambios de index.html; el orden de carga importa) */
         /* ===== RESPONSIVE LAYOUT — TABLET & DESKTOP ===== */
-        @media (min-width: 768px) {
+        /* El layout de escritorio (menú lateral + barra superior) empieza en 1024px:
+           en tabletas verticales y teléfonos en horizontal usa el layout móvil (barra inferior). */
+        @media (min-width: 1024px) {
             body { padding-bottom: 0; }
 
             /* Ocultar nav bottom en desktop/tablet */
@@ -401,7 +403,7 @@
         }
 
         /* Mobile — ocultar sidebar y topbar de escritorio (CRÍTICO) */
-        @media (max-width: 767px) {
+        @media (max-width: 1023px) {
             #sidebar { display: none !important; }
             #desktop-topbar { display: none !important; }
             #main-content-area { margin-left: 0 !important; }

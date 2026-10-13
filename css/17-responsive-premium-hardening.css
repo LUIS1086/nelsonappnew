@@ -186,7 +186,7 @@ dialog, .modal, [role="dialog"] {
 }
 
 /* Teléfonos grandes y tabletas pequeñas: aprovechar espacio sin apretar. */
-@media (min-width: 480px) and (max-width: 767px) {
+@media (min-width: 480px) and (max-width: 1023px) {
   .app-view {
     padding-left: 1rem;
     padding-right: 1rem;
@@ -196,12 +196,12 @@ dialog, .modal, [role="dialog"] {
   }
 }
 
-/* Tablet y escritorio: área de contenido estable junto al sidebar. */
-@media (min-width: 768px) {
+/* Escritorio: área de contenido estable junto al sidebar (ancho tomado de --sb-w, definido en 19-desktop-premium.css). */
+@media (min-width: 1024px) {
   #main-content-area {
     min-height: 100vh;
-    width: calc(100% - 240px);
-    margin-left: 240px;
+    width: calc(100% - var(--sb-w, 240px));
+    margin-left: var(--sb-w, 240px);
   }
   #app-header {
     padding-left: clamp(1rem, 2vw, 2rem);
@@ -222,10 +222,6 @@ dialog, .modal, [role="dialog"] {
   }
 }
 @media (min-width: 1280px) {
-  #main-content-area {
-    width: calc(100% - 260px);
-    margin-left: 260px;
-  }
   .max-container {
     max-width: 1600px;
   }

@@ -1,6 +1,6 @@
 /* ══════════════════════════════════════════════════════════
    Nelson App Pro · css/19-desktop-premium.css
-   Mejoras SOLO para escritorio/tablet (≥768 px). El móvil no cambia.
+   Mejoras SOLO para escritorio (≥1024 px). Móvil y tableta vertical usan el layout móvil.
    Para desactivarlo, quita su <link> en index.html.
    ══════════════════════════════════════════════════════════ */
 
@@ -10,7 +10,7 @@
 @media (min-width: 1440px) { :root { --sb-w: 264px; } }
 @media (min-width: 1920px) { :root { --sb-w: 280px; } }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
 
   /* ── 1. Barra superior: antes ocupaba todo el ancho y el menú lateral tapaba el título ── */
   #desktop-topbar { margin-left: var(--sb-w); padding: 12px 24px !important; min-height: 68px; gap: 16px; }
@@ -85,7 +85,7 @@
 }
 
 /* Pantallas medianas: sin espacio para los indicadores en la barra superior (siguen en el menú lateral) */
-@media (min-width: 768px) and (max-width: 1439px) {
+@media (min-width: 1024px) and (max-width: 1439px) {
   #topbar-kpis { display: none !important; }
   #desktop-topbar { justify-content: space-between; }
 }

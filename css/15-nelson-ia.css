@@ -64,7 +64,7 @@
             50%      { transform: scale(1.12); opacity: 0; }
         }
         body.nia-open #nia-fab { display: none; }
-        @media (min-width: 768px) {
+        @media (min-width: 1024px) {
             #nia-fab { bottom: 32px; right: 32px; width: 62px; height: 62px; font-size: 28px; }
             #nia-fab::after { font-size: 10px; padding: 3px 7px; }
         }
