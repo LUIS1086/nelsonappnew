@@ -98,9 +98,19 @@
         #modal-config .cfg-search::placeholder { color: #6b7280; }
         #modal-config .cfg-search:focus { background: rgba(255,255,255,0.09); border-color: rgba(249,115,22,0.35); }
         #modal-config .cfg-search-icon {
-            position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
-            color: #6b7280; pointer-events: none;
+            position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+            color: #6b7280; pointer-events: none; z-index: 1;
         }
+        /* Los estilos globales de input (01-tema-variables.css y 18-native-premium.css)
+           usan !important y pisaban el padding-left y el tamaño de letra del buscador,
+           por eso la lupa quedaba encima del texto. Se igualan aquí con mayor especificidad. */
+        #modal-config .cfg-search {
+            padding: 0 12px 0 38px !important;
+            height: 38px; min-height: 38px;
+            font-size: 14px !important;
+            line-height: 38px;
+        }
+        #modal-config .cfg-search::placeholder { font-size: 14px; opacity: .6 !important; }
         /* Stat cards */
         #modal-config .cfg-stats {
             display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
