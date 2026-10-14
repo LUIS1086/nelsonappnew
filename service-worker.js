@@ -12,7 +12,7 @@
  *    detecte capacidad de notificaciones (puntúa más alto).
  * ============================================================ */
 
-const CACHE_VERSION = 'nelsonapp-v3.7.5';
+const CACHE_VERSION = 'nelsonapp-v3.7.6';
 const STATIC_CACHE  = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -168,7 +168,20 @@ self.addEventListener('fetch', (event) => {
                     caches.open(STATIC_CACHE).then(c => c.put(req, copy)).catch(() => {});
                     return resp;
                 })
-                .catch(() => caches.match(req).then(r => r || caches.match('./index.html')))
+                .catch(async () => {
+                    // Sin señal / señal débil: usar la copia guardada de ESA página.
+                    // Con cleanUrls de Vercel, /dashboard se guarda como /dashboard.html;
+                    // antes no coincidían y se servía index.html (por eso "volvía al index").
+                    const hit = await caches.match(req, { ignoreSearch: true });
+                    if (hit) return hit;
+                    const u = new URL(req.url);
+                    const path = u.pathname.replace(/\/$/, '');
+                    if (path && !/\.[a-z0-9]+$/i.test(path)) {
+                        const alt = await caches.match(path + '.html');
+                        if (alt) return alt;
+                    }
+                    return caches.match('./index.html');
+                })
         );
         return;
     }
