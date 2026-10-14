@@ -20,6 +20,46 @@ let _dashOrders = [];
 function _normalizeText(s) {
   return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 }
+// ── Identidad de órdenes y clientes (fix: el dashboard usaba o.num, que no existe) ──
+// En la app las órdenes se guardan con `id` (único) y `orderNum` (consecutivo visible).
+function _bizPrefix() {
+  try { return (JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix) || '#'; }
+  catch (_) { return '#'; }
+}
+function _oid(o) { return String(o && o.id != null ? o.id : (o && o.orderNum != null ? o.orderNum : '')); }
+function _ordLabel(o) {
+  if (!o) return '—';
+  const n = o.orderNum != null && o.orderNum !== '' ? String(o.orderNum).padStart(4, '0') : '—';
+  return _bizPrefix() + n;
+}
+function _findOrder(key) {
+  const k = String(key);
+  return (_dashOrders || []).find(x => _oid(x) === k)
+      || (_allOrders  || []).find(x => _oid(x) === k)
+      || null;
+}
+// Índice de clientes: une el store `clientes` (deudas) con los nombres que aparecen en las órdenes,
+// porque un cliente sin deuda puede no existir en `clientes`.
+function _buildClientIndex() {
+  const map = new Map();
+  (_dashClientes || []).forEach(c => {
+    const k = _normalizeText(c.nombre).trim();
+    if (!k) return;
+    map.set(k, { nombre: c.nombre, telefono: c.telefono || '', deuda: Number(c.deuda) || 0, ordenes: 0, ultima: 0 });
+  });
+  const ords = (_allOrders && _allOrders.length) ? _allOrders : (_dashOrders || []);
+  ords.forEach(o => {
+    const k = _normalizeText(o.nom).trim();
+    if (!k) return;
+    let e = map.get(k);
+    if (!e) { e = { nombre: o.nom, telefono: '', deuda: 0, ordenes: 0, ultima: 0 }; map.set(k, e); }
+    e.ordenes++;
+    if ((o.fecha || 0) >= e.ultima) { e.ultima = o.fecha || 0; if (o.tel) e.telefono = e.telefono || o.tel; }
+    if (!e.telefono && o.tel) e.telefono = o.tel;
+  });
+  return map;
+}
+
 function dashSearch(q) {
   q = _normalizeText(q.trim());
   const ordEl = document.getElementById('orders-panel');
@@ -44,11 +84,14 @@ function dashSearch(q) {
   const now2 = Date.now();
 
   // 1) Filtrar órdenes
+  const qDigits = q.replace(/\D/g, '');
   const filteredOrd = _dashOrders.filter(o =>
     _normalizeText(o.nom).includes(q) ||
     _normalizeText(o.equ).includes(q) ||
     _normalizeText(o.tel).includes(q) ||
-    String(o.num||'').includes(q)
+    (qDigits && String(o.tel||'').replace(/\D/g,'').includes(qDigits)) ||
+    String(o.orderNum||'').includes(q) ||
+    _normalizeText(_ordLabel(o)).includes(q)
   );
   if (!filteredOrd.length) {
     ordEl.innerHTML = `<div class="empty-illust">
@@ -61,9 +104,9 @@ function dashSearch(q) {
     ordEl.innerHTML = filteredOrd.slice(0,8).map(o => {
       const dias = daysDiff2(o.fecha, now2);
       const dc = dias > 30 ? 'old' : dias > 7 ? 'medium' : 'fresh';
-      return `<div class="order-item" onclick="openOrdenModal('${o.num}')">
+      return `<div class="order-item" onclick="openOrdenModal('${_oid(o)}')">
         <div class="order-status-pip ${dotClass[o.sta]||'pip-recibido'}"></div>
-        <div class="order-num">${prefix}${o.num||'—'}</div>
+        <div class="order-num">${_ordLabel(o)}</div>
         <div class="order-info">
           <div class="order-client">${esc2(o.nom)}</div>
           <div class="order-device">${esc2(o.equ)} <span class="order-days ${dc}">${dias}d</span></div>
@@ -79,6 +122,13 @@ function dashSearch(q) {
     _normalizeText(s.cat).includes(q) ||
     _normalizeText(s.code).includes(q)
   ).slice(0,6);
+  if (stockEl && !filteredStock.length) {
+    stockEl.innerHTML = `<div class="empty-illust">
+      <div class="empty-illust-icon">🔍</div>
+      <div class="empty-illust-title">Sin repuestos</div>
+      <div class="empty-illust-sub">Para "${esc2(q)}"</div>
+    </div>`;
+  }
   if (filteredStock.length && stockEl) {
     stockEl.innerHTML = filteredStock.map(s => {
       const isOut = s.q === 0;
@@ -100,25 +150,32 @@ function dashSearch(q) {
     }).join('');
   }
 
-  // 3) Filtrar clientes con deuda
-  const filteredCli = (_dashClientes || []).filter(c =>
-    c.deuda > 0 && (
+  // 3) Filtrar clientes (todos los registrados: con o sin deuda)
+  if (deudaEl) {
+    const filteredCli = Array.from(_buildClientIndex().values()).filter(c =>
       _normalizeText(c.nombre).includes(q) ||
-      _normalizeText(c.telefono).includes(q)
-    )
-  ).slice(0,6);
-  if (filteredCli.length && deudaEl) {
-    deudaEl.innerHTML = filteredCli.map((c,i) =>
-      `<div class="deuda-item" onclick="openClienteDeudaModal('${_encClient(c)}')">
-        <div class="deuda-rank">${i+1}</div>
-        <div class="deuda-avatar">👤</div>
-        <div class="deuda-info">
-          <div class="deuda-name">${esc2(c.nombre)}</div>
-          <div class="deuda-since">${esc2(c.telefono||'Sin teléfono')}</div>
-        </div>
-        <div class="deuda-val">${fmt2(c.deuda)}</div>
-      </div>`
-    ).join('');
+      _normalizeText(c.telefono).includes(q) ||
+      (qDigits && String(c.telefono||'').replace(/\D/g,'').includes(qDigits))
+    ).sort((a,b) => (b.deuda - a.deuda) || (b.ultima - a.ultima)).slice(0,6);
+    if (!filteredCli.length) {
+      deudaEl.innerHTML = `<div class="empty-illust">
+        <div class="empty-illust-icon">🔍</div>
+        <div class="empty-illust-title">Sin clientes</div>
+        <div class="empty-illust-sub">Para "${esc2(q)}"</div>
+      </div>`;
+    } else {
+      deudaEl.innerHTML = filteredCli.map((c,i) =>
+        `<div class="deuda-item" onclick="openClienteDeudaModal('${_encClient(c)}')">
+          <div class="deuda-rank">${i+1}</div>
+          <div class="deuda-avatar">👤</div>
+          <div class="deuda-info">
+            <div class="deuda-name">${esc2(c.nombre)}</div>
+            <div class="deuda-since">${esc2(c.telefono||'Sin teléfono')} · ${c.ordenes} ${c.ordenes===1?'orden':'órdenes'}</div>
+          </div>
+          <div class="deuda-val" ${c.deuda>0?'':'style="color:var(--green);"'}>${c.deuda>0 ? fmt2(c.deuda) : 'Al día'}</div>
+        </div>`
+      ).join('');
+    }
   }
 }
 
@@ -526,9 +583,9 @@ function buildOrdersPanel(orders, prefix, now) {
     let daysClass = 'fresh', daysLabel = `${dias}d`;
     if (dias > 30) daysClass = 'old';
     else if (dias > 7) daysClass = 'medium';
-    return `<div class="order-item" onclick="openOrdenModal('${o.num}')">
+    return `<div class="order-item" onclick="openOrdenModal('${_oid(o)}')">
       <div class="order-status-pip ${dotClass[o.sta]||'pip-recibido'}"></div>
-      <div class="order-num">${prefix}${o.num||'—'}</div>
+      <div class="order-num">${_ordLabel(o)}</div>
       <div class="order-info">
         <div class="order-client">${esc(o.nom)}</div>
         <div class="order-device">
@@ -1054,17 +1111,14 @@ function buildInsights(orders, sales, gastos, stock) {
 //  filtrada por búsqueda o por monto de deuda.
 // ════════════════════════════════════════
 function _encClient(c) {
-  return encodeURIComponent(c && c.nombre ? c.nombre : '') + '|' +
-         encodeURIComponent(c && c.telefono ? c.telefono : '');
+  const e = x => encodeURIComponent(x || '').replace(/'/g, '%27');
+  return e(c && c.nombre) + '|' + e(c && c.telefono);
 }
 function _findClient(key) {
   if (!key) return null;
   const parts = String(key).split('|');
   const n = decodeURIComponent(parts[0] || '');
-  const t = decodeURIComponent(parts[1] || '');
-  return (_dashClientes || []).find(c =>
-    String(c.nombre||'') === n && String(c.telefono||'') === t
-  ) || null;
+  return _buildClientIndex().get(_normalizeText(n).trim()) || null;
 }
 
 // ════════════════════════════════════════
@@ -1108,7 +1162,7 @@ function buildAvisoListoMsg(order) {
   const neg = cfg.name || 'Todo Repuestos Nelson';
   const prefix = cfg.orderPrefix || '#';
   const saludo = cfg.saludoCliente || 'Hola';
-  return `${saludo} ${order.nom}! 👋\n\nTu ${order.equ || 'equipo'} (orden ${prefix}${order.num}) ya está *listo para recoger* ✅\n\nValor: ${fmt(order.val||0)}\n${order.garantia ? `Garantía: ${order.garantia} días\n` : ''}\nTe esperamos. Gracias por confiar en *${neg}* 🛠️`;
+  return `${saludo} ${order.nom}! 👋\n\nTu ${order.equ || 'equipo'} (orden ${_ordLabel(order)}) ya está *listo para recoger* ✅\n\nValor: ${fmt(order.val||0)}\n${order.garantia ? `Garantía: ${order.garantia} días\n` : ''}\nTe esperamos. Gracias por confiar en *${neg}* 🛠️`;
 }
 function buildRecordatorioDeudaMsg(cliente) {
   const cfg = JSON.parse(localStorage.getItem('businessConfig') || '{}');
@@ -1125,21 +1179,27 @@ function buildOrdenCompraMsg(items) {
 //  (evitan template literals anidados en onclick)
 // ════════════════════════════════════════
 function avisarListoAction(numStr) {
-  const o = _dashOrders.find(x => String(x.num) === String(numStr));
+  const o = _findOrder(numStr);
   if (!o) return;
   openWhatsApp(o.tel || '', buildAvisoListoMsg(o));
 }
 function contactarClienteOrden(numStr) {
-  const o = _dashOrders.find(x => String(x.num) === String(numStr));
+  const o = _findOrder(numStr);
   if (!o) return;
   const prefix = (JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix)||'#';
-  const msg = `Hola ${o.nom}, te escribo sobre tu ${o.equ||'equipo'} (orden ${prefix}${o.num}) que tenemos pendiente. ¿Podríamos coordinar?`;
+  const msg = `Hola ${o.nom}, te escribo sobre tu ${o.equ||'equipo'} (orden ${_ordLabel(o)}) que tenemos pendiente. ¿Podríamos coordinar?`;
   openWhatsApp(o.tel || '', msg);
 }
 function recordarDeudaAction(key) {
   const c = _findClient(key);
   if (!c) return;
   openWhatsApp(c.telefono || '', buildRecordatorioDeudaMsg(c));
+}
+function contactarClienteAction(key) {
+  const c = _findClient(key);
+  if (!c) return;
+  const saludo = (JSON.parse(localStorage.getItem('businessConfig')||'{}').saludoCliente) || 'Hola';
+  openWhatsApp(c.telefono || '', `${saludo} ${c.nombre}! 👋`);
 }
 function enviarPedidoStockAction() {
   const threshold = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
@@ -1164,14 +1224,14 @@ function openListosModal() {
             <div class="dd-row-left">
               <div class="dd-row-ico">🛠️</div>
               <div class="dd-row-text">
-                <div class="dd-row-name">${esc(o.nom)} · ${prefix}${o.num||'—'}</div>
+                <div class="dd-row-name">${esc(o.nom)} · ${_ordLabel(o)}</div>
                 <div class="dd-row-sub">${esc(o.equ||'Sin equipo')} · hace ${daysDiff(o.fecha, Date.now())} días</div>
               </div>
             </div>
             <div style="display:flex;gap:6px;align-items:center;">
               <div class="dd-row-val pos">${fmt(o.val||0)}</div>
               <button class="btn primary" style="padding:6px 10px;font-size:0.7rem;flex:none;min-width:auto;"
-                onclick="event.stopPropagation();avisarListoAction('${esc(o.num)}')">💬 Avisar</button>
+                onclick="event.stopPropagation();avisarListoAction('${_oid(o)}')">💬 Avisar</button>
             </div>
           </div>
         `).join('')}
@@ -1211,12 +1271,12 @@ function openVencidasModal() {
             <div class="dd-row-left">
               <div class="dd-row-ico">⚠️</div>
               <div class="dd-row-text">
-                <div class="dd-row-name">${esc(o.nom)} · ${prefix}${o.num||'—'}</div>
+                <div class="dd-row-name">${esc(o.nom)} · ${_ordLabel(o)}</div>
                 <div class="dd-row-sub">${esc(o.equ||'Sin equipo')} · <span style="color:var(--red)">${dias} días</span> · ${o.sta}</div>
               </div>
             </div>
             ${o.tel ? `<button class="btn primary" style="padding:6px 10px;font-size:0.7rem;flex:none;min-width:auto;"
-              onclick="event.stopPropagation();contactarClienteOrden('${esc(o.num)}')">💬</button>` : '<span style="color:var(--text3);font-size:0.7rem;">sin tel.</span>'}
+              onclick="event.stopPropagation();contactarClienteOrden('${_oid(o)}')">💬</button>` : '<span style="color:var(--text3);font-size:0.7rem;">sin tel.</span>'}
           </div>`;
         }).join('')}
       </div>
@@ -1288,7 +1348,7 @@ function openIngresosDesgloseModal(startTs, endTs, titleText) {
               <div class="dd-row-left">
                 <div class="dd-row-ico">🔧</div>
                 <div class="dd-row-text">
-                  <div class="dd-row-name">${esc(o.nom)} · ${prefix}${o.num||'—'}</div>
+                  <div class="dd-row-name">${esc(o.nom)} · ${_ordLabel(o)}</div>
                   <div class="dd-row-sub">${esc(o.equ||'')}</div>
                 </div>
               </div>
@@ -1365,11 +1425,11 @@ function openHoyMovModal() {
         <div class="dd-section-title">📥 Órdenes nuevas de hoy (${nuevas.length})</div>
         <div class="dd-list">
           ${nuevas.map(o => `
-            <div class="dd-row" onclick="closeDashModal();openOrdenModal('${o.num}')">
+            <div class="dd-row" onclick="closeDashModal();openOrdenModal('${_oid(o)}')">
               <div class="dd-row-left">
                 <div class="dd-row-ico">📥</div>
                 <div class="dd-row-text">
-                  <div class="dd-row-name">${esc(o.nom)} · ${prefix}${o.num}</div>
+                  <div class="dd-row-name">${esc(o.nom)} · ${_ordLabel(o)}</div>
                   <div class="dd-row-sub">${esc(o.equ||'')} · ${new Date(o.fecha).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}</div>
                 </div>
               </div>
@@ -1388,7 +1448,7 @@ function openHoyMovModal() {
               <div class="dd-row-left">
                 <div class="dd-row-ico">🚚</div>
                 <div class="dd-row-text">
-                  <div class="dd-row-name">${esc(o.nom)} · ${prefix}${o.num}</div>
+                  <div class="dd-row-name">${esc(o.nom)} · ${_ordLabel(o)}</div>
                   <div class="dd-row-sub">${esc(o.equ||'')}</div>
                 </div>
               </div>
@@ -1416,7 +1476,7 @@ function openHoyMovModal() {
 // ════════════════════════════════════════
 function openOrdenModal(numStr) {
   const num = String(numStr);
-  const o = _dashOrders.find(x => String(x.num) === num);
+  const o = _findOrder(num);
   if (!o) return;
   const prefix = (JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix)||'#';
   const dias = daysDiff(o.fecha, Date.now());
@@ -1436,7 +1496,7 @@ function openOrdenModal(numStr) {
     </div>
     <div class="dd-section">
       <div class="dd-section-title">📋 Datos de la orden</div>
-      <div class="dd-field"><div class="dd-field-label">Número</div><div class="dd-field-val">${prefix}${o.num}</div></div>
+      <div class="dd-field"><div class="dd-field-label">Número</div><div class="dd-field-val">${_ordLabel(o)}</div></div>
       <div class="dd-field"><div class="dd-field-label">Equipo</div><div class="dd-field-val">${esc(o.equ||'—')}</div></div>
       <div class="dd-field"><div class="dd-field-label">Estado</div><div class="dd-field-val">${statusLabels[o.sta]||o.sta}</div></div>
       <div class="dd-field"><div class="dd-field-label">Recibido</div><div class="dd-field-val">${fmtTime(o.fecha)} · hace ${dias}d</div></div>
@@ -1449,15 +1509,15 @@ function openOrdenModal(numStr) {
 
   let foot = `<button class="btn" onclick="closeDashModal()">Cerrar</button>`;
   if (o.sta === 'reparado' && o.tel) {
-    foot += `<button class="btn primary" onclick="avisarListoAction('${esc(o.num)}')">💬 Avisar listo</button>`;
+    foot += `<button class="btn primary" onclick="avisarListoAction('${_oid(o)}')">💬 Avisar listo</button>`;
   } else if (o.tel) {
-    foot += `<button class="btn primary" onclick="contactarClienteOrden('${esc(o.num)}')">💬 WhatsApp</button>`;
+    foot += `<button class="btn primary" onclick="contactarClienteOrden('${_oid(o)}')">💬 WhatsApp</button>`;
   }
   foot += `<button class="btn accent" onclick="goApp('ordenes')">Ver en app →</button>`;
 
   openDashModal({
     icon: '🛠️',
-    title: `Orden ${prefix}${o.num}`,
+    title: `Orden ${_ordLabel(o)}`,
     sub: `${esc(o.equ||'Equipo')} · ${statusLabels[o.sta]||o.sta}`,
     body,
     foot
@@ -1470,17 +1530,12 @@ function openOrdenModal(numStr) {
 function openClienteDeudaModal(key) {
   const c = _findClient(key);
   if (!c) return;
-  // Historial: órdenes de este cliente (match por nombre + tel cuando hay)
-  const cTelClean = String(c.telefono||'').replace(/[^\d]/g,'');
-  const ordenes = _dashOrders.filter(o => {
-    const nameMatch = (o.nom||'').toLowerCase().trim() === (c.nombre||'').toLowerCase().trim();
-    if (!cTelClean) return nameMatch;
-    const oTelClean = String(o.tel||'').replace(/[^\d]/g,'');
-    // Si tenemos teléfono en ambos, usamos eso para evitar colisiones de nombres
-    return oTelClean ? oTelClean.endsWith(cTelClean.slice(-10)) : nameMatch;
-  });
+  // Historial: todas las órdenes de este cliente (todas las sucursales), por nombre normalizado
+  const nameKey = _normalizeText(c.nombre).trim();
+  const ordenes = ((_allOrders && _allOrders.length) ? _allOrders : _dashOrders)
+    .filter(o => _normalizeText(o.nom).trim() === nameKey)
+    .sort((a,b) => (b.fecha||0) - (a.fecha||0));
   const totalFacturado = ordenes.filter(o => o.sta==='entregado').reduce((a,b) => a+(b.val||0), 0);
-  const prefix = (JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix)||'#';
 
   const body = `
     <div class="dd-client-card">
@@ -1490,8 +1545,8 @@ function openClienteDeudaModal(key) {
         <div class="dd-client-phone">${esc(c.telefono||'Sin teléfono')}</div>
       </div>
       <div style="text-align:right;">
-        <div style="font-size:0.7rem;color:var(--red);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">Debe</div>
-        <div style="font-size:1.3rem;font-weight:800;color:var(--red);font-family:'JetBrains Mono',monospace;">${fmt(c.deuda)}</div>
+        <div style="font-size:0.7rem;color:${c.deuda>0?'var(--red)':'var(--green)'};text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">${c.deuda>0?'Debe':'Estado'}</div>
+        <div style="font-size:1.3rem;font-weight:800;color:${c.deuda>0?'var(--red)':'var(--green)'};font-family:'JetBrains Mono',monospace;">${c.deuda>0?fmt(c.deuda):'Al día'}</div>
       </div>
     </div>
     <div class="dd-summary">
@@ -1513,11 +1568,11 @@ function openClienteDeudaModal(key) {
         <div class="dd-section-title">📋 Historial de órdenes</div>
         <div class="dd-list">
           ${ordenes.slice(0,8).map(o => `
-            <div class="dd-row" onclick="closeDashModal();openOrdenModal('${esc(o.num)}')">
+            <div class="dd-row" onclick="closeDashModal();openOrdenModal('${_oid(o)}')">
               <div class="dd-row-left">
                 <div class="dd-row-ico">🛠️</div>
                 <div class="dd-row-text">
-                  <div class="dd-row-name">${prefix}${esc(o.num)} · ${esc(o.equ||'—')}</div>
+                  <div class="dd-row-name">${_ordLabel(o)} · ${esc(o.equ||'—')}</div>
                   <div class="dd-row-sub">${new Date(o.fecha).toLocaleDateString('es-ES')} · ${esc(o.sta)}</div>
                 </div>
               </div>
@@ -1532,14 +1587,16 @@ function openClienteDeudaModal(key) {
   const safeKey = _encClient(c);
   const foot = `
     <button class="btn" onclick="closeDashModal()">Cerrar</button>
-    ${c.telefono ? `<button class="btn primary" onclick="recordarDeudaAction('${safeKey}')">💬 Recordar deuda</button>` : ''}
+    ${c.telefono ? (c.deuda>0
+        ? `<button class="btn primary" onclick="recordarDeudaAction('${safeKey}')">💬 Recordar deuda</button>`
+        : `<button class="btn primary" onclick="contactarClienteAction('${safeKey}')">💬 WhatsApp</button>`) : ''}
     <button class="btn accent" onclick="goApp('ventas')">Gestionar →</button>
   `;
 
   openDashModal({
     icon: '💳',
     title: esc(c.nombre),
-    sub: `Cliente con deuda pendiente`,
+    sub: c.deuda>0 ? `Cliente con deuda pendiente` : `Cliente registrado · ${ordenes.length} ${ordenes.length===1?'orden':'órdenes'}`,
     body,
     foot
   });
@@ -1640,11 +1697,11 @@ function openKpiModal(kpiType) {
         <div class="dd-section-title">${statusIcons[k]} ${statusLabels[k]} (${list.length})</div>
         <div class="dd-list">
           ${list.map(o => `
-            <div class="dd-row" onclick="closeDashModal();openOrdenModal('${o.num}')">
+            <div class="dd-row" onclick="closeDashModal();openOrdenModal('${_oid(o)}')">
               <div class="dd-row-left">
                 <div class="dd-row-ico">🛠️</div>
                 <div class="dd-row-text">
-                  <div class="dd-row-name">${esc(o.nom)} · ${prefix}${o.num}</div>
+                  <div class="dd-row-name">${esc(o.nom)} · ${_ordLabel(o)}</div>
                   <div class="dd-row-sub">${esc(o.equ||'')} · hace ${daysDiff(o.fecha,Date.now())}d</div>
                 </div>
               </div>
@@ -1685,11 +1742,11 @@ function openStatusModal(statusKey) {
       <div class="dd-section-title">${orders.length} órdenes</div>
       <div class="dd-list">
         ${orders.slice(0,30).map(o => `
-          <div class="dd-row" onclick="closeDashModal();openOrdenModal('${o.num}')">
+          <div class="dd-row" onclick="closeDashModal();openOrdenModal('${_oid(o)}')">
             <div class="dd-row-left">
               <div class="dd-row-ico">🛠️</div>
               <div class="dd-row-text">
-                <div class="dd-row-name">${esc(o.nom)} · ${prefix}${o.num}</div>
+                <div class="dd-row-name">${esc(o.nom)} · ${_ordLabel(o)}</div>
                 <div class="dd-row-sub">${esc(o.equ||'')} · hace ${daysDiff(o.fecha,Date.now())}d</div>
               </div>
             </div>
