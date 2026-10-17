@@ -39,6 +39,7 @@
     <link rel="stylesheet" href="css/18-native-premium.css">
     <link rel="stylesheet" href="css/19-desktop-premium.css">
     <link rel="stylesheet" href="css/20-responsive-pro.css">
+    <link rel="stylesheet" href="css/21-ticket-venta.css">
 
 <style id="invoice-sale-styles">
 .invoice-sale-cta{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:14px;border-radius:16px;border:1px solid rgba(52,211,153,.32);background:linear-gradient(115deg,rgba(16,185,129,.16),rgba(59,130,246,.08));color:#e5fff4;cursor:pointer;transition:transform .18s,border-color .18s}
@@ -617,7 +618,7 @@
             <h3 class="text-center text-[11px] font-black text-emerald-400 uppercase tracking-widest">💵 NUEVA VENTA</h3>
             <button type="button" onclick="openInvoiceSaleModal()" class="invoice-sale-cta">
                 <span class="invoice-sale-cta-icon">🧾</span>
-                <span><strong>Venta con factura / ticket</strong><small>Datos del cliente · detalle de compra · imprimir comprobante</small></span>
+                <span><strong>Venta con factura / ticket</strong><small>Datos del cliente · WhatsApp · PDF · imagen · imprimir</small></span>
                 <span class="invoice-sale-cta-arrow">→</span>
             </button>
             <!-- Selector custom de producto (reemplaza el select nativo que se veía feo en WebView) -->
@@ -3138,7 +3139,7 @@
     <!-- Venta con datos de cliente y ticket imprimible -->
     <div id="invoice-sale-modal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="invoice-sale-title" onclick="if(event.target===this)closeInvoiceSaleModal()">
       <div class="invoice-panel">
-        <div class="invoice-head"><div><h2 id="invoice-sale-title">🧾 Venta y comprobante</h2><p>Registra la venta, descuenta inventario y prepara un ticket imprimible.</p></div><button type="button" class="invoice-close" onclick="closeInvoiceSaleModal()" aria-label="Cerrar">×</button></div>
+        <div class="invoice-head"><div><h2 id="invoice-sale-title">🧾 Venta y comprobante</h2><p>Registra la venta, descuenta inventario y genera el ticket para el cliente.</p></div><button type="button" class="invoice-close" onclick="closeInvoiceSaleModal()" aria-label="Cerrar">×</button></div>
         <form id="invoice-sale-form" onsubmit="submitInvoiceSale(event)">
           <div class="invoice-grid">
             <div class="invoice-field full"><label for="inv-product">Producto disponible</label><select id="inv-product" required onchange="selectInvoiceProduct()"><option value="">Cargando inventario…</option></select></div>
@@ -3151,8 +3152,8 @@
             <div class="invoice-field full"><label for="inv-notes">Observaciones (opcional)</label><textarea id="inv-notes" rows="2" maxlength="300" placeholder="Garantía, referencia u observaciones"></textarea></div>
           </div>
           <div class="invoice-total"><span>Total de la venta</span><strong id="inv-total">$0</strong></div>
-          <p class="invoice-note">Este flujo genera un comprobante comercial imprimible. No sustituye una factura electrónica validada por la DIAN. Verifica los requisitos tributarios aplicables a tu negocio.</p>
-          <div class="invoice-actions"><button type="button" onclick="closeInvoiceSaleModal()">Cancelar</button><button class="primary" type="submit">✓ Registrar venta e imprimir ticket</button></div>
+          <p class="invoice-note">Este flujo genera un comprobante comercial que puedes enviar por WhatsApp, descargar en PDF o imagen, o imprimir. No sustituye una factura electrónica validada por la DIAN. Verifica los requisitos tributarios aplicables a tu negocio.</p>
+          <div class="invoice-actions"><button type="button" onclick="closeInvoiceSaleModal()">Cancelar</button><button class="primary" id="inv-submit" type="submit">✓ Registrar venta y generar ticket</button></div>
         </form>
       </div>
     </div>
@@ -3217,68 +3218,7 @@
     </div>
 
 
-<script>
-(function(){
-  const byId=id=>document.getElementById(id);
-  const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const money=v=>(typeof getCurrency==='function'?getCurrency():'$')+Number(v||0).toLocaleString('es-CO');
-  let invoiceStock=[];
-  window.openInvoiceSaleModal=async function(){
-    const modal=byId('invoice-sale-modal'); if(!modal)return;
-    modal.classList.remove('hidden');
-    byId('invoice-sale-form').reset(); byId('inv-qty').value=1;
-    const sel=byId('inv-product'); sel.innerHTML='<option value="">Cargando inventario…</option>';
-    try{
-      invoiceStock=await getAll('stock');
-      const available=invoiceStock.filter(p=>Number(p.q)>0).sort((a,b)=>String(a.n||'').localeCompare(String(b.n||'')));
-      sel.innerHTML='<option value="">Selecciona un producto</option>'+available.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.n)+' · '+Number(p.q)+' uds · '+money(p.p)+'</option>').join('');
-      if(!available.length)sel.innerHTML='<option value="">No hay productos con stock</option>';
-      updateInvoicePreview();
-    }catch(err){sel.innerHTML='<option value="">No se pudo cargar el inventario</option>';if(typeof showAlert==='function')showAlert('No se pudo cargar el inventario. Intenta de nuevo.','error');}
-  };
-  window.closeInvoiceSaleModal=function(){byId('invoice-sale-modal')?.classList.add('hidden');};
-  window.selectInvoiceProduct=function(){
-    const item=invoiceStock.find(p=>String(p.id)===String(byId('inv-product')?.value));
-    byId('inv-price').value=item ? (Number(item.p)||0) : '';
-    updateInvoicePreview();
-  };
-  window.updateInvoicePreview=function(){
-    const qty=Math.max(0,parseInt(byId('inv-qty')?.value,10)||0), price=Math.max(0,Number(byId('inv-price')?.value)||0);
-    byId('inv-total').textContent=money(qty*price);
-  };
-  window.submitInvoiceSale=async function(ev){
-    ev.preventDefault();
-    const item=invoiceStock.find(p=>String(p.id)===String(byId('inv-product').value));
-    const qty=parseInt(byId('inv-qty').value,10),price=Number(byId('inv-price').value);
-    const client=byId('inv-client').value.trim();
-    if(!item||!client||!Number.isInteger(qty)||qty<1||!Number.isFinite(price)||price<0){if(typeof showAlert==='function')showAlert('Revisa producto, cliente, cantidad y precio.','warning');return;}
-    if(qty>Number(item.q)){if(typeof showAlert==='function')showAlert('Stock insuficiente. Disponible: '+item.q,'error');return;}
-    // Abrir la ventana durante el gesto del usuario para reducir el bloqueo de ventanas emergentes.
-    const printWin=window.open('about:blank','_blank');
-    try{
-      const prevQ=Number(item.q)||0; item.q=prevQ-qty; await put('stock',item);
-      const now=Date.now(), total=qty*price, invoiceNo='T-'+now.toString().slice(-8);
-      const sale={id:typeof _uid==='function'?_uid():(crypto.randomUUID?crypto.randomUUID():String(now)),item:item.n,val:total,qty,stockId:item.id,fecha:now,precioUnit:price,precioOriginal:Number(item.p)||0,precioModificado:price!==(Number(item.p)||0),cliente:client,documento:byId('inv-id').value.trim(),telefono:byId('inv-phone').value.trim(),metodoPago:byId('inv-payment').value,comprobante:invoiceNo,observaciones:byId('inv-notes').value.trim()};
-      await put('sales',sale);
-      if(typeof addStockMovementRecord==='function')await addStockMovementRecord(item.id,'salida',qty,'Venta con comprobante '+invoiceNo,prevQ);
-      if(typeof renderStock==='function')await renderStock();
-      if(typeof updateVentaSelect==='function')await updateVentaSelect();
-      if(typeof updateTotal==='function')await updateTotal();
-      const biz=(()=>{try{return JSON.parse(localStorage.getItem('businessConfig')||'{}')}catch(e){return {}}})();
-      const date=new Date(now).toLocaleString('es-CO');
-      const html='<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Comprobante '+esc(invoiceNo)+'</title><style>body{font:14px Arial,sans-serif;color:#111;max-width:340px;margin:20px auto;padding:12px}h1{font-size:18px;text-align:center;margin:4px 0}p{margin:5px 0}.muted{color:#555;font-size:11px}.line{border-top:1px dashed #888;margin:12px 0}.row{display:flex;justify-content:space-between;gap:12px;margin:8px 0}.total{font-size:18px;font-weight:bold}.center{text-align:center}@media print{button{display:none}body{margin:0 auto}}</style></head><body><div class="center"><h1>'+esc(biz.name||'TODO REPUESTOS · NELSON')+'</h1><p>'+esc(biz.address||'')+'</p><p>'+esc(biz.phone||'')+'</p><p><b>COMPROBANTE DE VENTA</b></p><p class="muted">'+esc(invoiceNo)+' · '+esc(date)+'</p></div><div class="line"></div><p><b>Cliente:</b> '+esc(client)+'</p><p><b>Documento:</b> '+esc(byId('inv-id').value.trim()||'No informado')+'</p><p><b>Teléfono:</b> '+esc(byId('inv-phone').value.trim()||'No informado')+'</p><div class="line"></div><div class="row"><span>'+esc(item.n)+' × '+qty+'</span><span>'+money(total)+'</span></div><p class="muted">Precio unitario: '+money(price)+'</p><p class="muted">Pago: '+esc(byId('inv-payment').value)+'</p>'+(byId('inv-notes').value.trim()?'<p class="muted">Observaciones: '+esc(byId('inv-notes').value.trim())+'</p>':'')+'<div class="line"></div><div class="row total"><span>TOTAL</span><span>'+money(total)+'</span></div><p class="center muted">Gracias por tu compra.</p><p class="center muted">Comprobante comercial; no es factura electrónica DIAN.</p><div class="center"><button onclick="window.print()">Imprimir / Guardar PDF</button></div><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>';
-      if(printWin){printWin.document.open();printWin.document.write(html);printWin.document.close();}else if(typeof showAlert==='function'){showAlert('Venta registrada. El navegador bloqueó la ventana de impresión; permite ventanas emergentes e inténtalo de nuevo.','warning');}
-      closeInvoiceSaleModal();
-      if(typeof showAlert==='function')showAlert('Venta registrada y stock actualizado. Comprobante '+invoiceNo,'success');
-    }catch(err){
-      if(printWin)printWin.close();
-      console.error('Error registrando venta con comprobante:',err);
-      if(typeof showAlert==='function')showAlert('No se pudo completar la venta. Revisa el inventario y vuelve a intentarlo.','error');
-    }
-  };
-  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeInvoiceSaleModal();});
-})();
-</script>
+<script src="js/modules/39-ticket-venta.js"></script>
 
     <script src="js/nelson-ia.js"></script>
 
