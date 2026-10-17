@@ -57,6 +57,9 @@
     </div>
 
     <div class="sb-section-label">Acciones rápidas</div>
+    <div class="nav-item" onclick="goApp('ventas')" title="Abrir venta de producto y comprobante">
+      <span class="nav-icon">🧾</span><span>Venta + ticket</span>
+    </div>
     <div class="nav-item" onclick="goAction('notify')">
       <span class="nav-icon">💬</span><span>Avisar listos</span>
       <span class="nav-badge green" id="sb-badge-listos">0</span>
@@ -100,6 +103,7 @@
     <div class="tb-clock" id="tb-clock">00:00:00</div>
     <button class="tb-action green"  onclick="goAction('notify')">💬 Avisar</button>
     <button class="tb-action blue"   onclick="goAction('report')">📄 Reporte</button>
+    <button class="tb-action green" onclick="goApp('ventas')" title="Abrir Caja & Stock para generar un ticket">🧾 Venta + ticket</button>
     <button class="tb-action accent" onclick="goApp('taller')">+ Nueva orden</button>
     <div class="tb-icon-btn" onclick="toggleDashTheme()" id="theme-btn" title="Tema">🌙</div>
   </div>
