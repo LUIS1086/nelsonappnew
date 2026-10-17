@@ -90,3 +90,8 @@ Vercel (sitio estático, sin build). Para el APK: PWABuilder con la URL de Verce
 
 Todas viven en `js/libs/` (jsPDF, autoTable, SheetJS, Chart.js, html2canvas, qrcode). **No cargues scripts desde un CDN**: la CSP de `vercel.json` los bloquea y la exportación a PDF/Excel dejaría de funcionar. `tools/verificar.js` avisa si alguien lo intenta.
 
+
+
+## Preparación Supabase (seguimiento de reparaciones)
+
+Se añadió una preparación aislada en `supabase/` para diseñar el seguimiento privado de reparaciones. No se activa en la app ni modifica IndexedDB. Lee `supabase/README.md` antes de desplegar la migración o la Edge Function.
