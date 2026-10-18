@@ -142,7 +142,7 @@
                 try {
                     const tx = db.transaction(store, 'readwrite');
                     const req = tx.objectStore(store).put(item);
-                    req.onsuccess = () => { _invalidateCache(store); resolve(true); };
+                    req.onsuccess = () => { _invalidateCache(store); try { if (store === 'orders' && typeof segOnOrderPut === 'function') segOnOrderPut(item); } catch(_) {} resolve(true); };
                     req.onerror = () => { console.warn('[IDB put] error:', req.error); _idbNotifyError(req.error, 'put'); resolve(false); };
                     tx.onabort = () => { console.warn('[IDB put] tx abort:', tx.error); _idbNotifyError(tx.error, 'put'); resolve(false); };
                 } catch(e) { console.warn('[IDB put] excepción:', e); _idbNotifyError(e, 'put'); resolve(false); }
@@ -154,7 +154,7 @@
                 try {
                     const tx = db.transaction(store, 'readwrite');
                     const req = tx.objectStore(store).delete(id);
-                    req.onsuccess = () => { _invalidateCache(store); resolve(true); };
+                    req.onsuccess = () => { _invalidateCache(store); try { if (store === 'orders' && typeof segOnOrderDel === 'function') segOnOrderDel(id); } catch(_) {} resolve(true); };
                     req.onerror = () => { console.warn('[IDB del] error:', req.error); _idbNotifyError(req.error, 'del'); resolve(false); };
                     tx.onabort = () => { console.warn('[IDB del] tx abort:', tx.error); _idbNotifyError(tx.error, 'del'); resolve(false); };
                 } catch(e) { console.warn('[IDB del] excepción:', e); _idbNotifyError(e, 'del'); resolve(false); }
