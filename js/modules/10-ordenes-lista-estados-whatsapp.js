@@ -210,6 +210,7 @@
                     <div style="padding:10px 14px 14px;border-top:1px solid rgba(255,255,255,0.04);display:flex;justify-content:flex-end;gap:6px;">
                         <button onclick="openOrderChat(${o.id})" class="order-action-btn bg-cyan-500/15 text-cyan-400" title="Notas internas">📝</button>
                         <button onclick="duplicateOrder(${o.id})" class="order-action-btn bg-violet-500/15 text-violet-400" title="Duplicar orden (mismo cliente)">📋</button>
+                        <button onclick="openSeguimiento(${o.id})" class="order-action-btn" style="background:rgba(56,189,248,.15);color:#38bdf8" title="Seguimiento del cliente (enlace y QR)">🔗</button>
                         <button onclick="printInvoice(${o.id})" class="order-action-btn bg-amber-500/15 text-amber-400" title="Imprimir">🧾</button>
                         <button onclick="sendWA(${o.id})" class="order-action-btn bg-emerald-500/15 text-emerald-400" title="WhatsApp">💬</button>
                         <button onclick="delOrder(${o.id})" class="order-action-btn bg-rose-500/15 text-rose-400" title="Eliminar">🗑️</button>

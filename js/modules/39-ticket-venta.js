@@ -22,14 +22,46 @@
   const bizName = b => b.name || 'Todo Repuestos Nelson';
   const newId = () => (typeof _uid === 'function' ? _uid() : Date.now() * 1000 + Math.floor(Math.random() * 1000));
 
-  /* ───────────────────────── Formulario de venta ───────────────────────── */
+  /* ───────────────────────── Formulario de venta (carrito) ───────────────────────── */
   let invoiceStock = [];
+  let cart = [];        // { stockId, n, qty, price }
   let submitting = false;
+
+  const lineTotal = l => l.qty * l.price;
+  const cartTotal = () => cart.reduce((a, l) => a + lineTotal(l), 0);
+
+  // Suma al arreglo; si el producto ya estaba, junta cantidades y deja el último precio escrito.
+  function mergeInto(arr, line) {
+    const ex = arr.find(l => String(l.stockId) === String(line.stockId));
+    if (ex) { ex.qty += line.qty; ex.price = line.price; } else arr.push(line);
+  }
+
+  // Lee el producto que está en pantalla (aún sin agregar). null = no hay producto elegido.
+  function readPending() {
+    const id = byId('inv-product').value;
+    if (!id) return null;
+    const item = invoiceStock.find(p => String(p.id) === String(id));
+    const qty = parseInt(byId('inv-qty').value, 10), price = Number(byId('inv-price').value);
+    if (!item || !Number.isInteger(qty) || qty < 1 || !Number.isFinite(price) || price < 0) return { error: 'Revisa producto, cantidad y precio.' };
+    const ya = (cart.find(l => String(l.stockId) === String(item.id)) || { qty: 0 }).qty;
+    if (ya + qty > Number(item.q)) return { error: 'Stock insuficiente de «' + item.n + '». Disponible: ' + Number(item.q) + (ya ? ' (ya agregaste ' + ya + ')' : '') };
+    return { line: { stockId: item.id, n: item.n, qty, price } };
+  }
+
+  function renderCart() {
+    const box = byId('inv-cart'); if (!box) return;
+    if (!cart.length) { box.innerHTML = '<div class="inv-cart-empty">Aún no agregas productos al ticket</div>'; return; }
+    box.innerHTML = cart.map((l, i) =>
+      '<div class="inv-line"><div class="inv-line-main"><strong>' + esc(l.n) + '</strong><small>' + esc(l.qty) + ' × ' + esc(money(l.price)) + '</small></div>' +
+      '<span class="inv-line-sub">' + esc(money(lineTotal(l))) + '</span>' +
+      '<button type="button" class="inv-line-x" onclick="removeInvoiceLine(' + i + ')" aria-label="Quitar ' + esc(l.n) + '">✕</button></div>').join('');
+  }
 
   window.openInvoiceSaleModal = async function () {
     const modal = byId('invoice-sale-modal'); if (!modal) return;
     modal.classList.remove('hidden');
     byId('invoice-sale-form').reset(); byId('inv-qty').value = 1;
+    cart = []; renderCart();
     submitting = false; const btn = byId('inv-submit'); if (btn) btn.disabled = false;
     const sel = byId('inv-product'); sel.innerHTML = '<option value="">Cargando inventario…</option>';
     try {
@@ -52,51 +84,85 @@
     window.updateInvoicePreview();
   };
 
+  // Total = productos ya agregados + el producto que esté en pantalla (se incluye al registrar).
   window.updateInvoicePreview = function () {
-    const qty = Math.max(0, parseInt((byId('inv-qty') || {}).value, 10) || 0);
-    const price = Math.max(0, Number((byId('inv-price') || {}).value) || 0);
-    byId('inv-total').textContent = money(qty * price);
+    const pend = readPending();
+    byId('inv-total').textContent = money(cartTotal() + (pend && pend.line ? lineTotal(pend.line) : 0));
+  };
+
+  window.addInvoiceLine = function () {
+    const pend = readPending();
+    if (!pend) { alertBox('Selecciona un producto para agregarlo al ticket.', 'warning'); return; }
+    if (pend.error) { alertBox(pend.error, 'warning'); return; }
+    mergeInto(cart, pend.line);
+    byId('inv-product').value = ''; byId('inv-qty').value = 1; byId('inv-price').value = '';
+    renderCart(); window.updateInvoicePreview();
+  };
+
+  window.removeInvoiceLine = function (i) {
+    cart.splice(i, 1); renderCart(); window.updateInvoicePreview();
   };
 
   window.submitInvoiceSale = async function (ev) {
     ev.preventDefault();
     if (submitting) return; // evita ventas duplicadas por doble toque
-    const stockId = byId('inv-product').value;
-    const qty = parseInt(byId('inv-qty').value, 10), price = Number(byId('inv-price').value);
+    const pend = readPending();
+    if (pend && pend.error) { alertBox(pend.error, 'warning'); return; }
+    const lines = cart.map(l => ({ ...l }));
+    if (pend && pend.line) mergeInto(lines, pend.line); // lo que quedó en pantalla sin pulsar «Agregar»
     const client = byId('inv-client').value.trim();
-    if (!stockId || !client || !Number.isInteger(qty) || qty < 1 || !Number.isFinite(price) || price < 0) {
-      alertBox('Revisa producto, cliente, cantidad y precio.', 'warning'); return;
-    }
+    if (!lines.length) { alertBox('Agrega al menos un producto al ticket.', 'warning'); return; }
+    if (!client) { alertBox('Escribe el nombre del cliente.', 'warning'); return; }
+
     submitting = true;
     const btn = byId('inv-submit'); if (btn) btn.disabled = true;
-
-    let fresh = null, prevQ = 0, stockDone = false, saleDone = false, sale = null;
+    const doneStock = [], doneSales = [];
+    let ok = false;
     try {
       // Se lee el stock actual (no el de cuando se abrió el modal) para no pisar ventas hechas entre tanto.
-      fresh = (await getAll('stock')).find(p => String(p.id) === String(stockId));
-      if (!fresh) { alertBox('El producto ya no existe en el inventario.', 'error'); return; }
-      prevQ = Number(fresh.q) || 0;
-      if (qty > prevQ) { alertBox('Stock insuficiente. Disponible: ' + prevQ, 'error'); return; }
+      const stockAll = await getAll('stock');
+      const fresh = lines.map(l => stockAll.find(p => String(p.id) === String(l.stockId)));
+      for (let i = 0; i < lines.length; i++) {
+        if (!fresh[i]) { alertBox('«' + lines[i].n + '» ya no existe en el inventario.', 'error'); return; }
+        if (lines[i].qty > Number(fresh[i].q)) { alertBox('Stock insuficiente de «' + lines[i].n + '». Disponible: ' + Number(fresh[i].q), 'error'); return; }
+      }
 
-      const now = Date.now(), total = qty * price, invoiceNo = 'T-' + String(now).slice(-8);
-      fresh.q = prevQ - qty; await put('stock', fresh); stockDone = true;
-      sale = {
-        id: newId(), item: fresh.n, val: total, qty, stockId: fresh.id, fecha: now,
-        precioUnit: price, precioOriginal: Number(fresh.p) || 0, precioModificado: price !== (Number(fresh.p) || 0),
-        cliente: client, documento: byId('inv-id').value.trim(), telefono: byId('inv-phone').value.trim(),
+      const now = Date.now(), invoiceNo = 'T-' + String(now).slice(-8);
+      const usedIds = new Set();
+      const mkId = () => { let id = newId(); while (usedIds.has(id)) id = newId(); usedIds.add(id); return id; };
+      const common = {
+        fecha: now, cliente: client, documento: byId('inv-id').value.trim(), telefono: byId('inv-phone').value.trim(),
         metodoPago: byId('inv-payment').value, comprobante: invoiceNo, observaciones: byId('inv-notes').value.trim()
       };
-      await put('sales', sale); saleDone = true;
-      if (typeof addStockMovementRecord === 'function') await addStockMovementRecord(fresh.id, 'salida', qty, 'Venta con comprobante ' + invoiceNo, prevQ);
+      try {
+        for (let i = 0; i < lines.length; i++) {
+          const l = lines[i], f = fresh[i], prevQ = Number(f.q) || 0;
+          f.q = prevQ - l.qty; await put('stock', f); doneStock.push({ f, prevQ });
+          const sale = Object.assign({
+            id: mkId(), item: f.n, val: lineTotal(l), qty: l.qty, stockId: f.id, linea: i + 1,
+            precioUnit: l.price, precioOriginal: Number(f.p) || 0, precioModificado: l.price !== (Number(f.p) || 0)
+          }, common);
+          await put('sales', sale); doneSales.push(sale);
+          if (typeof addStockMovementRecord === 'function') {
+            try { await addStockMovementRecord(f.id, 'salida', l.qty, 'Venta con comprobante ' + invoiceNo, prevQ); }
+            catch (e) { console.warn('No se pudo registrar el movimiento de stock:', e); }
+          }
+        }
+        ok = true;
+      } catch (err) {
+        console.error('Error registrando venta con comprobante:', err);
+        // Todo o nada: se borran las ventas guardadas y se devuelve el stock descontado.
+        for (const s of doneSales) { try { await del('sales', s.id); } catch (e2) { console.error('No se pudo revertir la venta:', e2); } }
+        for (const d of doneStock.reverse()) { try { d.f.q = d.prevQ; await put('stock', d.f); } catch (e2) { console.error('No se pudo revertir el stock:', e2); } }
+        alertBox('No se pudo completar la venta. No se descontó stock. Revisa el inventario y vuelve a intentarlo.', 'error');
+      }
     } catch (err) {
-      console.error('Error registrando venta con comprobante:', err);
-      // Si el stock se descontó pero la venta no quedó guardada, se devuelve el stock.
-      if (stockDone && !saleDone && fresh) { try { fresh.q = prevQ; await put('stock', fresh); } catch (e2) { console.error('No se pudo revertir el stock:', e2); } }
-      if (!saleDone) { alertBox('No se pudo completar la venta. Revisa el inventario y vuelve a intentarlo.', 'error'); return; }
+      console.error('Error preparando la venta:', err);
+      alertBox('No se pudo leer el inventario. Intenta de nuevo.', 'error');
     } finally {
       submitting = false; if (btn) btn.disabled = false;
     }
-    if (!saleDone) return;
+    if (!ok) return;
 
     // Refrescar pantallas (un fallo aquí no invalida la venta ya guardada)
     try {
@@ -107,25 +173,30 @@
     } catch (e) { console.warn('No se pudo refrescar la vista tras la venta:', e); }
 
     window.closeInvoiceSaleModal();
-    showSaleTicket(ticketFromSale(sale), true);
+    cart = [];
+    showSaleTicket(ticketFromGroup(doneSales), true);
   };
 
   /* ───────────────────────── Modelo y diseño del ticket ───────────────────────── */
-  function ticketFromSale(s) {
-    const total = Number(s.val) || 0, qty = Number(s.qty) || 1;
+  // Una compra = una o varias ventas con el mismo comprobante y la misma fecha.
+  function ticketFromGroup(sales) {
+    const list = sales.slice().sort((x, y) => (Number(x.linea) || 0) - (Number(y.linea) || 0) || (Number(x.id) || 0) - (Number(y.id) || 0));
+    const f = list[0];
+    const items = list.map(s => {
+      const qty = Number(s.qty) || 1, total = Number(s.val) || 0;
+      return { item: s.item || 'Producto', qty, precioUnit: Number(s.precioUnit) || (total / qty), total };
+    });
     return {
-      id: s.id,
-      no: s.comprobante || ('V-' + String(s.id).slice(-8)),
-      fecha: Number(s.fecha) || Date.now(),
-      cliente: s.cliente || 'Cliente de mostrador',
-      documento: s.documento || '',
-      telefono: s.telefono || '',
-      item: s.item || 'Venta',
-      qty,
-      precioUnit: Number(s.precioUnit) || (total / qty),
-      total,
-      metodoPago: s.metodoPago || '',
-      observaciones: s.observaciones || ''
+      ids: list.map(s => s.id),
+      no: f.comprobante || ('V-' + String(f.id).slice(-8)),
+      fecha: Number(f.fecha) || Date.now(),
+      cliente: f.cliente || 'Cliente de mostrador',
+      documento: f.documento || '',
+      telefono: (list.find(s => s.telefono) || {}).telefono || '',
+      items,
+      total: items.reduce((a, it) => a + it.total, 0),
+      metodoPago: f.metodoPago || '',
+      observaciones: f.observaciones || ''
     };
   }
 
@@ -142,8 +213,8 @@
       '<div><b>Cliente:</b> ' + esc(t.cliente) + '</div>' +
       (t.documento ? '<div><b>Doc/NIT:</b> ' + esc(t.documento) + '</div>' : '') +
       (t.telefono ? '<div><b>Tel:</b> ' + esc(t.telefono) + '</div>' : '') + hr +
-      '<div style="font-weight:700">' + esc(t.item) + '</div>' +
-      row(esc(t.qty) + ' × ' + esc(money(t.precioUnit)), esc(money(t.total))) +
+      t.items.map((it, i) => '<div style="font-weight:700;' + (i ? 'margin-top:6px' : '') + '">' + esc(it.item) + '</div>' +
+        row(esc(it.qty) + ' × ' + esc(money(it.precioUnit)), esc(money(it.total)))).join('') +
       (t.metodoPago ? '<div style="font-size:11px;color:#555;margin-top:6px">Pago: ' + esc(t.metodoPago) + '</div>' : '') +
       (t.observaciones ? '<div style="font-size:11px;color:#555">Obs.: ' + esc(t.observaciones) + '</div>' : '') + hr +
       row('TOTAL', esc(money(t.total)), 'font-size:16px;font-weight:700') + hr +
@@ -187,7 +258,7 @@
     const m = ensureModal(); const b = biz(); state = { t, b };
     byId('tk-title').textContent = isNew ? 'Venta registrada' : 'Comprobante ' + t.no;
     byId('tk-badge').textContent = isNew ? '✅' : '🧾';
-    byId('tk-sub').textContent = isNew ? ('Comprobante ' + t.no + ' · stock actualizado') : 'Reenviar, descargar o imprimir';
+    byId('tk-sub').textContent = isNew ? ('Comprobante ' + t.no + ' · ' + t.items.length + (t.items.length === 1 ? ' producto' : ' productos') + ' · stock actualizado') : 'Reenviar, descargar o imprimir';
     byId('ticket-sale-capture').innerHTML = ticketMarkup(t, b);
     byId('tk-phone').value = t.telefono || '';
     m.classList.remove('hidden');
@@ -205,9 +276,11 @@
   // Reabrir el ticket de una venta ya registrada (botón 🧾 del historial de la caja)
   window.openSaleTicket = async function (id) {
     try {
-      const s = (await getAll('sales')).find(x => String(x.id) === String(id));
+      const all = await getAll('sales');
+      const s = all.find(x => String(x.id) === String(id));
       if (!s) { alertBox('No se encontró la venta.', 'warning'); return; }
-      showSaleTicket(ticketFromSale(s), false);
+      const group = s.comprobante ? all.filter(x => x.comprobante === s.comprobante && x.fecha === s.fecha) : [s];
+      showSaleTicket(ticketFromGroup(group.length ? group : [s]), false);
     } catch (e) {
       console.error('No se pudo abrir el ticket:', e);
       alertBox('No se pudo abrir el ticket de esta venta.', 'error');
@@ -233,9 +306,7 @@
       new Date(t.fecha).toLocaleString('es-CO'),
       '',
       'Hola' + nombre + ', gracias por tu compra 🙌',
-      '• ' + t.item + ' × ' + t.qty + ' — ' + money(t.total),
-      'Total: *' + money(t.total) + '*'
-    ];
+    ].concat(t.items.map(it => '• ' + it.item + ' × ' + it.qty + ' — ' + money(it.total)), ['Total: *' + money(t.total) + '*']);
     if (t.metodoPago) lines.push('Pago: ' + t.metodoPago);
     if (b.footer) lines.push('', b.footer);
     return lines.join('\n');
@@ -243,9 +314,9 @@
 
   async function persistPhone(phone) {
     if (!state) return;
-    const s = (await getAll('sales')).find(x => String(x.id) === String(state.t.id));
-    if (!s) return;
-    s.telefono = phone; await put('sales', s);
+    const ids = state.t.ids.map(String);
+    const mine = (await getAll('sales')).filter(x => ids.includes(String(x.id)));
+    for (const s of mine) { s.telefono = phone; await put('sales', s); }
     state.t.telefono = phone;
   }
 

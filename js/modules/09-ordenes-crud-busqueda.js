@@ -183,6 +183,7 @@
             document.getElementById('saldo-preview').classList.add('hidden');
             playBeep(); closeCamera(); await updateTotal(); await updateSuggestions(); tab('ordenes');
             showToast(adelanto > 0 ? `✅ Orden registrada · Adelanto ${getCurrency()}${adelanto.toLocaleString()} guardado` : '✅ Orden registrada', 'success');
+            if (typeof segOfferAfterCreate === 'function') segOfferAfterCreate(order);
         }
 
         // Duplicar orden: pre-llena el formulario de Taller con los datos del cliente

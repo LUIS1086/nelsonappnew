@@ -66,7 +66,7 @@
                 .replace(/{valor}/g,   (order.val || 0).toLocaleString())
                 .replace(/{orden}/g,   formatOrderNum(order.orderNum || 0))
                 .replace(/{dias}/g,    order.garantia || '');
-            return msg;
+            return (typeof segAppendLink === 'function') ? segAppendLink(msg, order, type) : msg;
         }
 
         // ==================== TÉCNICOS ====================
