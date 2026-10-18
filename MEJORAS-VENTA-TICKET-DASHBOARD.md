@@ -28,3 +28,12 @@ El comprobante generado es un recibo comercial imprimible. No es una factura ele
 - Correcciones: el stock se lee fresco al registrar (antes podía pisar ventas hechas con el modal abierto), el botón se bloquea contra doble toque y, si falla el guardado de la venta, el stock descontado se devuelve.
 - Archivos nuevos: `js/modules/39-ticket-venta.js` (reemplaza el script en línea del index) y `css/21-ticket-venta.css`. Service worker en v3.7.7.
 - Nota: un enlace `wa.me` solo puede llevar texto; la imagen/PDF no se adjuntan solos, por eso existe «Compartir».
+
+---
+
+## Actualización v3.7.8 · Carrito: varios productos en un mismo ticket
+- En **Venta con factura / ticket** ahora hay **➕ Agregar al ticket** y la lista «Productos del ticket» (con ✕ para quitar). Si el mismo producto se agrega dos veces, se juntan las cantidades y queda el último precio escrito. Si dejas un producto elegido sin pulsar «Agregar», se incluye al registrar.
+- Cada producto se guarda como una venta normal (caja, estadísticas y anulación siguen igual); las de una misma compra comparten el número de comprobante y la fecha. El ticket, WhatsApp, PDF, imagen e imprimir muestran todos los productos y el total.
+- El botón 🧾 del historial abre el ticket completo de la compra desde cualquiera de sus líneas. Anular (✕) sigue siendo por línea.
+- Todo o nada: se valida el stock de todos los productos antes de guardar; si algo falla a la mitad, se borran las ventas guardadas y se devuelve el stock.
+- Service worker en v3.7.8.

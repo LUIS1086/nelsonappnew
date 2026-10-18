@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#0b1220">
+<title>Seguimiento de tu equipo</title>
+<style>
+:root{--bg:#0b1220;--card:#111a2e;--line:#22304d;--tx:#e8edf7;--mut:#8fa0bf;--acc:#f97316;--ok:#22c55e;--warn:#f59e0b;--bad:#f43f5e}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+body{min-height:100dvh;background:radial-gradient(900px 420px at 50% -120px,rgba(249,115,22,.16),transparent 70%),var(--bg);padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+.wrap{max-width:520px;margin:0 auto;padding:18px 16px 40px}
+.brand{display:flex;align-items:center;gap:12px;margin:6px 2px 18px}
+.logo{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:22px;background:linear-gradient(135deg,#c2410c,#f97316);box-shadow:0 8px 22px rgba(249,115,22,.35)}
+.biz{font-weight:900;font-size:16px;letter-spacing:.2px}
+.sub{font-size:11px;color:var(--mut);margin-top:2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;margin-bottom:14px}
+.center{text-align:center}
+[hidden]{display:none!important}
+
+.hero{position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-40px;top:-40px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,var(--glow,rgba(249,115,22,.28)),transparent 70%)}
+.pill{display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:900;letter-spacing:1.6px;text-transform:uppercase;color:var(--c,var(--acc));background:color-mix(in srgb,var(--c,var(--acc)) 14%,transparent);border:1px solid color-mix(in srgb,var(--c,var(--acc)) 35%,transparent);padding:6px 11px;border-radius:999px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--c,var(--acc));animation:pulse 1.8s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--c,var(--acc)) 60%,transparent)}70%{box-shadow:0 0 0 9px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.hero h1{font-size:25px;line-height:1.15;margin:14px 0 6px;font-weight:900}
+.hero p{margin:0;color:var(--mut);font-size:14px;line-height:1.5}
+
+.steps{display:grid;grid-template-columns:repeat(4,1fr);position:relative;margin:22px 0 4px}
+.steps::before{content:"";position:absolute;left:12.5%;right:12.5%;top:15px;height:3px;background:var(--line);border-radius:3px}
+.steps .fill{position:absolute;left:12.5%;top:15px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--acc),var(--ok));width:0;transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.step{position:relative;text-align:center;padding:0 2px}
+.step .b{width:33px;height:33px;margin:0 auto;border-radius:50%;display:grid;place-items:center;font-size:14px;background:#0e1626;border:2px solid var(--line);color:var(--mut);position:relative;z-index:1}
+.step.done .b{background:var(--ok);border-color:var(--ok);color:#052e16;font-weight:900}
+.step.now .b{background:var(--acc);border-color:var(--acc);color:#1c0a02;box-shadow:0 0 0 5px rgba(249,115,22,.18)}
+.step .t{font-size:10.5px;font-weight:800;margin-top:8px;color:var(--mut);line-height:1.25}
+.step.done .t,.step.now .t{color:var(--tx)}
+.step .d{font-size:9.5px;color:var(--mut);margin-top:2px;min-height:12px}
+
+.photos{display:grid;gap:10px;margin-bottom:14px}
+.photos.two{grid-template-columns:1fr 1fr}
+.photo{position:relative;border-radius:14px;overflow:hidden;background:#0e1626;border:1px solid var(--line);aspect-ratio:4/3}
+.photo img{width:100%;height:100%;object-fit:cover;display:block}
+.photo span{position:absolute;left:8px;bottom:8px;font-size:9px;font-weight:900;letter-spacing:1px;text-transform:uppercase;background:rgba(2,6,23,.78);padding:4px 8px;border-radius:999px}
+.kv{display:grid;gap:12px}
+.kv div{display:flex;justify-content:space-between;gap:16px;font-size:13px;border-bottom:1px dashed var(--line);padding-bottom:10px}
+.kv div:last-child{border:0;padding-bottom:0}
+.kv b{color:var(--mut);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.8px;flex-shrink:0}
+.kv span{text-align:right;font-weight:700;word-break:break-word}
+.h{font-size:10px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin:0 0 12px}
+.money{font-size:30px;font-weight:900;letter-spacing:-.5px}
+.money small{display:block;font-size:11px;color:var(--mut);font-weight:700;letter-spacing:0;margin-top:2px}
+.btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:15px;border-radius:16px;border:0;font-weight:900;font-size:14px;text-decoration:none;color:#04210f;background:linear-gradient(135deg,#16a34a,#22c55e);box-shadow:0 10px 26px rgba(34,197,94,.25)}
+.btn:active{transform:scale(.98)}
+.foot{text-align:center;font-size:10.5px;color:var(--mut);margin-top:14px;line-height:1.6}
+.spin{width:34px;height:34px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--acc);margin:6px auto 14px;animation:sp 0.9s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.offline{font-size:11px;color:var(--warn);text-align:center;margin:-6px 0 12px}
+@media(prefers-reduced-motion:reduce){.dot,.spin{animation:none}.steps .fill{transition:none}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="brand">
+    <div class="logo" aria-hidden="true">🔧</div>
+    <div><div class="biz" id="negocio">Todo Repuestos Nelson</div><div class="sub">Seguimiento de tu equipo en vivo</div></div>
+  </header>
+
+  <section id="v-load" class="card center"><div class="spin"></div><div style="color:var(--mut);font-size:13px">Buscando tu equipo…</div></section>
+
+  <section id="v-err" class="card center" hidden>
+    <div style="font-size:38px">🔍</div>
+    <h2 id="err-t" style="margin:10px 0 6px;font-size:18px">No encontramos este seguimiento</h2>
+    <p id="err-m" style="margin:0;color:var(--mut);font-size:13px;line-height:1.55">Revisa que el enlace esté completo o pídele al taller que te lo envíe de nuevo.</p>
+  </section>
+
+  <div id="v-ok" hidden>
+    <div id="off" class="offline" hidden>Sin conexión · mostrando la última información</div>
+
+    <section class="card hero" id="hero">
+      <span class="pill"><i class="dot"></i><span id="pill">Estado</span></span>
+      <h1 id="h1"></h1>
+      <p id="msg"></p>
+      <div class="steps" id="steps" aria-label="Progreso de la reparación"><div class="fill" id="fill"></div></div>
+    </section>
+
+    <div id="photos" class="photos" hidden></div>
+
+    <section class="card">
+      <h2 class="h">Tu equipo</h2>
+      <div class="kv" id="kv"></div>
+    </section>
+
+    <section class="card" id="money-card" hidden>
+      <h2 class="h">Valor de la reparación</h2>
+      <div class="money" id="money"></div>
+      <div class="kv" id="money-kv" style="margin-top:14px"></div>
+    </section>
+
+    <a class="btn" id="wa" href="#" target="_blank" rel="noopener" hidden>💬 Escribir al taller por WhatsApp</a>
+    <p class="foot" id="foot"></p>
+  </div>
+</main>
+
+<script src="js/seguimiento-config.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var CFG = window.SEG_CONFIG || {};
+  var URL_ = String(CFG.url || '').replace(/\/+$/, ''), KEY = String(CFG.key || '');
+  var token = new URLSearchParams(location.search).get('t') || '';
+  var last = null, lastOk = 0;
+
+  var STEPS = [
+    { k: 'recibido', t: 'Recibido' },
+    { k: 'revisión', t: 'En revisión' },
+    { k: 'reparado', t: 'Listo' },
+    { k: 'entregado', t: 'Entregado' }
+  ];
+  var INFO = {
+    'recibido':     { c: '#38bdf8', pill: 'Recibido',        h: 'Recibimos tu equipo',        n: 'recibimos tu equipo',        m: 'Ya está registrado en nuestro taller. En breve lo revisará nuestro técnico.' },
+    'revisión':     { c: '#f59e0b', pill: 'En revisión',     h: 'Lo estamos revisando',       n: 'lo estamos revisando',       m: 'Nuestro técnico está diagnosticando la falla y preparando la reparación.' },
+    'reparado':     { c: '#22c55e', pill: 'Listo',           h: '¡Tu equipo está listo!',     n: '¡tu equipo está listo!',     m: 'Ya puedes pasar a recogerlo. Te esperamos.' },
+    'entregado':    { c: '#22c55e', pill: 'Entregado',       h: 'Equipo entregado',           n: 'tu equipo fue entregado',    m: 'Gracias por confiar en nosotros. Si algo no funciona como esperas, escríbenos.' },
+    'no-reparable': { c: '#f43f5e', pill: 'Sin reparación',  h: 'No fue posible repararlo',   n: 'no fue posible repararlo',   m: 'Lamentablemente este equipo no tiene reparación posible. Escríbenos para coordinar su entrega.' }
+  };
+
+  function show(id) { ['v-load', 'v-err', 'v-ok'].forEach(function (x) { $(x).hidden = x !== id; }); }
+  function fail(t, m) { if (t) $('err-t').textContent = t; if (m) $('err-m').textContent = m; show('v-err'); }
+  function money(n) { return '$' + Number(n || 0).toLocaleString('es-CO'); }
+  function fdate(v, withTime) {
+    if (!v) return '';
+    var d = new Date(v); if (isNaN(d)) return '';
+    return d.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' }) + (withTime ? ', ' + d.toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' }) : '');
+  }
+  function row(box, k, v) {
+    var d = document.createElement('div'), b = document.createElement('b'), s = document.createElement('span');
+    b.textContent = k; s.textContent = v; d.appendChild(b); d.appendChild(s); box.appendChild(d);
+  }
+
+  function render(r) {
+    var st = INFO[r.estado] ? r.estado : 'recibido', info = INFO[st];
+    $('negocio').textContent = r.negocio || 'Todo Repuestos Nelson';
+    document.title = (r.equipo ? r.equipo + ' · ' : '') + 'Seguimiento';
+    var hero = $('hero'); hero.style.setProperty('--c', info.c); hero.style.setProperty('--glow', info.c + '44');
+    $('pill').textContent = info.pill;
+    $('h1').textContent = r.cliente ? r.cliente + ', ' + info.n : info.h;
+    var msg = info.m;
+    if (st === 'entregado' && r.garantia_dias > 0) msg += ' Tu reparación tiene ' + r.garantia_dias + ' días de garantía.';
+    if ((st === 'recibido' || st === 'revisión') && r.fecha_estimada) { var fe = fdate(r.fecha_estimada + 'T12:00:00'); if (fe) msg += ' Fecha estimada: ' + fe + '.'; }
+    $('msg').textContent = msg;
+
+    // Línea de tiempo
+    var steps = $('steps'); Array.prototype.slice.call(steps.querySelectorAll('.step')).forEach(function (n) { n.remove(); });
+    var idx = st === 'no-reparable' ? 1 : STEPS.findIndex(function (s) { return s.k === st; });
+    STEPS.forEach(function (s, i) {
+      var el = document.createElement('div'), cls = 'step';
+      if (st === 'entregado' || i < idx) cls += ' done'; else if (i === idx) cls += ' now';
+      el.className = cls;
+      var b = document.createElement('div'); b.className = 'b'; b.textContent = (cls.indexOf('done') > -1) ? '✓' : String(i + 1);
+      var t = document.createElement('div'); t.className = 't'; t.textContent = s.t;
+      var d = document.createElement('div'); d.className = 'd';
+      if (i === 0) d.textContent = fdate(r.fecha_ingreso);
+      else if (i === idx && idx > 0) d.textContent = fdate(r.fecha_estado);
+      el.appendChild(b); el.appendChild(t); el.appendChild(d); steps.appendChild(el);
+    });
+    var pct = st === 'entregado' ? 75 : st === 'no-reparable' ? 25 : (idx / 3) * 75;
+    requestAnimationFrame(function () { $('fill').style.width = pct + '%'; });
+    steps.hidden = st === 'no-reparable';
+
+    // Fotos
+    var ph = $('photos'); ph.textContent = '';
+    var list = [];
+    if (r.foto_ingreso) list.push(['Al recibirlo', r.foto_ingreso]);
+    if (r.foto_final) list.push([st === 'entregado' ? 'Al entregarlo' : 'Reparado', r.foto_final]);
+    list.forEach(function (p) {
+      var f = document.createElement('div'); f.className = 'photo';
+      var im = document.createElement('img'); im.alt = p[0]; im.loading = 'lazy';
+      if (/^data:image\/(jpeg|png|webp);base64,/.test(p[1])) im.src = p[1];
+      var sp = document.createElement('span'); sp.textContent = p[0];
+      f.appendChild(im); f.appendChild(sp); ph.appendChild(f);
+    });
+    ph.className = 'photos' + (list.length === 2 ? ' two' : ''); ph.hidden = !list.length;
+
+    // Datos del equipo
+    var kv = $('kv'); kv.textContent = '';
+    if (r.equipo) row(kv, 'Equipo', r.equipo);
+    if (r.numero) row(kv, 'Orden', r.numero);
+    if (r.falla) row(kv, 'Falla reportada', r.falla);
+    if (r.fecha_ingreso) row(kv, 'Ingresó', fdate(r.fecha_ingreso, true));
+    if (r.fecha_estimada && (st === 'recibido' || st === 'revisión')) row(kv, 'Entrega estimada', fdate(r.fecha_estimada + 'T12:00:00'));
+
+    // Valor (solo si el taller lo publica)
+    var v = Number(r.valor) || 0, mc = $('money-card');
+    if (v > 0 && st !== 'no-reparable') {
+      mc.hidden = false; $('money').textContent = money(v);
+      var mk = $('money-kv'); mk.textContent = '';
+      var ad = Number(r.adelanto) || 0;
+      if (ad > 0) row(mk, 'Adelanto', money(ad));
+      if (st !== 'entregado') row(mk, 'Saldo a pagar', money(Math.max(0, v - ad)));
+      mk.hidden = !mk.children.length;
+    } else mc.hidden = true;
+
+    // WhatsApp del taller
+    var wa = $('wa'), num = String(r.wa_negocio || '').replace(/\D/g, '');
+    if (num.length >= 7) {
+      wa.href = 'https://wa.me/' + num + '?text=' + encodeURIComponent('Hola, consulto por mi ' + (r.equipo || 'equipo') + (r.numero ? ' (orden ' + r.numero + ')' : '') + '.');
+      wa.hidden = false;
+    } else wa.hidden = true;
+    stamp();
+    show('v-ok');
+  }
+
+  function stamp() {
+    if (!last) return;
+    var m = Math.max(0, Math.round((Date.now() - lastOk) / 60000));
+    $('foot').textContent = 'Esta página se actualiza sola · ' + (m < 1 ? 'actualizado hace un momento' : 'actualizado hace ' + m + ' min');
+  }
+
+  function load(first) {
+    if (!URL_ || !KEY) { fail('Seguimiento no disponible', 'El taller aún no terminó de configurar este servicio. Intenta más tarde.'); return; }
+    if (!/^[A-Za-z0-9_-]{24,64}$/.test(token)) { fail(); return; }
+    var h = { 'Content-Type': 'application/json', apikey: KEY };
+    if (/^eyJ/.test(KEY)) h.Authorization = 'Bearer ' + KEY;
+    var ctrl = new AbortController(), to = setTimeout(function () { ctrl.abort(); }, 12000);
+    fetch(URL_ + '/rest/v1/rpc/seg_obtener', { method: 'POST', headers: h, body: JSON.stringify({ p_token: token }), signal: ctrl.signal, cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+      .then(function (d) {
+        clearTimeout(to);
+        if (!d) { if (first || !last) fail(); return; }
+        last = d; lastOk = Date.now(); $('off').hidden = true; render(d);
+      })
+      .catch(function () {
+        clearTimeout(to);
+        if (last) { $('off').hidden = false; stamp(); }
+        else fail('No pudimos cargar la información', 'Revisa tu conexión a internet e inténtalo de nuevo en un momento.');
+      });
+  }
+
+  load(true);
+  setInterval(function () { if (document.visibilityState === 'visible') load(false); }, 30000);
+  setInterval(stamp, 30000);
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible' && Date.now() - lastOk > 10000) load(false); });
+  window.addEventListener('online', function () { load(false); });
+})();
+</script>
+</body>
+</html>

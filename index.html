@@ -40,6 +40,7 @@
     <link rel="stylesheet" href="css/19-desktop-premium.css">
     <link rel="stylesheet" href="css/20-responsive-pro.css">
     <link rel="stylesheet" href="css/21-ticket-venta.css">
+    <link rel="stylesheet" href="css/22-seguimiento.css">
 
 <style id="invoice-sale-styles">
 .invoice-sale-cta{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:14px;border-radius:16px;border:1px solid rgba(52,211,153,.32);background:linear-gradient(115deg,rgba(16,185,129,.16),rgba(59,130,246,.08));color:#e5fff4;cursor:pointer;transition:transform .18s,border-color .18s}
@@ -804,6 +805,11 @@
 
                 <button onclick="openGarantiasModal()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
                     <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#059669,#10b981);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(16,185,129,0.4);font-size:22px;">🛡️</div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#34d399;margin:0;">Garantías</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Equipos con garantía activa o por vencer</p></div></div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+
+                <button onclick="openSeguimientoConfig()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-radius:16px;background:transparent;border:none;cursor:pointer;" ontouchstart="this.style.background='#111827'" ontouchend="this.style.background='transparent'">
+                    <div style="display:flex;align-items:center;gap:14px;"><div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#0369a1,#38bdf8);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(56,189,248,0.4);font-size:22px;">🔗</div><div style="text-align:left;"><p style="font-size:15px;font-weight:700;color:#7dd3fc;margin:0;">Seguimiento del cliente</p><p style="font-size:11px;color:#3a4a6a;margin:2px 0 0;">Enlace y QR para ver el estado del equipo</p></div></div>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2a3a55" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
 
@@ -3142,9 +3148,11 @@
         <div class="invoice-head"><div><h2 id="invoice-sale-title">🧾 Venta y comprobante</h2><p>Registra la venta, descuenta inventario y genera el ticket para el cliente.</p></div><button type="button" class="invoice-close" onclick="closeInvoiceSaleModal()" aria-label="Cerrar">×</button></div>
         <form id="invoice-sale-form" onsubmit="submitInvoiceSale(event)">
           <div class="invoice-grid">
-            <div class="invoice-field full"><label for="inv-product">Producto disponible</label><select id="inv-product" required onchange="selectInvoiceProduct()"><option value="">Cargando inventario…</option></select></div>
-            <div class="invoice-field"><label for="inv-qty">Cantidad</label><input id="inv-qty" type="number" min="1" step="1" value="1" required oninput="updateInvoicePreview()"></div>
-            <div class="invoice-field"><label for="inv-price">Precio unitario</label><input id="inv-price" type="number" min="0" step="1" required oninput="updateInvoicePreview()"></div>
+            <div class="invoice-field full"><label for="inv-product">Producto disponible</label><select id="inv-product" onchange="selectInvoiceProduct()"><option value="">Cargando inventario…</option></select></div>
+            <div class="invoice-field"><label for="inv-qty">Cantidad</label><input id="inv-qty" type="number" min="1" step="1" value="1" oninput="updateInvoicePreview()"></div>
+            <div class="invoice-field"><label for="inv-price">Precio unitario</label><input id="inv-price" type="number" min="0" step="1" oninput="updateInvoicePreview()"></div>
+            <div class="invoice-field full"><button type="button" class="inv-add" onclick="addInvoiceLine()">➕ Agregar al ticket</button></div>
+            <div class="invoice-field full"><label>Productos del ticket</label><div id="inv-cart"><div class="inv-cart-empty">Aún no agregas productos al ticket</div></div></div>
             <div class="invoice-field"><label for="inv-client">Nombre del cliente</label><input id="inv-client" maxlength="120" placeholder="Nombre y apellidos" required></div>
             <div class="invoice-field"><label for="inv-id">Documento / NIT (opcional)</label><input id="inv-id" maxlength="40" placeholder="CC, NIT u otro"></div>
             <div class="invoice-field"><label for="inv-phone">Teléfono (opcional)</label><input id="inv-phone" maxlength="30" inputmode="tel" placeholder="Número de contacto"></div>
@@ -3152,7 +3160,7 @@
             <div class="invoice-field full"><label for="inv-notes">Observaciones (opcional)</label><textarea id="inv-notes" rows="2" maxlength="300" placeholder="Garantía, referencia u observaciones"></textarea></div>
           </div>
           <div class="invoice-total"><span>Total de la venta</span><strong id="inv-total">$0</strong></div>
-          <p class="invoice-note">Este flujo genera un comprobante comercial que puedes enviar por WhatsApp, descargar en PDF o imagen, o imprimir. No sustituye una factura electrónica validada por la DIAN. Verifica los requisitos tributarios aplicables a tu negocio.</p>
+          <p class="invoice-note">Puedes agregar varios productos al mismo ticket. Si dejas un producto elegido sin pulsar «Agregar», se incluye al registrar. Este flujo genera un comprobante comercial que puedes enviar por WhatsApp, descargar en PDF o imagen, o imprimir. No sustituye una factura electrónica validada por la DIAN. Verifica los requisitos tributarios aplicables a tu negocio.</p>
           <div class="invoice-actions"><button type="button" onclick="closeInvoiceSaleModal()">Cancelar</button><button class="primary" id="inv-submit" type="submit">✓ Registrar venta y generar ticket</button></div>
         </form>
       </div>
@@ -3219,6 +3227,8 @@
 
 
 <script src="js/modules/39-ticket-venta.js"></script>
+<script src="js/seguimiento-config.js"></script>
+<script src="js/modules/40-seguimiento.js"></script>
 
     <script src="js/nelson-ia.js"></script>
 
