@@ -23,3 +23,15 @@
 .tk-btn.done{grid-column:1/-1;background:transparent;color:#94a3b8}
 .tk-hint{font-size:10px;color:#94a3b8;line-height:1.5;margin-top:10px}
 @media(max-width:420px){.tk-panel{border-radius:18px}.tk-actions{gap:8px}}
+
+/* ── Carrito dentro del formulario de venta ── */
+.inv-add{width:100%;border:1px dashed rgba(52,211,153,.55);background:rgba(16,185,129,.1);color:#6ee7b7;border-radius:12px;padding:12px;font-size:12px;font-weight:900;min-height:44px;cursor:pointer}
+.inv-add:active{transform:scale(.98)}
+#inv-cart{display:flex;flex-direction:column;gap:8px}
+.inv-cart-empty{font-size:11px;color:#64748b;text-align:center;padding:12px;border:1px dashed #334155;border-radius:11px}
+.inv-line{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #334155;background:#111c30;border-radius:11px}
+.inv-line-main{flex:1;min-width:0}
+.inv-line-main strong{display:block;font-size:12px;color:#f1f5f9;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.inv-line-main small{font-size:10px;color:#94a3b8}
+.inv-line-sub{font-size:13px;font-weight:900;color:#6ee7b7;white-space:nowrap}
+.inv-line-x{border:0;background:rgba(244,63,94,.18);color:#fb7185;border-radius:9px;width:32px;height:32px;font-size:13px;flex-shrink:0;cursor:pointer}
