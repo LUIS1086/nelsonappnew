@@ -59,6 +59,18 @@ body{min-height:100dvh;background:radial-gradient(900px 420px at 50% -120px,rgba
 .spin{width:34px;height:34px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--acc);margin:6px auto 14px;animation:sp 0.9s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 .offline{font-size:11px;color:var(--warn);text-align:center;margin:-6px 0 12px}
+.presu{border-color:rgba(249,115,22,.5);background:linear-gradient(160deg,rgba(249,115,22,.12),var(--card) 62%)}
+.presu.ok{border-color:rgba(34,197,94,.45);background:linear-gradient(160deg,rgba(34,197,94,.12),var(--card) 62%)}
+.presu.no{border-color:rgba(244,63,94,.4);background:linear-gradient(160deg,rgba(244,63,94,.09),var(--card) 62%)}
+.presu p{margin:10px 0 0;color:var(--mut);font-size:13px;line-height:1.55}
+.presu p strong{color:var(--tx)}
+.presu h3{margin:0 0 10px;font-size:17px;font-weight:900}
+.pbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.pbtn{border:1px solid var(--line);background:#1b2742;color:var(--tx);border-radius:14px;padding:15px 10px;font-weight:900;font-size:14px;cursor:pointer;font-family:inherit}
+.pbtn.yes{background:linear-gradient(135deg,#16a34a,#22c55e);color:#04210f;border:0}
+.pbtn:active{transform:scale(.98)}.pbtn:disabled{opacity:.55;pointer-events:none}
+.perr{color:#fda4af;font-size:12px;margin-top:12px;line-height:1.45}
+.btn.mt{margin-top:14px}
 @media(prefers-reduced-motion:reduce){.dot,.spin{animation:none}.steps .fill{transition:none}}
 </style>
 </head>
@@ -87,6 +99,8 @@ body{min-height:100dvh;background:radial-gradient(900px 420px at 50% -120px,rgba
       <div class="steps" id="steps" aria-label="Progreso de la reparación"><div class="fill" id="fill"></div></div>
     </section>
 
+    <section class="card presu" id="presu-card" hidden></section>
+
     <div id="photos" class="photos" hidden></div>
 
     <section class="card">
@@ -113,7 +127,7 @@ body{min-height:100dvh;background:radial-gradient(900px 420px at 50% -120px,rgba
   var CFG = window.SEG_CONFIG || {};
   var URL_ = String(CFG.url || '').replace(/\/+$/, ''), KEY = String(CFG.key || '');
   var token = new URLSearchParams(location.search).get('t') || '';
-  var last = null, lastOk = 0;
+  var last = null, lastOk = 0, askPend = null, busy = false, presuErr = '';
 
   var STEPS = [
     { k: 'recibido', t: 'Recibido' },
@@ -137,6 +151,68 @@ body{min-height:100dvh;background:radial-gradient(900px 420px at 50% -120px,rgba
     var d = new Date(v); if (isNaN(d)) return '';
     return d.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' }) + (withTime ? ', ' + d.toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' }) : '');
   }
+  function el(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+  function waLink(r, txt) {
+    var num = String(r.wa_negocio || '').replace(/\D/g, '');
+    return num.length >= 7 ? 'https://wa.me/' + num + '?text=' + encodeURIComponent(txt) : '';
+  }
+
+  // Presupuesto: el cliente aprueba o rechaza desde aquí (solo si el taller lo marcó «enviado»)
+  function renderPresu(r, st) {
+    var c = $('presu-card'), e = r.presupuesto_estado, v = Number(r.presupuesto_valor) || 0, eq = String(r.equipo || 'equipo').trim();
+    c.textContent = ''; c.className = 'card presu'; c.hidden = true;
+    if (e === 'enviado' && (st === 'recibido' || st === 'revisión') && v > 0) {
+      c.appendChild(el('h2', 'h', 'Presupuesto de la reparación'));
+      c.appendChild(el('div', 'money', money(v)));
+      if (!askPend) {
+        c.appendChild(el('p', '', 'Revisa el valor y dinos si podemos continuar con la reparación de tu ' + eq + '.'));
+        var b = el('div', 'pbtns'), y = el('button', 'pbtn yes', '✅ Aprobar'), n = el('button', 'pbtn', 'No, gracias');
+        y.type = n.type = 'button';
+        y.onclick = function () { askPend = 'aprobado'; presuErr = ''; render(last); };
+        n.onclick = function () { askPend = 'rechazado'; presuErr = ''; render(last); };
+        b.appendChild(y); b.appendChild(n); c.appendChild(b);
+      } else {
+        var si = askPend === 'aprobado', p = el('p', ''), s = el('strong', '', si ? '¿Confirmas que apruebas este presupuesto de ' + money(v) + '?' : '¿Confirmas que NO quieres continuar con la reparación?');
+        p.appendChild(s); c.appendChild(p);
+        var b2 = el('div', 'pbtns'), ok = el('button', 'pbtn' + (si ? ' yes' : ''), busy ? 'Enviando…' : 'Sí, confirmar'), back = el('button', 'pbtn', 'Volver');
+        ok.type = back.type = 'button'; ok.disabled = back.disabled = busy;
+        ok.onclick = function () { respond(askPend); };
+        back.onclick = function () { askPend = null; presuErr = ''; render(last); };
+        b2.appendChild(ok); b2.appendChild(back); c.appendChild(b2);
+      }
+      if (presuErr) c.appendChild(el('div', 'perr', presuErr));
+      c.hidden = false; return true;
+    }
+    if ((e === 'aprobado' || e === 'rechazado') && st !== 'entregado') {
+      var si2 = e === 'aprobado', cuando = r.respuesta_at ? fdate(r.respuesta_at, true) : '';
+      c.className = 'card presu ' + (si2 ? 'ok' : 'no');
+      c.appendChild(el('h3', '', si2 ? '✅ Presupuesto aprobado' : 'Presupuesto rechazado'));
+      if (v > 0) c.appendChild(el('div', 'money', money(v)));
+      c.appendChild(el('p', '', si2
+        ? 'Aprobaste este presupuesto' + (cuando ? ' el ' + cuando : '') + '. Ya podemos continuar con la reparación de tu ' + eq + '.'
+        : 'Indicaste que no deseas continuar' + (cuando ? ' (' + cuando + ')' : '') + '. Si cambias de opinión, escríbenos.'));
+      var href = waLink(r, si2 ? 'Hola, aprobé el presupuesto' + (v > 0 ? ' de ' + money(v) : '') + ' de mi ' + eq + (r.numero ? ' (orden ' + r.numero + ')' : '') + ' ✅' : 'Hola, vi el presupuesto de mi ' + eq + (r.numero ? ' (orden ' + r.numero + ')' : '') + ' y quisiera hablar con ustedes.');
+      if (href) { var a = el('a', 'btn mt', si2 ? '💬 Avisar al taller por WhatsApp' : '💬 Hablar con el taller'); a.href = href; a.target = '_blank'; a.rel = 'noopener'; c.appendChild(a); }
+      c.hidden = false; return true;
+    }
+    return false;
+  }
+
+  function respond(ans) {
+    if (busy) return; busy = true; presuErr = ''; render(last);
+    var h = { 'Content-Type': 'application/json', apikey: KEY }; if (/^eyJ/.test(KEY)) h.Authorization = 'Bearer ' + KEY;
+    var ctrl = new AbortController(), to = setTimeout(function () { ctrl.abort(); }, 12000);
+    fetch(URL_ + '/rest/v1/rpc/seg_responder', { method: 'POST', headers: h, body: JSON.stringify({ p_token: token, p_respuesta: ans }), signal: ctrl.signal })
+      .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+      .then(function (d) {
+        clearTimeout(to); busy = false; askPend = null;
+        if (d) { last = d; lastOk = Date.now(); }
+        if (!d || d.presupuesto_estado !== ans) presuErr = 'No pudimos registrar tu respuesta (quizá ya fue respondida). Escríbenos por WhatsApp.';
+        render(last);
+      })
+      .catch(function () { clearTimeout(to); busy = false; presuErr = 'No hay conexión. Inténtalo de nuevo en un momento.'; render(last); });
+  }
+
   function row(box, k, v) {
     var d = document.createElement('div'), b = document.createElement('b'), s = document.createElement('span');
     b.textContent = k; s.textContent = v; d.appendChild(b); d.appendChild(s); box.appendChild(d);
@@ -188,7 +264,7 @@ body{min-height:100dvh;background:radial-gradient(900px 420px at 50% -120px,rgba
 
     // Datos del equipo
     var kv = $('kv'); kv.textContent = '';
-    if (r.equipo) row(kv, 'Equipo', r.equipo);
+    if (r.equipo) row(kv, 'Equipo', String(r.equipo).trim());
     if (r.numero) row(kv, 'Orden', r.numero);
     if (r.falla) row(kv, 'Falla reportada', r.falla);
     if (r.fecha_ingreso) row(kv, 'Ingresó', fdate(r.fecha_ingreso, true));
@@ -204,11 +280,12 @@ body{min-height:100dvh;background:radial-gradient(900px 420px at 50% -120px,rgba
       if (st !== 'entregado') row(mk, 'Saldo a pagar', money(Math.max(0, v - ad)));
       mk.hidden = !mk.children.length;
     } else mc.hidden = true;
+    if (renderPresu(r, st)) mc.hidden = true; // el presupuesto ya muestra el valor
 
     // WhatsApp del taller
     var wa = $('wa'), num = String(r.wa_negocio || '').replace(/\D/g, '');
     if (num.length >= 7) {
-      wa.href = 'https://wa.me/' + num + '?text=' + encodeURIComponent('Hola, consulto por mi ' + (r.equipo || 'equipo') + (r.numero ? ' (orden ' + r.numero + ')' : '') + '.');
+      wa.href = 'https://wa.me/' + num + '?text=' + encodeURIComponent('Hola, consulto por mi ' + String(r.equipo || 'equipo').trim() + (r.numero ? ' (orden ' + r.numero + ')' : '') + '.');
       wa.hidden = false;
     } else wa.hidden = true;
     stamp();

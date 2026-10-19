@@ -1,4 +1,4 @@
-# Seguimiento del cliente en vivo (v3.8.0)
+# Seguimiento del cliente en vivo (v3.9.0)
 
 El cliente escanea un QR (o abre el enlace que le llega por WhatsApp) y ve **en vivo** el estado de su equipo:
 línea de tiempo (Recibido → En revisión → Listo → Entregado), foto del equipo, valor/saldo, fecha estimada,
@@ -30,5 +30,18 @@ garantía y un botón de WhatsApp al taller. No instala nada y no ve teléfono n
 `seguimiento.html` (página del cliente) · `js/modules/40-seguimiento.js` · `css/22-seguimiento.css` ·
 `js/seguimiento-config.js` · `supabase/seguimiento.sql` · ganchos en `put()/del()` (core/02), `saveOrder`, `buildWhatsappMsg`.
 
-## Fase 2 (pendiente)
-Botón «Aprobar presupuesto» en la página del cliente, con aviso a la app.
+## Aprobar el presupuesto desde el enlace (v3.9.0)
+Usa el estado de presupuesto que la app ya tenía (⏳ Pendiente · 📤 Enviado · ✅ Aprobado · ❌ Rechazado):
+1. Pon el **valor** de la reparación y marca el presupuesto como **📤 Enviado** (o usa el aviso de WhatsApp «presupuesto», que ya lleva el enlace).
+2. El cliente abre su enlace y ve el **valor** con los botones **✅ Aprobar** / **No, gracias** (pide confirmación; no puede cambiar la respuesta después).
+3. Tu app lo detecta sola (al abrirla, cada minuto con la app abierta y al volver internet): la orden pasa a ✅ Aprobado / ❌ Rechazado, aparece un aviso y vibra. Tras responder, el cliente ve «Avisar al taller por WhatsApp» con el mensaje listo.
+- Solo se puede responder mientras el equipo esté «Recibido» o «En revisión» y haya valor. Si cambias el valor mientras está «Enviado», el cliente ve el nuevo.
+- Para pedir una nueva aprobación (presupuesto revisado) vuelve a marcar «Enviado».
+- Aunque ocultes «Mostrar el valor y el saldo», el valor del presupuesto siempre se muestra, porque es lo que se aprueba.
+
+## Restaurar respaldos
+Mientras importas un respaldo (o restauras desde Drive) la publicación queda en pausa. Después, cada orden se publica sola
+cuando la tocas, le envías el enlace o pulsas «Publicar las órdenes activas ahora». Las entregadas hace más de 60 días no se publican.
+
+## Actualizar el SQL (desde la v1)
+Pega de nuevo `supabase/seguimiento.sql` completo en el SQL Editor: es repetible y conserva tus datos y tu clave.
