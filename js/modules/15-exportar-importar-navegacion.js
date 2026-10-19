@@ -103,6 +103,7 @@
             const summary = `Órdenes: ${data.orders.length} · Inventario: ${data.stock.length} · Ventas: ${data.sales.length} · Clientes: ${data.clientes.length}`;
             showConfirm(`¿Importar este respaldo?\n\n${summary}\n\nSe reemplazará TODA la información actual.`, async () => {
                 try {
+                    window._segPausa = true; // el seguimiento del cliente no publica mientras se restaura el respaldo
                     await clearStore('orders'); await clearStore('stock'); await clearStore('sales');
                     await clearStore('gastos'); await clearStore('clientes'); await clearStore('payments');
                     await clearStore('stockHistory'); await clearStore('orderChat');
@@ -131,7 +132,7 @@
                     await _migrateStockFields();
                     await updateTotal(); await updateSuggestions(); await renderCartera();
                     showAlert("✅ Importación exitosa. La app se recargará.", "success", () => location.reload());
-                } catch(err) { showAlert("Error al importar: " + err.message, "error"); }
+                } catch(err) { window._segPausa = false; showAlert("Error al importar: " + err.message, "error"); }
             });
         }
 

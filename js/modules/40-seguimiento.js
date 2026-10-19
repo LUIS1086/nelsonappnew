@@ -28,7 +28,14 @@
   const configured = () => hasServer() && clave().length >= 16;
   function biz() { try { const o = JSON.parse(localStorage.getItem('businessConfig') || '{}'); return (o && typeof o === 'object') ? o : {}; } catch (e) { return {}; } }
   const bizName = () => biz().name || 'Todo Repuestos Nelson';
-  const waNum = raw => { const d = String(raw || '').replace(/\D/g, ''); if (d.length < 7) return ''; return d.length <= 10 ? '57' + d : d; };
+  // Toma UN solo número (el primer celular colombiano del texto): el teléfono del negocio puede traer varios, ej. «314 265 7279 / 320 962 5781».
+  const waNum = raw => {
+    const t = String(raw || '');
+    const m = t.match(/(?:\+?57[\s.-]*)?(3\d{2})[\s.-]*(\d{3})[\s.-]*(\d{4})/);
+    if (m) return '57' + m[1] + m[2] + m[3];
+    const d = t.replace(/\D/g, ''); if (d.length < 7) return '';
+    return d.length <= 10 ? '57' + d : d.slice(0, 12);
+  };
   const firstName = n => { const w = String(n || '').trim().split(/\s+/)[0] || ''; return w ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : ''; };
   const iso = ms => { const n = Number(ms); return n > 0 ? new Date(n).toISOString() : null; };
 
@@ -91,7 +98,8 @@
     const body = {
       token, order_id: o.id,
       numero: (o.orderNum && typeof formatOrderNum === 'function') ? formatOrderNum(o.orderNum) : '',
-      cliente: firstName(o.nom), equipo: String(o.equ || ''), falla: String(o.det || ''), estado: o.sta || 'recibido',
+      cliente: firstName(o.nom), equipo: String(o.equ || '').trim(), falla: String(o.det || '').trim(), estado: o.sta || 'recibido',
+      presupuesto: o.presupuesto || 'pendiente', presu_valor: (o.presupuesto === 'enviado') ? (Number(o.val) || 0) : null, // el valor a aprobar siempre se muestra
       valor: val ? (Number(o.val) || 0) : null, adelanto: val ? (Number(o.adelanto) || 0) : null, saldo: val ? (Number(o.saldo) || 0) : null,
       fecha_ingreso: iso(o.fecha), fecha_estado: iso(o.fechaEstado || o.fechaEntrega), fecha_estimada: o.fechaEstimada || null,
       garantia_dias: Number(o.garantia) || null, negocio: bizName(), wa_negocio: waNum(b.phone)
@@ -106,7 +114,7 @@
     return { body, sigs };
   }
 
-  const fingerprint = o => [o.sta, o.val, o.adelanto, o.saldo, o.equ, o.det, o.nom, o.fechaEstimada, o.garantia, o.orderNum, (o.fotos || []).length, (o.fotosEntrega || []).length, JSON.stringify(opts())].join('|');
+  const fingerprint = o => [o.sta, o.presupuesto, o.val, o.adelanto, o.saldo, o.equ, o.det, o.nom, o.fechaEstimada, o.garantia, o.orderNum, (o.fotos || []).length, (o.fotosEntrega || []).length, JSON.stringify(opts())].join('|');
   const OLD_DONE = o => (o.sta === 'entregado' || o.sta === 'no-reparable') && (Date.now() - (Number(o.fechaEstado || o.fecha) || 0)) > 60 * 864e5;
 
   function setPending(id, on) {
@@ -142,7 +150,7 @@
   const schedule = (id, ms) => { clearTimeout(timers.get(id)); timers.set(id, setTimeout(() => { timers.delete(id); syncOrder(id); }, ms)); };
 
   window.segOnOrderPut = function (o) {
-    try { if (!o || silent.has(o.id) || !configured()) return; schedule(o.id, 900); } catch (e) { /* nunca romper put() */ }
+    try { if (!o || window._segPausa || silent.has(o.id) || !configured()) return; schedule(o.id, 900); } catch (e) { /* nunca romper put() */ }
   };
 
   window.segOnOrderDel = function (id) {
@@ -166,6 +174,56 @@
   window.addEventListener('online', () => setTimeout(flushPending, 1500));
   setTimeout(flushPending, 9000);
 
+  /* ───────────────────────── Respuestas del cliente (presupuesto) ───────────────────────── */
+  // El cliente aprueba/rechaza en su enlace → aquí se actualiza la orden (o.presupuesto) y se avisa en la app.
+  let polling = false;
+  const announced = new Set();
+  const moneyFmt = n => (typeof getCurrency === 'function' ? getCurrency() : '$') + Number(n || 0).toLocaleString('es-CO');
+
+  function announce(o, r) {
+    const key = o.id + ':' + r.respuesta_at; if (announced.has(key)) return; announced.add(key);
+    const ok = r.presupuesto_estado === 'aprobado';
+    const quien = firstName(o.nom) || 'El cliente';
+    const msg = (ok ? '✅ ' : '❌ ') + quien + (ok ? ' aprobó' : ' rechazó') + ' el presupuesto de ' + (String(o.equ || 'su equipo').trim()) + (Number(r.presupuesto_valor) > 0 ? ' (' + moneyFmt(r.presupuesto_valor) + ')' : '');
+    toast(msg, ok ? 'success' : 'warning');
+    try { if (navigator.vibrate) navigator.vibrate([180, 80, 180]); } catch (e) { /* no crítico */ }
+    try {
+      if ('Notification' in window && Notification.permission === 'granted' && document.visibilityState === 'hidden' && navigator.serviceWorker) {
+        navigator.serviceWorker.ready.then(reg => reg.showNotification('Presupuesto ' + (ok ? 'aprobado' : 'rechazado'), { body: msg, tag: 'seg-' + o.id }));
+      }
+    } catch (e) { /* no crítico */ }
+  }
+
+  async function pollRespuestas() {
+    if (polling || !configured() || !navigator.onLine || window._segPausa) return;
+    polling = true;
+    try {
+      const rows = await rpc('seg_respuestas', { p_clave: clave() }, 12000);
+      if (!Array.isArray(rows) || !rows.length) return;
+      const done = [];
+      for (const r of rows) {
+        const o = await getOne('orders', r.order_id);
+        if (!o) { done.push(r.order_id); continue; }
+        o.presupuesto = r.presupuesto_estado;
+        o.presupuestoRespuesta = { at: Date.parse(r.respuesta_at) || Date.now(), valor: Number(r.presupuesto_valor) || 0, via: 'seguimiento' };
+        silent.add(o.id);
+        try { await put('orders', o); } finally { silent.delete(o.id); }
+        done.push(r.order_id); announce(o, r);
+      }
+      if (done.length) {
+        await rpc('seg_marcar_visto', { p_clave: clave(), p_order_ids: done }, 12000);
+        try { if (typeof renderOrders === 'function') await renderOrders(); } catch (e) { /* no crítico */ }
+      }
+    } catch (e) {
+      if (!/clave_invalida/.test(e.message || '')) console.warn('[seguimiento] respuestas:', e);
+    } finally { polling = false; }
+  }
+  window.segPollRespuestas = pollRespuestas;
+  setTimeout(pollRespuestas, 7000);
+  setInterval(() => { if (document.visibilityState === 'visible') pollRespuestas(); }, 60000);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') pollRespuestas(); });
+  window.addEventListener('online', () => setTimeout(pollRespuestas, 1500));
+
   /* ───────────────────────── Mensajes de WhatsApp ───────────────────────── */
   // Añade el enlace de seguimiento a los avisos del taller (recepción, revisión, presupuesto, listo, retraso).
   window.segAppendLink = function (msg, order, type) {
@@ -177,7 +235,7 @@
     } catch (e) { return msg; }
   };
 
-  const waText = (o, link) => '🔧 *' + bizName() + '*\n\nHola' + (o.nom ? ' ' + firstName(o.nom) : '') + ' 👋 Aquí puedes ver en vivo el estado de tu ' + (o.equ || 'equipo') + (o.orderNum && typeof formatOrderNum === 'function' ? ' (orden ' + formatOrderNum(o.orderNum) + ')' : '') + ':\n' + link;
+  const waText = (o, link) => '🔧 *' + bizName() + '*\n\nHola' + (o.nom ? ' ' + firstName(o.nom) : '') + ' 👋 Aquí puedes ver en vivo el estado de tu ' + String(o.equ || 'equipo').trim() + (o.orderNum && typeof formatOrderNum === 'function' ? ' (orden ' + formatOrderNum(o.orderNum) + ')' : '') + ':\n' + link;
 
   /* ───────────────────────── Interfaz ───────────────────────── */
   function qrDataUrl(text, size) {
@@ -209,6 +267,7 @@
       '<div class="sg-panel"><div class="sg-head"><div class="sg-badge">🔗</div><div style="min-width:0"><h2>Seguimiento del cliente</h2><p>' + esc(num) + (num ? ' · ' : '') + esc(o.equ || '') + '</p></div><button type="button" class="sg-x" onclick="closeSheetSeg(\'sg-modal\')" aria-label="Cerrar">×</button></div>' +
       '<div class="sg-body"><div class="sg-status" id="sg-status">⏳ Publicando…</div>' +
       '<div class="sg-qr">' + (qr ? '<img src="' + qr + '" alt="QR de seguimiento" width="200" height="200">' : '<p>No se pudo generar el QR</p>') + '<small>El cliente lo escanea y ve el estado de su equipo</small></div>' +
+      '<div class="sg-hint" id="sg-presu" style="margin:-2px 0 12px">' + presuHint(o) + '</div>' +
       '<div class="sg-field"><label>Enlace</label><input id="sg-link" readonly value="' + esc(link) + '" onclick="this.select()"></div>' +
       '<div class="sg-field"><label for="sg-phone">WhatsApp del cliente</label><input id="sg-phone" type="tel" inputmode="tel" maxlength="20" placeholder="Ej. 3001234567" value="' + esc(o.tel || '') + '"></div>' +
       '</div><div class="sg-actions">' +
@@ -224,6 +283,15 @@
     else { st.className = 'sg-status bad'; st.textContent = '❌ No se pudo publicar. Revisa Configuración → Seguimiento'; }
   };
   window.closeSheetSeg = closeSheet;
+
+  function presuHint(o) {
+    const e = o.presupuesto || 'pendiente', r = o.presupuestoRespuesta;
+    const cuando = r && r.at ? ' el ' + new Date(r.at).toLocaleDateString('es-CO', { day: 'numeric', month: 'short' }) : '';
+    if (e === 'enviado') return (Number(o.val) > 0) ? '💰 El cliente puede <b>aprobar o rechazar el presupuesto</b> desde este enlace.' : '⚠️ Pon el valor de la reparación para que el cliente pueda aprobar el presupuesto.';
+    if (e === 'aprobado') return '✅ Presupuesto aprobado' + (r ? ' por el cliente' + cuando : '') + '.';
+    if (e === 'rechazado') return '❌ Presupuesto rechazado' + (r ? ' por el cliente' + cuando : '') + '.';
+    return '💡 Para que el cliente apruebe desde el enlace, marca el presupuesto como <b>«Enviado»</b> en la orden y pon el valor.';
+  }
 
   window.segCopyLink = async function () {
     if (!cur) return;
