@@ -44,3 +44,12 @@
 .sg-snack #sg-snack-x{background:transparent;color:#94a3b8;padding:9px 6px}
 @keyframes sgSnack{from{opacity:0;transform:translateX(-50%) translateY(14px)}to{opacity:1;transform:translateX(-50%)}}
 @media(max-width:420px){.sg-panel{border-radius:18px}.sg-actions{gap:8px}}
+
+/* ── Respaldo en Supabase ── */
+.rs-bar{height:8px;border-radius:99px;background:#1e293b;overflow:hidden;margin:2px 0 8px;border:1px solid #334155}
+.rs-bar>div{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#22c55e,#38bdf8);transition:width .25s}
+.rs-item{display:flex;align-items:center;gap:10px;padding:11px 12px;border:1px solid #334155;background:#111c30;border-radius:12px;margin-bottom:8px}
+.rs-item>div{flex:1;min-width:0}
+.rs-item strong{display:block;font-size:12px;color:#f1f5f9}
+.rs-item small{display:block;font-size:10px;color:#94a3b8;margin-top:2px;line-height:1.4}
+.rs-item button{border:0;border-radius:10px;background:#38bdf8;color:#082f49;font-weight:900;font-size:11px;padding:10px 12px;cursor:pointer;flex-shrink:0}
