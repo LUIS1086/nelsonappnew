@@ -119,7 +119,7 @@
             try {
                 const orders = await getAll('orders');
                 const today = new Date();
-                const todayYMD = today.toISOString().slice(0,10);
+                const todayYMD = hoyYMD(today);
 
                 let todayCount = 0;
                 let pendingCount = 0;  // recibido + revisión (no entregadas)
@@ -129,7 +129,7 @@
 
                 for (const o of orders) {
                     const oDate = new Date(o.fecha);
-                    const oYMD = oDate.toISOString().slice(0,10);
+                    const oYMD = hoyYMD(oDate);
                     if (oYMD === todayYMD) todayCount++;
 
                     if (o.sta && o.sta !== 'entregado') {
@@ -151,7 +151,7 @@
 
                 // Stock bajo
                 const stock = await getAll('stock');
-                const lowStock = stock.filter(s => (Number(s.cant) || 0) <= (Number(s.minStock) || 3)).length;
+                const lowStock = stock.filter(s => (Number(s.q) || 0) <= (Number(s.minStock) || 3)).length;
 
                 // ========== BADGES NAV MOBILE (siempre) ==========
                 const badgeOrd = document.getElementById('nav-badge-ordenes');

@@ -487,7 +487,7 @@
         async function exportData() {
             try {
                 const loading = document.createElement('div'); loading.innerHTML = '<div class="fixed inset-0 bg-black/70 flex items-center justify-center z-[4000]"><div class="bg-slate-800 p-6 rounded-2xl text-center"><div class="loading-spinner mx-auto"></div><p class="mt-2 text-sm">Exportando...</p></div></div>'; document.body.appendChild(loading);
-                const orders = await getAll('orders'); const stock = await getAll('stock'); const sales = await getAll('sales'); const gastos = await getAll('gastos'); const clientes = await getAll('clientes'); const payments = await getAll('payments'); const calificaciones = await getAll('calificaciones'); const stockHistory = await getAll('stockHistory'); const orderChat = await getAll('orderChat'); const paymentPlans = await getAll('paymentPlans');
+                const orders = await getAll('orders'); const stock = await getAll('stock'); const sales = await getAll('sales'); const gastos = await getAll('gastos'); const clientes = await getAll('clientes'); const payments = await getAll('payments'); const calificaciones = await getAll('calificaciones'); const stockHistory = await getAll('stockHistory'); const orderChat = await getAll('orderChat'); const paymentPlans = await getAll('paymentPlans'); const proveedores = await getAll('proveedores'); const config = await getAll('config');
 
                 const exportOrders = [];
                 for(let o of orders) {
@@ -496,8 +496,8 @@
                     exportOrders.push({...o, fotos, fotosEntrega});
                 }
 
-                const jsonStr = JSON.stringify({orders:exportOrders, stock, sales, gastos, clientes, payments, calificaciones, stockHistory, orderChat, paymentPlans});
-                const fileName = `nelson_backup_${new Date().toISOString().slice(0,10)}.json`;
+                const jsonStr = JSON.stringify({orders:exportOrders, stock, sales, gastos, clientes, payments, calificaciones, stockHistory, orderChat, paymentPlans, proveedores, config, ajustes: getAjustesBackup()});
+                const fileName = `nelson_backup_${hoyYMD()}.json`;
                 loading.remove();
 
                 if (navigator.share && navigator.canShare) {

@@ -129,8 +129,8 @@
             const dayNames = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
             const grid = document.getElementById('cal-grid');
             grid.innerHTML = weekDays.map((d, i) => {
-                const dStr    = d.toISOString().slice(0,10);
-                const todayStr= hoy.toISOString().slice(0,10);
+                const dStr    = hoyYMD(d);
+                const todayStr= hoyYMD(hoy);
                 const isToday = dStr === todayStr;
                 const isSel   = _calSelectedDay === dStr;
                 const dayOrds = activas.filter(o => o.fechaEstimada === dStr);

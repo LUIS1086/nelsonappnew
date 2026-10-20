@@ -214,11 +214,31 @@
         // ==================== NUMPAD PIN ====================
         const PIN_MAX = 6;
         const PIN_MIN = 4;
+        // Longitud del PIN guardado (4 por defecto). Así el PIN de 5-6 dígitos también funciona.
+        function _pinLen() {
+            const n = parseInt(localStorage.getItem('appPinLen'), 10);
+            return (n >= PIN_MIN && n <= PIN_MAX) ? n : 4;
+        }
+        // Dibuja los puntos del PIN: 4 de base y crece hasta 6 cuando el PIN es más largo.
+        function _renderPinDots() {
+            const box = document.getElementById('pin-dots');
+            if (!box) return;
+            const need = Math.max(4, Math.min(pinBuffer.length, PIN_MAX));
+            while (box.children.length < need) {
+                const d = document.createElement('div');
+                d.className = 'pin-dot';
+                box.appendChild(d);
+            }
+            while (box.children.length > 4 && box.children.length > pinBuffer.length) {
+                box.removeChild(box.lastElementChild);
+            }
+            [...box.children].forEach((d, i) => d.classList.toggle('filled', i < pinBuffer.length));
+        }
 
         function updatePinOkState() {
             const okBtn = document.querySelector('.numpad-btn.enter');
             if (!okBtn) return;
-            if (pinBuffer.length >= PIN_MIN) {
+            if (pinBuffer.length >= _pinLen()) {
                 okBtn.classList.remove('disabled');
             } else {
                 okBtn.classList.add('disabled');
@@ -226,12 +246,11 @@
         }
 
         function pinPad(val) {
-            const dots = document.querySelectorAll('#pin-dots .pin-dot');
             if (val === 'del') {
                 pinBuffer = pinBuffer.slice(0, -1);
                 if (navigator.vibrate) { try { navigator.vibrate(15); } catch(_) {} }
             } else if (val === 'ok') {
-                if (pinBuffer.length < PIN_MIN) return; // no hacer nada si está "disabled"
+                if (pinBuffer.length < _pinLen()) return; // no hacer nada si está "disabled"
                 document.getElementById('pin-input').value = pinBuffer;
                 verifyPinConBloqueo();
                 return;
@@ -239,16 +258,17 @@
                 if (pinBuffer.length >= PIN_MAX) return;
                 pinBuffer += String(val);
                 if (navigator.vibrate) { try { navigator.vibrate(12); } catch(_) {} }
-                if (pinBuffer.length === 4) {
+                // Se verifica al llegar a la longitud REAL del PIN (4, 5 o 6).
+                // Antes se enviaba siempre a los 4 dígitos y un PIN de 5-6 era inutilizable.
+                if (pinBuffer.length === _pinLen()) {
                     setTimeout(() => {
+                        if (pinBuffer.length !== _pinLen()) return; // el usuario siguió escribiendo
                         document.getElementById('pin-input').value = pinBuffer;
                         verifyPinConBloqueo();
                     }, 200);
                 }
             }
-            dots.forEach((dot, i) => {
-                dot.classList.toggle('filled', i < pinBuffer.length);
-            });
+            _renderPinDots();
             updatePinOkState();
             document.getElementById('pin-error').innerText = '';
         }
@@ -401,6 +421,7 @@
             if (mins > 0) {
                 _lockTimer = setTimeout(() => {
                     pinBuffer = '';
+                    try { sessionStorage.removeItem('dashUnlockedAt'); } catch (_) {}
                     document.querySelectorAll('#pin-dots .pin-dot').forEach(d => d.classList.remove('filled'));
                     document.getElementById('pin-input').value = '';
                     document.getElementById('pin-error').innerText = '';
@@ -425,6 +446,7 @@
         function _pinWaitText(ms) { const s = Math.ceil(ms / 1000); return s >= 60 ? Math.ceil(s / 60) + ' min' : s + ' s'; }
         function _pinClearDots() {
             pinBuffer = '';
+            if (typeof _renderPinDots === 'function') _renderPinDots();
             document.querySelectorAll('#pin-dots .pin-dot').forEach(d => d.classList.remove('filled'));
         }
         async function verifyPinConBloqueo() {
@@ -507,18 +529,16 @@
 
         async function _loadMovimientosByScope() {
             const lastCierre = Number(localStorage.getItem('lastCierreCaja')) || 0;
-            const sales  = await getAll('sales');
-            const gastos = await getAll('gastos');
-            const orders = await getAll('orders');
+            const [sales, gastos, payments] = await Promise.all([getAll('sales'), getAll('gastos'), getAll('payments')]);
             // Si el scope es "actual", filtramos por > lastCierre. Si es "histórico", traemos TODO.
-            const passes = (ts) => _movScope === 'historico' ? true : (ts > lastCierre);
-            const movSales   = sales.filter(s => passes(s.fecha) && s.tipo !== 'adelanto' && s.tipo !== 'cobro_entrega').map(s => ({ ...s, type: 'sale',    fecha: s.fecha }));
-            const movGastos  = gastos.filter(g => passes(g.fecha)).map(g => ({ ...g, type: 'gasto',   fecha: g.fecha }));
-            const movOrders  = orders.filter(o => o.sta === 'entregado' && passes(o.fechaEntrega || o.fecha))
-                                     .map(o => ({ ...o, type: 'repair', fecha: o.fechaEntrega || o.fecha }));
-            _allMovimientos = [...movSales, ...movGastos, ...movOrders].sort((a,b) => b.fecha - a.fecha);
-            const totalIng = movSales.reduce((a,b) => a + (b.val||0), 0) + movOrders.reduce((a,b) => a + (b.val||0), 0);
-            const totalGas = movGastos.reduce((a,b) => a + (b.val||0), 0);
+            const passes = (ts) => _movScope === 'historico' ? true : (Number(ts) > lastCierre);
+            // Caja = efectivo real: ventas (incluye adelantos y cobros), abonos de cartera y gastos.
+            const movSales  = sales.filter(s => passes(s.fecha) && esVentaDeCaja(s)).map(s => ({ ...s, type: 'sale',  fecha: s.fecha }));
+            const movPagos  = payments.filter(p => passes(p.fecha)).map(p => ({ ...p, type: 'pago', fecha: p.fecha }));
+            const movGastos = gastos.filter(g => passes(g.fecha)).map(g => ({ ...g, type: 'gasto', fecha: g.fecha }));
+            _allMovimientos = [...movSales, ...movPagos, ...movGastos].sort((a,b) => b.fecha - a.fecha);
+            const totalIng = movSales.reduce((a,b) => a + (Number(b.val)||0), 0) + movPagos.reduce((a,b) => a + (Number(b.monto)||0), 0);
+            const totalGas = movGastos.reduce((a,b) => a + (Number(b.val)||0), 0);
             document.getElementById('mov-total-ing').innerText = fmtMoney(totalIng);
             document.getElementById('mov-total-gas').innerText = fmtMoney(totalGas);
             const net = totalIng - totalGas;
@@ -550,8 +570,9 @@
             if (toTs   !== null) filtered = filtered.filter(m => m.fecha <= toTs);
             renderMovimientosFull(filtered);
             // Recalcular totales del rango filtrado para que coincidan con lo visible
-            const fIng = filtered.filter(m => m.type === 'sale' || m.type === 'repair').reduce((a,b) => a + (b.val||0), 0);
-            const fGas = filtered.filter(m => m.type === 'gasto').reduce((a,b) => a + (b.val||0), 0);
+            const montoDe = m => Number(m.type === 'pago' ? m.monto : m.val) || 0;
+            const fIng = filtered.filter(m => m.type !== 'gasto').reduce((a,b) => a + montoDe(b), 0);
+            const fGas = filtered.filter(m => m.type === 'gasto').reduce((a,b) => a + montoDe(b), 0);
             const ingEl = document.getElementById('mov-total-ing');
             const gasEl = document.getElementById('mov-total-gas');
             const netEl = document.getElementById('mov-total-net');

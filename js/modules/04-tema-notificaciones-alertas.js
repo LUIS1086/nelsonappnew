@@ -51,7 +51,7 @@
         async function checkUnclaimedRepairs() {
             try {
                 // Solo si ya se mostró hoy, no repetir (una sola vez al día para no molestar)
-                const today = new Date().toISOString().slice(0, 10);
+                const today = hoyYMD();
                 const lastShown = localStorage.getItem('unclaimedCheckDate');
                 if (lastShown === today) return;
 

@@ -14,7 +14,11 @@
             if (!list.length) { container.innerHTML = '<div class="text-center py-6 text-slate-500 text-xs">Sin movimientos en este período</div>'; return; }
             container.innerHTML = list.map(m => {
                 const fecha = new Date(m.fecha).toLocaleString('es-ES', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
-                if (m.type === 'sale')   return `<div class="flex justify-between items-center bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl"><div><p class="text-xs font-black text-emerald-400">+ Venta repuesto</p><p class="text-[11px] text-slate-300">${escapeHtml(m.item)} × ${m.qty}</p><p class="text-[10px] text-slate-500">${fecha}</p></div><p class="text-sm font-black text-emerald-400">+${fmtMoney(m.val||0)}</p></div>`;
+                if (m.type === 'sale') {
+                    const etiqueta = m.tipo === 'adelanto' ? 'Adelanto' : m.tipo === 'cobro_entrega' ? 'Cobro al entregar' : 'Venta repuesto';
+                    return `<div class="flex justify-between items-center bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl"><div><p class="text-xs font-black text-emerald-400">+ ${etiqueta}</p><p class="text-[11px] text-slate-300">${escapeHtml(m.item || '')}${m.qty && !m.tipo ? ' × ' + m.qty : ''}</p><p class="text-[10px] text-slate-500">${fecha}</p></div><p class="text-sm font-black text-emerald-400">+${fmtMoney(Number(m.val)||0)}</p></div>`;
+                }
+                if (m.type === 'pago') return `<div class="flex justify-between items-center bg-sky-500/10 border border-sky-500/20 p-3 rounded-xl"><div><p class="text-xs font-black text-sky-400">+ Abono cartera</p><p class="text-[11px] text-slate-300">${escapeHtml(m.cliente || '')}</p><p class="text-[10px] text-slate-500">${fecha}</p></div><p class="text-sm font-black text-sky-400">+${fmtMoney(Number(m.monto)||0)}</p></div>`;
                 if (m.type === 'repair') return `<div class="flex justify-between items-center bg-blue-500/10 border border-blue-500/20 p-3 rounded-xl"><div><p class="text-xs font-black text-blue-400">+ Reparación</p><p class="text-[11px] text-slate-300">${escapeHtml(m.nom||'')} — ${escapeHtml(m.equ||'')}</p><p class="text-[10px] text-slate-500">${fecha}</p></div><p class="text-sm font-black text-blue-400">+${fmtMoney(m.val||0)}</p></div>`;
                 return `<div class="flex justify-between items-center bg-rose-500/10 border border-rose-500/20 p-3 rounded-xl"><div><p class="text-xs font-black text-rose-400">− Gasto</p><p class="text-[11px] text-slate-300">${escapeHtml(m.det||'')}</p><p class="text-[10px] text-slate-500">${fecha}</p></div><p class="text-sm font-black text-rose-400">-${fmtMoney(m.val||0)}</p></div>`;
             }).join('');
@@ -27,8 +31,9 @@
             const biz = _safeBizConfig();
             const now = new Date().toLocaleString('es-ES');
             const list = _allMovimientos;
-            const ing = list.filter(m => m.type !== 'gasto').reduce((a,b) => a + (b.val||0), 0);
-            const gas = list.filter(m => m.type === 'gasto').reduce((a,b) => a + (b.val||0), 0);
+            const montoDe = m => Number(m.type === 'pago' ? m.monto : m.val) || 0;
+            const ing = list.filter(m => m.type !== 'gasto').reduce((a,b) => a + montoDe(b), 0);
+            const gas = list.filter(m => m.type === 'gasto').reduce((a,b) => a + montoDe(b), 0);
             const net = ing - gas;
             const c = getCurrency();
             let lines = `
@@ -43,9 +48,18 @@
 
             list.forEach(m => {
                 const d = new Date(m.fecha).toLocaleString('es-ES', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
-                const label = m.type === 'sale' ? `Venta: ${m.item}` : m.type === 'repair' ? `Reparo: ${m.nom}` : `Gasto: ${m.det}`;
-                const val   = m.type === 'gasto' ? `-${c}${(m.val||0).toLocaleString()}` : `+${c}${(m.val||0).toLocaleString()}`;
-                const color = m.type === 'gasto' ? '#dc2626' : m.type === 'repair' ? '#2563eb' : '#059669';
+                let label, monto, color;
+                if (m.type === 'sale') {
+                    const t = m.tipo === 'adelanto' ? 'Adelanto' : m.tipo === 'cobro_entrega' ? 'Cobro entrega' : 'Venta';
+                    label = `${t}: ${m.item || ''}`; monto = Number(m.val) || 0; color = '#059669';
+                } else if (m.type === 'pago') {
+                    label = `Abono cartera: ${m.cliente || ''}`; monto = Number(m.monto) || 0; color = '#0284c7';
+                } else if (m.type === 'repair') {
+                    label = `Reparo: ${m.nom || ''}`; monto = Number(m.val) || 0; color = '#2563eb';
+                } else {
+                    label = `Gasto: ${m.det || ''}`; monto = Number(m.val) || 0; color = '#dc2626';
+                }
+                const val = m.type === 'gasto' ? `-${c}${monto.toLocaleString()}` : `+${c}${monto.toLocaleString()}`;
                 lines += `<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px dotted #eee;">
   <span style="color:#333;max-width:65%;overflow:hidden;">${label}<br><span style="font-size:9px;color:#999;">${d}</span></span>
   <strong style="color:${color};">${val}</strong>
@@ -75,7 +89,7 @@
             if (!el || typeof html2canvas === 'undefined') { showAlert('html2canvas no disponible', 'error'); return; }
             try {
                 const canvas = await html2canvas(el, { backgroundColor: '#ffffff', scale: 2 });
-                await downloadImageCompat(canvas, `movimientos_${new Date().toISOString().slice(0,10)}.png`);
+                await downloadImageCompat(canvas, `movimientos_${hoyYMD()}.png`);
             } catch(e) { showAlert('Error al generar imagen', 'error'); }
         }
 
