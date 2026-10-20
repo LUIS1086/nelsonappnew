@@ -1,52 +1,92 @@
-# 🛠️ Todo Repuestos Nelson — Sistema ERP/CRM para Taller de Reparaciones y Repuestos
+# Nelson App Pro · Todo Repuestos Nelson
 
-**Todo Repuestos Nelson (NelsonApp)** es una aplicación web progresiva (**PWA**) de grado empresarial diseñada específicamente para la gestión integral de talleres de reparación de pequeños electrodomésticos, control de inventario de repuestos, caja diaria, seguimiento de clientes y facturación/tickets.
+PWA de gestión para taller de reparación de electrodomésticos pequeños y venta de repuestos
+(órdenes, inventario, ventas, gastos, clientes, pagos y reportes). Proyecto propio con fines
+educativos y de venta.
 
----
+**Stack:** JavaScript vanilla · Tailwind (compilado, sin CDN) · IndexedDB (`NelsonAppPro`) · Gemini (Nelson IA) ·
+Google Drive (respaldo) · PWA/TWA (PWABuilder) · Vercel.
 
-## 🚀 Características Principales
+## Estructura
 
-- **📱 PWA Offline-First:** Instalable en Android, iOS y Escritorio. Funciona con o sin conexión a Internet gracias a su Service Worker dedicado.
-- **🔐 Seguridad Avanzada:** Acceso mediante código PIN y autenticación biométrica (FaceID / Huella dactilar) integrada.
-- **📋 Gestión de Órdenes de Servicio:**
-  - Creación de órdenes con diagnóstico, captura de fotos desde la cámara y registro de estado en tiempo real.
-  - Avisos automáticos a clientes vía **WhatsApp** con plantillas preconfiguradas.
-  - Generación de tickets e informes en PDF (`jsPDF`, `html2canvas`).
-- **📦 Inventario y Caja:**
-  - Control de stock de repuestos, precios, costos y movimientos de caja diaria.
-  - Módulo de ventas directas con lectura de códigos QR / Códigos de Barras.
-- **👥 Cartera y Clientes:**
-  - Registro de clientes, seguimiento de garantías y promociones por canal directo.
-- **☁️ Sincronización y Respaldos:**
-  - Integración nativa con **Supabase** para el seguimiento y base de datos relacional.
-  - Generación de copias de seguridad automáticas y exportación a **Google Drive**.
-  - Exportación de reportes a **Excel (`xlsx`)**, **CSV** y **PDF**.
-- **🎨 Interfaz Accesible y Adaptativa:**
-  - Módulo de personalización con tema claro/oscuro, alto contraste y responsive avanzado.
+```
+index.html              Solo estructura HTML (carga css/ y js/ en orden)
+dashboard.html          Panel de indicadores (solo estructura)
+css/dashboard.css       Estilos base del panel
+css/dashboard-premium.css  Capa premium del panel (quita su <link> para volver al diseño anterior)
+js/dashboard.js         Lógica del panel
+js/libs/              html2canvas y qrcode locales (funcionan sin internet)
+service-worker.js       Offline + actualización (CACHE_VERSION)
+manifest.json           Manifiesto PWA
+vercel.json             Cabeceras y caché
+icons/                  Iconos de la app
+css/01…16-*.css         Estilos propios, en el orden de la cascada
+css/tailwind.css        Tailwind compilado (generado; no editar a mano)
+js/core/01…03-*.js      Base: errores globales, IndexedDB, PIN y biometría
+js/modules/00…37-*.js   Módulos de la app (órdenes, inventario, caja, Drive, QR, etc.)
+js/nelson-ia.js         Asistente Nelson IA
+tools/verificar.js      Revisa que no falte nada antes de subir
+tools/tailwind/         Configuración para recompilar css/tailwind.css
+.well-known/            assetlinks.json (TWA / Android)
+```
 
----
+> **El orden importa.** Son scripts clásicos (no ES Modules) para conservar las funciones
+> globales y los `onclick` inline. Se cargan en el orden en que aparecen en `index.html`.
 
-## 📁 Estructura del Proyecto
+## Antes de subir cambios
 
-```text
-nelsonappnew-main/
-├── css/                     # Hojas de estilo modulares y diseño responsive
-│   ├── 01-tema-variables.css
-│   ├── ...
-│   └── tailwind.css
-├── js/
-│   ├── core/                # Módulos centrales (Base, DB, Autenticación, PIN)
-│   ├── libs/                # Librerías externas (Chart.js, jsPDF, XLSX, QRCode)
-│   └── modules/             # Lógica de negocio (40 módulos independientes)
-│       ├── 05-cartera-clientes.js
-│       ├── 08-ordenes-formulario-camara.js
-│       ├── 12-inventario.js
-│       ├── 23-google-drive.js
-│       └── ...
-├── supabase/                # Scripts de base de datos y esquemas SQL (`seguimiento.sql`)
-├── docs/                    # Documentación auxiliar e inserciones HTML
-├── icons/                   # Iconografía PWA multiplataforma
-├── index.html               # Vista principal del sistema
-├── dashboard.html           # Panel de control analítico
-├── manifest.json            # Configuración PWA
-└── service-worker.js        # Gestión de caché y capacidades offline
+```bash
+node tools/verificar.js
+```
+
+## Tailwind (compilado)
+
+`css/tailwind.css` se genera a partir de las clases que aparecen escritas en `index.html` y `js/**`.
+**Si agregas o cambias clases de Tailwind, recompila:**
+
+```bash
+cd tools/tailwind
+npm install        # solo la primera vez
+npm run build
+```
+
+Luego sube el `css/tailwind.css` nuevo junto con tus cambios. Las clases armadas con variables
+(p. ej. `text-${color}-400`) no se detectan: agrégalas a `safelist` en `tools/tailwind/tailwind.config.js`.
+
+## Cómo agregar un archivo nuevo
+
+1. Crea el archivo en `css/` o `js/modules/` con el siguiente número.
+2. Agrega su `<link>` / `<script>` en `index.html`, en la posición correcta.
+3. Agrégalo a `PRECACHE_URLS` en `service-worker.js`.
+4. Sube `CACHE_VERSION` en `service-worker.js` (los usuarios verán el aviso "Nueva versión disponible").
+5. Ejecuta `node tools/verificar.js`.
+
+## Despliegue
+
+Vercel (sitio estático, sin build). Para el APK: PWABuilder con la URL de Vercel.
+
+## Seguridad
+
+- **PIN:** PBKDF2-SHA256 (150.000 iteraciones) con sal aleatoria. Los PIN guardados con el formato antiguo se migran solos al primer desbloqueo.
+- **Bloqueo por intentos:** 5 por defecto, persistente (recargar no lo salta) y progresivo: 30 s, 1, 2, 4… hasta 15 min.
+- **CSP y Permissions-Policy:** definidas en `vercel.json`. Si añades un servicio externo, agrega su dominio a `connect-src` (o `script-src`/`img-src`) o el navegador lo bloqueará.
+- **Llave de Gemini:** viaja en la cabecera `x-goog-api-key`, no en la URL. `tools/verificar.js` falla si vuelve a aparecer en la URL.
+- **Texto libre en `innerHTML`:** usa siempre `escapeHtml(String(valor ?? ''))`.
+
+## Sensación de app nativa
+
+- `css/18-native-premium.css`: capa visual (cabecera compacta, barra inferior flotante, ventanas como hoja inferior, botones con respuesta al toque, campos legibles). Quita su `<link>` para volver al diseño anterior.
+- `js/modules/38-native-feel.js`: vibración sutil (Android; se apaga con `localStorage.hapticsOff = '1'`), transición entre pestañas, barra inferior que se esconde con el teclado, botón flotante "Nueva recepción" (solo en Órdenes) y cerrar ventanas deslizando hacia abajo.
+- Las librerías externas viven en `js/libs/` (en minúscula, para que Vercel las encuentre).
+
+## Escritorio (≥768 px)
+
+- `css/19-desktop-premium.css`: solo afecta a escritorio/tablet; el móvil queda igual. Quita su `<link>` para volver al diseño anterior.
+- La barra superior ya no queda debajo del menú lateral (usa la variable `--sb-w`, el ancho del menú). Por debajo de 1440 px se ocultan sus 4 indicadores para que quepan los botones.
+- Rejillas alineadas (Taller y Caja), accesos rápidos de Órdenes compactos y Datos en dos columnas con el menú en cuadrícula.
+- Si cambias el ancho del menú lateral en `11-responsive-escritorio.css`, actualiza también `--sb-w` en el archivo 19.
+
+## Librerías externas
+
+Todas viven en `js/libs/` (jsPDF, autoTable, SheetJS, Chart.js, html2canvas, qrcode). **No cargues scripts desde un CDN**: la CSP de `vercel.json` los bloquea y la exportación a PDF/Excel dejaría de funcionar. `tools/verificar.js` avisa si alguien lo intenta.
+
