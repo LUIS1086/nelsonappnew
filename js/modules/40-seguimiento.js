@@ -405,4 +405,6 @@
     }
     prog.textContent = '✅ ' + ok + ' publicadas' + (fail ? ' · ⚠️ ' + fail + ' pendientes (se reintentan solas)' : '');
   };
+  // Utilidades compartidas con el respaldo en Supabase (41-respaldo-supabase.js)
+  window.SegCore = { rpc, configured, clave, hasServer };
 })();

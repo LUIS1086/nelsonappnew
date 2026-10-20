@@ -86,9 +86,9 @@
             const file = e.target.files[0];
             e.target.value = '';
             if(!file) return;
-            // Límite de tamaño: respaldos > 100MB son sospechosos
-            if (file.size > 100 * 1024 * 1024) {
-                showAlert("❌ Archivo demasiado grande (>100MB). ¿Estás seguro que es un respaldo Nelson?", "error"); return;
+            // Límite de tamaño: respaldos > 400MB son sospechosos (con fotos pesan ~60 KB c/u; 87 MB con ~1.400 fotos)
+            if (file.size > 400 * 1024 * 1024) {
+                showAlert("❌ Archivo demasiado grande (>400MB). ¿Estás seguro que es un respaldo Nelson?", "error"); return;
             }
             let data;
             try {

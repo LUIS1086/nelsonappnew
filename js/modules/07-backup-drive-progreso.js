@@ -232,6 +232,10 @@
                 const clientes = await getAll('clientes');
                 const payments = await getAll('payments');
                 const calificaciones = await getAll('calificaciones');
+                // Antes faltaban estas 3 tablas en el respaldo de Drive (sí iban en la exportación manual)
+                const stockHistory = await getAll('stockHistory');
+                const orderChat    = await getAll('orderChat');
+                const paymentPlans = await getAll('paymentPlans');
 
                 if (!silent) updateDriveProgress(0, 0, 0, 'Empaquetando fotos...');
                 const exportOrders = [];
@@ -239,7 +243,7 @@
                     exportOrders.push({ ...o, fotos: await blobsToB64(o.fotos || []), fotosEntrega: await blobsToB64(o.fotosEntrega || []) });
                 }
 
-                const jsonStr  = JSON.stringify({ orders: exportOrders, stock, sales, gastos, clientes, payments, calificaciones, date: new Date().toISOString() });
+                const jsonStr  = JSON.stringify({ orders: exportOrders, stock, sales, gastos, clientes, payments, calificaciones, stockHistory, orderChat, paymentPlans, date: new Date().toISOString() });
                 const folderId = await ensureDriveFolder();
 
                 const blob = new Blob([jsonStr], { type: 'application/json' });
@@ -305,6 +309,7 @@
 
                 if (result.id) {
                     localStorage.setItem('driveLastBackup', new Date().toLocaleString('es-ES'));
+                    try { if (typeof respSupabaseHook === 'function') respSupabaseHook(); } catch (_) { /* la 2.ª copia nunca debe romper el respaldo de Drive */ }
                     if (!silent) {
                         updateDriveProgress(100, blob.size, blob.size, '✓ Respaldo completado');
                         hideDriveProgress(900);
