@@ -1,4 +1,77 @@
 // ════════════════════════════════════════
+//  ACCESO AL DASHBOARD · mismo PIN que la app
+//  (el dashboard lee la misma IndexedDB; sin esto se podía abrir sin PIN)
+// ════════════════════════════════════════
+const _DASH_UNLOCK_MS = 15 * 60 * 1000;
+function _dashHex(buf) {
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+function _dashFromHex(hex) {
+  const out = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < out.length; i++) out[i] = parseInt(hex.substr(i * 2, 2), 16);
+  return out;
+}
+async function _dashVerifyPin(pin, stored) {
+  if (!stored) return false;
+  if (stored.indexOf('pbkdf2$') !== 0) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pin + '_nelsonapp_v1'));
+    return _dashHex(buf) === stored;
+  }
+  const p = stored.split('$');
+  if (p.length !== 4) return false;
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits(
+    { name: 'PBKDF2', hash: 'SHA-256', salt: _dashFromHex(p[2]), iterations: parseInt(p[1], 10) || 150000 },
+    key, 256
+  );
+  const a = _dashHex(bits), b = p[3];
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+function _dashGate() {
+  return new Promise(resolve => {
+    let unlockedAt = 0;
+    try { unlockedAt = Number(sessionStorage.getItem('dashUnlockedAt') || 0); } catch (_) {}
+    if (unlockedAt && Date.now() - unlockedAt < _DASH_UNLOCK_MS) return resolve(true);
+    const stored = localStorage.getItem('appPinHash');
+    if (!stored) { location.replace('/'); return; } // primera vez: la app crea el PIN
+    const ov = document.createElement('div');
+    ov.id = 'dash-pin-gate';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#07080f;display:flex;align-items:center;justify-content:center;padding:24px;';
+    ov.innerHTML = `<div style="width:100%;max-width:320px;text-align:center;font-family:Inter,system-ui,sans-serif;">
+      <div style="font-size:38px;margin-bottom:10px;">🔐</div>
+      <h2 style="color:#f8fafc;font-size:17px;font-weight:900;margin:0 0 6px;">Panel protegido</h2>
+      <p style="color:#94a3b8;font-size:12px;margin:0 0 18px;line-height:1.5;">Ingresa tu PIN para ver la caja y los indicadores.</p>
+      <input id="dash-pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="PIN"
+        style="width:100%;box-sizing:border-box;background:#111827;border:1px solid #334155;border-radius:12px;color:#f8fafc;font-size:22px;letter-spacing:8px;text-align:center;padding:14px;">
+      <div id="dash-pin-err" style="color:#f87171;font-size:11px;min-height:18px;margin:8px 0;"></div>
+      <button id="dash-pin-ok" style="width:100%;background:linear-gradient(135deg,#059669,#10b981);color:#022c22;border:0;border-radius:12px;padding:13px;font-size:13px;font-weight:900;cursor:pointer;">ENTRAR</button>
+    </div>`;
+    document.body.appendChild(ov);
+    const input = document.getElementById('dash-pin');
+    setTimeout(() => { try { input.focus(); } catch (_) {} }, 80);
+    const tryUnlock = async () => {
+      const err = document.getElementById('dash-pin-err');
+      err.textContent = '';
+      const ok = await _dashVerifyPin(input.value, stored);
+      if (ok) {
+        try { sessionStorage.setItem('dashUnlockedAt', String(Date.now())); } catch (_) {}
+        ov.remove();
+        resolve(true);
+      } else {
+        err.textContent = 'PIN incorrecto';
+        input.value = '';
+        try { input.focus(); } catch (_) {}
+      }
+    };
+    document.getElementById('dash-pin-ok').onclick = tryUnlock;
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); tryUnlock(); } });
+  });
+}
+
+// ════════════════════════════════════════
 //  SIDEBAR COLLAPSE
 // ════════════════════════════════════════
 function toggleSidebar() {
@@ -11,6 +84,21 @@ function applySidebarState() {
     document.querySelector('.shell').classList.add('sb-collapsed');
   }
 }
+
+// ════════════════════════════════════════
+//  CAJA Y VENTAS · misma definición que la app
+//  (core/01): caja = efectivo real; ingresos = facturación sin adelantos ni cobros.
+// ════════════════════════════════════════
+function _esVentaCaja(v) {
+  return !!v && (!v.tipo || v.tipo === 'venta' || v.tipo === 'adelanto' || v.tipo === 'cobro_entrega');
+}
+function _esVentaNeta(v) {
+  return !!v && v.tipo !== 'adelanto' && v.tipo !== 'cobro_entrega';
+}
+function _monto(m) {
+  return Number(m && (m.type === 'pago' ? m.monto : m.val)) || 0;
+}
+let _dashPayments = [];
 
 // ════════════════════════════════════════
 //  BÚSQUEDA GLOBAL EN DASHBOARD
@@ -224,7 +312,7 @@ function calcPrevMonthIngresos(orders, sales) {
   const startPrev = new Date(now.getFullYear(), now.getMonth() - 1, 1).getTime();
   const endPrev   = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
   const rep = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= startPrev && (o.fechaEntrega||o.fecha) < endPrev).reduce((a,b)=>a+(b.val||0),0);
-  const vta = sales.filter(s => s.fecha >= startPrev && s.fecha < endPrev).reduce((a,b)=>a+(b.val||0),0);
+  const vta = sales.filter(s => s.fecha >= startPrev && s.fecha < endPrev && _esVentaNeta(s)).reduce((a,b)=>a+(b.val||0),0);
   return rep + vta;
 }
 function renderVs(elId, current, prev) {
@@ -331,8 +419,8 @@ async function loadDashboard(silent) {
   if (!silent) showSkeletons();
   showRefreshIndicator('refreshing');
   try {
-    const [ordersRaw, stockRaw, salesRaw, gastosRaw, clientesRaw] = await Promise.all([
-      getAll('orders'), getAll('stock'), getAll('sales'), getAll('gastos'), getAll('clientes')
+    const [ordersRaw, stockRaw, salesRaw, gastosRaw, clientesRaw, paymentsRaw] = await Promise.all([
+      getAll('orders'), getAll('stock'), getAll('sales'), getAll('gastos'), getAll('clientes'), getAll('payments')
     ]);
     // Guardar siempre los datos completos (para selector de sucursal)
     _allOrders = ordersRaw; _allSales = salesRaw; _allGastos = gastosRaw;
@@ -341,12 +429,14 @@ async function loadDashboard(silent) {
     const orders   = filterByBranch(ordersRaw);
     const sales    = filterByBranch(salesRaw);
     const gastos   = filterByBranch(gastosRaw);
+    const payments = filterByBranch(paymentsRaw);
     const stock    = stockRaw;       // stock generalmente es global
     const clientes = clientesRaw;    // clientes también globales
 
     _dashOrders = orders;
     _dashSales = sales;
     _dashGastos = gastos;
+    _dashPayments = payments;
     _dashStock = stock;
     _dashClientes = clientes;
 
@@ -365,13 +455,13 @@ async function loadDashboard(silent) {
   const prefix     = cfg.orderPrefix || '#';
 
   // ── CAJA ──
-  const tOrdCaja  = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) > lastCierre).reduce((a,b) => a+(b.val||0), 0);
-  const tSalesCaja= sales.filter(s => s.fecha > lastCierre).reduce((a,b) => a+(b.val||0), 0);
+  const tSalesCaja= sales.filter(s => s.fecha > lastCierre && _esVentaCaja(s)).reduce((a,b) => a+(b.val||0), 0);
+  const tPagosCaja= payments.filter(p => p.fecha > lastCierre).reduce((a,b) => a+(Number(b.monto)||0), 0);
   const tGastos   = gastos.filter(g => g.fecha > lastCierre).reduce((a,b) => a+(b.val||0), 0);
-  const caja      = tOrdCaja + tSalesCaja - tGastos;
+  const caja      = tSalesCaja + tPagosCaja - tGastos;
   animateCount(document.getElementById('kpi-caja'), caja, true);
   document.getElementById('sb-cash').textContent     = fmt(caja);
-  document.getElementById('kpi-caja-sub').textContent = `+${fmt(tOrdCaja+tSalesCaja)} ingresos · -${fmt(tGastos)} gastos`;
+  document.getElementById('kpi-caja-sub').textContent = `+${fmt(tSalesCaja+tPagosCaja)} ingresos · -${fmt(tGastos)} gastos`;
   const cajaT = document.getElementById('kpi-caja-trend');
   cajaT.textContent = caja >= 0 ? '▲ Positiva' : '▼ Negativa';
   cajaT.className = 'kpi-trend ' + (caja >= 0 ? 'up' : 'down');
@@ -389,10 +479,10 @@ async function loadDashboard(silent) {
   // ── INGRESOS MES ──
   const entMes  = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= startMonth);
   const ingRep  = entMes.reduce((a,b) => a+(b.val||0), 0);
-  const ingVta  = sales.filter(s => s.fecha >= startMonth).reduce((a,b) => a+(b.val||0), 0);
+  const ingVta  = sales.filter(s => s.fecha >= startMonth && _esVentaNeta(s)).reduce((a,b) => a+(b.val||0), 0);
   const ingMes  = ingRep + ingVta;
   animateCount(document.getElementById('kpi-ingresos'), ingMes, true);
-  document.getElementById('kpi-ingresos-sub').textContent = `${entMes.length} reparaciones · ${sales.filter(s=>s.fecha>=startMonth).length} ventas`;
+  document.getElementById('kpi-ingresos-sub').textContent = `${entMes.length} reparaciones · ${sales.filter(s=>s.fecha>=startMonth && _esVentaNeta(s)).length} ventas`;
   const trendEl = document.getElementById('kpi-ingresos-trend');
   trendEl.textContent = fmt(ingRep) + ' reparac.';
   trendEl.className = 'kpi-trend up';
@@ -507,7 +597,7 @@ function buildBarChart(orders, sales, gastos) {
     const start = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
     const end   = start + 86400000;
     const rep = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= start && (o.fechaEntrega||o.fecha) < end).reduce((a,b)=>a+(b.val||0),0);
-    const vta = sales.filter(s => s.fecha >= start && s.fecha < end).reduce((a,b)=>a+(b.val||0),0);
+    const vta = sales.filter(s => s.fecha >= start && s.fecha < end && _esVentaNeta(s)).reduce((a,b)=>a+(b.val||0),0);
     const gas = gastos.filter(g => g.fecha >= start && g.fecha < end).reduce((a,b)=>a+(b.val||0),0);
     days.push({ label: fmtDay(start).slice(0,3), val: rep+vta, isToday: i===0, net: rep+vta-gas, start, end, fullLabel: new Date(start).toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'}) });
   }
@@ -632,11 +722,12 @@ function buildEficiencia(orders, now) {
 
 // ────────────────────────────────────────
 function buildMovPanel(orders, sales, gastos, lastCierre) {
-  const mSales  = sales.filter(s=>s.fecha>lastCierre).map(s=>({...s,_t:'sale',_f:s.fecha}));
+  // Caja = efectivo real: ventas (incluye adelantos y cobros), abonos de cartera y gastos.
+  // El valor de la orden entregada no se suma aparte: ya está en su adelanto/cobro.
+  const mSales  = sales.filter(s=>s.fecha>lastCierre && _esVentaCaja(s)).map(s=>({...s,_t:'sale',_f:s.fecha}));
+  const mPagos  = (_dashPayments||[]).filter(p=>p.fecha>lastCierre).map(p=>({...p,_t:'pago',_f:p.fecha}));
   const mGastos = gastos.filter(g=>g.fecha>lastCierre).map(g=>({...g,_t:'gasto',_f:g.fecha}));
-  const mOrd    = orders.filter(o=>o.sta==='entregado'&&(o.fechaEntrega||o.fecha)>lastCierre)
-                        .map(o=>({...o,_t:'repair',_f:o.fechaEntrega||o.fecha}));
-  const all = [...mSales,...mGastos,...mOrd].sort((a,b)=>b._f-a._f).slice(0,7);
+  const all = [...mSales,...mPagos,...mGastos].sort((a,b)=>b._f-a._f).slice(0,7);
   const el = document.getElementById('mov-panel');
   if (!all.length) {
     el.innerHTML = `<div class="empty-illust">
@@ -647,15 +738,18 @@ function buildMovPanel(orders, sales, gastos, lastCierre) {
     return;
   }
   el.innerHTML = all.map(m => {
-    if (m._t==='sale')   return `<div class="mov-item"><div class="mov-icon-wrap sale">🛒</div><div class="mov-info"><div class="mov-name">${esc(m.item||'Venta')}</div><div class="mov-date">${fmtTime(m._f)}</div></div><div class="mov-val pos">+${fmt(m.val||0)}</div></div>`;
-    if (m._t==='repair') return `<div class="mov-item"><div class="mov-icon-wrap repair">🔧</div><div class="mov-info"><div class="mov-name">${esc(m.nom||'')} · ${esc(m.equ||'')}</div><div class="mov-date">${fmtTime(m._f)}</div></div><div class="mov-val pos">+${fmt(m.val||0)}</div></div>`;
+    if (m._t==='sale') {
+      const etiqueta = m.tipo === 'adelanto' ? 'Adelanto' : m.tipo === 'cobro_entrega' ? 'Cobro al entregar' : 'Venta';
+      return `<div class="mov-item"><div class="mov-icon-wrap sale">🛒</div><div class="mov-info"><div class="mov-name">${esc(m.item||etiqueta)}</div><div class="mov-date">${fmtTime(m._f)}</div></div><div class="mov-val pos">+${fmt(m.val||0)}</div></div>`;
+    }
+    if (m._t==='pago') return `<div class="mov-item"><div class="mov-icon-wrap repair">💳</div><div class="mov-info"><div class="mov-name">Abono cartera · ${esc(m.cliente||'')}</div><div class="mov-date">${fmtTime(m._f)}</div></div><div class="mov-val pos">+${fmt(m.monto||0)}</div></div>`;
     return `<div class="mov-item"><div class="mov-icon-wrap gasto">💸</div><div class="mov-info"><div class="mov-name">${esc(m.det||'Gasto')}</div><div class="mov-date">${fmtTime(m._f)}</div></div><div class="mov-val neg">-${fmt(m.val||0)}</div></div>`;
   }).join('');
 }
 
 // ────────────────────────────────────────
 function buildTopPanel(sales, startMonth) {
-  const mesSales = sales.filter(s => s.fecha >= startMonth);
+  const mesSales = sales.filter(s => s.fecha >= startMonth && _esVentaNeta(s));
   const counts = {};
   mesSales.forEach(s => { counts[s.item] = (counts[s.item]||0) + (s.qty||1); });
   const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
@@ -898,14 +992,14 @@ function buildTodayPanel(orders, sales, gastos) {
 
   // Ingresos hoy
   const ingHoyRep = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= hoyStartTs).reduce((a,b)=>a+(b.val||0),0);
-  const ingHoyVta = sales.filter(s => s.fecha >= hoyStartTs).reduce((a,b)=>a+(b.val||0),0);
+  const ingHoyVta = sales.filter(s => s.fecha >= hoyStartTs && _esVentaNeta(s)).reduce((a,b)=>a+(b.val||0),0);
   const gastosHoy = gastos.filter(g => g.fecha >= hoyStartTs).reduce((a,b)=>a+(b.val||0),0);
   const ingHoy = ingHoyRep + ingHoyVta;
   const netoHoy = ingHoy - gastosHoy;
 
   // Ingresos ayer (para comparar)
   const ingAyerRep = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= ayerStartTs && (o.fechaEntrega||o.fecha) < hoyStartTs).reduce((a,b)=>a+(b.val||0),0);
-  const ingAyerVta = sales.filter(s => s.fecha >= ayerStartTs && s.fecha < hoyStartTs).reduce((a,b)=>a+(b.val||0),0);
+  const ingAyerVta = sales.filter(s => s.fecha >= ayerStartTs && s.fecha < hoyStartTs && _esVentaNeta(s)).reduce((a,b)=>a+(b.val||0),0);
   const ingAyer = ingAyerRep + ingAyerVta;
 
   // Listas para avisar
@@ -979,9 +1073,9 @@ function buildInsights(orders, sales, gastos, stock) {
 
   // 1. Semana actual vs semana anterior
   const semActual = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= startWeek).reduce((a,b)=>a+(b.val||0),0)
-                  + sales.filter(s => s.fecha >= startWeek).reduce((a,b)=>a+(b.val||0),0);
+                  + sales.filter(s => s.fecha >= startWeek && _esVentaNeta(s)).reduce((a,b)=>a+(b.val||0),0);
   const semAnterior = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= startPrevWeek && (o.fechaEntrega||o.fecha) < startWeek).reduce((a,b)=>a+(b.val||0),0)
-                    + sales.filter(s => s.fecha >= startPrevWeek && s.fecha < startWeek).reduce((a,b)=>a+(b.val||0),0);
+                    + sales.filter(s => s.fecha >= startPrevWeek && s.fecha < startWeek && _esVentaNeta(s)).reduce((a,b)=>a+(b.val||0),0);
   if (semAnterior > 0) {
     const pct = Math.round(((semActual - semAnterior) / semAnterior) * 100);
     if (pct >= 10) insights.push({ type:'positive', icon:'🚀', text:`Esta semana vas <strong>${pct}% arriba</strong> vs la anterior` });
@@ -1025,7 +1119,7 @@ function buildInsights(orders, sales, gastos, stock) {
 
   // 5. Stock agotado que se vende mucho
   const agotados = stock.filter(s => s.q === 0);
-  const mesVentas = sales.filter(s => s.fecha >= startMonth);
+  const mesVentas = sales.filter(s => s.fecha >= startMonth && _esVentaNeta(s));
   if (agotados.length && mesVentas.length) {
     const counts = {};
     mesVentas.forEach(s => { counts[s.item] = (counts[s.item]||0) + (s.qty||1); });
@@ -1037,7 +1131,7 @@ function buildInsights(orders, sales, gastos, stock) {
 
   // 6. ★ Margen real del mes (ingresos − gastos)
   const ingMes = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= startMonth).reduce((a,b)=>a+(b.val||0),0)
-               + sales.filter(s => s.fecha >= startMonth).reduce((a,b)=>a+(b.val||0),0);
+               + sales.filter(s => s.fecha >= startMonth && _esVentaNeta(s)).reduce((a,b)=>a+(b.val||0),0);
   const gastosMes = gastos.filter(g => g.fecha >= startMonth).reduce((a,b)=>a+(b.val||0),0);
   if (ingMes > 0 && gastosMes > 0) {
     const margen = ingMes - gastosMes;
@@ -1302,13 +1396,55 @@ function openHoyIngresosModal() {
   openIngresosDesgloseModal(hoyStartTs, Date.now(), 'Ingresos de hoy');
 }
 
+function openCajaDesgloseModal(startTs, endTs) {
+  const sales = _dashSales || [];
+  const gastos = _dashGastos || [];
+  const pagos = _dashPayments || [];
+  const vtas = sales.filter(s => Number(s.fecha) >= startTs && Number(s.fecha) < endTs && _esVentaCaja(s));
+  const pgs  = pagos.filter(p => Number(p.fecha) >= startTs && Number(p.fecha) < endTs);
+  const gts  = gastos.filter(g => Number(g.fecha) >= startTs && Number(g.fecha) < endTs);
+  const totVta = vtas.reduce((a,b)=>a+(Number(b.val)||0),0);
+  const totPag = pgs.reduce((a,b)=>a+(Number(b.monto)||0),0);
+  const totGas = gts.reduce((a,b)=>a+(Number(b.val)||0),0);
+  const neto = totVta + totPag - totGas;
+  const movs = [
+    ...vtas.map(s => ({ ...s, _t:'sale', _f:s.fecha })),
+    ...pgs.map(p => ({ ...p, _t:'pago', _f:p.fecha })),
+    ...gts.map(g => ({ ...g, _t:'gasto', _f:g.fecha }))
+  ].sort((a,b)=>b._f-a._f);
+  const body = `
+    <div class="dd-summary">
+      <div class="dd-summary-box"><div class="dd-summary-label">Ventas y adelantos</div><div class="dd-summary-val green">${fmt(totVta)}</div></div>
+      <div class="dd-summary-box"><div class="dd-summary-label">Abonos de cartera</div><div class="dd-summary-val accent">${fmt(totPag)}</div></div>
+      <div class="dd-summary-box"><div class="dd-summary-label">Gastos</div><div class="dd-summary-val red">${totGas > 0 ? '-'+fmt(totGas) : fmt(0)}</div></div>
+    </div>
+    <div class="dd-summary" style="grid-template-columns:1fr;margin-bottom:18px;">
+      <div class="dd-summary-box" style="background:linear-gradient(135deg,rgba(16,217,126,0.08),transparent);border-color:rgba(16,217,126,0.25);">
+        <div class="dd-summary-label">Efectivo neto</div>
+        <div class="dd-summary-val ${neto>=0?'green':'red'}">${neto >= 0 ? fmt(neto) : '-'+fmt(Math.abs(neto))}</div>
+      </div>
+    </div>
+    <div class="dd-section">
+      <div class="dd-section-title">Movimientos (${movs.length})</div>
+      <div class="dd-list">
+        ${movs.length ? movs.map(m => {
+          let ico = '🛒', name = m.item || 'Venta', val = Number(m.val)||0, cls = 'pos';
+          if (m._t === 'pago') { ico = '💳'; name = 'Abono cartera · ' + (m.cliente||''); val = Number(m.monto)||0; }
+          if (m._t === 'gasto') { ico = '💸'; name = m.det || 'Gasto'; val = Number(m.val)||0; cls = 'neg'; }
+          return `<div class="dd-row"><div class="dd-row-left"><div class="dd-row-ico">${ico}</div><div class="dd-row-text"><div class="dd-row-name">${esc(name)}</div><div class="dd-row-sub">${new Date(Number(m._f)).toLocaleDateString('es-CO')}</div></div></div><div class="dd-row-val ${cls}">${m._t==='gasto'?'-':'+'}${fmt(val)}</div></div>`;
+        }).join('') : '<div class="dd-empty">Sin movimientos todavía</div>'}
+      </div>
+    </div>`;
+  openDashModal({ icon:'💵', title:'Caja · desde último cierre', sub:'Efectivo recibido y gastos', body, foot:`<button class="btn" onclick="closeDashModal()">Cerrar</button><button class="btn accent" onclick="goApp('ventas')">Abrir en la app →</button>` });
+}
+
 function openIngresosDesgloseModal(startTs, endTs, titleText) {
   const orders = _dashOrders;
   const sales = _dashSales || [];
   const gastos = _dashGastos || [];
 
   const reps = orders.filter(o => o.sta==='entregado' && (o.fechaEntrega||o.fecha) >= startTs && (o.fechaEntrega||o.fecha) < endTs);
-  const vtas = sales.filter(s => s.fecha >= startTs && s.fecha < endTs);
+  const vtas = sales.filter(s => s.fecha >= startTs && s.fecha < endTs && _esVentaNeta(s));
   const gts  = gastos.filter(g => g.fecha >= startTs && g.fecha < endTs);
 
   const totRep = reps.reduce((a,b)=>a+(b.val||0),0);
@@ -1684,7 +1820,7 @@ function openKpiModal(kpiType) {
   const startMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
 
   if (kpiType === 'caja') {
-    openIngresosDesgloseModal(lastCierre, Date.now(), 'Caja · desde último cierre');
+    openCajaDesgloseModal(lastCierre, Date.now());
   } else if (kpiType === 'activas') {
     const activas = orders.filter(o => o.sta !== 'entregado').sort((a,b) => a.fecha - b.fecha);
     const prefix = (JSON.parse(localStorage.getItem('businessConfig')||'{}').orderPrefix)||'#';
@@ -2017,6 +2153,8 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 window.addEventListener('DOMContentLoaded', async () => {
+  // El dashboard lee la misma IndexedDB que la app: exige el mismo PIN.
+  await _dashGate();
   // El dashboard se inicializa también en móviles y tablets.
 
   applyTheme();
