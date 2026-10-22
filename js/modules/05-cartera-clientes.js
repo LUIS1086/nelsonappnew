@@ -14,16 +14,9 @@
             if (!currentClientHistory) return;
             const amount = parseFloat(document.getElementById('payment-amount').value);
             if (isNaN(amount) || amount <= 0) return showAlert("Monto inválido. Ingresa un valor mayor a 0.", "warning");
-            // No permitir abonos mayores a la deuda: antes se recortaba a 0 y el excedente se perdía.
-            const client = await getOne('clientes', currentClientHistory);
-            const deuda = Number(client && client.deuda) || 0;
-            if (deuda > 0 && amount > deuda) {
-                return showAlert(`El abono (${getCurrency()}${amount.toLocaleString()}) supera la deuda (${getCurrency()}${deuda.toLocaleString()}). Corrige el monto.`, "warning");
-            }
             await updateClientDebt(currentClientHistory, amount, true);
             await put('payments', { id: _uid(), cliente: currentClientHistory, monto: amount, fecha: Date.now(), tipo: 'pago' });
             await renderCartera();
-            await updateTotal();
             await renderMovimientos();
             closeClientHistory();
             showAlert(`Pago de ${getCurrency()}${amount.toLocaleString()} registrado correctamente.`, "success");
@@ -57,6 +50,7 @@
                 for (let i = 0; i < (c.nombre || '').length; i++) hashVal = (hashVal + (c.nombre || '').charCodeAt(i)) % avatarHues.length;
                 const hue = avatarHues[hashVal];
                 const pct = deudores[0].deuda > 0 ? Math.round((c.deuda / deudores[0].deuda) * 100) : 0;
+                const safeName = escapeHtml(c.nombre).replace(/'/g, "&#39;");
                 const tel = c.telefono || '';
                 const waUrl = tel ? `https://wa.me/${tel.replace(/\D/g,'')}?text=${encodeURIComponent('Hola ' + c.nombre + ', cómo estás? Te escribo por el saldo pendiente de ' + cur + c.deuda.toLocaleString() + ' en Todo Repuestos Nelson. Quedo atento a tu respuesta.')}` : '';
                 return `<div style="position:relative;padding:12px;background:rgba(15,23,42,0.5);border:1px solid rgba(244,63,94,0.12);border-left:3px solid hsl(${hue},70%,55%);border-radius:14px;margin-bottom:8px;transition:all 0.15s ease;" onmouseenter="this.style.background='rgba(15,23,42,0.7)'" onmouseleave="this.style.background='rgba(15,23,42,0.5)'">
@@ -77,7 +71,7 @@
                         </div>
                     </div>
                     <div style="display:flex;gap:6px;margin-top:10px;">
-                        <button data-nombre="${escAttr(c.nombre)}" onclick="showClientHistory(this.dataset.nombre)" style="flex:1;padding:7px;background:rgba(148,163,184,0.1);border:1px solid rgba(148,163,184,0.2);border-radius:9px;color:#cbd5e1;font-size:10px;font-weight:800;cursor:pointer;letter-spacing:0.5px;">📜 Historial</button>
+                        <button onclick="showClientHistory('${safeName}')" style="flex:1;padding:7px;background:rgba(148,163,184,0.1);border:1px solid rgba(148,163,184,0.2);border-radius:9px;color:#cbd5e1;font-size:10px;font-weight:800;cursor:pointer;letter-spacing:0.5px;">📜 Historial</button>
                         ${tel ? `<a href="${waUrl}" target="_blank" style="flex:1;padding:7px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);border-radius:9px;color:#34d399;font-size:10px;font-weight:800;text-align:center;text-decoration:none;letter-spacing:0.5px;">💬 WhatsApp</a>` : ''}
                     </div>
                 </div>`;

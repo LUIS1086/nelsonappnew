@@ -4,7 +4,7 @@
 
         // ==================== CONFIGURACIÓN INICIAL ====================
         const DB_NAME = 'NelsonAppPro';
-        window.APP_VERSION = 'v3.5.0'; // Única fuente de verdad para la versión de la app
+        window.APP_VERSION = 'v3.4.3'; // Única fuente de verdad para la versión de la app
         let db = null;
         let searchDebounceTimer = null;
         let currentPhotos = [];
@@ -21,64 +21,6 @@
         // attr: para atributos HTML (escapa comillas dobles agresivamente)
         const escAttr = s => String(s ?? '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         window.escAttr = escAttr;
-
-        // ==================== FECHAS Y CAJA (helpers compartidos) ====================
-        // Fecha local en formato YYYY-MM-DD. NUNCA uses toISOString() para "hoy":
-        // en Colombia (UTC-5) después de las 7 p.m. devuelve el día siguiente.
-        function hoyYMD(fecha) {
-            const d = fecha == null ? new Date() : (fecha instanceof Date ? fecha : new Date(fecha));
-            if (isNaN(d.getTime())) return '';
-            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-        }
-        window.hoyYMD = hoyYMD;
-
-        // ── Caja: una sola definición para toda la app ──
-        // La caja es EFECTIVO REAL: ventas directas + adelantos + cobros al entregar
-        // + abonos de cartera − gastos. El valor total de una orden entregada NO se suma
-        // aquí (ya está representado por su adelanto y su cobro), así no se cuenta doble.
-        const TIPOS_VENTA_CAJA = ['adelanto', 'cobro_entrega', 'venta'];
-        function esVentaDeCaja(v) {
-            return !!v && (!v.tipo || TIPOS_VENTA_CAJA.indexOf(v.tipo) !== -1);
-        }
-        // Venta que representa facturación (sin adelantos ni cobros, que ya están en la orden)
-        function esVentaNeta(v) {
-            return !!v && v.tipo !== 'adelanto' && v.tipo !== 'cobro_entrega';
-        }
-        window.esVentaDeCaja = esVentaDeCaja;
-        window.esVentaNeta = esVentaNeta;
-
-        async function getCajaResumen(desde) {
-            const lastCierre = desde != null ? desde : (Number(localStorage.getItem('lastCierreCaja')) || 0);
-            const [sales, gastos, payments] = await Promise.all([getAll('sales'), getAll('gastos'), getAll('payments')]);
-            const _ts = x => { const n = typeof x === 'number' ? x : new Date(x).getTime(); return isNaN(n) ? 0 : n; };
-            const ventas = sales.filter(v => _ts(v.fecha) > lastCierre && esVentaDeCaja(v));
-            const abonos = payments.filter(p => _ts(p.fecha) > lastCierre);
-            const gastosCaja = gastos.filter(g => _ts(g.fecha) > lastCierre);
-            const ingresos = ventas.reduce((a, b) => a + (Number(b.val) || 0), 0)
-                           + abonos.reduce((a, b) => a + (Number(b.monto) || 0), 0);
-            const totalGastos = gastosCaja.reduce((a, b) => a + (Number(b.val) || 0), 0);
-            return { lastCierre, ventas, abonos, gastos: gastosCaja, ingresos, totalGastos, neto: ingresos - totalGastos };
-        }
-        window.getCajaResumen = getCajaResumen;
-
-        // ── Ajustes que viajan en el respaldo (solo configuración del negocio) ──
-        const AJUSTES_RESPALDO = [
-            'businessConfig', 'businessLogo', 'documentConfig', 'whatsappTemplates', 'ordenPlantillas',
-            'tecnicos', 'appCurrency', 'appDateFormat', 'orderNumConfig', 'orderNumStart', 'orderResetYear',
-            'metaMensual', 'metaSemanal', 'metaVisible', 'lowStockThreshold', 'garantiaMsg', 'diasSinRecoger',
-            'warrantyAlertDays', 'cierreHora', 'reminderCierreHora', 'reminderSinMovDias'
-        ];
-        function getAjustesBackup() {
-            const out = {};
-            AJUSTES_RESPALDO.forEach(k => { try { const v = localStorage.getItem(k); if (v !== null) out[k] = v; } catch (_) {} });
-            return out;
-        }
-        function applyAjustesBackup(o) {
-            if (!o || typeof o !== 'object') return;
-            AJUSTES_RESPALDO.forEach(k => { if (typeof o[k] === 'string') { try { localStorage.setItem(k, o[k]); } catch (_) {} } });
-        }
-        window.getAjustesBackup = getAjustesBackup;
-        window.applyAjustesBackup = applyAjustesBackup;
 
         // Acceso uniforme a cámara para Chrome, Brave, Firefox y Samsung Internet.
         // · Solo hay UNA cámara activa a la vez: antes de pedir otra se libera la anterior
@@ -249,18 +191,12 @@
 
         async function initPinSystem() {
             const stored = localStorage.getItem('appPinHash');
-            if (stored) {
-                _pinHash = stored;
-                // Longitud del PIN para que el teclado sepa cuándo habilitar OK (4 por defecto)
-                if (!localStorage.getItem('appPinLen')) localStorage.setItem('appPinLen', '4');
-                return;
-            }
+            if (stored) { _pinHash = stored; return; }
             // Migrar PIN legacy (texto plano) → hash automáticamente
             const legacy = localStorage.getItem('appPin');
             const base   = legacy || '1234';
             _pinHash = await _hashPin(base);
             localStorage.setItem('appPinHash', _pinHash);
-            localStorage.setItem('appPinLen', String(base.length));
             if (legacy) localStorage.removeItem('appPin'); // eliminar texto plano
         }
         let pinBuffer = '';

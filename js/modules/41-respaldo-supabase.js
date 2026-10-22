@@ -17,7 +17,7 @@
   const alertBox = (m, t, cb) => { if (typeof showAlert === 'function') showAlert(m, t || 'info', cb); else { window.alert(m); if (cb) cb(); } };
   const nap = () => new Promise(r => setTimeout(r, 0));
 
-  const STORES = ['orders', 'stock', 'sales', 'gastos', 'clientes', 'payments', 'calificaciones', 'stockHistory', 'orderChat', 'paymentPlans', 'proveedores', 'config'];
+  const STORES = ['orders', 'stock', 'sales', 'gastos', 'clientes', 'payments', 'calificaciones', 'stockHistory', 'orderChat', 'paymentPlans'];
   const LS_LAST = 'respUltimo', LS_AUTO = 'respAuto';
   let busy = false;
 
@@ -58,7 +58,6 @@
       if (i % 25 === 0) await nap();
     }
     data.orders = orders;
-    data.ajustes = (typeof getAjustesBackup === 'function') ? getAjustesBackup() : {};
     return { data, photos };
   }
 
@@ -144,12 +143,7 @@
     prog('Aplicando respaldo…', 0, 0);
     window._segPausa = true; // el seguimiento del cliente no publica mientras se restaura
     try {
-      for (const s of STORES) {
-        // Respaldos viejos sin proveedores/config: no se borran los datos actuales.
-        if (s === 'proveedores' && !Array.isArray(data.proveedores)) continue;
-        if (s === 'config' && !Array.isArray(data.config)) continue;
-        await clearStore(s);
-      }
+      for (const s of STORES) await clearStore(s);
       for (const o of data.orders) {
         const fotos = (o.fotosRef || []).map(h => blobs.get(h)).filter(Boolean);
         const fotosEntrega = (o.fotosEntregaRef || []).map(h => blobs.get(h)).filter(Boolean);
@@ -158,14 +152,6 @@
       }
       for (const s of data.stock) await put('stock', typeof _normStock === 'function' ? _normStock(s) : s);
       for (const k of ['sales', 'gastos', 'clientes', 'payments', 'calificaciones', 'stockHistory', 'orderChat', 'paymentPlans']) for (const r of data[k]) await put(k, r);
-      if (Array.isArray(data.proveedores)) for (const p of data.proveedores) await put('proveedores', p);
-      // Contador de órdenes coherente con lo restaurado (nunca por debajo del número más alto)
-      const cfgRows = Array.isArray(data.config) ? data.config.filter(c => c.key !== 'orderCounter') : [];
-      for (const c of cfgRows) await put('config', c);
-      const maxNum = data.orders.reduce((m, o) => Math.max(m, Number(o.orderNum) || 0), 0);
-      const savedCounter = Array.isArray(data.config) ? data.config.find(c => c.key === 'orderCounter') : null;
-      await put('config', { key: 'orderCounter', value: Math.max(Number(savedCounter && savedCounter.value) || 0, maxNum) });
-      if (data.ajustes && typeof applyAjustesBackup === 'function') applyAjustesBackup(data.ajustes);
       if (typeof _migrateStockFields === 'function') await _migrateStockFields();
       try { if (typeof updateTotal === 'function') await updateTotal(); if (typeof updateSuggestions === 'function') await updateSuggestions(); if (typeof renderCartera === 'function') await renderCartera(); } catch (e) { /* la recarga lo rehace */ }
     } catch (e) { window._segPausa = false; throw e; }

@@ -435,7 +435,7 @@
             const ahora = Date.now();
             const hoy = new Date();
             const ctx = {
-                fechaActual: hoyYMD(hoy),
+                fechaActual: hoy.toISOString().slice(0,10),
                 errores: []
             };
 
@@ -447,7 +447,7 @@
             const T_HACE_7_DIAS  = ahora - (7*86400000);
             const T_HACE_30_DIAS = ahora - (30*86400000);
             const T_HACE_90_DIAS = ahora - (90*86400000);
-            const tsToFecha = (ts) => ts ? hoyYMD(ts) : '';
+            const tsToFecha = (ts) => ts ? new Date(ts).toISOString().slice(0,10) : '';
 
             // Leer todo con catch individual
             let orders=[], stock=[], sales=[], gastos=[], clientes=[], payments=[];
@@ -776,7 +776,7 @@ EJEMPLOS DE CUÁNDO GENERAR ACCIONES:
 GUÍA DE DATOS (cómo está organizado el CONTEXTO JSON):
 
 • **Ingresos / Ventas** → "ingresos". Todo el dinero que entró a caja. Usa "ingresos.totalEsteMes", "ingresos.totalHoy", "ingresos.totalUltimos7Dias", "ingresos.totalMesPasado".
-• **Órdenes del taller** → "ordenes". Estados reales: recibido, revisión, reparado, entregado, no-reparable. (No inventes estados como "diagnostico", "reparando" o "listo".)
+• **Órdenes del taller** → "ordenes". Estados: recibido, diagnostico, presupuesto, reparando, listo, entregado, no-reparable.
 • **Deudas / Cartera** → "cuentasPorCobrar". Cada item tiene "cliente", "telefono", "saldoPendiente", "orden", "equipo".
 • **Inventario** → "inventario". "itemsStockBajo", "itemsAgotados".
 • **Gastos** → "gastos".

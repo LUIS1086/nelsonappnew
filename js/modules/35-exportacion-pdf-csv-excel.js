@@ -50,7 +50,7 @@
             if (_exportRange === '3months') return `${y}-${m}-3m`;
             if (_exportRange === 'year')    return `${y}`;
             if (_exportRange === 'all')     return 'todo';
-            return hoyYMD(now);
+            return now.toISOString().slice(0,10);
         }
 
         function openExportPanel() {
@@ -151,7 +151,7 @@
                 const biz = _safeBizConfig();
                 const bizName = biz.name || 'NelsonApp';
                 const now = new Date();
-                const dateStr = hoyYMD(now);
+                const dateStr = now.toISOString().slice(0,10);
                 const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
                 const { from, to } = _getExportRange();
                 const rangeSlug = _exportRangeFileSlug();

@@ -4,10 +4,6 @@
         function showExportFallback(jsonStr, fileName) {
             const existing = document.getElementById('modal-export-fallback');
             if (existing) existing.remove();
-            // El respaldo se guarda en memoria, NO dentro del HTML: un JSON de decenas de MB
-            // metido en un onclick rompía el botón.
-            window._exportFallbackJson = jsonStr;
-            window._exportFallbackName = fileName;
             const modal = document.createElement('div');
             modal.id = 'modal-export-fallback';
             modal.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;padding:16px;';
@@ -18,9 +14,9 @@
                         <button onclick="document.getElementById('modal-export-fallback').remove()" style="color:white;background:rgba(0,0,0,0.3);width:32px;height:32px;border-radius:50%;font-weight:bold;font-size:16px;">✕</button>
                     </div>
                     <div style="padding:20px;space-y:12px;">
-                        <p style="color:#94a3b8;font-size:12px;margin-bottom:12px;">Elige cómo guardar tu respaldo <strong style="color:#f97316;">${escapeHtml(fileName)}</strong>:</p>
-                        <button onclick="exportViaShare()" style="width:100%;background:#10b981;color:white;padding:14px;border-radius:12px;font-weight:900;font-size:13px;margin-bottom:8px;display:block;">📨 COMPARTIR / ENVIAR POR WHATSAPP</button>
-                        <button onclick="exportViaCopy()" style="width:100%;background:#3b82f6;color:white;padding:14px;border-radius:12px;font-weight:900;font-size:13px;margin-bottom:8px;display:block;">📋 COPIAR AL PORTAPAPELES</button>
+                        <p style="color:#94a3b8;font-size:12px;margin-bottom:12px;">Elige cómo guardar tu respaldo <strong style="color:#f97316;">${fileName}</strong>:</p>
+                        <button onclick="exportViaShare('${encodeURIComponent(jsonStr)}','${fileName}')" style="width:100%;background:#10b981;color:white;padding:14px;border-radius:12px;font-weight:900;font-size:13px;margin-bottom:8px;display:block;">📨 COMPARTIR / ENVIAR POR WHATSAPP</button>
+                        <button onclick="exportViaCopy('${encodeURIComponent(jsonStr)}')" style="width:100%;background:#3b82f6;color:white;padding:14px;border-radius:12px;font-weight:900;font-size:13px;margin-bottom:8px;display:block;">📋 COPIAR AL PORTAPAPELES</button>
                         <p style="color:#475569;font-size:10px;text-align:center;margin-top:8px;">Puedes pegar el contenido en un archivo .txt y renombrarlo a .json</p>
                     </div>
                 </div>`;
@@ -29,17 +25,16 @@
 
         async function exportViaShare(encodedJson, fileName) {
             try {
-                const jsonStr = encodedJson ? decodeURIComponent(encodedJson) : (window._exportFallbackJson || '');
-                const name = fileName || window._exportFallbackName || `nelson_backup_${hoyYMD()}.json`;
-                const file = new File([jsonStr], name, { type: 'application/json' });
+                const jsonStr = decodeURIComponent(encodedJson);
+                const file = new File([jsonStr], fileName, { type: 'application/json' });
                 await navigator.share({ files: [file], title: 'Respaldo Nelson App' });
                 document.getElementById('modal-export-fallback')?.remove();
-            } catch(e) { if (e.name !== 'AbortError') showAlert('No se pudo compartir: ' + e.message, 'error'); }
+            } catch(e) { showAlert('No se pudo compartir: ' + e.message, 'error'); }
         }
 
         async function exportViaCopy(encodedJson) {
             try {
-                const jsonStr = encodedJson ? decodeURIComponent(encodedJson) : (window._exportFallbackJson || '');
+                const jsonStr = decodeURIComponent(encodedJson);
                 await navigator.clipboard.writeText(jsonStr);
                 showAlert('✅ Contenido copiado al portapapeles. Pégalo en un archivo .json para guardarlo.', 'success');
                 document.getElementById('modal-export-fallback')?.remove();
@@ -84,11 +79,6 @@
             data.stockHistory  = Array.isArray(data.stockHistory) ? data.stockHistory.filter(validKeyed) : [];
             data.orderChat     = Array.isArray(data.orderChat) ? data.orderChat.filter(validKeyed) : [];
             data.paymentPlans  = Array.isArray(data.paymentPlans) ? data.paymentPlans.filter(validKeyed) : [];
-            // Proveedores, configuración interna y ajustes del negocio (respaldos nuevos).
-            // Si el archivo es viejo y no los trae, se dejan como undefined para NO borrarlos.
-            if (Array.isArray(data.proveedores)) data.proveedores = data.proveedores.filter(validKeyed);
-            if (Array.isArray(data.config))      data.config = data.config.filter(c => c && typeof c === 'object' && typeof c.key === 'string');
-            if (data.ajustes && (typeof data.ajustes !== 'object' || Array.isArray(data.ajustes))) delete data.ajustes;
             return { ok:true, data };
         }
 
@@ -118,7 +108,6 @@
                     await clearStore('gastos'); await clearStore('clientes'); await clearStore('payments');
                     await clearStore('stockHistory'); await clearStore('orderChat');
                     await clearStore('paymentPlans'); await clearStore('calificaciones');
-                    if (Array.isArray(data.proveedores)) await clearStore('proveedores');
                     for(let o of data.orders) {
                         const fotos = [];
                         if(o.fotos && Array.isArray(o.fotos)) {
@@ -139,16 +128,6 @@
                     for(let h of data.stockHistory) await put('stockHistory', h);
                     for(let m of data.orderChat) await put('orderChat', m);
                     for(let p of data.paymentPlans) await put('paymentPlans', p);
-                    if (Array.isArray(data.proveedores)) for (let p of data.proveedores) await put('proveedores', p);
-                    // Configuración interna: se restaura el contador de órdenes y se asegura
-                    // que no quede por debajo del número más alto restaurado (evita repetidos).
-                    await clearStore('config');
-                    const cfgRows = Array.isArray(data.config) ? data.config.filter(c => c.key !== 'orderCounter') : [];
-                    for (const c of cfgRows) await put('config', c);
-                    const maxNum = data.orders.reduce((m, o) => Math.max(m, Number(o.orderNum) || 0), 0);
-                    const savedCounter = Array.isArray(data.config) ? data.config.find(c => c.key === 'orderCounter') : null;
-                    await put('config', { key: 'orderCounter', value: Math.max(Number(savedCounter && savedCounter.value) || 0, maxNum) });
-                    if (data.ajustes) applyAjustesBackup(data.ajustes);
                     // Limpiar campos duplicados y normalizar tipos por si el backup era viejo
                     await _migrateStockFields();
                     await updateTotal(); await updateSuggestions(); await renderCartera();
