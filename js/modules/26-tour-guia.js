@@ -393,7 +393,7 @@
                 doc.setTextColor(156, 163, 175);
                 doc.text('Página 2 de 2', pageW / 2, pageH - 8, { align: 'center' });
 
-                const today = hoyYMD();
+                const today = new Date().toISOString().slice(0, 10);
                 doc.save(`Guia-Rapida-${today}.pdf`);
                 showToast('✅ Guía descargada · Imprímela y tenla cerca del taller', 'success');
             } catch (e) {

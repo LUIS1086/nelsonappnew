@@ -173,7 +173,50 @@
                     </div>
                 </div>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;"><polyline points="9 18 15 12 9 6"/></svg>
+                <div class="garantia-wa-actions" onclick="event.stopPropagation()" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;width:100%;">
+                    <button type="button" onclick="avisarObsequioMantenimiento(${g.id})" style="border:1px solid rgba(16,185,129,.35);background:rgba(16,185,129,.12);color:#34d399;border-radius:9px;padding:8px 10px;font-size:11px;font-weight:800;cursor:pointer;">🎁 Avisar mantenimiento gratis</button>
+                    <button type="button" onclick="avisarVencimientoGarantia(${g.id})" style="border:1px solid rgba(245,158,11,.35);background:rgba(245,158,11,.12);color:#fbbf24;border-radius:9px;padding:8px 10px;font-size:11px;font-weight:800;cursor:pointer;">🛡️ Avisar garantía</button>
+                </div>
             </div>`;
+        }
+
+        function _abrirWhatsAppGarantia(g, mensaje) {
+            if (!g || !g.tel) {
+                if (typeof showToast === 'function') showToast('Este cliente no tiene teléfono registrado en la orden.', 'warning');
+                else alert('Este cliente no tiene teléfono registrado en la orden.');
+                return;
+            }
+            let numero = String(g.tel).replace(/\\D/g, '');
+            // Números colombianos: añadir +57 si están guardados como 10 dígitos.
+            if (numero.length === 10 && numero.startsWith('3')) numero = '57' + numero;
+            if (numero.length < 10) {
+                if (typeof showToast === 'function') showToast('El número de WhatsApp parece incompleto. Revisa los datos del cliente.', 'warning');
+                else alert('El número de WhatsApp parece incompleto. Revisa los datos del cliente.');
+                return;
+            }
+            window.open('https://wa.me/' + numero + '?text=' + encodeURIComponent(mensaje), '_blank');
+        }
+
+        async function avisarObsequioMantenimiento(orderId) {
+            const g = _garantiasCache.find(item => String(item.id) === String(orderId));
+            if (!g) return;
+            const negocio = (typeof _safeBizConfig === 'function' ? _safeBizConfig().name : '') || 'Todo Repuestos Nelson';
+            const mensaje = `🔧 *${negocio}*\\n\\nHola ${g.nom}, queremos obsequiarte un mantenimiento gratuito para tu ${g.equ}. 🎁\\n\\nEs un detalle por confiar en nuestro trabajo. Escríbenos para coordinar el día y la hora que más te convengan.\\n\\n¡Gracias por preferirnos!`;
+            _abrirWhatsAppGarantia(g, mensaje);
+        }
+
+        async function avisarVencimientoGarantia(orderId) {
+            const g = _garantiasCache.find(item => String(item.id) === String(orderId));
+            if (!g) return;
+            const negocio = (typeof _safeBizConfig === 'function' ? _safeBizConfig().name : '') || 'Todo Repuestos Nelson';
+            const fecha = new Date(g.fechaVencimiento).toLocaleDateString('es-CO', {day:'2-digit', month:'long', year:'numeric'});
+            let detalle;
+            if (g.diasRestantes < 0) detalle = `la garantía venció el ${fecha}`;
+            else if (g.diasRestantes === 0) detalle = `la garantía vence hoy (${fecha})`;
+            else if (g.diasRestantes === 1) detalle = `la garantía vence mañana (${fecha})`;
+            else detalle = `la garantía está próxima a vencer el ${fecha} (faltan ${g.diasRestantes} días)`;
+            const mensaje = `🔧 *${negocio}*\\n\\nHola ${g.nom}, te escribimos para recordarte que ${detalle} para tu ${g.equ}.\\n\\nSi tienes alguna duda, estamos atentos para ayudarte. ¡Gracias por confiar en nosotros!`;
+            _abrirWhatsAppGarantia(g, mensaje);
         }
 
         async function _openOrderFromGarantia(orderId) {
@@ -487,7 +530,7 @@
         async function exportData() {
             try {
                 const loading = document.createElement('div'); loading.innerHTML = '<div class="fixed inset-0 bg-black/70 flex items-center justify-center z-[4000]"><div class="bg-slate-800 p-6 rounded-2xl text-center"><div class="loading-spinner mx-auto"></div><p class="mt-2 text-sm">Exportando...</p></div></div>'; document.body.appendChild(loading);
-                const orders = await getAll('orders'); const stock = await getAll('stock'); const sales = await getAll('sales'); const gastos = await getAll('gastos'); const clientes = await getAll('clientes'); const payments = await getAll('payments'); const calificaciones = await getAll('calificaciones'); const stockHistory = await getAll('stockHistory'); const orderChat = await getAll('orderChat'); const paymentPlans = await getAll('paymentPlans'); const proveedores = await getAll('proveedores'); const config = await getAll('config');
+                const orders = await getAll('orders'); const stock = await getAll('stock'); const sales = await getAll('sales'); const gastos = await getAll('gastos'); const clientes = await getAll('clientes'); const payments = await getAll('payments'); const calificaciones = await getAll('calificaciones'); const stockHistory = await getAll('stockHistory'); const orderChat = await getAll('orderChat'); const paymentPlans = await getAll('paymentPlans');
 
                 const exportOrders = [];
                 for(let o of orders) {
@@ -496,8 +539,8 @@
                     exportOrders.push({...o, fotos, fotosEntrega});
                 }
 
-                const jsonStr = JSON.stringify({orders:exportOrders, stock, sales, gastos, clientes, payments, calificaciones, stockHistory, orderChat, paymentPlans, proveedores, config, ajustes: getAjustesBackup()});
-                const fileName = `nelson_backup_${hoyYMD()}.json`;
+                const jsonStr = JSON.stringify({orders:exportOrders, stock, sales, gastos, clientes, payments, calificaciones, stockHistory, orderChat, paymentPlans});
+                const fileName = `nelson_backup_${new Date().toISOString().slice(0,10)}.json`;
                 loading.remove();
 
                 if (navigator.share && navigator.canShare) {

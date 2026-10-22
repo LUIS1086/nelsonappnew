@@ -215,27 +215,13 @@
 
         async function renderMovimientos() {
             const cur = getCurrency();
-            const caja = await getCajaResumen();
-            const movs = [
-                ...caja.ventas.map(s => ({ ...s, type: 'sale' })),
-                ...caja.abonos.map(p => ({ ...p, type: 'pago' })),
-                ...caja.gastos.map(g => ({ ...g, type: 'gasto' }))
-            ].sort((a, b) => b.fecha - a.fecha);
+            const lastCierre = Number(localStorage.getItem('lastCierreCaja')) || 0;
+            const sales = await getAll('sales');
+            const gastos = await getAll('gastos');
+            const movs = [...sales.filter(s=>s.fecha>lastCierre && s.tipo!=='adelanto' && s.tipo!=='cobro_entrega').map(s=>({...s,type:'sale'})), ...gastos.filter(g=>g.fecha>lastCierre).map(g=>({...g,type:'gasto'}))].sort((a,b)=>b.fecha-a.fecha);
             const container = document.getElementById('movimientos-history');
-            if (!movs.length) { container.innerHTML = '<div class="text-center py-4 text-slate-500 text-xs">Sin movimientos en la caja actual</div>'; return; }
-            container.innerHTML = movs.map(m => {
-                if (m.type === 'gasto') {
-                    return `<div class="flex justify-between bg-rose-500/10 p-2 rounded-xl"><div><p class="text-xs font-bold">- ${escapeHtml(m.det)}</p><p class="text-[9px]">Gasto</p></div><div class="flex gap-2"><p class="text-xs font-black text-rose-400">-${cur}${(Number(m.val)||0).toLocaleString()}</p><button onclick="annulGasto(${m.id})" class="text-rose-400 text-[10px] bg-rose-500/20 px-2 py-1 rounded-lg">✕</button></div></div>`;
-                }
-                if (m.type === 'pago') {
-                    return `<div class="flex justify-between bg-sky-500/10 p-2 rounded-xl"><div><p class="text-xs font-bold">+ Abono cartera · ${escapeHtml(m.cliente || '')}</p><p class="text-[9px]">Pago de deuda</p></div><p class="text-xs font-black text-sky-400">+${cur}${(Number(m.monto)||0).toLocaleString()}</p></div>`;
-                }
-                const etiqueta = m.tipo === 'adelanto' ? 'Adelanto' : m.tipo === 'cobro_entrega' ? 'Cobro al entregar' : 'Venta';
-                const acciones = !m.tipo
-                    ? `<button onclick="openSaleTicket(${m.id})" title="Ticket" aria-label="Ver ticket" class="text-emerald-300 text-[10px] bg-emerald-500/20 px-2 py-1 rounded-lg">🧾</button><button onclick="annulSale(${m.id})" class="text-rose-400 text-[10px] bg-rose-500/20 px-2 py-1 rounded-lg">✕</button>`
-                    : '';
-                return `<div class="flex justify-between bg-emerald-500/10 p-2 rounded-xl"><div><p class="text-xs font-bold">+ ${escapeHtml(m.item)}</p><p class="text-[9px]">${etiqueta}${!m.tipo && m.qty ? ' · ' + m.qty + ' unid' : ''}</p></div><div class="flex gap-2"><p class="text-xs font-black text-emerald-400">+${cur}${(Number(m.val)||0).toLocaleString()}</p>${acciones}</div></div>`;
-            }).join('');
+            if(!movs.length) { container.innerHTML = '<div class="text-center py-4 text-slate-500 text-xs">Sin movimientos en la caja actual</div>'; return; }
+            container.innerHTML = movs.map(m => m.type==='sale' ? `<div class="flex justify-between bg-emerald-500/10 p-2 rounded-xl"><div><p class="text-xs font-bold">+ ${escapeHtml(m.item)}</p><p class="text-[9px]">${m.qty} unid</p></div><div class="flex gap-2"><p class="text-xs font-black text-emerald-400">+${cur}${m.val.toLocaleString()}</p><button onclick="openSaleTicket(${m.id})" title="Ticket" aria-label="Ver ticket" class="text-emerald-300 text-[10px] bg-emerald-500/20 px-2 py-1 rounded-lg">🧾</button><button onclick="annulSale(${m.id})" class="text-rose-400 text-[10px] bg-rose-500/20 px-2 py-1 rounded-lg">✕</button></div></div>` : `<div class="flex justify-between bg-rose-500/10 p-2 rounded-xl"><div><p class="text-xs font-bold">- ${escapeHtml(m.det)}</p><p class="text-[9px]">Gasto</p></div><div class="flex gap-2"><p class="text-xs font-black text-rose-400">-${cur}${m.val.toLocaleString()}</p><button onclick="annulGasto(${m.id})" class="text-rose-400 text-[10px] bg-rose-500/20 px-2 py-1 rounded-lg">✕</button></div></div>`).join('');
         }
         async function annulGasto(id) { showConfirm("¿Eliminar este gasto?", async () => { await del('gastos', id); await updateTotal(); }); }
 

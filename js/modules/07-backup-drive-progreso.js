@@ -220,7 +220,7 @@
                 return;
             }
 
-            const fileName = `nelson_backup_${hoyYMD()}.json`;
+            const fileName = `nelson_backup_${new Date().toISOString().slice(0,10)}.json`;
             if (!silent) showDriveProgress(fileName);
 
             try {
@@ -236,9 +236,6 @@
                 const stockHistory = await getAll('stockHistory');
                 const orderChat    = await getAll('orderChat');
                 const paymentPlans = await getAll('paymentPlans');
-                // Proveedores, contador de órdenes y ajustes del negocio: antes no viajaban en el respaldo
-                const proveedores  = await getAll('proveedores');
-                const config       = await getAll('config');
 
                 if (!silent) updateDriveProgress(0, 0, 0, 'Empaquetando fotos...');
                 const exportOrders = [];
@@ -246,7 +243,7 @@
                     exportOrders.push({ ...o, fotos: await blobsToB64(o.fotos || []), fotosEntrega: await blobsToB64(o.fotosEntrega || []) });
                 }
 
-                const jsonStr  = JSON.stringify({ orders: exportOrders, stock, sales, gastos, clientes, payments, calificaciones, stockHistory, orderChat, paymentPlans, proveedores, config, ajustes: getAjustesBackup(), date: new Date().toISOString() });
+                const jsonStr  = JSON.stringify({ orders: exportOrders, stock, sales, gastos, clientes, payments, calificaciones, stockHistory, orderChat, paymentPlans, date: new Date().toISOString() });
                 const folderId = await ensureDriveFolder();
 
                 const blob = new Blob([jsonStr], { type: 'application/json' });

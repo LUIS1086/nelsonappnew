@@ -426,22 +426,20 @@
         }
         function closeConfirmModal() { document.getElementById('modal-confirm').classList.add('hidden'); }
         async function openCajaModal() {
+            const lastCierre = Number(localStorage.getItem('lastCierreCaja')) || 0;
+            const orders = await getAll('orders'); const sales = await getAll('sales'); const gastos = await getAll('gastos');
             const cur = getCurrency();
-            const caja = await getCajaResumen();
-            document.getElementById('modal-caja-ingresos').innerText = 'Ingresos: ' + cur + caja.ingresos.toLocaleString();
-            document.getElementById('modal-caja-gastos').innerText = 'Gastos: ' + cur + caja.totalGastos.toLocaleString();
-            document.getElementById('modal-caja-total').innerText = cur + caja.neto.toLocaleString();
+            const tOrders = orders.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha) > lastCierre).reduce((a,b) => a + (b.val||0), 0);
+            const tSales = sales.filter(v => v.fecha > lastCierre && v.tipo !== 'adelanto' && v.tipo !== 'cobro_entrega').reduce((a,b) => a + (b.val||0), 0);
+            const tGastos = gastos.filter(g => g.fecha > lastCierre).reduce((a,b) => a + (b.val||0), 0);
+            document.getElementById('modal-caja-ingresos').innerText = 'Ingresos: ' + cur + (tOrders + tSales).toLocaleString();
+            document.getElementById('modal-caja-gastos').innerText = 'Gastos: ' + cur + tGastos.toLocaleString();
+            document.getElementById('modal-caja-total').innerText = cur + (tOrders + tSales - tGastos).toLocaleString();
             const dailyData = {};
-            const addDaily = (fecha, monto) => {
-                const d = new Date(Number(fecha) || 0);
-                if (isNaN(d.getTime())) return;
-                const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-                if (!dailyData[key]) dailyData[key] = { display: d.toLocaleDateString('es-ES', { weekday: 'short', month: 'short', day: 'numeric' }), total: 0 };
-                dailyData[key].total += monto;
-            };
-            caja.ventas.forEach(v => addDaily(v.fecha, Number(v.val) || 0));
-            caja.abonos.forEach(p => addDaily(p.fecha, Number(p.monto) || 0));
-            caja.gastos.forEach(g => addDaily(g.fecha, -(Number(g.val) || 0)));
+            const processItem = (item, dateField, isGasto=false) => { const d = new Date(item[dateField]); const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; if(!dailyData[key]) dailyData[key] = { display: d.toLocaleDateString('es-ES', { weekday: 'short', month: 'short', day: 'numeric' }), total: 0 }; isGasto ? dailyData[key].total -= (item.val||0) : dailyData[key].total += (item.val||0); };
+            orders.filter(o=>o.sta==='entregado').forEach(o=>processItem(o, o.fechaEntrega ? 'fechaEntrega' : 'fecha'));
+            sales.filter(v => v.tipo !== 'adelanto' && v.tipo !== 'cobro_entrega').forEach(v=>processItem(v,'fecha'));
+            gastos.forEach(g=>processItem(g,'fecha',true));
             const list = document.getElementById('daily-income-list');
             const keys = Object.keys(dailyData).sort((a,b)=>b.localeCompare(a));
             list.innerHTML = keys.length ? keys.map(k=>`<div class="flex justify-between bg-white/5 p-3 rounded-xl"><span>${dailyData[k].display}</span><span class="font-black ${dailyData[k].total>=0?'text-emerald-400':'text-rose-400'}">${cur}${dailyData[k].total.toLocaleString()}</span></div>`).join('') : '<div class="text-center py-6 text-slate-500">No hay registros diarios</div>';

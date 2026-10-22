@@ -136,11 +136,7 @@
             el.style.animation = "shakeField 0.35s ease";
             setTimeout(() => { el.style.borderColor = orig; el.style.animation = ""; el.style.transition = ""; }, 600);
         }
-        let _lastOrderSaveTs = 0;
         async function saveOrder() {
-            // Evita órdenes duplicadas por doble toque en "Guardar".
-            if (Date.now() - _lastOrderSaveTs < 1200) return;
-            _lastOrderSaveTs = Date.now();
             const nom = document.getElementById("c-nom").value.trim().toUpperCase();
             const equ = document.getElementById("c-equ").value.trim();
             let hasError = false;
