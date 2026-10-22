@@ -2660,12 +2660,13 @@
                     </div>
                     <div id="cfg-wapp" class="ios-body">
                         <div class="ios-body-inner space-y-3">
-                            <div class="ios-variables">Variables: <span>{cliente} {equipo} {valor} {orden} {dias}</span></div>
+                            <div class="ios-variables">Variables: <span>{cliente} {equipo} {valor} {orden} {dias} {vence} {restan}</span></div>
                             <div><span class="ios-input-label">📥 Al recibir equipo</span><textarea id="tpl-recepcion" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, recibimos tu {equipo}. Orden {orden}. Te avisamos cuando esté listo 🙌"></textarea></div>
                             <div><span class="ios-input-label">🔍 En revisión</span><textarea id="tpl-revision" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, tu {equipo} está siendo revisado 🔍"></textarea></div>
                             <div><span class="ios-input-label">💼 Enviar presupuesto</span><textarea id="tpl-presupuesto" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, el presupuesto para tu {equipo} es de ${valor}. ¿Apruebas? ✅"></textarea></div>
                             <div><span class="ios-input-label">✅ Equipo listo</span><textarea id="tpl-listo" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, tu {equipo} ya está listo! Valor: ${valor} 🎉"></textarea></div>
                             <div><span class="ios-input-label">🛡️ Recordatorio garantía</span><textarea id="tpl-garantia" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, tu {equipo} tiene garantía de {dias} días 🛡️"></textarea></div>
+                            <div><span class="ios-input-label">🎁 Garantía por vencer + mantenimiento de obsequio</span><textarea id="tpl-garantiavence" rows="4" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, la garantía de tu {equipo} vence {restan} ({vence}). Te obsequiamos un mantenimiento 🎁"></textarea></div>
                             <div><span class="ios-input-label">⚠️ Sin reparación</span><textarea id="tpl-norepara" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, tu {equipo} no tiene reparación posible 😔"></textarea></div>
                             <div><span class="ios-input-label">⏳ Aviso de retraso</span><textarea id="tpl-retraso" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, la reparación está tomando más tiempo. Gracias ⏳"></textarea></div>
                             <div><span class="ios-input-label">💸 Recordatorio de pago</span><textarea id="tpl-cobro" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, tienes un saldo pendiente de ${valor} 🙏"></textarea></div>
