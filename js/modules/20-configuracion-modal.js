@@ -259,7 +259,7 @@
                         filled = Object.values(t).filter(v => v && String(v).trim()).length;
                     } catch(e) {}
                 }
-                cfgSetBadge('cfg-wapp', `${filled}/8`, filled === 8 ? 'ok' : (filled > 0 ? 'warn' : 'off'));
+                cfgSetBadge('cfg-wapp', `${Math.min(filled, 8)}/8`, filled >= 8 ? 'ok' : (filled > 0 ? 'warn' : 'off'));
 
                 // Técnicos — cantidad
                 const tecs = JSON.parse(localStorage.getItem('tecnicos') || '[]');
