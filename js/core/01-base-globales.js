@@ -203,8 +203,6 @@
         let currentDeliveryPhotos = [];
         let currentDeliveryOrderId = null;
         let currentPresupuestoOrderId = null;
-        // Estado del editor de precio de venta (null = sin override, número = precio aplicado solo a esta venta)
-        let customSalePrice = null;
 
         // Variable para respaldo automático
         let autoBackupIntervalId = null;
