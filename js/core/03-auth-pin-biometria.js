@@ -5,8 +5,6 @@
         // Función reutilizable: lo que pasa cuando el usuario se autentica con éxito
         // (ya sea por PIN correcto o por huella). Centraliza el flujo de desbloqueo.
         async function _unlockAppFromAuth() {
-            pinBuffer = '';
-            try { if (typeof _renderPinDots === 'function') _renderPinDots(); } catch(_) {}
             document.getElementById('pin-modal').classList.add('hidden');
             document.getElementById('app-header').classList.remove('hidden');
             document.querySelectorAll('.app-view').forEach(v => v.classList.remove('hidden'));
@@ -80,7 +78,6 @@
                 document.getElementById('pin-input').value = '';
                 document.getElementById('pin-error').innerText = '⚠️ PIN incorrecto';
                 pinBuffer = '';
-                try { if (typeof _renderPinDots === 'function') _renderPinDots(); } catch(_) {}
             }
         }
 
@@ -92,7 +89,6 @@
             if (newPin !== confirmPin)          return showAlert("Los PIN no coinciden. Inténtalo de nuevo.", "warning");
             _pinHash = await _hashPin(newPin);
             localStorage.setItem('appPinHash', _pinHash);
-            localStorage.setItem('appPinLen', String(newPin.length));
             localStorage.removeItem('appPin'); // asegurar que no quede texto plano
             closePinChangeModal();
             showAlert("PIN actualizado correctamente. ✅", "success");

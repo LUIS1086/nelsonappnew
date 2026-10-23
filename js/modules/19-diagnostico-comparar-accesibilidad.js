@@ -7,7 +7,7 @@
             if (!el) return;
             try {
                 const canvas = await html2canvas(el, { backgroundColor: '#0a0e1a', scale: 2, useCORS: true });
-                await downloadImageCompat(canvas, `reporte_mensual_${hoyYMD()}.png`);
+                await downloadImageCompat(canvas, `reporte_mensual_${new Date().toISOString().slice(0,10)}.png`);
             } catch(e) { showAlert('Error al generar imagen', 'error'); }
         }
 

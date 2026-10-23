@@ -24,7 +24,8 @@
             const colors = { info: '#3b82f6', success: '#10b981', warning: '#f97316', error: '#ef4444' };
             const icons = { info: 'ℹ️', success: '✅', warning: '⚠️', error: '❌' };
             const toast = document.createElement('div');
-            toast.style.cssText = `position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);background:${colors[type]};color:white;padding:10px 18px;border-radius:999px;font-size:12px;font-weight:800;z-index:99999;opacity:0;transition:all 0.3s ease;max-width:90vw;text-align:center;box-shadow:0 8px 20px rgba(0,0,0,0.4);`;
+            // texto casi negro: el blanco sobre estos colores daba 2.6-3.7:1
+            toast.style.cssText = `position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);background:${colors[type]};color:#1a0f04;padding:10px 18px;border-radius:999px;font-size:12px;font-weight:800;z-index:99999;opacity:0;transition:all 0.3s ease;max-width:90vw;text-align:center;box-shadow:0 8px 20px rgba(0,0,0,0.4);`;
             toast.innerText = `${icons[type]} ${msg}`;
             document.body.appendChild(toast);
             requestAnimationFrame(() => { toast.style.opacity = '1'; toast.style.transform = 'translateX(-50%) translateY(0)'; });
@@ -51,7 +52,7 @@
         async function checkUnclaimedRepairs() {
             try {
                 // Solo si ya se mostró hoy, no repetir (una sola vez al día para no molestar)
-                const today = hoyYMD();
+                const today = new Date().toISOString().slice(0, 10);
                 const lastShown = localStorage.getItem('unclaimedCheckDate');
                 if (lastShown === today) return;
 

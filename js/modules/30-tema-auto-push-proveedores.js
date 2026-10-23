@@ -141,7 +141,9 @@
                 list.innerHTML = '<p class="text-center text-slate-500 text-sm py-10">Sin proveedores registrados aún.<br>Toca "+ AGREGAR" para empezar.</p>';
                 return;
             }
-            list.innerHTML = provs.sort((a,b) => (b.rating||5)-(a.rating||5)).map(p => `
+            list.innerHTML = provs.sort((a,b) => (b.rating||5)-(a.rating||5)).map(p => {
+                const wa = waPhone(p.tel);
+                return `
                 <div class="bg-black/30 rounded-2xl p-4 border border-white/5">
                     <div class="flex justify-between items-start mb-2">
                         <div class="flex-1 min-w-0">
@@ -149,7 +151,7 @@
                             <p class="text-[10px] text-teal-400 font-bold">${stars(p.rating)}</p>
                         </div>
                         <div class="flex gap-1 flex-shrink-0 ml-2">
-                            ${p.tel ? `<button onclick="window.open('https://wa.me/57${p.tel.replace(/\\D/g,'')}','_blank')" class="bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 w-8 h-8 rounded-xl text-sm active:scale-95 transition" title="WhatsApp">💬</button>` : ''}
+                            ${wa ? `<button onclick="window.open('https://wa.me/${wa}','_blank')" class="bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 w-8 h-8 rounded-xl text-sm active:scale-95 transition" title="WhatsApp">💬</button>` : ''}
                             <button onclick="openProveedorForm(${p.id})" class="bg-blue-600/20 border border-blue-500/30 text-blue-400 w-8 h-8 rounded-xl text-sm active:scale-95 transition">✏️</button>
                             <button onclick="deleteProveedor(${p.id})" class="bg-rose-600/20 border border-rose-500/30 text-rose-400 w-8 h-8 rounded-xl text-sm active:scale-95 transition">🗑️</button>
                         </div>
@@ -158,7 +160,8 @@
                     ${p.catalogo ? `<p class="text-[10px] text-slate-400 mt-1">📦 ${escapeHtml(p.catalogo)}</p>` : ''}
                     ${p.tiempo ? `<p class="text-[10px] text-amber-400 font-bold mt-1">⏱ Entrega: ${p.tiempo} día${p.tiempo>1?'s':''}</p>` : ''}
                     ${p.notas ? `<p class="text-[10px] text-slate-500 mt-1 italic">${escapeHtml(p.notas)}</p>` : ''}
-                </div>`).join('');
+                </div>`;
+            }).join('');
         }
 
         async function openProveedorForm(id) {

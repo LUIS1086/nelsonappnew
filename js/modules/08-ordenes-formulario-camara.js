@@ -3,10 +3,15 @@
    (extraido sin cambios de index.html; el orden de carga importa) */
         // Modificar updateTotal, etc. (resto del código igual excepto funciones de mejora 6 y 7)
         async function updateTotal() {
-            // Caja = efectivo real (ventas + adelantos + cobros de entrega + abonos de cartera − gastos).
-            // Una sola definición para toda la app: getCajaResumen() en core/01.
-            const caja = await getCajaResumen();
-            document.getElementById('total-cash').innerText = getCurrency() + caja.neto.toLocaleString();
+            const lastCierre = Number(localStorage.getItem('lastCierreCaja')) || 0;
+            const orders = await getAll('orders');
+            const sales = await getAll('sales');
+            const gastos = await getAll('gastos');
+            const totalOrders = orders.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha) > lastCierre).reduce((a,b) => a + (b.val||0), 0);
+            const totalSales = sales.filter(v => v.fecha > lastCierre && v.tipo !== 'adelanto' && v.tipo !== 'cobro_entrega').reduce((a,b) => a + (b.val||0), 0);
+            const totalGastos = gastos.filter(g => g.fecha > lastCierre).reduce((a,b) => a + (b.val||0), 0);
+            const total = totalOrders + totalSales - totalGastos;
+            document.getElementById('total-cash').innerText = '$' + total.toLocaleString();
             if (!document.getElementById('view-ventas').classList.contains('hidden')) renderMovimientos();
             updateMetaBar();
         }

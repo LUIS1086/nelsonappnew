@@ -321,8 +321,13 @@
                 if (typeof showAlert === 'function') showAlert('Teléfono inválido', 'warning');
                 return;
             }
-            // Si ya tiene prefijo país (12+ dígitos) lo dejo, si no agrego 57 de Colombia
-            const withCountry = digitsOnly.length >= 11 ? digitsOnly : ('57' + digitsOnly);
+            // Normalizar a formato internacional (wa.me): 10 dígitos → +57; si ya trae
+            // código de país se respeta tal cual (nunca duplicar el 57).
+            const withCountry = waPhone(digitsOnly);
+            if (!withCountry) {
+                if (typeof showAlert === 'function') showAlert('Teléfono inválido', 'warning');
+                return;
+            }
             const url = `https://wa.me/${withCountry}?text=${encodeURIComponent(message)}`;
             try { sessionStorage.setItem('_waJump','1'); } catch(e) {}
             window.open(url, '_blank');
@@ -435,7 +440,7 @@
             const ahora = Date.now();
             const hoy = new Date();
             const ctx = {
-                fechaActual: hoyYMD(hoy),
+                fechaActual: hoy.toISOString().slice(0,10),
                 errores: []
             };
 
@@ -447,7 +452,7 @@
             const T_HACE_7_DIAS  = ahora - (7*86400000);
             const T_HACE_30_DIAS = ahora - (30*86400000);
             const T_HACE_90_DIAS = ahora - (90*86400000);
-            const tsToFecha = (ts) => ts ? hoyYMD(ts) : '';
+            const tsToFecha = (ts) => ts ? new Date(ts).toISOString().slice(0,10) : '';
 
             // Leer todo con catch individual
             let orders=[], stock=[], sales=[], gastos=[], clientes=[], payments=[];
@@ -620,19 +625,19 @@
                         }))
                 };
 
-                // ═══════ INVENTARIO (stock: n=nombre, p=precio, c=cantidad, min=minimo) ═══════
-                const stockBajo    = stock.filter(s => (s.c || 0) <= (s.min || 3) && (s.c || 0) > 0);
-                const stockAgotado = stock.filter(s => (s.c || 0) <= 0);
+                // ═══════ INVENTARIO (stock: n=nombre, p=precio, q=cantidad, minStock=minimo, code=codigo) ═══════
+                const stockBajo    = stock.filter(s => Number(s.q || 0) > 0 && Number(s.q || 0) <= Number(s.minStock || 3));
+                const stockAgotado = stock.filter(s => Number(s.q || 0) <= 0);
                 ctx.inventario = {
                     totalProductos: stock.length,
-                    valorInventarioAProducto: stock.reduce((s,i) => s + ((i.c||0) * (i.p||0)), 0),
+                    valorInventarioAProducto: stock.reduce((s,i) => s + ((i.q||0) * (i.p||0)), 0),
                     productosStockBajo: stockBajo.length,
                     productosAgotados: stockAgotado.length,
                     itemsStockBajo: stockBajo.slice(0, 15).map(s => ({
-                        nombre: s.n, cantidad: s.c, minimo: s.min, precio: s.p, codigo: s.codigo
+                        nombre: s.n, cantidad: s.q, minimo: s.minStock, precio: s.p, codigo: s.code
                     })),
                     itemsAgotados: stockAgotado.slice(0, 10).map(s => ({
-                        nombre: s.n, precio: s.p, codigo: s.codigo
+                        nombre: s.n, precio: s.p, codigo: s.code
                     }))
                 };
 
@@ -776,7 +781,7 @@ EJEMPLOS DE CUÁNDO GENERAR ACCIONES:
 GUÍA DE DATOS (cómo está organizado el CONTEXTO JSON):
 
 • **Ingresos / Ventas** → "ingresos". Todo el dinero que entró a caja. Usa "ingresos.totalEsteMes", "ingresos.totalHoy", "ingresos.totalUltimos7Dias", "ingresos.totalMesPasado".
-• **Órdenes del taller** → "ordenes". Estados reales: recibido, revisión, reparado, entregado, no-reparable. (No inventes estados como "diagnostico", "reparando" o "listo".)
+• **Órdenes del taller** → "ordenes". Estados: recibido, diagnostico, presupuesto, reparando, listo, entregado, no-reparable.
 • **Deudas / Cartera** → "cuentasPorCobrar". Cada item tiene "cliente", "telefono", "saldoPendiente", "orden", "equipo".
 • **Inventario** → "inventario". "itemsStockBajo", "itemsAgotados".
 • **Gastos** → "gastos".
