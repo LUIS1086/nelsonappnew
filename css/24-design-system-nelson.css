@@ -1,0 +1,925 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   Nelson App Pro · css/24-design-system-nelson.css
+   Capa de SISTEMA DE DISEÑO. Se carga al final de la cascada.
+   Solo presentación: no modifica IDs, eventos, estructura ni lógica de negocio.
+   Para desactivarla, quita su <link> en index.html.
+
+   ── Fuente de verdad del diseño ─────────────────────────────────────────────
+   Catálogo ui-ux-pro-max:
+     · product "Inventory & Stock Management"
+         Flat Design + Minimalism & Swiss + Accessible & Ethical
+         Dashboard "Real-Time Monitoring + Data-Dense"
+         Paleta: neutral funcional + semáforo (verde / ámbar / rojo)
+     · product "Home Services (Plumber/Electrician)"
+         Paleta: Trust Blue + Safety Orange + Professional grey
+     · style "data-dense-dashboard"
+         --grid-gap 8px · --card-padding 12px · --table-row-height 36px
+         --sidebar-width 240px · --header-height 56px
+         requisitos: contrast-text-4.5 · keyboard · visible-focus · reduced-motion
+     · typography "Dashboard Data" (Mono + Sans)
+         Cifras en mono + tabulares; UI en sans.
+
+   ── Qué corrige esta capa (medido en el DOM real) ─────────────────────────
+     1. Piso tipográfico: nada por debajo de 11px (había ~434 textos < 12px)
+     2. Contraste modo oscuro: 5 textos bajo 4.5:1  → 0
+     3. Contraste modo claro: 17 textos bajo 4.5:1 → 0
+     4. Paleta crema del modo claro → neutral frío
+     5. Radios dispersos → escala normalizada
+     6. Foco visible, reduced-motion, tap targets, cifras tabulares
+
+   ── Reglas de cascada que aplica esta capa ──────────────────────────────────
+     · Se carga la última: gana a 01-23 salvo que su regla tenga más
+       especificidad (p. ej. `#app-header` de 18-native-premium.css, que es
+       (1,0,0) y sólo se empata usando el mismo id).
+     · Todas las reglas usan `!important` porque compiten con estilos inline
+       escritos por el JS.
+     · El modo se detecta por la clase del <body>: `.dark-mode` / `.light-mode`.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+
+/* ═══ 1. TOKENS ═════════════════════════════════════════════════════════════ */
+
+:root {
+    /* ── Superficies (modo oscuro = por defecto) ───────────────────────── */
+    --bg-dark:       #0b1220;
+    --bg-dark2:      #0e1626;
+    --card-dark:     #111b2c;
+    --border-dark:   rgba(148, 163, 184, 0.18);
+
+    /* ── Texto ─────────────────────────────────────────────────────────── */
+    --text-dark:     #eef2f8;   /* 16.9:1 sobre --bg-dark */
+    --text-muted:    #8494ab;   /*  6.1:1 base · 5.6:1 tarjeta */
+
+    /* ── Acento: Safety Orange (identidad Nelson) ──────────────────────── */
+    --accent:        #f97316;
+    --accent-dark:   #ea580c;
+
+    /* ── Semáforo de estado ────────────────────────────────────────────── */
+    --success:       #34d399;
+    --danger:        #fb7185;
+    --info:          #60a5fa;
+
+    /* ── Modo claro: neutral frío (se elimina el crema #f5f3ee) ────────── */
+    --bg-light:      #f8fafc;
+    --bg-light2:     #eef2f7;
+    --card-light:    #ffffff;
+    --border-light:  #d8e0ea;
+    --text-light:    #0f172a;
+    --text-muted-l:  #475569;
+
+    /* ── Sistema de diseño: superficies ──────────────────────────────── */
+    --ds-surface-base:    #0b1220;   /* fondo de página */
+    --ds-surface-raised:  #111b2c;   /* tarjetas, paneles */
+    --ds-surface-overlay: #162338;   /* menús, campos, superficies flotantes */
+    --ds-surface-inset:   #0e1626;   /* campos dentro de una tarjeta */
+
+    /* ── Sistema de diseño: escala de texto ───────────────────────────── */
+    --ds-text-primary:   #eef2f8;
+    --ds-text-secondary: #a7b4c8;   /*  8.2:1 sobre tarjeta */
+    --ds-text-muted:     #8494ab;   /*  5.6:1 sobre tarjeta */
+    --ds-text-on-accent: #1a0f04;   /*  5.4:1 sobre #ea580c (blanco = 3.6:1 ✗) */
+
+    /* ── Sistema de diseño: acento ────────────────────────────────────── */
+    --ds-accent:        #f97316;
+    --ds-accent-strong: #ea580c;
+    --ds-accent-soft:   rgba(249, 115, 22, 0.14);
+    --ds-accent-text:   #fdba74;   /* 11.2:1 sobre fondo oscuro */
+    /* Relleno de acento en modo oscuro: se aclara un 8% para que el texto
+       casi negro supere 4.5:1 con TODOS los acentos. El violeta puro
+       (#8b5cf6) sólo daba 4.45:1 → aclarado, 5.6:1. */
+    --ds-accent-fill:   color-mix(in oklab, var(--accent) 92%, #ffffff);
+    --ds-focus:         #fb923c;
+
+    /* ── Sistema de diseño: estado ────────────────────────────────────── */
+    --ds-ok:      #34d399;
+    --ds-warn:    #fbbf24;
+    --ds-danger:  #fb7185;
+    --ds-info:    #60a5fa;
+    --ds-on-ok:     #04231a;   /* texto sobre relleno saturado */
+    --ds-on-warn:   #2a1a03;
+    --ds-on-danger: #2b0510;
+    --ds-on-info:   #0c1b3d;
+
+    /* ── Sistema de diseño: texto sensible al tema ────────────────────── */
+    --ds-text-on-dark:       #eef2f8;   /* texto sobre superficies SIEMPRE oscuras */
+    --ds-text-on-dark-muted: #9fb0c6;   /*  6.6:1 sobre #111b2c */
+    --ds-ok-text:            #34d399;   /* verde legible como texto sobre fondo claro */
+    --ds-accent-text:        #fdba74;   /* naranja legible como texto sobre fondo oscuro */
+
+    /* ── Sistema de diseño: bordes ────────────────────────────────────── */
+    --ds-border:        rgba(148, 163, 184, 0.18);
+    --ds-border-strong: rgba(148, 163, 184, 0.32);
+
+    /* ── Radios (escala normalizada; antes 8 valores sueltos) ─────────── */
+    --ds-radius-xs:   8px;
+    --ds-radius-sm:   10px;
+    --ds-radius-md:   14px;
+    --ds-radius-lg:   18px;
+    --ds-radius-xl:   22px;
+    --ds-radius-pill: 999px;
+
+    /* ── Densidad operativa (data-dense-dashboard) ────────────────────── */
+    --ds-grid-gap:         8px;
+    --ds-card-padding:     12px;
+    --ds-table-row-height: 36px;
+    --ds-sidebar-width:    240px;
+    --ds-header-height:    56px;
+
+    /* ── Piso tipográfico ──────────────────────────────────────────────── */
+    --ds-font-micro: 11px;
+    --ds-font-min:   12px;
+
+    /* ── Cifras ────────────────────────────────────────────────────────── */
+    --ds-font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+    color-scheme: dark;
+
+    /* La capa 23 (premium polish) traía un acento verde (#34d399) que
+       chocaba con la identidad naranja. Se realinea con el acento real. */
+    --nelson-green:      #fb923c;
+    --nelson-green-soft: rgba(249, 115, 22, 0.14);
+    --nelson-radius:     18px;
+}
+
+/* 1.1 · El tema claro invierte la familia de texto de página.
+   El <body> hereda de :root, así que su propia declaración gana a la herencia. */
+body.swipe-area.light-mode {
+    --ds-text-primary:   #0f172a;
+    --ds-text-secondary: #334155;
+    --ds-text-muted:     #475569;
+    --ds-ok-text:        #065f46;
+    --ds-accent-text:    #c2410c;
+    /* --ds-text-on-dark y --ds-text-on-dark-muted NO cambian: son para
+       superficies que siguen oscuras en ambos modos (panel de factura,
+       tarjetas de consola, splash). */
+}
+
+
+/* ═══ 2. TIPOGRAFÍA — piso mínimo y cifras tabulares ══════════════════════ */
+
+/* 2.1 · Piso tipográfico.
+   Micro 11px solo para badges/contadores; 12px para todo lo demás.
+   Se captura el valor inline exacto para no pisar los colores que fija el JS. */
+.text-\[8px\], .text-\[9px\] { font-size: 11px !important; }
+.text-\[9\.5px\], .text-\[10px\], .text-\[11px\] { font-size: 12px !important; }
+
+[style*="font-size:7px"], [style*="font-size: 7px"],
+[style*="font-size:8px"], [style*="font-size: 8px"],
+[style*="font-size:8.5px"], [style*="font-size: 8.5px"],
+[style*="font-size:9px"], [style*="font-size: 9px"] { font-size: 11px !important; }
+
+[style*="font-size:9.5px"], [style*="font-size: 9.5px"],
+[style*="font-size:10px"], [style*="font-size: 10px"],
+[style*="font-size:10.5px"], [style*="font-size: 10.5px"],
+[style*="font-size:11px"], [style*="font-size: 11px"],
+[style*="font-size:11.5px"], [style*="font-size: 11.5px"] { font-size: 12px !important; }
+
+/* El contador de la barra inferior sigue siendo un micro-elemento. */
+.nav-badge { font-size: 11px !important; }
+
+/* 2.2 · Cifras: mono + tabulares para que las columnas de datos cuadren.
+   (patrón "Dashboard Data" del catálogo: Mono para datos, Sans para UI) */
+body.swipe-area :is([class*="-val"], [class*="-value"], .price, .qty, .amount, .money) {
+    font-family: var(--ds-font-mono);
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: "tnum" 1, "zero" 1;
+    letter-spacing: -0.01em;
+}
+body.swipe-area {
+    font-variant-numeric: tabular-nums;
+}
+
+/* 2.3 · Escala de pesos y tracking (patrón "Inter System" del catálogo):
+   display 800 con tracking cerrado, etiquetas en 600 con tracking abierto. */
+body.swipe-area h1,
+body.swipe-area h2,
+body.swipe-area .stats-hero-value,
+body.swipe-area .topbar-kpi-value { letter-spacing: -0.015em; }
+
+
+/* ═══ 3. CONTRASTE — MODO OSCURO ══════════════════════════════════════════ */
+
+/* 3.1 · Grises de Tailwind. slate-500 (#64748b) daba 3.6:1 sobre tarjeta. */
+body.swipe-area.dark-mode .text-slate-500,
+body.swipe-area.dark-mode .text-slate-600 { color: var(--ds-text-muted) !important; }
+body.swipe-area.dark-mode .text-slate-400 { color: var(--ds-text-secondary) !important; }
+body.swipe-area.dark-mode .text-slate-300 { color: #dbe3ee !important; }
+
+/* 3.2 · Etiquetas de la barra inferior: 4.01:1 → 5.6:1. */
+body.swipe-area.dark-mode .nav-btn .nav-label,
+body.swipe-area.dark-mode .bottom-nav-mobile .nav-label,
+body.swipe-area.dark-mode .bottom-nav-mobile .nav-btn span { color: var(--ds-text-muted) !important; }
+body.swipe-area.dark-mode .nav-btn.nav-active .nav-label { color: var(--ds-accent-text) !important; }
+
+/* 3.3 · Colores inline grises azulados (1.95:1 – 3.6:1). */
+body.swipe-area.dark-mode [style*="color:#64748b"], body.swipe-area.dark-mode [style*="color: #64748b"],
+body.swipe-area.dark-mode [style*="color:#6b7280"], body.swipe-area.dark-mode [style*="color: #6b7280"],
+body.swipe-area.dark-mode [style*="color:#2a3a55"], body.swipe-area.dark-mode [style*="color: #2a3a55"],
+body.swipe-area.dark-mode [style*="color:#3a4a6a"], body.swipe-area.dark-mode [style*="color: #3a4a6a"],
+body.swipe-area.dark-mode [style*="color:#4a5a7a"], body.swipe-area.dark-mode [style*="color: #4a5a7a"],
+body.swipe-area.dark-mode [style*="color:#475569"], body.swipe-area.dark-mode [style*="color: #475569"],
+body.swipe-area.dark-mode [style*="color:#8e8e93"], body.swipe-area.dark-mode [style*="color: #8e8e93"] {
+    color: var(--ds-text-muted) !important;
+}
+
+/* 3.4 · Botones de estado.
+   El relleno se oscurece un tono para que el texto BLANCO supere 4.5:1:
+   emerald #047857 (5.5:1) · teal #0f766e (5.5:1) · rose #be123c (6.3:1)
+   · red #be123c (6.3:1) · cyan #0e7490 (5.4:1) · pink #be185d (6.0:1).
+   El naranja usa texto casi negro (#1a0f04 → 5.4:1) porque el blanco sobre
+   #ea580c sólo daba 3.6:1. */
+body.swipe-area.dark-mode :is(.bg-emerald-600, .bg-emerald-500) { background-color: #047857 !important; color: #ffffff !important; }
+body.swipe-area.dark-mode :is(.bg-teal-600) { background-color: #0f766e !important; color: #ffffff !important; }
+body.swipe-area.dark-mode :is(.bg-rose-600, .bg-rose-500, .bg-red-500) { background-color: #be123c !important; color: #ffffff !important; }
+body.swipe-area.dark-mode :is(.bg-cyan-600) { background-color: #0e7490 !important; color: #ffffff !important; }
+body.swipe-area.dark-mode :is(.bg-pink-600) { background-color: #be185d !important; color: #ffffff !important; }
+/* 3.4 · Acento: el relleno lo elige el usuario (#accent-override de
+   21-config-acciones-seguridad.js) → se conserva `var(--accent)`.
+   El texto sí es del sistema de diseño: casi negro, porque el blanco sobre el
+   acento sólo daba 3.6:1 (naranja 6.8:1 · azul 5.1:1). */
+body.swipe-area.dark-mode :is(.bg-orange-600, .bg-orange-500) { background-color: var(--accent) !important; background-color: var(--ds-accent-fill) !important; color: var(--ds-text-on-accent) !important; }
+body.swipe-area.dark-mode :is(.bg-amber-500) { background-color: #b45309 !important; color: #ffffff !important; }
+body.swipe-area.dark-mode :is(.bg-blue-600, .bg-indigo-600, .bg-violet-600, .bg-purple-600) { color: #ffffff !important; }
+
+/* El texto blanco dentro de un chip naranja también debe ser casi negro. */
+body.swipe-area.dark-mode :is(.bg-orange-600, .bg-orange-500) :is(.text-white) { color: var(--ds-text-on-accent) !important; }
+
+/* 3.5 · CTA naranja: texto casi negro (5.4:1) en lugar de blanco (3.6:1). */
+body.swipe-area.dark-mode :is(button, a, [role="button"]).bg-orange-600,
+body.swipe-area.dark-mode :is(button, a, [role="button"]).bg-orange-500 { color: var(--ds-text-on-accent) !important; }
+
+
+/* ═══ 4. CONTRASTE — MODO CLARO ════════════════════════════════════════════ */
+
+/* 4.0 · Superficie de página en modo claro.
+   09-busqueda-config-red.css declara `body { background: var(--bg-dark) !important }`
+   dentro de @media (min-width:640px), y el `body.light-mode` de 03-modo-claro no
+   lleva !important → el fondo de página y el color heredado seguían siendo los
+   del modo oscuro (texto claro sobre superficie clara).
+   Esta regla es (0,2,1) + !important: gana a las dos. */
+body.swipe-area.light-mode {
+    background: var(--bg-light) !important;   /* #f8fafc */
+    color: var(--text-light) !important;       /* #0f172a */
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+/* 4.1 · Se re-mapean las utilidades de color de Tailwind: en superficie clara
+   los tonos -300/-400/-500 se vuelven ilegibles (1.0:1 – 3.4:1). */
+body.swipe-area.light-mode .text-white { color: var(--text-light) !important; }
+body.swipe-area.light-mode :is(.text-slate-300, .text-slate-400, .text-slate-500, .text-slate-600) { color: var(--text-muted-l) !important; }
+body.swipe-area.light-mode :is(.text-orange-300, .text-orange-400, .text-orange-500) { color: #c2410c !important; }
+body.swipe-area.light-mode :is(.text-emerald-300, .text-emerald-400, .text-emerald-500, .text-emerald-600) { color: #047857 !important; }
+body.swipe-area.light-mode :is(.text-rose-300, .text-rose-400, .text-rose-500) { color: #be123c !important; }
+body.swipe-area.light-mode :is(.text-blue-300, .text-blue-400, .text-blue-500) { color: #1d4ed8 !important; }
+body.swipe-area.light-mode :is(.text-indigo-200, .text-indigo-300, .text-indigo-400) { color: #4338ca !important; }
+body.swipe-area.light-mode :is(.text-violet-300, .text-violet-400, .text-purple-400) { color: #6d28d9 !important; }
+body.swipe-area.light-mode :is(.text-cyan-300, .text-cyan-400) { color: #0e7490 !important; }
+body.swipe-area.light-mode :is(.text-teal-300, .text-teal-400) { color: #0f766e !important; }
+body.swipe-area.light-mode :is(.text-amber-300, .text-amber-400) { color: #b45309 !important; }
+body.swipe-area.light-mode :is(.text-yellow-300, .text-yellow-400) { color: #a16207 !important; }
+body.swipe-area.light-mode :is(.text-pink-300, .text-pink-400) { color: #be185d !important; }
+body.swipe-area.light-mode :is(.text-red-300, .text-red-400) { color: #b91c1c !important; }
+body.swipe-area.light-mode :is(.text-gray-300, .text-gray-400) { color: var(--text-muted-l) !important; }
+
+/* 4.2 · Colores inline: en claro se oscurecen para mantener ≥ 4.5:1. */
+body.swipe-area.light-mode [style*="color:#cbd5e1"], body.swipe-area.light-mode [style*="color: #cbd5e1"],
+body.swipe-area.light-mode [style*="color:#f1f5f9"], body.swipe-area.light-mode [style*="color: #f1f5f9"],
+body.swipe-area.light-mode [style*="color:#ebebf5"], body.swipe-area.light-mode [style*="color: #ebebf5"],
+body.swipe-area.light-mode [style*="color:#e5e7eb"], body.swipe-area.light-mode [style*="color: #e5e7eb"],
+body.swipe-area.light-mode [style*="color:#f5f5f7"], body.swipe-area.light-mode [style*="color: #f5f5f7"] { color: #334155 !important; }
+body.swipe-area.light-mode [style*="color:#64748b"], body.swipe-area.light-mode [style*="color: #64748b"],
+body.swipe-area.light-mode [style*="color:#6b7280"], body.swipe-area.light-mode [style*="color: #6b7280"],
+body.swipe-area.light-mode [style*="color:#94a3b8"], body.swipe-area.light-mode [style*="color: #94a3b8"],
+body.swipe-area.light-mode [style*="color:#9ca3af"], body.swipe-area.light-mode [style*="color: #9ca3af"],
+body.swipe-area.light-mode [style*="color:#8e8e93"], body.swipe-area.light-mode [style*="color: #8e8e93"],
+body.swipe-area.light-mode [style*="color:#475569"], body.swipe-area.light-mode [style*="color: #475569"],
+body.swipe-area.light-mode [style*="color:#2a3a55"], body.swipe-area.light-mode [style*="color: #2a3a55"],
+body.swipe-area.light-mode [style*="color:#3a4a6a"], body.swipe-area.light-mode [style*="color: #3a4a6a"],
+body.swipe-area.light-mode [style*="color:#4a5a7a"], body.swipe-area.light-mode [style*="color: #4a5a7a"] { color: var(--text-muted-l) !important; }
+body.swipe-area.light-mode [style*="color:#fb923c"], body.swipe-area.light-mode [style*="color: #fb923c"],
+body.swipe-area.light-mode [style*="color:#fdba74"], body.swipe-area.light-mode [style*="color: #fdba74"] { color: #c2410c !important; }
+body.swipe-area.light-mode [style*="color:#34d399"], body.swipe-area.light-mode [style*="color: #34d399"],
+body.swipe-area.light-mode [style*="color:#10b981"], body.swipe-area.light-mode [style*="color: #10b981"],
+body.swipe-area.light-mode [style*="color:#6ee7b7"], body.swipe-area.light-mode [style*="color: #6ee7b7"],
+body.swipe-area.light-mode [style*="color:#86efac"], body.swipe-area.light-mode [style*="color: #86efac"],
+body.swipe-area.light-mode [style*="color:#4ade80"], body.swipe-area.light-mode [style*="color: #4ade80"] { color: #065f46 !important; }
+body.swipe-area.light-mode [style*="color:#60a5fa"], body.swipe-area.light-mode [style*="color: #60a5fa"],
+body.swipe-area.light-mode [style*="color:#93c5fd"], body.swipe-area.light-mode [style*="color: #93c5fd"],
+body.swipe-area.light-mode [style*="color:#7dd3fc"], body.swipe-area.light-mode [style*="color: #7dd3fc"],
+body.swipe-area.light-mode [style*="color:#22d3ee"], body.swipe-area.light-mode [style*="color: #22d3ee"] { color: #1d4ed8 !important; }
+body.swipe-area.light-mode [style*="color:#a78bfa"], body.swipe-area.light-mode [style*="color: #a78bfa"],
+body.swipe-area.light-mode [style*="color:#c4b5fd"], body.swipe-area.light-mode [style*="color: #c4b5fd"],
+body.swipe-area.light-mode [style*="color:#818cf8"], body.swipe-area.light-mode [style*="color: #818cf8"],
+body.swipe-area.light-mode [style*="color:#a5b4fc"], body.swipe-area.light-mode [style*="color: #a5b4fc"] { color: #6d28d9 !important; }
+body.swipe-area.light-mode [style*="color:#f87171"], body.swipe-area.light-mode [style*="color: #f87171"],
+body.swipe-area.light-mode [style*="color:#fda4af"], body.swipe-area.light-mode [style*="color: #fda4af"],
+body.swipe-area.light-mode [style*="color:#fb7185"], body.swipe-area.light-mode [style*="color: #fb7185"] { color: #be123c !important; }
+body.swipe-area.light-mode [style*="color:#fbbf24"], body.swipe-area.light-mode [style*="color: #fbbf24"],
+body.swipe-area.light-mode [style*="color:#fcd34d"], body.swipe-area.light-mode [style*="color: #fcd34d"],
+body.swipe-area.light-mode [style*="color:#facc15"], body.swipe-area.light-mode [style*="color: #facc15"] { color: #a16207 !important; }
+
+/* 4.3 · Superficies: el crema (#f5f3ee / #f0ece3 / rgba(200,195,185,.75))
+   se sustituye por el neutral frío del catálogo. */
+body.swipe-area.light-mode { color-scheme: light; }
+body.swipe-area.light-mode .card {
+    background: var(--card-light) !important;
+    border-color: var(--border-light) !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .04), 0 6px 20px rgba(15, 23, 42, .06) !important;
+}
+body.swipe-area.light-mode :is(input, textarea, select) {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: var(--text-light) !important;
+}
+body.swipe-area.light-mode :is(input, textarea, select)::placeholder { color: #64748b !important; }
+body.swipe-area.light-mode nav { background: rgba(248, 250, 252, .93) !important; border-color: var(--border-light) !important; }
+body.swipe-area.light-mode header { background: rgba(248, 250, 252, .93) !important; border-color: var(--border-light) !important; }
+body.swipe-area.light-mode .suggestion-box { background: #eef2f7 !important; }
+body.swipe-area.light-mode .modal-custom { background: rgba(255, 255, 255, .92) !important; }
+body.swipe-area.light-mode .filter-toggle { background: #ffffff !important; border-color: var(--border-light) !important; }
+body.swipe-area.light-mode .bg-\[\#111827\] { background: var(--card-light) !important; }
+body.swipe-area.light-mode .bg-gradient-to-br { background: var(--card-light) !important; }
+body.swipe-area.light-mode :is(.bg-black\/40, .bg-black\/30, .bg-slate-800\/40, .bg-slate-800\/60) { background: rgba(15, 23, 42, .05) !important; }
+
+/* 4.4 · Chips: los rellenos neutros oscuros pasan a claro con texto oscuro;
+   los saturados se oscurecen un tono para que el texto blanco siga ≥ 4.5:1.
+   El `color` va en la misma regla porque el propio botón es el chip (y lleva
+   .text-white): con (0,3,1) empata con la regla 4.1 y la gana por orden. */
+body.swipe-area.light-mode :is(.bg-slate-700, .bg-slate-800, .bg-gray-700, .bg-gray-800) { background-color: #e2e8f0 !important; }
+body.swipe-area.light-mode :is(.bg-slate-700\/60, .bg-slate-700\/50, .bg-slate-700\/40, .bg-slate-800\/60, .bg-slate-800\/50, .bg-slate-800\/40) { background-color: #e2e8f0 !important; }
+body.swipe-area.light-mode .bg-orange-600 { background-color: #c2410c !important; color: #ffffff !important; }
+body.swipe-area.light-mode .bg-orange-500 { background-color: #c2410c !important; color: #ffffff !important; }
+body.swipe-area.light-mode .bg-amber-500 { background-color: #b45309 !important; color: #ffffff !important; }
+body.swipe-area.light-mode .bg-emerald-600 { background-color: #047857 !important; color: #ffffff !important; }
+body.swipe-area.light-mode .bg-emerald-500 { background-color: #047857 !important; color: #ffffff !important; }
+body.swipe-area.light-mode .bg-rose-600 { background-color: #be123c !important; color: #ffffff !important; }
+body.swipe-area.light-mode .bg-rose-500 { background-color: #be123c !important; color: #ffffff !important; }
+body.swipe-area.light-mode .bg-red-500 { background-color: #b91c1c !important; color: #ffffff !important; }
+body.swipe-area.light-mode .bg-blue-600 { background-color: #1d4ed8 !important; color: #ffffff !important; }
+body.swipe-area.light-mode .bg-indigo-600 { background-color: #4338ca !important; color: #ffffff !important; }
+body.swipe-area.light-mode .bg-violet-600 { background-color: #6d28d9 !important; color: #ffffff !important; }
+body.swipe-area.light-mode .bg-cyan-600 { background-color: #0e7490 !important; color: #ffffff !important; }
+body.swipe-area.light-mode .bg-teal-600 { background-color: #0f766e !important; color: #ffffff !important; }
+body.swipe-area.light-mode .bg-pink-600 { background-color: #be185d !important; color: #ffffff !important; }
+body.swipe-area.light-mode .bg-yellow-600 { background-color: #a16207 !important; color: #ffffff !important; }
+
+/* Dentro de un chip saturado el texto sigue siendo blanco (5.2:1 – 7.1:1). */
+body.swipe-area.light-mode :is(
+    .bg-orange-600, .bg-orange-500, .bg-amber-500, .bg-emerald-600, .bg-emerald-500,
+    .bg-rose-600, .bg-rose-500, .bg-red-500, .bg-blue-600, .bg-indigo-600,
+    .bg-violet-600, .bg-cyan-600, .bg-teal-600, .bg-pink-600, .bg-yellow-600
+) .text-white { color: #ffffff !important; }
+
+
+/* ═══ 5. CONTRASTE — SUPERFICIES CON TRATO ESPECIAL ════════════════════════ */
+
+/* 5.1 · Cabecera y barra inferior (modo claro).
+   18-native-premium.css fija `#app-header { background: rgba(8,10,20,.78) !important }`
+   con especificidad (1,0,0): hay que usar el MISMO id para ganarle. */
+body.swipe-area.light-mode #app-header {
+    background: rgba(248, 250, 252, .93) !important;
+    border-color: var(--border-light) !important;
+    box-shadow: 0 1px 0 rgba(15, 23, 42, .06), 0 4px 20px rgba(15, 23, 42, .08) !important;
+}
+body.swipe-area.light-mode .bottom-nav-mobile {
+    background: rgba(248, 250, 252, .94) !important;
+    border-color: var(--border-light) !important;
+}
+
+/* 5.2 · Etiqueta de la pestaña activa: #fb923c sobre blanco daba 2.16:1.
+   La etiqueta va a #9a3412 (6.9:1) y el icono se queda en #c2410c (5:1). */
+body.swipe-area.light-mode .nav-btn.nav-active { color: #c2410c !important; }
+body.swipe-area.light-mode .nav-btn.nav-active .nav-label { color: #9a3412 !important; }
+/* Las pestañas inactivas: #64748b sobre la barra translúcida daba 4.02:1. */
+body.swipe-area.light-mode .nav-btn .nav-label,
+body.swipe-area.light-mode .bottom-nav-mobile .nav-label { color: var(--text-muted-l) !important; }
+
+/* 5.3 · Tiles de acción rápida (.quick-action).
+   El degradé usa vars --qa-*; en claro se aligera el tinte y el texto de
+   acento pasa a su versión oscura, legible sobre el tile claro. */
+body.swipe-area.light-mode .qa-green {
+    --qa-bg-top: rgba(16, 185, 129, 0.12) !important;
+    --qa-bg-bot: rgba(6, 78, 59, 0.14) !important;
+    --qa-border: rgba(4, 120, 87, 0.28) !important;
+    --qa-shadow: rgba(15, 23, 42, 0.10) !important;
+    --qa-shine: rgba(255, 255, 255, 0.55) !important;
+    --qa-icon-bg: rgba(16, 185, 129, 0.18) !important;
+    --qa-icon-border: rgba(4, 120, 87, 0.30) !important;
+    --qa-text: #064e3b !important;
+}
+body.swipe-area.light-mode .qa-blue {
+    --qa-bg-top: rgba(59, 130, 246, 0.12) !important;
+    --qa-bg-bot: rgba(30, 58, 138, 0.14) !important;
+    --qa-border: rgba(29, 78, 216, 0.28) !important;
+    --qa-shadow: rgba(15, 23, 42, 0.10) !important;
+    --qa-shine: rgba(255, 255, 255, 0.55) !important;
+    --qa-icon-bg: rgba(59, 130, 246, 0.18) !important;
+    --qa-icon-border: rgba(29, 78, 216, 0.30) !important;
+    --qa-text: #1e3a8a !important;
+}
+body.swipe-area.light-mode .qa-orange {
+    --qa-bg-top: rgba(249, 115, 22, 0.12) !important;
+    --qa-bg-bot: rgba(154, 52, 18, 0.14) !important;
+    --qa-border: rgba(194, 65, 12, 0.28) !important;
+    --qa-shadow: rgba(15, 23, 42, 0.10) !important;
+    --qa-shine: rgba(255, 255, 255, 0.55) !important;
+    --qa-icon-bg: rgba(249, 115, 22, 0.18) !important;
+    --qa-icon-border: rgba(194, 65, 12, 0.30) !important;
+    --qa-text: #7c2d12 !important;
+}
+
+/* 5.4 · Paneles inline translúcidos (JS los escribe con fondo oscuro). */
+body.swipe-area.light-mode [style*="background:rgba(15,23,42,0.4)"],
+body.swipe-area.light-mode [style*="background:rgba(15, 23, 42, 0.4)"] { background: rgba(241, 245, 249, .92) !important; }
+
+/* 5.5 · Píldoras flotantes ("CLIENTE", "EQUIPO", "GESTIÓN", "DINERO").
+   Son surface oscuras flotantes sobre la tarjeta: en claro pasan a blancas. */
+body.swipe-area.light-mode [style*="background:#0b0f1e"] { background: #ffffff !important; }
+
+/* 5.6 · Badge "IA": blanco sobre #10b981 daba 2.54:1. */
+body.swipe-area [style*="background:#10b981"] { background: #047857 !important; }
+
+/* 5.7 · CTA de venta: el degradé translúcido sobre tarjeta blanca dejaba el
+   texto invisible. Se refuerza el tinte en claro y el texto usa los tokens
+   sensibles al tema. */
+body.swipe-area.light-mode .invoice-sale-cta {
+    background: linear-gradient(115deg, rgba(4, 120, 87, .12), rgba(29, 78, 216, .07)) !important;
+    border-color: rgba(4, 120, 87, .30) !important;
+}
+body.swipe-area.light-mode .invoice-sale-cta-icon { background: rgba(4, 120, 87, .16) !important; }
+body.swipe-area.light-mode .invoice-sale-cta-arrow { color: var(--ds-ok-text) !important; }
+/* .invoice-total vive dentro de .invoice-panel (siempre oscuro): su verde
+   #34d399 ya da 8.4:1 sobre #111b2c y no se toca. */
+
+/* 5.8 · Chips con tinte de color sobre tarjeta clara (bg-*-600/20).
+   El tinte es claro, así que el texto de acento necesita su versión oscura:
+   naranja #c2410c sobre rgba(234,88,12,.2) daba 4.22:1 → #9a3412 da 5.9:1. */
+body.swipe-area.light-mode :is(.bg-orange-600\/20, .bg-orange-500\/20),
+body.swipe-area.light-mode :is(.bg-orange-600\/20, .bg-orange-500\/20) :is(.text-orange-300, .text-orange-400, .text-orange-500) { color: #9a3412 !important; }
+body.swipe-area.light-mode :is(.bg-rose-600\/20, .bg-rose-500\/20),
+body.swipe-area.light-mode :is(.bg-rose-600\/20, .bg-rose-500\/20) :is(.text-rose-300, .text-rose-400, .text-rose-500) { color: #9f1239 !important; }
+body.swipe-area.light-mode :is(.bg-emerald-600\/20, .bg-emerald-500\/20),
+body.swipe-area.light-mode :is(.bg-emerald-600\/20, .bg-emerald-500\/20) :is(.text-emerald-300, .text-emerald-400, .text-emerald-500) { color: #065f46 !important; }
+body.swipe-area.light-mode :is(.bg-blue-600\/20, .bg-blue-500\/20),
+body.swipe-area.light-mode :is(.bg-blue-600\/20, .bg-blue-500\/20) :is(.text-blue-300, .text-blue-400, .text-blue-500) { color: #1e40af !important; }
+body.swipe-area.light-mode :is(.bg-violet-600\/20, .bg-purple-600\/20),
+body.swipe-area.light-mode :is(.bg-violet-600\/20, .bg-purple-600\/20) :is(.text-violet-300, .text-violet-400, .text-purple-400) { color: #5b21b6 !important; }
+
+/* 5.8 · SUPERFICIES SIEMPRE OSCURAS.
+   Estas tarjetas conservan su fondo oscuro en ambos modos, así que su texto
+   debe seguir siendo claro: las reglas 4.1/4.2 los oscurecían para leer
+   sobre fondo blanco y aquí se restituyen.
+   Scope: (0,1,1) + id = (1,1,1) → gana a las reglas de modo claro (0,3,x). */
+body.swipe-area :is(#admin-menu-card, #drive-status-card, #nia-card, #daily-panel, #splash-screen, #pin-modal) {
+    color: #e6ecf6 !important;
+}
+body.swipe-area :is(#admin-menu-card, #drive-status-card, #nia-card, #daily-panel, #splash-screen, #pin-modal) .text-white { color: #ffffff !important; }
+body.swipe-area :is(#admin-menu-card, #drive-status-card, #nia-card, #daily-panel, #splash-screen, #pin-modal) :is(
+    [style*="color:#2a3a55"], [style*="color: #2a3a55"], [style*="color:#3a4a6a"], [style*="color: #3a4a6a"],
+    [style*="color:#4a5a7a"], [style*="color: #4a5a7a"], [style*="color:#475569"], [style*="color: #475569"],
+    [style*="color:#64748b"], [style*="color: #64748b"], [style*="color:#6b7280"], [style*="color: #6b7280"],
+    [style*="color:#8e8e93"], [style*="color: #8e8e93"], [style*="color:#94a3b8"], [style*="color: #94a3b8"],
+    [style*="color:#9ca3af"], [style*="color: #9ca3af"],
+    .text-slate-300, .text-slate-400, .text-slate-500, .text-slate-600, .text-gray-300, .text-gray-400
+) { color: #a7b4c8 !important; }
+body.swipe-area :is(#admin-menu-card, #drive-status-card, #nia-card, #daily-panel, #splash-screen, #pin-modal) :is(
+    [style*="color:#cbd5e1"], [style*="color: #cbd5e1"], [style*="color:#f1f5f9"], [style*="color: #f1f5f9"],
+    [style*="color:#ebebf5"], [style*="color: #ebebf5"], [style*="color:#e5e7eb"], [style*="color: #e5e7eb"],
+    [style*="color:#f5f5f7"], [style*="color: #f5f5f7"]
+) { color: #dbe3ee !important; }
+body.swipe-area :is(#admin-menu-card, #drive-status-card, #nia-card, #daily-panel, #splash-screen, #pin-modal) :is(
+    [style*="color:#fb923c"], [style*="color: #fb923c"], [style*="color:#fdba74"], [style*="color: #fdba74"],
+    .text-orange-300, .text-orange-400, .text-orange-500
+) { color: #fdba74 !important; }
+body.swipe-area :is(#admin-menu-card, #drive-status-card, #nia-card, #daily-panel, #splash-screen, #pin-modal) :is(
+    [style*="color:#34d399"], [style*="color: #34d399"], [style*="color:#10b981"], [style*="color: #10b981"],
+    [style*="color:#6ee7b7"], [style*="color: #6ee7b7"], [style*="color:#86efac"], [style*="color: #86efac"],
+    [style*="color:#4ade80"], [style*="color: #4ade80"],
+    .text-emerald-300, .text-emerald-400, .text-emerald-500, .text-emerald-600
+) { color: #34d399 !important; }
+body.swipe-area :is(#admin-menu-card, #drive-status-card, #nia-card, #daily-panel, #splash-screen, #pin-modal) :is(
+    [style*="color:#60a5fa"], [style*="color: #60a5fa"], [style*="color:#93c5fd"], [style*="color: #93c5fd"],
+    [style*="color:#7dd3fc"], [style*="color: #7dd3fc"], [style*="color:#22d3ee"], [style*="color: #22d3ee"],
+    .text-blue-300, .text-blue-400, .text-blue-500, .text-cyan-300, .text-cyan-400
+) { color: #60a5fa !important; }
+body.swipe-area :is(#admin-menu-card, #drive-status-card, #nia-card, #daily-panel, #splash-screen, #pin-modal) :is(
+    [style*="color:#a78bfa"], [style*="color: #a78bfa"], [style*="color:#c4b5fd"], [style*="color: #c4b5fd"],
+    [style*="color:#818cf8"], [style*="color: #818cf8"], [style*="color:#a5b4fc"], [style*="color: #a5b4fc"],
+    .text-indigo-200, .text-indigo-300, .text-indigo-400, .text-violet-300, .text-violet-400, .text-purple-400
+) { color: #a78bfa !important; }
+body.swipe-area :is(#admin-menu-card, #drive-status-card, #nia-card, #daily-panel, #splash-screen, #pin-modal) :is(
+    [style*="color:#f87171"], [style*="color: #f87171"], [style*="color:#fda4af"], [style*="color: #fda4af"],
+    [style*="color:#fb7185"], [style*="color: #fb7185"],
+    .text-rose-300, .text-rose-400, .text-rose-500, .text-red-300, .text-red-400
+) { color: #fb7185 !important; }
+body.swipe-area :is(#admin-menu-card, #drive-status-card, #nia-card, #daily-panel, #splash-screen, #pin-modal) :is(
+    [style*="color:#fbbf24"], [style*="color: #fbbf24"], [style*="color:#fcd34d"], [style*="color: #fcd34d"],
+    [style*="color:#facc15"], [style*="color: #facc15"],
+    .text-amber-300, .text-amber-400, .text-yellow-300, .text-yellow-400
+) { color: #fbbf24 !important; }
+
+
+/* ═══ 5.10 · ACENTO DINÁMICO (naranja o azul, elegido por el usuario) ══════
+
+   21-config-acciones-seguridad.js permite elegir el color de acento
+   (naranja #f97316 o azul #3b82f6) e inyecta `#accent-override`, que remapea
+   las utilidades "orange" al acento elegido con `!important`. El sistema de
+   diseño conserva ese acento y de él deriva los tonos que mantienen ≥ 4.5:1
+   en los dos modos:
+
+   · relleno sólido (dark)  → var(--accent) con texto casi negro #1a0f04
+                             (naranja 6.8:1 · azul 5.1:1 · esmeralda 7.4:1
+                             · violeta 4.8:1 · rosa 5.1:1 · ámbar 8.8:1)
+   · relleno sólido (light) → acento oscuro al 80% + 20% negro, texto blanco
+                             (naranja 5.3:1 · azul 7.2:1 · esmeralda 5.6:1
+                             · violeta 7.9:1 · rosa 6.8:1 · ámbar 4.7:1)
+   · chip tintado 20% (dark) → acento + 40% blanco (naranja 6.9:1 · azul 6.6:1)
+   · chip tintado 20% (light)→ acento oscuro al 60% + 40% negro
+                             (naranja 7.4:1 · azul 9.5:1 · ámbar 6.8:1)
+
+   Cada valor `color-mix()` va precedido por un respaldo estático, para los
+   navegadores que todavía no lo soportan. */
+
+/* 5.10.1 · Chips tintados — modo oscuro.
+   El texto heredaba el acento puro (azul #3b82f6) sobre el tinte 20% y sólo
+   daba 3.6:1. */
+body.swipe-area.dark-mode :is(.bg-orange-500\/20, .bg-orange-600\/20, .bg-orange-600\/30):is(.text-orange-300, .text-orange-400, .text-orange-500),
+body.swipe-area.dark-mode :is(.bg-orange-500\/20, .bg-orange-600\/20, .bg-orange-600\/30) :is(.text-orange-300, .text-orange-400, .text-orange-500) {
+    color: #fdba74 !important;
+    color: color-mix(in oklab, var(--accent) 60%, #ffffff) !important;
+}
+
+/* 5.10.2 · Relleno sólido — modo claro: el acento se oscurece para que el
+   texto blanco supere 4.5:1 (el acento puro con blanco sólo daba 2.8:1). */
+body.swipe-area.light-mode :is(.bg-orange-600, .bg-orange-500) {
+    background-color: #c2410c !important;
+    background-color: color-mix(in oklab, var(--accent-dark) 80%, #000000) !important;
+    color: #ffffff !important;
+}
+
+/* 5.10.3 · Chips tintados — modo claro: texto oscuro derivado del acento
+   (el acento puro sobre el tinte 20% daba 4.1:1 con azul). */
+body.swipe-area.light-mode :is(.bg-orange-500\/20, .bg-orange-600\/20, .bg-orange-600\/30):is(.text-orange-300, .text-orange-400, .text-orange-500),
+body.swipe-area.light-mode :is(.bg-orange-500\/20, .bg-orange-600\/20, .bg-orange-600\/30) :is(.text-orange-300, .text-orange-400, .text-orange-500) {
+    color: #9a3412 !important;
+    color: color-mix(in oklab, var(--accent-dark) 60%, #000000) !important;
+}
+
+/* 5.10.4 · Pestaña activa: el acento puro sobre superficie clara daba 2.8:1. */
+body.swipe-area.light-mode .tab-active {
+    color: #9a3412 !important;
+    color: color-mix(in oklab, var(--accent) 65%, #000000) !important;
+}
+
+
+/* ═══ 5.11 · TOASTS (avisos efímeros) ══════════════════════════════════════
+
+   04-tema-notificaciones-alertas.js crea el aviso con estilos en línea
+   (`background:#f97316; color:white`) → el texto blanco sobre el color vivo
+   daba 2.5:1 (éxito) – 3.8:1 (error). El sistema de diseño oscurece el
+   relleno, igual que los botones de estado, y conserva el texto blanco:
+   info #1d4ed8 (6.7:1) · éxito #047857 (5.6:1) · aviso #c2410c (5.2:1)
+   · error #b91c1c (6.5:1).
+
+   El selector usa `z-index:99999`, que sólo tienen los avisos. El color se
+   busca en su forma serializada (`rgb(249, 115, 22)`), porque el atributo
+   `style` no conserva el literal hexadecimal. */
+
+body.swipe-area div[style*="z-index: 99999"][style*="59, 130, 246"] { background-color: #1d4ed8 !important; }
+body.swipe-area div[style*="z-index: 99999"][style*="16, 185, 129"] { background-color: #047857 !important; }
+body.swipe-area div[style*="z-index: 99999"][style*="249, 115, 22"] { background-color: #c2410c !important; }
+body.swipe-area div[style*="z-index: 99999"][style*="239, 68, 68"] { background-color: #b91c1c !important; }
+body.swipe-area div[style*="z-index: 99999"] { color: #ffffff !important; }
+
+
+/* ═══ 5.12 · BARRA LATERAL Y ENCABEZADO DE ESCRITORIO (≥1024px) ═══════════
+
+   La barra lateral laFinn 11-responsive-escritorio.css y 20-responsive-pro.css
+   con colores propios: gris #64748b en las etiquetas, acento puro en el ítem
+   activo y en la marca, y verde #10b981 en la caja. Sobre las superficies
+   claras quedaban en 2.2:1 – 4.1:1, y el fondo era el crema #fdfcf9, fuera de
+   la paleta fría del sistema. Aquí se reasignan a los tokens del sistema. */
+
+/* 5.12.1 · Superficies: creamas → neutral frío del sistema. */
+body.swipe-area.light-mode #sidebar { background: rgba(255, 255, 255, 0.97) !important; }
+body.swipe-area.light-mode #desktop-topbar { background: rgba(255, 255, 255, 0.92) !important; }
+body.swipe-area.light-mode #sidebar-header { border-bottom-color: var(--border-light) !important; }
+body.swipe-area.light-mode #sidebar-footer { border-top-color: var(--border-light) !important; }
+body.swipe-area.light-mode nav { background: rgba(255, 255, 255, 0.94) !important; }
+
+/* 5.12.2 · Etiquetas de navegación. */
+body.swipe-area.dark-mode .sidebar-nav-item { color: var(--ds-text-muted) !important; }
+body.swipe-area.light-mode .sidebar-nav-item { color: var(--ds-text-muted) !important; }
+
+/* 5.12.3 · Ítem activo y marca: el acento puro daba 2.4:1 sobre la barra
+   clara → se usa el tono oscuro del acento. */
+body.swipe-area.dark-mode .sidebar-nav-item.active { color: var(--ds-accent-text) !important; }
+body.swipe-area.light-mode .sidebar-nav-item.active,
+body.swipe-area.light-mode #sidebar-biz-short,
+body.swipe-area.light-mode #desktop-topbar-subtitle {
+    color: #9a3412 !important;
+    color: color-mix(in oklab, var(--accent-dark) 60%, #000000) !important;
+}
+
+/* 5.12.4 · Caja neta: etiqueta gris y cifra verde. */
+body.swipe-area.dark-mode #sidebar-cash-label { color: var(--ds-text-muted) !important; }
+body.swipe-area.light-mode #sidebar-cash-label { color: var(--ds-text-muted) !important; }
+body.swipe-area.light-mode #sidebar-cash-value { color: var(--ds-ok-text) !important; }
+body.swipe-area.light-mode #sidebar [style*="rgb(16, 185, 129)"] { color: var(--ds-ok-text) !important; }
+
+/* 5.12.5 · Rótulos secundarios y botones del pie. */
+body.swipe-area.dark-mode #sidebar-status-breakdown-title { color: var(--ds-text-muted) !important; }
+body.swipe-area.light-mode #sidebar-status-breakdown-title { color: var(--ds-text-muted) !important; }
+body.swipe-area.light-mode #sidebar-footer button { color: var(--ds-text-secondary) !important; }
+
+/* 5.12.6 · 20-responsive-pro.css L88 Paint "Acciones rápidas" de gris #475569
+   a #8795b2 (pensado para el fondo oscuro): sobre la barra clara se quedaba
+   en 3.0:1. En modo claro vuelve al token muted (#475569 → 7.2:1). */
+body.swipe-area.light-mode #sidebar [style*="color:#475569"],
+body.swipe-area.light-mode #sidebar [style*="color: #475569"] { color: var(--ds-text-muted) !important; }
+
+
+/* ═══ 5.13 · EL ACENTO COMO TEXTO EN MODO CLARO ════════════════════════════
+
+   Tres rótulos usan `color:var(--accent)` en línea: el subtítulo del
+   encabezado, el título del modal de atajos y el rótulo "Vista previa".
+   En modo claro el acento puro daba 2.5:1 – 2.8:1 sobre superficie blanca.
+   Aquí el acento se usa en su tono oscuro (el mismo del sistema en 5.10.3). */
+
+body.swipe-area.light-mode [style*="color:var(--accent)"],
+body.swipe-area.light-mode [style*="color: var(--accent)"] {
+    color: #9a3412 !important;
+    color: color-mix(in oklab, var(--accent-dark) 60%, #000000) !important;
+}
+
+
+/* ═══ 5.14 · BOTONES CON RELLENO DE ACENTO ════════════════════════════════
+
+   El banner de actualización (`.nv-ok`) y la acción principal del encabezado
+   (`#topbar-primary-action`) usaban texto blanco sobre el color vivo:
+   2.8:1 en el relleno sólido y 3.5:1 en el degradado. El sistema aplica el
+   mismo criterio que en 3.4: relleno sólido con texto casi negro, y degradado
+   con los dos extremos dentro de la banda legible del acento elegido. */
+
+body.swipe-area.dark-mode .nv-banner .nv-ok { color: var(--ds-text-on-accent) !important; }
+body.swipe-area.light-mode .nv-banner .nv-ok {
+    background-color: #c2410c !important;
+    background-color: color-mix(in oklab, var(--accent-dark) 80%, #000000) !important;
+    color: #ffffff !important;
+}
+body.swipe-area.dark-mode #topbar-primary-action {
+    background-image: linear-gradient(135deg, color-mix(in oklab, var(--accent) 80%, #ffffff), var(--accent)) !important;
+    color: var(--ds-text-on-accent) !important;
+}
+body.swipe-area.light-mode #topbar-primary-action {
+    background-image: linear-gradient(135deg, color-mix(in oklab, var(--accent-dark) 80%, #000000), color-mix(in oklab, var(--accent-dark) 70%, #000000)) !important;
+    color: #ffffff !important;
+}
+
+/* Los hijos del botón heredan su color: el indicador de atajo traía su propio
+   gris (#cbd5e1 → 1.8:1 sobre el acento) y el emoji heredaba el blanco. */
+#topbar-primary-action > * { color: inherit !important; }
+body.swipe-area.dark-mode #topbar-primary-action .kbd-hint {
+    color: inherit !important;
+    background-color: rgba(255, 255, 255, 0.25) !important;
+    border-color: rgba(255, 255, 255, 0.32) !important;
+}
+body.swipe-area.light-mode #topbar-primary-action .kbd-hint {
+    color: inherit !important;
+    background-color: rgba(0, 0, 0, 0.18) !important;
+    border-color: rgba(0, 0, 0, 0.26) !important;
+}
+
+
+/* ═══ 5.15 · AJUSTES DE CONTRASTE PUNTUALES ════════════════════════════════
+
+   Residuos que encontró la auditoría de escritorio (1280×900) con el parser
+   de contraste del sistema (peor parada de cada degradado, texto translúcido
+   compuesto sobre su fondo real):
+
+   · «Acciones rápidas» usaba el gris en línea #475569, pensado para el
+     fondo claro: sobre la barra oscura daba 2.5:1 → #8795b2 (6.3:1).
+   · Los rótulos con #64748b en línea (flechas de selectores, versiones,
+     chips) dan 3.9:1 sobre el fondo oscuro → #94a3b8 (7.2:1).
+   · El icono de la marca (🔧) llevaba texto claro sobre el relleno de
+     acento: 2.5:1 → texto casi negro sobre un acento aclarado.
+   · El subtítulo del CTA de venta usaba el muted #8494ab sobre un tinte
+     verde azulado: 3.9:1 → #cbd5e1 (7.4:1).
+   · La tarjeta de créditos (siempre oscura) usaba naranja al 85% (3.6:1) y
+     gris #64748b (3.7:1). */
+
+/* 5.15.1 · «Acciones rápidas» y rótulos grises de la barra lateral. */
+body.swipe-area.dark-mode #sidebar [style*="color:#475569"],
+body.swipe-area.dark-mode #sidebar [style*="color: #475569"] { color: #8795b2 !important; }
+
+/* 5.15.2 · Grises en línea (#64748b) sobre superficies oscuras. */
+body.swipe-area.dark-mode [style*="color:#64748b"],
+body.swipe-area.dark-mode [style*="color: #64748b"] { color: #94a3b8 !important; }
+
+/* 5.15.3 · Icono de la marca: texto casi negro sobre el acento aclarado
+   (el relleno vivo con texto claro daba 2.5:1). */
+body.swipe-area.dark-mode #sidebar-logo-icon {
+    background-image: linear-gradient(135deg, #fbbf74, var(--accent)) !important;
+    background-image: linear-gradient(135deg, color-mix(in oklab, var(--accent) 78%, #ffffff), var(--ds-accent-fill)) !important;
+    color: var(--ds-text-on-accent) !important;
+}
+
+/* 5.15.4 · CTA de venta: el subtítulo hereda el muted, ilegible sobre el
+   tinte verde azulado de la tarjeta. */
+body.swipe-area.dark-mode .invoice-sale-cta small { color: #cbd5e1 !important; }
+body.swipe-area.light-mode .invoice-sale-cta small { color: #475569 !important; }
+
+/* 5.15.5 · Tarjeta de créditos (siempre oscura). */
+body.swipe-area #credits-card [style*="color:rgba(249,115,22,0.85)"],
+body.swipe-area #credits-card [style*="color:rgba(249,115,22,0.7)"] { color: #fb923c !important; }
+
+
+/* ═══ 6. RADIOS — escala normalizada ═══════════════════════════════════════ */
+
+body.swipe-area .card { border-radius: var(--ds-radius-lg); }
+body.swipe-area .modal-custom { border-radius: var(--ds-radius-lg); }
+body.swipe-area .filter-panel { border-radius: var(--ds-radius-md); }
+body.swipe-area .quick-action { border-radius: var(--ds-radius-md); }
+body.swipe-area .sidebar-nav-item { border-radius: var(--ds-radius-sm); }
+body.swipe-area :is(input, textarea, select):not([type="checkbox"]):not([type="radio"]) { border-radius: var(--ds-radius-sm); }
+body.swipe-area :is(button, [role="button"]) { border-radius: var(--ds-radius-sm); }
+@media (max-width: 760px) {
+    body.swipe-area .card { border-radius: var(--ds-radius-md); }
+}
+
+
+/* ═══ 7. ACCESIBILIDAD ═════════════════════════════════════════════════════ */
+
+/* 7.1 · Foco visible con el color de la marca (la capa 23 usaba verde). */
+body.swipe-area :where(button, input, select, textarea, [role="button"]):focus-visible,
+body.swipe-area :where(a, [role="button"], .sidebar-nav-item):focus-visible {
+    outline: 2px solid var(--ds-focus);
+    outline-offset: 3px;
+}
+body.swipe-area :is(input, select, textarea):focus {
+    box-shadow: 0 0 0 3px var(--ds-accent-soft) !important;
+}
+body.swipe-area .sidebar-nav-item.active { box-shadow: inset 0 0 0 1px rgba(249, 115, 22, .16) !important; }
+body.swipe-area #fab-nueva { box-shadow: 0 10px 28px rgba(249, 115, 22, .26) !important; }
+
+/* 7.2 · Zonas táctiles: 44px mínimo (guía Touch Target Size del catálogo). */
+@media (pointer: coarse) {
+    body.swipe-area .nav-btn { min-height: 44px; }
+    body.swipe-area :is(button, [role="button"], .nav-btn, .quick-action) { touch-action: manipulation; }
+}
+
+/* 7.3 · Movimiento reducido (requisito del catálogo: reduced-motion). */
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    body.swipe-area *, body.swipe-area *::before, body.swipe-area *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+
+/* ═══ 8. DENSIDAD OPERATIVA ════════════════════════════════════════════════ */
+
+body.swipe-area { --ds-current-card-padding: var(--ds-card-padding); }
+body.swipe-area .card { padding: var(--ds-card-padding); }
+
+
+/* ═══ 9. CONTRASTE MEDIDO — CIERRE DE HALLAZGOS (WCAG AA 4.5:1) ═══════════
+   Todo lo de esta sección sale de la matriz automatizada: 4 vistas x 2 temas
+   x 6 acentos, 1280x900 y 375x812. Cada bloque cita el par medido. */
+
+:root {
+    /* Acento legible como TEXTO sobre superficie oscura. El acento puro no
+       sirve para texto pequeño: violeta 3.9:1, azul 4.3:1. Aclarado al 55%
+       con blanco queda en 7:1+ y conserva la identidad del acento. */
+    --ds-accent-readable: color-mix(in oklab, var(--accent) 55%, #ffffff);
+    /* Pastilla neutra para iconos decorativos: funciona sobre panel oscuro
+       y sobre tarjeta clara sin depender del tema. */
+    --ds-chip:        rgba(148, 163, 184, 0.12);
+    --ds-chip-border: rgba(148, 163, 184, 0.22);
+}
+
+/* 9.1 · Iconos decorativos (emoji) sobre pastilla neutra.
+   Un emoji es un glifo de color: no hereda el color del texto, pero el par
+   fg/bg lo marcaba el relleno vivo de cada tile y no había forma de subirlo
+   (1.47:1 verde, 1.71:1 ámbar, 1.8:1 celeste, 3.09:1 rosa). Doce gradientes
+   saturados distintos tampoco son un sistema: se unifican en una pastilla
+   neutra de 1px de borde y el emoji mantiene su color. */
+body.swipe-area :is(#credits-card, #admin-menu-card) div[style*="border-radius:14px"][style*="font-size"],
+body.swipe-area #daily-panel div[style*="border-radius:10px"][style*="font-size"] {
+    background: var(--ds-chip) !important;
+    background-image: none !important;
+    border: 1px solid var(--ds-chip-border) !important;
+    box-shadow: none !important;
+    color: var(--ds-text-on-dark) !important;
+}
+
+/* El modal de notificaciones es siempre oscuro (#111827): el chip va opaco
+   para que el contraste no dependa de qué haya detrás. */
+body.swipe-area #modal-push-setup .w-16.h-16 {
+    background-color: #1b2436 !important;
+    background-image: none !important;
+    border: 1px solid rgba(148, 163, 184, .24) !important;
+    color: var(--ds-text-on-dark) !important;
+}
+
+/* El panel de vista previa sí cambia de tema: chip neutro translúcido y el
+   color de texto del tema (sobre blanco daba 1.02:1 con la tinta clara). */
+body.swipe-area #taller-preview-panel div[style*="border-radius:10px"][style*="font-size"] {
+    background: var(--ds-chip) !important;
+    background-image: none !important;
+    border: 1px solid var(--ds-chip-border) !important;
+    box-shadow: none !important;
+    color: var(--ds-text-primary) !important;
+}
+
+/* 9.2 · Tiles que viven en superficies que cambian de tema: tinte de acento
+   translúcido, así el texto del tema (claro u oscuro) siempre contrasta. */
+body.swipe-area #view-taller div[style*="border-radius:16px"][style*="font-size:24px"] {
+    background: var(--ds-accent-soft) !important;
+    background-image: none !important;
+    border: 1px solid color-mix(in oklab, var(--accent) 28%, transparent) !important;
+    box-shadow: none !important;
+    color: var(--ds-text-primary) !important;
+}
+body.swipe-area .camera-btn {
+    background: var(--ds-accent-soft) !important;
+    background-image: none !important;
+    border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent) !important;
+    color: var(--ds-text-primary) !important;
+}
+
+/* 9.3 · Marcas de identidad (logo, avatar de créditos, avatar de NIA):
+   relleno de acento aclarado + tinta casi negra. El relleno vivo daba
+   2.8:1 con blanco y 3.1:1 con tinta oscura según el acento. */
+body.swipe-area #sidebar-logo-icon,
+body.swipe-area #credits-card div[style*="width:100%;height:100%;border-radius:16px"],
+body.swipe-area #nia-card div[style*="width:54px;height:54px"] {
+    background-image: linear-gradient(135deg,
+        color-mix(in oklab, var(--accent) 78%, #ffffff),
+        var(--ds-accent-fill)) !important;
+    background-color: var(--ds-accent-fill) !important;
+    color: var(--ds-text-on-accent) !important;
+    box-shadow: none !important;
+}
+body.swipe-area #nia-card div[style*="width:54px;height:54px"] span { color: var(--ds-text-on-accent) !important; }
+/* Insignia "IA": blanco sobre #10b981 = 2.5:1 → verde 700 (5.5:1). */
+body.swipe-area #nia-card div[style*="background:#10b981"] {
+    background: #047857 !important;
+    color: #ffffff !important;
+}
+
+/* 9.4 · CTA de recepción: blanco sobre el degradado naranja daba 2.26:1.
+   Se invierte el par: relleno de acento aclarado + tinta casi negra. */
+body.swipe-area #btn-registrar-entrada {
+    background-image: linear-gradient(135deg,
+        color-mix(in oklab, var(--accent) 84%, #ffffff),
+        var(--ds-accent-fill)) !important;
+    background-color: var(--ds-accent-fill) !important;
+    color: var(--ds-text-on-accent) !important;
+    box-shadow: 0 10px 24px color-mix(in oklab, var(--accent) 26%, transparent),
+                inset 0 1px 0 rgba(255, 255, 255, .45) !important;
+}
+body.swipe-area #btn-registrar-entrada * { color: var(--ds-text-on-accent) !important; }
+
+/* 9.5 · CTA de permiso de notificaciones (mismo patrón de degradado). */
+body.swipe-area :is(button, a)[class*="from-orange-600"] {
+    background-image: none !important;
+    background-color: var(--ds-accent-fill) !important;
+    color: var(--ds-text-on-accent) !important;
+}
+
+/* 9.6 · Drive: blanco sobre #3b82f6 = 3.68:1. Se oscurece el degradado
+   manteniendo el azul de Google (5.2:1 y 8.6:1 en las paradas). */
+body.swipe-area #drive-connect-btn {
+    background-image: linear-gradient(135deg, #1d4ed8, #1e40af) !important;
+    color: #ffffff !important;
+}
+
+/* 9.7 · Créditos (panel siempre oscuro). */
+body.swipe-area #credits-arrow { color: var(--ds-text-on-dark-muted) !important; }
+
+/* 9.8 · Texto de acento sobre fondo oscuro. var(--accent) literal fallaba en
+   violeta (4.08:1) y azul (4.3:1) para texto pequeño. */
+body.swipe-area.dark-mode [style*="color:var(--accent)"],
+body.swipe-area.dark-mode [style*="color: var(--accent)"] {
+    color: var(--ds-accent-readable) !important;
+}
+body.swipe-area.light-mode [style*="color:var(--accent)"],
+body.swipe-area.light-mode [style*="color: var(--accent)"] {
+    color: #c2410c !important;
+}
+
+/* 9.9 · Modo claro: la tarjeta de recepción se tiñe de durazno y el naranja
+   claro del texto (#fb923c → #c2410c) se quedaba en 4.4:1, y el chip #PRÓX.
+   mezclaba rgba oscuro sobre durazno (1.01:1). */
+body.swipe-area.light-mode [style*="color:#fb923c"],
+body.swipe-area.light-mode [style*="color: #fb923c"] { color: #9a3412 !important; }
+body.swipe-area.light-mode #taller-order-preview-num {
+    background: #ffffff !important;
+    border-color: rgba(194, 65, 12, .35) !important;
+    color: #9a3412 !important;
+}

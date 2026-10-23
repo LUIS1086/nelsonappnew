@@ -79,7 +79,7 @@ html { background: var(--bg-dark, #0d0f1a); }
 input[list]::-webkit-calendar-picker-indicator { display: none !important; opacity: 0; }
 
 /* ── 7. Textos pequeños y de bajo contraste ── */
-.bottom-nav-mobile .nav-label, .bottom-nav-mobile .nav-btn span { font-size: 10.5px !important; }
+.bottom-nav-mobile .nav-label, .bottom-nav-mobile .nav-btn span { font-size: 12px !important; }
 /* Colores grises azulados casi invisibles sobre fondo oscuro (1.4–2.7:1) → ≥ 4.5:1.
    Se atrapan por el color inline exacto, así los cambios dinámicos de JS (verde/rojo) no se pisan. */
 [style*="color:#2a3a55"], [style*="color: #2a3a55"],

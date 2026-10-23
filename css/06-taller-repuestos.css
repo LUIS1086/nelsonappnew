@@ -2,7 +2,7 @@
    Mejoras Taller v3.2 y modal Repuestos usados
    (extraido sin cambios de index.html; el orden de carga importa) */
         /* ===== MEJORAS TALLER v3.2 ===== */
-        .deadline-badge { display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:800; }
+        .deadline-badge { display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:800; }
 
         /* ===== MODAL REPUESTOS USADOS ===== */
         .parts-modal-wrap {
@@ -30,7 +30,7 @@
             box-shadow: 0 6px 18px rgba(6,182,212,0.4);
         }
         .parts-header-title { font-size: 17px; font-weight: 900; color: #ecfeff; margin: 0; letter-spacing: -0.3px; }
-        .parts-header-sub { font-size: 11px; color: #67e8f9; font-weight: 700; margin: 2px 0 0; opacity: 0.85; }
+        .parts-header-sub { font-size: 12px; color: #67e8f9; font-weight: 700; margin: 2px 0 0; opacity: 0.85; }
         .parts-close-btn {
             width: 32px; height: 32px; border-radius: 50%;
             background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
@@ -89,7 +89,7 @@
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         .parts-item-meta {
-            font-size: 10px; font-weight: 600; color: #64748b;
+            font-size: 12px; font-weight: 600; color: #64748b;
             margin-top: 2px;
             display: flex; gap: 8px; flex-wrap: wrap;
         }
@@ -130,7 +130,7 @@
             padding: 3px 0;
         }
         .parts-sum-lbl {
-            font-size: 11px; font-weight: 700; color: #94a3b8;
+            font-size: 12px; font-weight: 700; color: #94a3b8;
             letter-spacing: 0.2px;
         }
         .parts-sum-val {
@@ -141,7 +141,7 @@
         .parts-sum-profit { color: #34d399; font-size: 15px; }
         .parts-sum-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 6px 0; }
         .parts-sum-hint {
-            font-size: 9px; font-weight: 600; color: #64748b;
+            font-size: 12px; font-weight: 600; color: #64748b;
             text-align: right; margin: 2px 0 0; font-style: italic;
         }
 
@@ -157,7 +157,7 @@
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.08);
             color: #cbd5e1;
-            font-size: 11.5px; font-weight: 900;
+            font-size: 12px; font-weight: 900;
             letter-spacing: 0.5px; cursor: pointer;
         }
         .parts-btn-skip:active { transform: scale(0.95); }

@@ -11,12 +11,12 @@
         .gsr-item { padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.05);transition:background 0.15s; }
         .gsr-item:last-child { border-bottom:none; }
         .gsr-item:hover { background:rgba(249,115,22,0.1); }
-        .gsr-tag { display:inline-block;padding:1px 6px;border-radius:6px;font-size:9px;font-weight:800;margin-right:4px; }
+        .gsr-tag { display:inline-block;padding:1px 6px;border-radius:6px;font-size:12px;font-weight:800;margin-right:4px; }
         .gsr-tag.orden  { background:rgba(249,115,22,0.2);color:#fb923c; }
         .gsr-tag.stock  { background:rgba(16,185,129,0.2);color:#34d399; }
         .gsr-tag.cliente{ background:rgba(59,130,246,0.2);color:#60a5fa; }
         /* Pestaña activa en el modal de reportes */
-        .report-tab { padding:8px 14px;border-radius:10px;font-size:11px;font-weight:800;cursor:pointer;transition:all 0.2s;border:1px solid transparent;color:#64748b; }
+        .report-tab { padding:8px 14px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;transition:all 0.2s;border:1px solid transparent;color:#64748b; }
         .report-tab.active { background:rgba(249,115,22,0.15);border-color:rgba(249,115,22,0.3);color:#fb923c; }
         .bar-track { height:8px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;flex:1; }
         .bar-fill  { height:100%;border-radius:99px;transition:width 0.7s ease; }
@@ -27,7 +27,7 @@
         @keyframes pulse-dead { 0%,100%{opacity:1} 50%{opacity:0.55} }
 
         .photo-compare-grid { display:grid;grid-template-columns:1fr 1fr;gap:8px; }
-        .photo-compare-label { font-size:9px;font-weight:800;letter-spacing:2px;text-align:center;padding:3px 0;border-radius:8px;margin-bottom:5px; }
+        .photo-compare-label { font-size:12px;font-weight:800;letter-spacing:2px;text-align:center;padding:3px 0;border-radius:8px;margin-bottom:5px; }
         .compare-entrada .photo-compare-label { background:rgba(249,115,22,0.15);color:#fb923c; }
         .compare-salida  .photo-compare-label { background:rgba(16,185,129,0.15);color:#34d399; }
 
@@ -39,7 +39,7 @@
             -webkit-tap-highlight-color: transparent;
         }
         .cfg-header:active { opacity: 0.7; }
-        .cfg-arrow { font-size: 11px; color: #64748b; transition: transform 0.3s ease; flex-shrink: 0; }
+        .cfg-arrow { font-size: 12px; color: #64748b; transition: transform 0.3s ease; flex-shrink: 0; }
         .cfg-body { overflow: hidden; max-height: 0; opacity: 0; transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease; }
         .cfg-body.open { max-height: 900px; opacity: 1; }
         .cfg-header.open .cfg-arrow { transform: rotate(180deg); }
@@ -48,7 +48,7 @@
         #net-badge {
             position: fixed; top: 72px; left: 50%; transform: translateX(-50%) translateY(-8px);
             z-index: 9990; padding: 6px 16px; border-radius: 999px;
-            font-size: 11px; font-weight: 800; letter-spacing: 1px;
+            font-size: 12px; font-weight: 800; letter-spacing: 1px;
             opacity: 0; pointer-events: none;
             transition: opacity 0.4s ease, transform 0.4s ease;
             white-space: nowrap; box-shadow: 0 4px 16px rgba(0,0,0,0.4);

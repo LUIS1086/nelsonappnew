@@ -82,8 +82,9 @@
             text-shadow: 0 4px 20px rgba(249,115,22,0.15);
         }
         .splash-sub {
-            font-size: 0.65rem; font-weight: 800;
-            color: rgba(249,115,22,0.8);
+            font-size: 12px; font-weight: 800;
+            /* 0.8 de alfa daba 3.6:1 sobre el fondo del splash */
+            color: rgba(249,115,22,0.95);
             letter-spacing: 8px; text-transform: uppercase;
             text-align: center; margin-bottom: 44px;
             position: relative; z-index: 1;
@@ -104,8 +105,9 @@
         }
         @keyframes splashBar { from { width: 0%; } to { width: 100%; } }
         .splash-version {
-            font-size: 9px;
-            color: rgba(255,255,255,0.3);
+            font-size: 12px;
+            /* 0.3 de alfa daba 2.6:1 sobre el fondo del splash */
+            color: rgba(255,255,255,0.65);
             letter-spacing: 5px;
             margin-top: 22px;
             font-weight: 700;
@@ -182,7 +184,8 @@
             background: linear-gradient(135deg, #f97316, #ea580c);
             border-color: transparent;
             font-size: 0.72rem; font-weight: 900; letter-spacing: 1.5px;
-            color: #fff;
+            /* el blanco sobre este degradado daba 3.6:1 → texto casi negro */
+            color: #1a0f04;
             box-shadow:
                 0 6px 24px rgba(249,115,22,0.5),
                 0 1px 0 rgba(255,255,255,0.2) inset,
@@ -196,7 +199,8 @@
         .numpad-btn.enter.disabled {
             background: linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
             box-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.04) inset;
-            color: rgba(255,255,255,0.3);
+            /* 0.3 de alfa daba 2.6:1 → 0.65 da 8.3:1 */
+            color: rgba(255,255,255,0.65);
             cursor: not-allowed;
         }
         .numpad-btn.enter.disabled:active { transform: scale(1); }
@@ -279,7 +283,7 @@
             40%, 60% { transform: translateX(5px); }
         }
         .biometric-pin-label {
-            font-size: 10px;
+            font-size: 12px;
             font-weight: 800;
             letter-spacing: 1.5px;
             text-transform: uppercase;

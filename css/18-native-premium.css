@@ -36,11 +36,11 @@ input[style*="padding-left:38px"], input[style*="padding-left: 38px"], #c-tel { 
 .voice-mic-btn { width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; }
 
 /* ── 4. Tipografía: nada de letra minúscula ilegible ni etiquetas gritando ── */
-.text-\[8px\], .text-\[9px\], [style*="font-size:8px"]:not(.nav-badge), [style*="font-size:9px"]:not(.nav-badge), [style*="font-size: 8px"]:not(.nav-badge), [style*="font-size: 9px"]:not(.nav-badge) { font-size: 10.5px !important; }
-.text-\[10px\] { font-size: 11px !important; }
+.text-\[8px\], .text-\[9px\], [style*="font-size:8px"]:not(.nav-badge), [style*="font-size:9px"]:not(.nav-badge), [style*="font-size: 8px"]:not(.nav-badge), [style*="font-size: 9px"]:not(.nav-badge) { font-size: 12px !important; }
+.text-\[10px\] { font-size: 12px !important; }
 [style*="letter-spacing:4px"], [style*="letter-spacing:3px"], [style*="letter-spacing:2.5px"], [style*="letter-spacing:2px"], [style*="letter-spacing: 4px"], [style*="letter-spacing: 3px"], [style*="letter-spacing: 2.5px"], [style*="letter-spacing: 2px"] { letter-spacing: .12em !important; }
 .tracking-\[4px\], .tracking-\[3px\] { letter-spacing: .24em !important; }
-.qa-label { font-size: 11px !important; letter-spacing: .01em; text-transform: none; line-height: 1.25; }
+.qa-label { font-size: 12px !important; letter-spacing: .01em; text-transform: none; line-height: 1.25; }
 
 /* ── 5. Tarjetas ── */
 .card { border-radius: 22px; border: 1px solid rgba(255,255,255,.07); box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 8px 24px rgba(0,0,0,.26); }
@@ -56,7 +56,7 @@ input[style*="padding-left:38px"], input[style*="padding-left: 38px"], #c-tel { 
     transition: padding .22s ease, box-shadow .22s ease, background-color .22s ease;
     background: rgba(8,10,20,.78) !important; -webkit-backdrop-filter: blur(22px) saturate(1.5); backdrop-filter: blur(22px) saturate(1.5);
   }
-  #business-short-name { font-size: 10px; letter-spacing: .28em !important; }
+  #business-short-name { font-size: 12px; letter-spacing: .28em !important; }
   #business-name-display { font-size: 1.65rem !important; line-height: 1; transition: font-size .22s ease; }
   #app-header .bg-emerald-500\/10 { padding: 6px 12px; border-radius: 16px; }
   #app-header #total-cash { font-size: 1.1rem; line-height: 1.2; }
@@ -133,8 +133,8 @@ body.kb-open #fab-nueva { transform: scale(0); opacity: 0; pointer-events: none;
 .flex.justify-between.items-center > .flex.gap-1:last-child { flex: 0 0 auto; align-items: center; }
 .flex.justify-between.items-center > .flex.gap-2 > button,
 .flex.justify-between.items-center > .flex.gap-1 > button,
-.flex.justify-between.items-center > button { white-space: nowrap; flex-shrink: 0; min-height: 38px; min-width: 42px; font-size: 11.5px !important; display: inline-flex; align-items: center; justify-content: center; }
-#stock-summary-text { font-size: 11px !important; line-height: 1.45; }
+.flex.justify-between.items-center > button { white-space: nowrap; flex-shrink: 0; min-height: 38px; min-width: 42px; font-size: 12px !important; display: inline-flex; align-items: center; justify-content: center; }
+#stock-summary-text { font-size: 12px !important; line-height: 1.45; }
 #stock-search::placeholder { font-size: .8em; }
 #stock-search { padding-right: 12px !important; }
 #stock-search:has(+ button:not(.hidden)) { padding-right: 40px !important; }

@@ -33,10 +33,10 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 }
 .kpi-label       { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 12px; }
 .panel-head-title { font-size: 13.5px; font-weight: 700; }
-.panel-head-sub  { font-size: 11.5px; }
-.sb-section-label { font-size: 11px; font-weight: 600; }
-.tb-breadcrumb   { font-size: 11px; font-weight: 600; }
-.kpi-sub, .kpi-vs { font-size: 11.5px; }
+.panel-head-sub  { font-size: 12px; }
+.sb-section-label { font-size: 12px; font-weight: 600; }
+.tb-breadcrumb   { font-size: 12px; font-weight: 600; }
+.kpi-sub, .kpi-vs { font-size: 12px; }
 .text3-fix, .kpi-vs, .tb-date { color: var(--text2); }   /* --text3 es muy tenue para texto */
 
 /* ── Superficies: borde fino + brillo superior, sombra solo al interactuar ── */
@@ -119,6 +119,42 @@ body.light-mode .tb-title, body.light-mode .sb-biz-name, body.light-mode .efic-v
 /* ── Etiquetas del panel de hoy y caja en frase normal ── */
 .today-title, .today-date, .today-stat-label, .sb-caja-label { text-transform: none; letter-spacing: 0; }
 .today-title { font-size: 14px; }
-.today-stat-label { font-size: 11.5px; font-weight: 600; }
+.today-stat-label { font-size: 12px; font-weight: 600; }
 .today-date { font-size: 12px; }
-.sb-caja-label { font-size: 11px; font-weight: 600; }
+.sb-caja-label { font-size: 12px; font-weight: 600; }
+
+
+/* Etapa 1 · refinamiento visual adicional del Command Center */
+:root {
+  --premium-border: rgba(148, 163, 184, .16);
+  --premium-radius: 18px;
+}
+.kpi, .panel-card, .meta-card, .today-panel, .alert-banner {
+  border-color: var(--premium-border);
+  border-radius: var(--premium-radius);
+}
+.kpi {
+  box-shadow: 0 8px 26px rgba(0, 0, 0, .10);
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.kpi:focus-visible, .panel-link:focus-visible, .nav-item:focus-visible,
+.tb-action:focus-visible, .tb-icon-btn:focus-visible, .sb-btn:focus-visible {
+  outline: 2px solid var(--green, #34d399);
+  outline-offset: 3px;
+}
+.kpi:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .16);
+}
+.tb-search input { min-width: 0; }
+@media (max-width: 760px) {
+  .main { padding-bottom: max(24px, env(safe-area-inset-bottom)); }
+  .kpi, .panel-card, .meta-card, .today-panel { border-radius: 15px; }
+  .tb-search input { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kpi, .panel-link, .nav-item, .tb-action, .tb-icon-btn, .sb-btn {
+    transition: none !important;
+  }
+  .kpi:hover { transform: none; }
+}
