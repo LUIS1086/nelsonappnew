@@ -264,9 +264,9 @@
                 // Ya estoy en recepción → focus primer campo
                 document.getElementById('c-nom')?.focus();
             } else if (activeId === 'view-ventas') {
-                // Foco en nueva venta
+                // Abrir la venta unificada
                 tab('ventas');
-                setTimeout(() => document.getElementById('v-select')?.focus(), 150);
+                if (typeof openInvoiceSaleModal === 'function') openInvoiceSaleModal();
             } else if (activeId === 'view-ordenes') {
                 // Ir a crear nueva orden
                 tab('taller');

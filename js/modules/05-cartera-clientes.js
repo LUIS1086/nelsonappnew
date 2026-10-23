@@ -52,7 +52,10 @@
                 const pct = deudores[0].deuda > 0 ? Math.round((c.deuda / deudores[0].deuda) * 100) : 0;
                 const safeName = escapeHtml(c.nombre).replace(/'/g, "&#39;");
                 const tel = c.telefono || '';
-                const waUrl = tel ? `https://wa.me/${tel.replace(/\D/g,'')}?text=${encodeURIComponent('Hola ' + c.nombre + ', cómo estás? Te escribo por el saldo pendiente de ' + cur + c.deuda.toLocaleString() + ' en Todo Repuestos Nelson. Quedo atento a tu respuesta.')}` : '';
+                const _digits = String(tel).replace(/\D/g, '');
+                const _waNum = _digits ? (_digits.length <= 10 ? '57' + _digits : _digits) : '';
+                const _bizName = (typeof _safeBizConfig === 'function' ? (_safeBizConfig().name || '') : '') || 'Todo Repuestos Nelson';
+                const waUrl = _waNum ? `https://wa.me/${_waNum}?text=${encodeURIComponent('Hola ' + c.nombre + ', cómo estás? Te escribo por el saldo pendiente de ' + cur + c.deuda.toLocaleString() + ' en ' + _bizName + '. Quedo atento a tu respuesta.')}` : '';
                 return `<div style="position:relative;padding:12px;background:rgba(15,23,42,0.5);border:1px solid rgba(244,63,94,0.12);border-left:3px solid hsl(${hue},70%,55%);border-radius:14px;margin-bottom:8px;transition:all 0.15s ease;" onmouseenter="this.style.background='rgba(15,23,42,0.7)'" onmouseleave="this.style.background='rgba(15,23,42,0.5)'">
                     <div style="display:flex;align-items:center;gap:10px;">
                         <div style="flex-shrink:0;width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,hsl(${hue},70%,55%),hsl(${hue},70%,40%));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff;box-shadow:0 4px 10px hsla(${hue},70%,50%,0.3);letter-spacing:-0.3px;">${nameInitials}</div>
@@ -70,13 +73,33 @@
                             </div>
                         </div>
                     </div>
-                    <div style="display:flex;gap:6px;margin-top:10px;">
-                        <button onclick="showClientHistory('${safeName}')" style="flex:1;padding:7px;background:rgba(148,163,184,0.1);border:1px solid rgba(148,163,184,0.2);border-radius:9px;color:#cbd5e1;font-size:10px;font-weight:800;cursor:pointer;letter-spacing:0.5px;">📜 Historial</button>
-                        ${tel ? `<a href="${waUrl}" target="_blank" style="flex:1;padding:7px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);border-radius:9px;color:#34d399;font-size:10px;font-weight:800;text-align:center;text-decoration:none;letter-spacing:0.5px;">💬 WhatsApp</a>` : ''}
+                    <div class="cartera-actions">
+                        <button type="button" class="cartera-act" onclick="showClientHistory('${safeName}')" title="Abre la ficha con sus órdenes, pagos y datos" aria-label="Ver historial de ${escapeHtml(c.nombre)}">
+                            <span class="cartera-act-ico">📜</span><span class="cartera-act-txt"><strong>Ver historial</strong><small>Órdenes y pagos</small></span>
+                        </button>
+                        <button type="button" class="cartera-act cartera-act-pay" onclick="openClientPayment('${safeName}')" title="Registra un abono y lo descuenta de la deuda" aria-label="Registrar abono de ${escapeHtml(c.nombre)}">
+                            <span class="cartera-act-ico">💵</span><span class="cartera-act-txt"><strong>Registrar abono</strong><small>Descuenta de la deuda</small></span>
+                        </button>
+                        ${tel ? `<a class="cartera-act cartera-act-wa" href="${waUrl}" target="_blank" rel="noopener" title="Abre WhatsApp con un recordatorio del saldo ya escrito" aria-label="Cobrar por WhatsApp a ${escapeHtml(c.nombre)}">
+                            <span class="cartera-act-ico">💬</span><span class="cartera-act-txt"><strong>Cobrar por WhatsApp</strong><small>Recordatorio del saldo</small></span>
+                        </a>
+                        <a class="cartera-act cartera-act-call" href="tel:${escapeHtml(_digits)}" title="Llama al cliente desde este teléfono" aria-label="Llamar a ${escapeHtml(c.nombre)}">
+                            <span class="cartera-act-ico">📞</span><span class="cartera-act-txt"><strong>Llamar</strong><small>Marcar ${escapeHtml(tel)}</small></span>
+                        </a>` : `<div class="cartera-act cartera-act-off" style="grid-column:1/-1" title="Agrega el teléfono en una orden de este cliente para poder cobrarle por WhatsApp o llamarlo">
+                            <span class="cartera-act-ico">📵</span><span class="cartera-act-txt"><strong>Sin teléfono</strong><small>Agrégalo en una orden para cobrar por WhatsApp o llamar</small></span>
+                        </div>`}
                     </div>
                 </div>`;
             }).join('');
             container.innerHTML = html;
+        }
+        // Abre la ficha del cliente y deja el cursor en el campo de "Registrar pago"
+        async function openClientPayment(nombre) {
+            await showClientHistory(nombre);
+            setTimeout(() => {
+                const inp = document.getElementById('payment-amount');
+                if (inp) { if (inp.scrollIntoView) inp.scrollIntoView({ block: 'nearest' }); inp.focus(); }
+            }, 220);
         }
         async function showClientHistory(nombre) {
             currentClientHistory = nombre;
@@ -119,7 +142,8 @@
             const hue = avatarHues[hashVal];
 
             // HEADER del modal con avatar + identidad + tier
-            const waUrl = telefono ? `https://wa.me/${telefono.replace(/\D/g,'')}` : '';
+            const _td = String(telefono || '').replace(/\D/g,'');
+            const waUrl = _td ? `https://wa.me/${_td.length <= 10 ? '57' + _td : _td}` : '';
             document.getElementById('client-history-header').innerHTML = `
                 <div style="position:absolute;top:-50px;right:-50px;width:180px;height:180px;background:radial-gradient(circle,hsla(${hue},70%,55%,0.25),transparent 70%);pointer-events:none;"></div>
                 <div style="position:relative;display:flex;align-items:flex-start;gap:14px;">
@@ -135,8 +159,8 @@
                     <button onclick="closeClientHistory()" style="flex-shrink:0;width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;font-size:14px;cursor:pointer;">✕</button>
                 </div>
                 ${telefono ? `<div style="margin-top:12px;display:flex;gap:6px;">
-                    <a href="${waUrl}" target="_blank" style="flex:1;padding:8px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);border-radius:10px;color:#34d399;font-size:10px;font-weight:900;text-align:center;text-decoration:none;letter-spacing:1px;text-transform:uppercase;">💬 WhatsApp</a>
-                    <a href="tel:${escapeHtml(String(telefono ?? ''))}" style="flex:1;padding:8px;background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.3);border-radius:10px;color:#60a5fa;font-size:10px;font-weight:900;text-align:center;text-decoration:none;letter-spacing:1px;text-transform:uppercase;">📞 Llamar</a>
+                    <a href="${waUrl}" target="_blank" rel="noopener" title="Abre un chat de WhatsApp con el cliente" style="flex:1;padding:8px 6px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);border-radius:10px;color:#34d399;text-align:center;text-decoration:none;line-height:1.25;"><span style="display:block;font-size:11px;font-weight:900;">💬 WhatsApp</span><span style="display:block;font-size:9px;font-weight:600;color:#6ee7b7;opacity:.85;">Abrir chat</span></a>
+                    <a href="tel:${escapeHtml(String(telefono ?? '').replace(/\D/g,''))}" title="Llama al cliente desde este teléfono" style="flex:1;padding:8px 6px;background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.3);border-radius:10px;color:#60a5fa;text-align:center;text-decoration:none;line-height:1.25;"><span style="display:block;font-size:11px;font-weight:900;">📞 Llamar</span><span style="display:block;font-size:9px;font-weight:600;color:#93c5fd;opacity:.85;">Marcar número</span></a>
                 </div>` : ''}
             `;
 

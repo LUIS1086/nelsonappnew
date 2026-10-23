@@ -442,6 +442,7 @@
                             ${tel ? `<span>📞 ${escapeHtml(tel)}</span>` : ''}
                         </div>
                         <div class="flex gap-1 mt-1 flex-wrap">${deudaBadge}${activasBadge}</div>
+                        <div class="text-[9px] font-bold text-violet-300/80 mt-1">Toca para ver su ficha y filtrar sus órdenes</div>
                     </div>
                     <span class="text-violet-400 text-lg flex-shrink-0">›</span>
                 </button>`;
