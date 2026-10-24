@@ -29,5 +29,16 @@ for(const f of walk(path.join(root,'js')).filter(f=>f.endsWith('.js')&&!f.includ
   for(const m of t.matchAll(/['"](js\/libs\/[A-Za-z0-9._-]+)['"]/g)) if(!fs.existsSync(path.join(root,m[1]))) err('Falta la librería '+m[1]+' (citada en '+path.relative(root,f)+')');
   if(/\.src\s*=\s*['"]https?:\/\/(cdnjs|cdn\.jsdelivr|unpkg)/.test(t)) err('Carga un script de CDN (la CSP lo bloquea; alójalo en js/libs): '+path.relative(root,f));
 }
+// ── Versión: una sola fuente (js/version.js) y todo lo demás debe leerla ──
+{ const vf=fs.readFileSync(path.join(root,'js/version.js'),'utf8'); const vm=vf.match(/APP_VERSION\s*=\s*'(v\d+\.\d+\.\d+)'/);
+  if(!vm) err("js/version.js debe definir  self.APP_VERSION = 'vX.Y.Z'");
+  else { const v=vm[1];
+    if(!/importScripts\('\.\/js\/version\.js'\)/.test(sw)) err('service-worker.js no importa js/version.js (su caché no seguiría la versión)');
+    if(/const CACHE_VERSION\s*=\s*'nelsonapp-v\d/.test(sw)) err('service-worker.js tiene CACHE_VERSION fija; debe derivarse de APP_VERSION');
+    ['index.html','dashboard.html'].forEach(f=>{ if(!/<script src="js\/version\.js"><\/script>/.test(fs.readFileSync(path.join(root,f),'utf8'))) err(f+' no carga js/version.js'); });
+    ['splash-version','credits-version','cfg-header-version'].forEach(id=>{ const m=idx.match(new RegExp('id="'+id+'">([^<]*)<')); if(m&&m[1]!==v) err('index.html #'+id+' dice '+m[1]+' y la versión es '+v); });
+    for(const f of walk(path.join(root,'js')).filter(f=>f.endsWith('.js')&&!f.includes(path.sep+'libs'+path.sep)&&!f.endsWith('version.js'))){
+      if(/APP_VERSION\s*=\s*['"]v\d/.test(fs.readFileSync(f,'utf8'))) err('Versión fija en '+path.relative(root,f)+' (solo js/version.js puede definirla)'); }
+    console.log('· Versión de la app y del service worker: '+v); } }
 console.log(errores?`\n${errores} problema(s) encontrados`:`✓ Todo en orden (${refs.length} archivos css/js, precache y manifest correctos)`);
 process.exit(errores?1:0);
