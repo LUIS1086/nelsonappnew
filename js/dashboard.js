@@ -311,7 +311,7 @@ function loadBiz() {
     const c = JSON.parse(localStorage.getItem('businessConfig') || '{}');
     const name  = c.name  || 'Todo Repuestos Nelson';
     const short = c.shortName || 'TODO REPUESTOS';
-    const ver   = c.version || localStorage.getItem('appVersion') || '3.2.0';
+    const ver   = String(window.APP_VERSION || c.version || localStorage.getItem('appVersion') || '').replace(/^v/i, '') || '?';
     document.getElementById('sb-short').textContent = short.toUpperCase();
     document.getElementById('sb-name').textContent  = name.toUpperCase().replace('TODO REPUESTOS','').trim() || 'NELSON';
     document.getElementById('tb-title').textContent = (name.toUpperCase()) + ' — COMMAND CENTER';
