@@ -98,11 +98,11 @@
                 }
                 o.fotos = [...(o.fotos || []), blob];
                 await put('orders', o);
+                window._fotosCambiaron = true;
                 showToast(`✅ Foto agregada (${o.fotos.length}/3)`, 'success');
-                if (o.fotos.length >= 3) {
-                    closeCamera();
-                    await openPhotoModal(_retomarOrdenId, 'recepcion');
-                }
+                // Vuelve al visor para ver la foto y, si hace falta, agregar otra
+                closeCamera();
+                await openPhotoModal(_retomarOrdenId, 'recepcion');
             } else if (cameraMode === 'entrega') {
                 if (currentDeliveryPhotos.length >= 3) { showAlert("Máximo 3 fotos de entrega.", "warning"); return; }
                 currentDeliveryPhotos.push(blob);

@@ -73,8 +73,49 @@
                 showAlert('Todos los datos han sido eliminados. La aplicación se recargará.', 'success', () => location.reload());
             });
         }
-        function checkUpdate() {
-            showAlert(`Actualmente estás en la versión estable ${window.APP_VERSION}. Para actualizar, descarga el nuevo archivo desde tu proveedor.`, 'info');
+        // Versión del service worker que está guardando la caché (p. ej. "v3.5.4") o null
+        async function _swCacheVersion() {
+            try {
+                const keys = await caches.keys();
+                const m = keys.map(k => /^nelsonapp-(v[\d.]+)-static$/.exec(k)).find(Boolean);
+                return m ? m[1] : null;
+            } catch (e) { return null; }
+        }
+        // Borra cachés y desregistra el service worker (NO toca órdenes, clientes ni fotos: eso vive en IndexedDB)
+        async function forceAppRefresh() {
+            try {
+                const keys = await caches.keys();
+                await Promise.all(keys.filter(k => k.startsWith('nelsonapp-')).map(k => caches.delete(k)));
+                const regs = await navigator.serviceWorker.getRegistrations();
+                await Promise.all(regs.map(r => r.unregister()));
+            } catch (e) { console.warn('forceAppRefresh:', e); }
+            location.reload();
+        }
+        async function checkUpdate() {
+            const appV = window.APP_VERSION || '?';
+            if (!('serviceWorker' in navigator)) return showAlert(`Versión ${appV}. Este navegador no permite actualización automática.`, 'info');
+            showToast('Buscando actualización…', 'info');
+            try {
+                const reg = await navigator.serviceWorker.getRegistration();
+                if (!reg) return showAlert(`Versión ${appV}. El service worker no está activo en este dispositivo (sin modo offline). Recarga la página e inténtalo de nuevo.`, 'warning');
+                await reg.update();
+                const nuevo = reg.installing || reg.waiting;
+                if (nuevo) {
+                    await new Promise(res => {
+                        if (nuevo.state === 'installed' || nuevo.state === 'activated') return res();
+                        nuevo.addEventListener('statechange', () => { if (nuevo.state === 'installed' || nuevo.state === 'activated') res(); });
+                        setTimeout(res, 10000);
+                    });
+                    return showAlert('Se descargó una versión nueva. Pulsa Aceptar para recargar y usarla.', 'success', () => location.reload());
+                }
+                const swV = await _swCacheVersion();
+                if (swV && swV !== appV) {
+                    return showConfirm(`La pantalla muestra ${appV} pero el service worker guarda ${swV}: hay archivos viejos en caché. ¿Limpiar la caché y recargar? (No se borran tus datos.)`, forceAppRefresh);
+                }
+                showAlert(`Estás al día ✅\nApp: ${appV}\nService worker: ${swV || 'activo'}`, 'success');
+            } catch (e) {
+                showAlert('No se pudo buscar la actualización (¿sin internet?). Versión actual: ' + appV, 'warning');
+            }
         }
         function openAdvancedConfig() {
             loadBusinessConfig();
