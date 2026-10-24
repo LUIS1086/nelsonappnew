@@ -1,4 +1,4 @@
-# Nelson App Pro · v3.5.3 — Venta unificada, botones de cartera y acciones de orden con descripción
+# Nelson App Pro · v3.5.5 — Venta unificada, botones con descripción, fotos tardías y versión única
 
 No hay cambios de base de datos (IndexedDB sigue en la versión 15). Las ventas anteriores
 (rápidas o con ticket) se siguen viendo, anulando y reabriendo igual que antes.
@@ -47,6 +47,51 @@ Antes eran 6 iconos sueltos (📝 📋 🔗 🧾 💬 🗑️). Ahora son 8 boto
 | 🗑️ Eliminar · *Borrar orden* | Pide confirmación, como antes |
 
 Archivos: `js/modules/10-ordenes-lista-estados-whatsapp.js` y `css/08-ordenes-avisar-listos.css`.
+
+## 4. Fotos de recepción después de registrar la orden (v3.5.4)
+**Problema:** si al registrar al cliente se olvidaba la foto, el botón «📸 0 recep.» solo mostraba
+«Esta orden no tiene fotos» y no había forma de tomarla después.
+
+**Ahora:**
+- Con 0 fotos el botón de la tarjeta dice **«📸 Sin foto · tomar»** (resaltado en naranja).
+- Al tocarlo se abre el visor con el mensaje «aún no tiene fotos de recepción» y el botón **«📸 TOMAR FOTO AHORA»**.
+- Se abre la cámara, se toma la foto y vuelve al visor para verla; si faltan, **«📸 AGREGAR FOTO (n/3)»**.
+- Con 3 fotos el botón queda deshabilitado («MÁXIMO 3 FOTOS»); para cambiar una, se borra y se toma otra.
+- El contador de la tarjeta se actualiza al cerrar el visor.
+
+Archivos: `js/modules/11-fotos-gastos.js`, `08-ordenes-formulario-camara.js`, `10-ordenes-lista-estados-whatsapp.js`.
+
+## 5. La versión se quedaba en v3.4.3 (v3.5.5)
+**Causa:** la versión estaba escrita en tres sitios: `APP_VERSION` (pantalla de inicio, créditos y
+configuración), `CACHE_VERSION` del service worker y un texto fijo en el dashboard. Al subir
+versiones solo se cambiaba el del service worker, así que la pantalla seguía diciendo v3.4.3.
+
+**Ahora hay UN solo lugar: `js/version.js`.** Para publicar una versión nueva se cambia solo esa línea:
+
+```js
+self.APP_VERSION = 'v3.5.5';
+```
+
+La leen la app, el dashboard y el service worker (con `importScripts`), que arma de ahí el nombre de
+su caché (`nelsonapp-v3.5.5`). Si `version.js` fallara, el service worker igual se instala con un nombre de respaldo.
+
+- **Service worker:** al activarse borra solo las cachés `nelsonapp-*` que no son las actuales
+  (antes comparaba por prefijo del nombre). Se agregó `js/version.js` al precache.
+- **Configuración → 🔄 Buscar actualizaciones** ahora sí busca: consulta al service worker y responde
+  «Estás al día ✅ (App y Service worker)», «Se descargó una versión nueva → recargar», o, si la
+  caché es de otra versión que la pantalla, ofrece **limpiar la caché y recargar** (no borra órdenes,
+  clientes ni fotos: esos datos viven en IndexedDB).
+- **`node tools/verificar.js`** ahora falla si: la versión no está en `version.js`, el service worker
+  no la importa, `index.html`/`dashboard.html` no cargan `version.js`, los textos de versión del
+  HTML no coinciden, o alguien vuelve a escribir una versión fija en otro archivo.
+
+Archivos: `js/version.js` (nuevo), `service-worker.js`, `js/core/01-base-globales.js`, `js/dashboard.js`,
+`js/modules/20-configuracion-modal.js`, `index.html`, `dashboard.html`, `tools/verificar.js`.
+
+### Cómo publicar para que el celular se actualice
+1. Sube el contenido de la carpeta `nelsonappnew-main` a la raíz del repositorio de Vercel (no la carpeta misma).
+2. Espera a que Vercel termine el despliegue.
+3. Abre la app: aparece «🚀 Nueva versión disponible» → **Actualizar**. Si no aparece, Configuración → Buscar actualizaciones.
 
 ### Archivos tocados
 `index.html`, `css/21-ticket-venta.css`, `js/modules/05-cartera-clientes.js`,

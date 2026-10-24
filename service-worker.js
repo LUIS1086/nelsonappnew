@@ -12,7 +12,10 @@
  *    detecte capacidad de notificaciones (puntúa más alto).
  * ============================================================ */
 
-const CACHE_VERSION = 'nelsonapp-v3.5.3';
+// La versión sale de js/version.js (única fuente de verdad). Si por algo no cargara, se usa un nombre
+// de respaldo para que el service worker siga instalándose.
+try { importScripts('./js/version.js'); } catch (e) { /* respaldo abajo */ }
+const CACHE_VERSION = 'nelsonapp-' + (self.APP_VERSION || 'v-sin-version');
 const STATIC_CACHE  = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -60,6 +63,7 @@ const PRECACHE_URLS = [
     './js/modules/40-seguimiento.js',
     './js/modules/41-respaldo-supabase.js',
     './js/dashboard.js',
+    './js/version.js',
     './css/tailwind.css',
     // JS (core + modules + Nelson IA)
     './js/core/01-base-globales.js',
@@ -121,7 +125,7 @@ self.addEventListener('activate', (event) => {
         caches.keys()
             .then(names => Promise.all(
                 names
-                    .filter(n => n.startsWith('nelsonapp-') && !n.startsWith(CACHE_VERSION))
+                    .filter(n => n.startsWith('nelsonapp-') && n !== STATIC_CACHE && n !== RUNTIME_CACHE)
                     .map(n => caches.delete(n))
             ))
             .then(() => self.clients.claim())
