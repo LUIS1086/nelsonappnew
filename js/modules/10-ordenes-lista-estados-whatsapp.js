@@ -207,13 +207,33 @@
                     </div>
                     ${(o.fotos?.length > 0 && deliveryPhotoCount > 0) ? `<div style="padding:0 14px 10px;"><button onclick="openCompareModal(${o.id})" style="width:100%;padding:8px;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);border-radius:10px;font-size:10px;font-weight:900;color:#c4b5fd;cursor:pointer;letter-spacing:1px;text-transform:uppercase;" class="active:scale-95 transition">🔀 Comparar antes / después</button></div>` : ''}
 
-                    <div style="padding:10px 14px 14px;border-top:1px solid rgba(255,255,255,0.04);display:flex;justify-content:flex-end;gap:6px;">
-                        <button onclick="openOrderChat(${o.id})" class="order-action-btn bg-cyan-500/15 text-cyan-400" title="Notas internas">📝</button>
-                        <button onclick="duplicateOrder(${o.id})" class="order-action-btn bg-violet-500/15 text-violet-400" title="Duplicar orden (mismo cliente)">📋</button>
-                        <button onclick="openSeguimiento(${o.id})" class="order-action-btn" style="background:rgba(56,189,248,.15);color:#38bdf8" title="Seguimiento del cliente (enlace y QR)">🔗</button>
-                        <button onclick="printInvoice(${o.id})" class="order-action-btn bg-amber-500/15 text-amber-400" title="Imprimir">🧾</button>
-                        <button onclick="sendWA(${o.id})" class="order-action-btn bg-emerald-500/15 text-emerald-400" title="WhatsApp">💬</button>
-                        <button onclick="delOrder(${o.id})" class="order-action-btn bg-rose-500/15 text-rose-400" title="Eliminar">🗑️</button>
+                    <div class="order-acts" role="group" aria-label="Acciones de la orden">
+                        <button type="button" class="order-act oa-wa" onclick="sendWA(${o.id})" title="Elige un mensaje listo (recepción, presupuesto, listo, cobro…) y lo envía por WhatsApp">
+                            <span class="oa-ico">💬</span><span class="oa-name">WhatsApp</span><span class="oa-sub">Avisar al cliente</span>
+                        </button>
+                        ${o.tel ? `<a class="order-act oa-call" href="tel:${escapeHtml(String(o.tel).replace(/\D/g,''))}" title="Llama al cliente desde este teléfono">
+                            <span class="oa-ico">📞</span><span class="oa-name">Llamar</span><span class="oa-sub">Marcar número</span>
+                        </a>` : `<button type="button" class="order-act oa-off" onclick="showAlert('Esta orden no tiene teléfono registrado. Edítala para agregarlo.','warning')" title="Esta orden no tiene teléfono">
+                            <span class="oa-ico">📞</span><span class="oa-name">Llamar</span><span class="oa-sub">Sin teléfono</span>
+                        </button>`}
+                        <button type="button" class="order-act oa-track" onclick="openSeguimiento(${o.id})" title="Enlace y QR para que el cliente vea el estado de su equipo">
+                            <span class="oa-ico">🔗</span><span class="oa-name">Seguimiento</span><span class="oa-sub">Enlace y QR</span>
+                        </button>
+                        <button type="button" class="order-act oa-print" onclick="printInvoice(${o.id})" title="Genera el recibo/factura de esta orden para imprimir o compartir">
+                            <span class="oa-ico">🧾</span><span class="oa-name">Imprimir</span><span class="oa-sub">Recibo o factura</span>
+                        </button>
+                        <button type="button" class="order-act oa-notes" onclick="openOrderChat(${o.id})" title="Notas internas del taller: el cliente no las ve">
+                            <span class="oa-ico">📝</span><span class="oa-name">Notas</span><span class="oa-sub">Solo internas</span>
+                        </button>
+                        <button type="button" class="order-act oa-dup" onclick="duplicateOrder(${o.id})" title="Crea una orden nueva con los datos de este cliente">
+                            <span class="oa-ico">📋</span><span class="oa-name">Duplicar</span><span class="oa-sub">Misma persona</span>
+                        </button>
+                        <button type="button" class="order-act oa-client" onclick="showClientHistory('${escapeHtml(o.nom || '').replace(/'/g, '&#39;')}')" title="Abre la ficha del cliente: órdenes, pagos y deuda">
+                            <span class="oa-ico">👤</span><span class="oa-name">Cliente</span><span class="oa-sub">Ficha y deuda</span>
+                        </button>
+                        <button type="button" class="order-act oa-del" onclick="delOrder(${o.id})" title="Elimina esta orden de forma permanente (pide confirmación)">
+                            <span class="oa-ico">🗑️</span><span class="oa-name">Eliminar</span><span class="oa-sub">Borrar orden</span>
+                        </button>
                     </div>
                 </div>`;
             };
