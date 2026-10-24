@@ -1,4 +1,4 @@
-# Nelson App Pro · v3.5.2 — Venta unificada y botones de cartera con descripción
+# Nelson App Pro · v3.5.3 — Venta unificada, botones de cartera y acciones de orden con descripción
 
 No hay cambios de base de datos (IndexedDB sigue en la versión 15). Las ventas anteriores
 (rápidas o con ticket) se siguen viendo, anulando y reabriendo igual que antes.
@@ -31,6 +31,22 @@ Ahora hay **una sola tarjeta «Nueva venta»** que abre el formulario completo, 
   existentes y completa su teléfono.
 - Método de pago, observaciones y ticket por WhatsApp · compartir · PDF · imagen · imprimir.
 - El botón «Nueva venta» de la barra superior (escritorio) abre este mismo formulario.
+
+## 3. Tarjeta de orden: botones con nombre y descripción (v3.5.3)
+Antes eran 6 iconos sueltos (📝 📋 🔗 🧾 💬 🗑️). Ahora son 8 botones con icono, nombre y qué hacen:
+
+| Botón | Qué hace |
+|---|---|
+| 💬 WhatsApp · *Avisar al cliente* | Elige un mensaje listo (recepción, presupuesto, listo, cobro…) |
+| 📞 Llamar · *Marcar número* | **Nuevo.** Llamada directa; si no hay teléfono avisa «Sin teléfono» |
+| 🔗 Seguimiento · *Enlace y QR* | Enlace/QR para que el cliente vea el estado |
+| 🧾 Imprimir · *Recibo o factura* | Genera el recibo para imprimir o compartir |
+| 📝 Notas · *Solo internas* | Notas del taller; el cliente no las ve |
+| 📋 Duplicar · *Misma persona* | Nueva orden con los datos del cliente |
+| 👤 Cliente · *Ficha y deuda* | **Nuevo.** Abre la ficha: órdenes, pagos y deuda |
+| 🗑️ Eliminar · *Borrar orden* | Pide confirmación, como antes |
+
+Archivos: `js/modules/10-ordenes-lista-estados-whatsapp.js` y `css/08-ordenes-avisar-listos.css`.
 
 ### Archivos tocados
 `index.html`, `css/21-ticket-venta.css`, `js/modules/05-cartera-clientes.js`,
