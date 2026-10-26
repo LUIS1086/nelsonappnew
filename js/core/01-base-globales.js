@@ -22,23 +22,6 @@
         const escAttr = s => String(s ?? '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         window.escAttr = escAttr;
 
-        // waPhone: normaliza un teléfono al formato internacional que exige wa.me
-        // (https://wa.me/<solo dígitos>). Evita el bug clásico del prefijo 57 duplicado
-        // ("+57 314 123 4567" → "57573141234567", enlace roto).
-        // Reglas:
-        //   · se eliminan todos los caracteres no numéricos (+, espacios, guiones…)
-        //   · 10 dígitos → número local colombiano → se le antepone 57
-        //   · ya empieza por 57 → NO se duplica el prefijo
-        //   · cualquier otro largo → se respeta tal cual (trae código de país propio)
-        const waPhone = (tel) => {
-            const num = String(tel ?? '').replace(/\D/g, '');
-            if (!num) return '';
-            if (num.length === 10) return '57' + num;
-            if (num.startsWith('57')) return num;
-            return num;
-        };
-        window.waPhone = waPhone;
-
         // Acceso uniforme a cámara para Chrome, Brave, Firefox y Samsung Internet.
         // · Solo hay UNA cámara activa a la vez: antes de pedir otra se libera la anterior
         //   (Chrome en Android responde NotReadableError si la misma página la abre dos veces).
