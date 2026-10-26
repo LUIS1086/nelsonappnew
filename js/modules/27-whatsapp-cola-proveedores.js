@@ -121,13 +121,10 @@
                 mensaje += `¿Tienes disponibilidad y cuál sería el precio?\n\nGracias.`;
 
                 // Si hay proveedor con teléfono, abrir WhatsApp directo
-                if (matchProv && matchProv.tel) {
-                    const num = waPhone(matchProv.tel);
-                    if (!num) {
-                        showAlert(`El proveedor "${item.supplier}" tiene un teléfono inválido.`, 'warning');
-                        return;
-                    }
-                    const url = `https://wa.me/${num}?text=${encodeURIComponent(mensaje)}`;
+                if (matchProv && matchProv.telefono) {
+                    const tel = matchProv.telefono.replace(/\D/g, '');
+                    const prefix = tel.length === 10 ? '57' : '';
+                    const url = `https://wa.me/${prefix}${tel}?text=${encodeURIComponent(mensaje)}`;
                     sessionStorage.setItem('_waJump', '1');
                     window.open(url, '_blank');
                     showToast(`📱 Enviando a ${matchProv.nombre}`, 'success');
@@ -173,9 +170,9 @@
         async function sendOCWhatsApp() {
             const { txt, prov } = await _buildOCText();
             if (!prov?.tel) return showAlert('Selecciona un proveedor con teléfono registrado para enviar por WhatsApp.', 'warning');
-            const num = waPhone(prov.tel);
-            if (!num) return showAlert('El teléfono del proveedor no es válido.', 'warning');
-            sessionStorage.setItem('_waJump','1'); window.open(`https://wa.me/${num}?text=${encodeURIComponent(txt)}`, '_blank');
+            const num = prov.tel.replace(/\D/g,'');
+            const prefix = num.startsWith('57') ? '' : '57';
+            sessionStorage.setItem('_waJump','1'); window.open(`https://wa.me/${prefix}${num}?text=${encodeURIComponent(txt)}`, '_blank');
         }
 
         async function copyOCText() {

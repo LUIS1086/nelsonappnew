@@ -227,11 +227,8 @@
             const orders = await getAll('orders');
             const o = orders.find(x => x.id === currentDeliveryOrderId);
             if (o) { o.fotosEntrega = currentDeliveryPhotos; await put('orders', o); }
-            // Contar ANTES de cerrar el modal: closeDeliveryPhotosModal() vacía
-            // currentDeliveryPhotos, por lo que el mensaje siempre decía "0 foto(s)".
-            const saved = currentDeliveryPhotos.length;
             closeDeliveryPhotosModal();
-            showAlert(`${saved} foto(s) de entrega guardadas.`, "success");
+            showAlert(`${currentDeliveryPhotos.length} foto(s) de entrega guardadas.`, "success");
             await renderOrders();
         }
 
@@ -262,9 +259,7 @@
             if (o.presupuesto === 'enviado' && o.tel) {
                 showConfirm(`¿Enviar presupuesto por WhatsApp a ${o.nom}?`, () => {
                     const msg = `*TODO REPUESTOS NELSON*\nHola ${o.nom}, te enviamos el presupuesto para tu ${o.equ}.\n💰 Valor: $${o.val.toLocaleString()}\n✅ Por favor confírmanos si apruebas la reparación.`;
-                    const num = waPhone(o.tel);
-                    if (!num) return showAlert('El teléfono del cliente no es válido.', 'warning');
-                    sessionStorage.setItem('_waJump','1'); window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, '_blank');
+                    sessionStorage.setItem('_waJump','1'); window.open(`https://wa.me/57${o.tel}?text=${encodeURIComponent(msg)}`, '_blank');
                 }, "info");
             }
         }

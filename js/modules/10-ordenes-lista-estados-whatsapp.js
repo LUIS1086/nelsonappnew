@@ -365,9 +365,9 @@
 
         function _mostrarAvisoReparado(o) {
             const msg = buildWhatsappMsg('listo', o);
-            const num = waPhone(o.tel);
-            if (!num) { showToast('El teléfono del cliente no es válido', 'warning'); return; }
-            const waUrl = `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
+            const num = o.tel.replace(/\D/g, '');
+            const prefix = num.startsWith('57') ? '' : '57';
+            const waLink = `https://wa.me/${prefix}${num}?text=${encodeURIComponent(msg)}`;
             const modal = document.createElement('div');
             modal.id = 'modal-aviso-reparado';
             modal.className = 'js-modal-bottom-sheet';
@@ -379,7 +379,7 @@
                 </div>
                 <div style="padding:16px;display:flex;flex-direction:column;gap:10px;">
                     <p style="color:#94a3b8;font-size:12px;text-align:center;">¿Avisar al cliente que su equipo está listo?</p>
-                    <button onclick="sessionStorage.setItem('_waJump','1');window.open('${waUrl}','_blank');document.getElementById('modal-aviso-reparado').remove();" style="background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.4);color:#6ee7b7;padding:14px;border-radius:14px;font-weight:900;font-size:13px;">
+                    <button onclick="sessionStorage.setItem('_waJump','1');window.open('${waLink}','_blank');document.getElementById('modal-aviso-reparado').remove();" style="background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.4);color:#6ee7b7;padding:14px;border-radius:14px;font-weight:900;font-size:13px;">
                         💬 SÍ, AVISAR POR WHATSAPP
                     </button>
                     <button onclick="document.getElementById('modal-aviso-reparado').remove()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#64748b;padding:12px;border-radius:14px;font-weight:700;font-size:12px;">
@@ -491,10 +491,10 @@
             const o = orders.find(x => x.id === id);
             if (!o) return;
             const msg = buildWhatsappMsg(type, o);
-            const num = waPhone(o.tel);
-            if (!num) { showToast('El teléfono del cliente no es válido', 'warning'); return; }
+            const num = o.tel.replace(/\D/g, '');
+            const prefix = num.startsWith('57') ? '' : '57';
             // Marcar que salimos hacia WhatsApp para forzar repaint al volver
             sessionStorage.setItem('_waJump', '1');
-            window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, '_blank');
+            window.open(`https://wa.me/${prefix}${num}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 

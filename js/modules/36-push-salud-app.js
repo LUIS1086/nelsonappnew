@@ -61,8 +61,8 @@
                 // 1. Órdenes vencidas
                 const vencidas = orders.filter(o => {
                     if (o.sta === 'entregado' || o.sta === 'cancelado') return false;
-                    if (!o.fechaEstimada) return false;
-                    return new Date(o.fechaEstimada + 'T23:59:59').getTime() < now.getTime();
+                    if (!o.deadline) return false;
+                    return new Date(o.deadline) < now;
                 });
                 if (vencidas.length > 0) {
                     const lastKey = '_notif_vencidas_' + vencidas.length;
@@ -138,7 +138,7 @@
                 // ---- Calcular métricas ----
                 const totalRecords = orders.length + stock.length + sales.length + gastos.length;
                 const pendientes   = orders.filter(o => o.sta !== 'entregado' && o.sta !== 'cancelado');
-                const vencidas     = pendientes.filter(o => o.fechaEstimada && new Date(o.fechaEstimada + 'T23:59:59').getTime() < now.getTime());
+                const vencidas     = pendientes.filter(o => o.deadline && new Date(o.deadline) < now);
                 const stockBajo    = stock.filter(s => s.q !== undefined && Number(s.q) <= (s.minStock || threshold));
                 const stockAgotado = stock.filter(s => s.q === 0);
                 const deudores     = clientes.filter(c => c.deuda > 0);

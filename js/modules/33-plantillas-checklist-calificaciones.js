@@ -320,9 +320,15 @@
             }
         });
 
-        // NOTE: el bloque "DASHBOARD INLINE" (loadChartJs + _dashChartIngresos) se
-        // eliminó de aquí: solo lo consumía el dashboard inline de 34-dashboard-voz.js,
-        // que era código muerto (su DOM no existe en ningún HTML del proyecto).
-        // El dashboard real (dashboard.html + js/dashboard.js) dibuja sus gráficas
-        // con CSS puro, sin Chart.js.
+        // ==================== DASHBOARD INLINE ====================
+        let _dashChartIngresos = null;
+
+        function loadChartJs(cb) {
+            if (window.Chart) { cb(); return; }
+            const s = document.createElement('script');
+            s.src = 'js/libs/chart.umd.js';
+            s.onload = cb;
+            s.onerror = () => console.warn('No se pudo cargar Chart.js');
+            document.head.appendChild(s);
+        }
 

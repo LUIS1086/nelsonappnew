@@ -22,11 +22,9 @@
                     const o = pending[i];
                     try {
                         const m = buildWhatsappMsg('listo', o);
-                        const num = waPhone(o.tel);
-                        if (!num) continue;
-                        const link = `https://wa.me/${num}?text=${encodeURIComponent(m)}`;
+                        const waLink = `https://wa.me/57${o.tel.replace(/\D/g, '')}?text=${encodeURIComponent(m)}`;
                         sessionStorage.setItem('_waJump', '1');
-                        window.open(link, '_blank');
+                        window.open(waLink, '_blank');
                         // Marcar como avisado
                         o.lastNotified = Date.now();
                         await put('orders', o);
@@ -54,11 +52,9 @@
                 const o = orders.find(x => x.id === id);
                 if (!o || !o.tel) return showAlert('Orden o teléfono no encontrado', 'warning');
                 const msg = buildWhatsappMsg('listo', o);
-                const num = waPhone(o.tel);
-                if (!num) return showAlert('El teléfono del cliente no es válido.', 'warning');
-                const link = `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
+                const waLink = `https://wa.me/57${o.tel.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`;
                 sessionStorage.setItem('_waJump', '1');
-                window.open(link, '_blank');
+                window.open(waLink, '_blank');
                 // Marcar como avisado
                 o.lastNotified = Date.now();
                 await put('orders', o);

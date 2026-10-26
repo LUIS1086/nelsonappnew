@@ -137,7 +137,7 @@
                         logoEl.innerHTML = '🔧';
                     }
                 }
-                if (verEl) verEl.textContent = (window.APP_VERSION || 'v3.7.0');
+                if (verEl) verEl.textContent = (window.APP_VERSION || 'v3.3.0');
             } catch(e) {}
         }
 
@@ -259,7 +259,7 @@
                         filled = Object.values(t).filter(v => v && String(v).trim()).length;
                     } catch(e) {}
                 }
-                cfgSetBadge('cfg-wapp', `${filled}/8`, filled === 8 ? 'ok' : (filled > 0 ? 'warn' : 'off'));
+                cfgSetBadge('cfg-wapp', `${Math.min(filled, 8)}/8`, filled >= 8 ? 'ok' : (filled > 0 ? 'warn' : 'off'));
 
                 // Técnicos — cantidad
                 const tecs = JSON.parse(localStorage.getItem('tecnicos') || '[]');
@@ -366,7 +366,7 @@
             const onlineCls = navigator.onLine ? '#34d399' : '#fbbf24';
             const installed = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches ? 'PWA instalada' : 'Navegador';
             const rows = [
-                ['Versión', window.APP_VERSION || 'v3.7.0'],
+                ['Versión', window.APP_VERSION || 'v3.3.0'],
                 ['Plataforma', platform],
                 ['Entorno', installed],
                 ['Conexión', `<span style="color:${onlineCls};font-weight:800;">${online}</span>`],

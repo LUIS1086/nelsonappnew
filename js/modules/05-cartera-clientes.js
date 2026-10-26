@@ -52,7 +52,7 @@
                 const pct = deudores[0].deuda > 0 ? Math.round((c.deuda / deudores[0].deuda) * 100) : 0;
                 const safeName = escapeHtml(c.nombre).replace(/'/g, "&#39;");
                 const tel = c.telefono || '';
-                const waUrl = tel ? `https://wa.me/${waPhone(tel)}?text=${encodeURIComponent('Hola ' + c.nombre + ', cómo estás? Te escribo por el saldo pendiente de ' + cur + c.deuda.toLocaleString() + ' en Todo Repuestos Nelson. Quedo atento a tu respuesta.')}` : '';
+                const waUrl = tel ? `https://wa.me/${tel.replace(/\D/g,'')}?text=${encodeURIComponent('Hola ' + c.nombre + ', cómo estás? Te escribo por el saldo pendiente de ' + cur + c.deuda.toLocaleString() + ' en Todo Repuestos Nelson. Quedo atento a tu respuesta.')}` : '';
                 return `<div style="position:relative;padding:12px;background:rgba(15,23,42,0.5);border:1px solid rgba(244,63,94,0.12);border-left:3px solid hsl(${hue},70%,55%);border-radius:14px;margin-bottom:8px;transition:all 0.15s ease;" onmouseenter="this.style.background='rgba(15,23,42,0.7)'" onmouseleave="this.style.background='rgba(15,23,42,0.5)'">
                     <div style="display:flex;align-items:center;gap:10px;">
                         <div style="flex-shrink:0;width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,hsl(${hue},70%,55%),hsl(${hue},70%,40%));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff;box-shadow:0 4px 10px hsla(${hue},70%,50%,0.3);letter-spacing:-0.3px;">${nameInitials}</div>
@@ -119,7 +119,7 @@
             const hue = avatarHues[hashVal];
 
             // HEADER del modal con avatar + identidad + tier
-            const waUrl = telefono ? `https://wa.me/${waPhone(telefono)}` : '';
+            const waUrl = telefono ? `https://wa.me/${telefono.replace(/\D/g,'')}` : '';
             document.getElementById('client-history-header').innerHTML = `
                 <div style="position:absolute;top:-50px;right:-50px;width:180px;height:180px;background:radial-gradient(circle,hsla(${hue},70%,55%,0.25),transparent 70%);pointer-events:none;"></div>
                 <div style="position:relative;display:flex;align-items:flex-start;gap:14px;">
