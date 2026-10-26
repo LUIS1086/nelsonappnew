@@ -744,8 +744,37 @@ function buildGarantiaPanel(orders, now) {
         <div class="garantia-device">${esc(o.equ)}</div>
       </div>
       <div class="garantia-badge ${cls}">${o.garantia}d garantía</div>
+      <button type="button" class="garantia-wa-btn" onclick="avisarGarantiaWA(${o.id})" title="Avisar por WhatsApp: vencimiento + mantenimiento de obsequio" aria-label="Avisar por WhatsApp">💬</button>
     </div>`;
   }).join('');
+}
+
+// Aviso por WhatsApp: garantía por vencer + mantenimiento de obsequio
+function buildAvisoGarantiaMsg(order) {
+  const cfg = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+  const neg = (cfg.name || 'Todo Repuestos Nelson').trim().toUpperCase();
+  const vence = order.fechaEntrega + (order.garantia * 86400000);
+  const dias = daysDiff(Date.now(), vence);
+  const d = new Date(vence);
+  const fecha = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+  const restan = dias <= 0 ? 'hoy' : dias === 1 ? 'mañana' : `en ${dias} días`;
+  const equipo = order.equ || 'equipo';
+  let tpl = '';
+  try { tpl = (JSON.parse(localStorage.getItem('whatsappTemplates') || '{}').garantiavence || '').trim(); } catch (e) {}
+  if (!tpl) tpl = '🔧 *{negocio}*\n\nHola {cliente} 👋, te recordamos que la garantía de tu {equipo} vence {restan} ({vence}) 🛡️\n\nComo agradecimiento por confiar en nosotros, queremos *obsequiarte un mantenimiento* de tu {equipo} sin costo 🎁. Escríbenos o pásate por el local para agendarlo antes de que venza la garantía. ¡Te esperamos! 🙌';
+  return tpl
+    .replace(/{negocio}/g, neg)
+    .replace(/{cliente}/g, order.nom || '')
+    .replace(/{equipo}/g, equipo)
+    .replace(/{dias}/g, order.garantia || '')
+    .replace(/{vence}/g, fecha)
+    .replace(/{restan}/g, restan);
+}
+async function avisarGarantiaWA(orderId) {
+  const o = (_dashOrders || []).find(x => x.id === orderId);
+  if (!o) return;
+  if (!cleanPhone(o.tel)) { alert('⚠️ Este cliente no tiene teléfono registrado.'); return; }
+  openWhatsApp(o.tel, buildAvisoGarantiaMsg(o));
 }
 
 // ────────────────────────────────────────

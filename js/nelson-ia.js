@@ -321,13 +321,8 @@
                 if (typeof showAlert === 'function') showAlert('Teléfono inválido', 'warning');
                 return;
             }
-            // Normalizar a formato internacional (wa.me): 10 dígitos → +57; si ya trae
-            // código de país se respeta tal cual (nunca duplicar el 57).
-            const withCountry = waPhone(digitsOnly);
-            if (!withCountry) {
-                if (typeof showAlert === 'function') showAlert('Teléfono inválido', 'warning');
-                return;
-            }
+            // Si ya tiene prefijo país (12+ dígitos) lo dejo, si no agrego 57 de Colombia
+            const withCountry = digitsOnly.length >= 11 ? digitsOnly : ('57' + digitsOnly);
             const url = `https://wa.me/${withCountry}?text=${encodeURIComponent(message)}`;
             try { sessionStorage.setItem('_waJump','1'); } catch(e) {}
             window.open(url, '_blank');
@@ -625,19 +620,19 @@
                         }))
                 };
 
-                // ═══════ INVENTARIO (stock: n=nombre, p=precio, q=cantidad, minStock=minimo, code=codigo) ═══════
-                const stockBajo    = stock.filter(s => Number(s.q || 0) > 0 && Number(s.q || 0) <= Number(s.minStock || 3));
-                const stockAgotado = stock.filter(s => Number(s.q || 0) <= 0);
+                // ═══════ INVENTARIO (stock: n=nombre, p=precio, c=cantidad, min=minimo) ═══════
+                const stockBajo    = stock.filter(s => (s.c || 0) <= (s.min || 3) && (s.c || 0) > 0);
+                const stockAgotado = stock.filter(s => (s.c || 0) <= 0);
                 ctx.inventario = {
                     totalProductos: stock.length,
-                    valorInventarioAProducto: stock.reduce((s,i) => s + ((i.q||0) * (i.p||0)), 0),
+                    valorInventarioAProducto: stock.reduce((s,i) => s + ((i.c||0) * (i.p||0)), 0),
                     productosStockBajo: stockBajo.length,
                     productosAgotados: stockAgotado.length,
                     itemsStockBajo: stockBajo.slice(0, 15).map(s => ({
-                        nombre: s.n, cantidad: s.q, minimo: s.minStock, precio: s.p, codigo: s.code
+                        nombre: s.n, cantidad: s.c, minimo: s.min, precio: s.p, codigo: s.codigo
                     })),
                     itemsAgotados: stockAgotado.slice(0, 10).map(s => ({
-                        nombre: s.n, precio: s.p, codigo: s.code
+                        nombre: s.n, precio: s.p, codigo: s.codigo
                     }))
                 };
 
