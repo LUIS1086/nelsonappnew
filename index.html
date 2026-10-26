@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#0b1220">
+    <meta name="theme-color" content="#0b0f1e">
     <meta name="color-scheme" content="dark">
     <meta name="mobile-web-app-capable" content="yes">
     <title>Nelson App Pro | Taller & Ventas</title>
@@ -17,7 +17,7 @@
     <script src="js/libs/html2canvas.min.js" defer></script>
     <script src="js/libs/qrcode.min.js" defer></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,800&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/01-tema-variables.css">
     <link rel="stylesheet" href="css/02-componentes-base.css">
     <link rel="stylesheet" href="css/03-modo-claro-accesibilidad.css">
@@ -41,18 +41,16 @@
     <link rel="stylesheet" href="css/20-responsive-pro.css">
     <link rel="stylesheet" href="css/21-ticket-venta.css">
     <link rel="stylesheet" href="css/22-seguimiento.css">
-    <link rel="stylesheet" href="css/23-premium-polish.css">
-    <link rel="stylesheet" href="css/24-design-system-nelson.css">
 
 <style id="invoice-sale-styles">
-.invoice-sale-cta{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:14px;border-radius:16px;border:1px solid rgba(52,211,153,.32);background:linear-gradient(115deg,rgba(16,185,129,.16),rgba(59,130,246,.08));color:var(--ds-text-primary,#eef2f8);cursor:pointer;transition:transform .18s,border-color .18s}
+.invoice-sale-cta{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:14px;border-radius:16px;border:1px solid rgba(52,211,153,.32);background:linear-gradient(115deg,rgba(16,185,129,.16),rgba(59,130,246,.08));color:#e5fff4;cursor:pointer;transition:transform .18s,border-color .18s}
 .invoice-sale-cta:active{transform:scale(.985)}.invoice-sale-cta-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:rgba(16,185,129,.18);font-size:22px;flex-shrink:0}
-.invoice-sale-cta strong,.invoice-sale-cta small{display:block}.invoice-sale-cta strong{font-size:12px;font-weight:900}.invoice-sale-cta small{font-size:12px;color:var(--ds-text-muted,#8494ab);margin-top:4px;line-height:1.4}.invoice-sale-cta-arrow{margin-left:auto;color:var(--ds-ok-text,#34d399);font-size:22px}
+.invoice-sale-cta strong,.invoice-sale-cta small{display:block}.invoice-sale-cta strong{font-size:12px;font-weight:900}.invoice-sale-cta small{font-size:10px;color:#9ca3af;margin-top:4px;line-height:1.4}.invoice-sale-cta-arrow{margin-left:auto;color:#6ee7b7;font-size:22px}
 #invoice-sale-modal{position:fixed;inset:0;z-index:8000;background:rgba(2,6,23,.82);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:14px}
-#invoice-sale-modal.hidden{display:none}.invoice-panel{width:min(680px,100%);max-height:92dvh;overflow:auto;background:var(--ds-surface-raised,#111b2c);color:var(--ds-text-on-dark,#eef2f8);border:1px solid rgba(148,163,184,.2);border-radius:22px;box-shadow:0 25px 80px #0009;padding:20px}
-.invoice-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:18px}.invoice-head h2{font-size:19px;font-weight:900;margin:0}.invoice-head p{font-size:12px;color:var(--ds-text-on-dark-muted,#9fb0c6);margin:5px 0 0}.invoice-close{border:1px solid var(--ds-border-strong,rgba(148,163,184,.32));background:var(--ds-surface-overlay,#162338);color:var(--ds-text-on-dark,#eef2f8);border-radius:10px;width:38px;height:38px;font-size:18px}
-.invoice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.invoice-field{display:flex;flex-direction:column;gap:6px;min-width:0}.invoice-field.full{grid-column:1/-1}.invoice-field label{font-size:12px;color:var(--ds-text-on-dark-muted,#9fb0c6);font-weight:800;text-transform:uppercase;letter-spacing:.8px}.invoice-field input,.invoice-field select,.invoice-field textarea{width:100%;box-sizing:border-box;border:1px solid var(--ds-border-strong,rgba(148,163,184,.32));background:var(--ds-surface-inset,#0e1626);color:var(--ds-text-on-dark,#eef2f8);border-radius:11px;padding:11px 12px;font-size:13px;min-height:42px}.invoice-total{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding:15px;border:1px solid rgba(52,211,153,.25);background:rgba(16,185,129,.08);border-radius:14px}.invoice-total strong{font-size:22px;color:var(--ds-ok,#34d399);font-family:var(--ds-font-mono,ui-monospace,monospace);font-variant-numeric:tabular-nums}.invoice-actions{display:flex;gap:10px;margin-top:16px}.invoice-actions button{flex:1;border-radius:12px;padding:13px;font-size:12px;font-weight:900;border:1px solid var(--ds-border-strong,rgba(148,163,184,.32));background:var(--ds-surface-overlay,#162338);color:var(--ds-text-on-dark,#eef2f8)}.invoice-actions .primary{background:linear-gradient(135deg,#059669,#10b981);color:var(--ds-on-ok,#04231a);border:0}
-.invoice-note{font-size:12px;color:var(--ds-text-on-dark-muted,#9fb0c6);line-height:1.5;margin-top:12px}
+#invoice-sale-modal.hidden{display:none}.invoice-panel{width:min(680px,100%);max-height:92dvh;overflow:auto;background:#0f172a;color:#e5e7eb;border:1px solid rgba(148,163,184,.2);border-radius:22px;box-shadow:0 25px 80px #0009;padding:20px}
+.invoice-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:18px}.invoice-head h2{font-size:19px;font-weight:900;margin:0}.invoice-head p{font-size:11px;color:#94a3b8;margin:5px 0 0}.invoice-close{border:1px solid #334155;background:#1e293b;color:#cbd5e1;border-radius:10px;width:38px;height:38px;font-size:18px}
+.invoice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.invoice-field{display:flex;flex-direction:column;gap:6px;min-width:0}.invoice-field.full{grid-column:1/-1}.invoice-field label{font-size:10px;color:#94a3b8;font-weight:800;text-transform:uppercase;letter-spacing:.8px}.invoice-field input,.invoice-field select,.invoice-field textarea{width:100%;box-sizing:border-box;border:1px solid #334155;background:#111c30;color:#f8fafc;border-radius:11px;padding:11px 12px;font-size:13px;min-height:42px}.invoice-total{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding:15px;border:1px solid rgba(52,211,153,.25);background:rgba(16,185,129,.08);border-radius:14px}.invoice-total strong{font-size:22px;color:#6ee7b7}.invoice-actions{display:flex;gap:10px;margin-top:16px}.invoice-actions button{flex:1;border-radius:12px;padding:13px;font-size:12px;font-weight:900;border:1px solid #334155;background:#1e293b;color:#e2e8f0}.invoice-actions .primary{background:linear-gradient(135deg,#059669,#10b981);color:#022c22;border:0}
+.invoice-note{font-size:10px;color:#94a3b8;line-height:1.5;margin-top:12px}
 @media(max-width:520px){.invoice-panel{padding:15px;border-radius:18px}.invoice-grid{grid-template-columns:1fr}.invoice-field.full{grid-column:auto}.invoice-actions{flex-direction:column}.invoice-head h2{font-size:17px}}
 </style>
 
@@ -257,7 +255,7 @@
         <div class="splash-title" id="splash-biz-name">NELSON</div>
         <div class="splash-sub">Taller &amp; Repuestos</div>
         <div class="splash-bar-track"><div class="splash-bar-fill"></div></div>
-        <div class="splash-version" id="splash-version">v3.7.0</div>
+        <div class="splash-version" id="splash-version">v3.3.0</div>
     </div>
 
     <!-- PIN MODAL -->
@@ -268,9 +266,9 @@
             <!-- Logo + nombre -->
             <div style="text-align:center;margin-bottom:32px;">
                 <div style="width:72px;height:72px;border-radius:22px;background:linear-gradient(145deg,#1e1e2e,#16213e);border:1.5px solid rgba(249,115,22,0.3);display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 16px;box-shadow:0 0 0 6px rgba(249,115,22,0.06),0 16px 40px rgba(249,115,22,0.18);">🔧</div>
-                <p style="font-size:9px;font-weight:900;letter-spacing:5px;color:#fb923c;text-transform:uppercase;margin:0 0 4px;" id="splash-pin-bizname">TODO REPUESTOS</p>
+                <p style="font-size:9px;font-weight:900;letter-spacing:5px;color:rgba(249,115,22,0.6);text-transform:uppercase;margin:0 0 4px;" id="splash-pin-bizname">TODO REPUESTOS</p>
                 <h3 style="font-size:22px;font-weight:900;color:#f1f5f9;margin:0;letter-spacing:-0.5px;">Bienvenido</h3>
-                <p style="font-size:11px;color:rgba(255,255,255,0.72);margin:4px 0 0;font-weight:500;">Ingresa tu PIN para continuar</p>
+                <p style="font-size:11px;color:rgba(255,255,255,0.25);margin:4px 0 0;font-weight:500;">Ingresa tu PIN para continuar</p>
             </div>
 
             <!-- Dots -->
@@ -920,7 +918,7 @@
                                 <p style="font-size:15px;font-weight:900;color:#f1f5f9;margin:0;letter-spacing:-0.3px;">Luis Eduardo Gaviria</p>
                                 <p style="font-size:10px;color:#64748b;margin:3px 0 0;font-weight:700;display:flex;align-items:center;gap:6px;">
                                     <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 6px rgba(16,185,129,0.6);animation:pulseDot 2s ease-in-out infinite;"></span>
-                                    NelsonApp Pro · <span id="credits-version">v3.7.0</span>
+                                    NelsonApp Pro · <span id="credits-version">v3.3.0</span>
                                 </p>
                             </div>
                             <span id="credits-arrow" style="font-size:14px;color:#64748b;transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);flex-shrink:0;">▼</span>
@@ -2384,7 +2382,7 @@
                         <div class="cfg-title-wrap">
                             <p class="cfg-eyebrow">
                                 <span id="cfg-header-biz">NelsonApp Pro</span>
-                                <span class="cfg-version" id="cfg-header-version">v3.7.0</span>
+                                <span class="cfg-version" id="cfg-header-version">v3.3.0</span>
                             </p>
                             <h3 class="cfg-h1">Configuración</h3>
                         </div>
@@ -2662,12 +2660,13 @@
                     </div>
                     <div id="cfg-wapp" class="ios-body">
                         <div class="ios-body-inner space-y-3">
-                            <div class="ios-variables">Variables: <span>{cliente} {equipo} {valor} {orden} {dias}</span></div>
+                            <div class="ios-variables">Variables: <span>{cliente} {equipo} {valor} {orden} {dias} {vence} {restan}</span></div>
                             <div><span class="ios-input-label">📥 Al recibir equipo</span><textarea id="tpl-recepcion" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, recibimos tu {equipo}. Orden {orden}. Te avisamos cuando esté listo 🙌"></textarea></div>
                             <div><span class="ios-input-label">🔍 En revisión</span><textarea id="tpl-revision" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, tu {equipo} está siendo revisado 🔍"></textarea></div>
                             <div><span class="ios-input-label">💼 Enviar presupuesto</span><textarea id="tpl-presupuesto" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, el presupuesto para tu {equipo} es de ${valor}. ¿Apruebas? ✅"></textarea></div>
                             <div><span class="ios-input-label">✅ Equipo listo</span><textarea id="tpl-listo" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, tu {equipo} ya está listo! Valor: ${valor} 🎉"></textarea></div>
                             <div><span class="ios-input-label">🛡️ Recordatorio garantía</span><textarea id="tpl-garantia" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, tu {equipo} tiene garantía de {dias} días 🛡️"></textarea></div>
+                            <div><span class="ios-input-label">🎁 Garantía por vencer + mantenimiento de obsequio</span><textarea id="tpl-garantiavence" rows="4" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, la garantía de tu {equipo} vence {restan} ({vence}). Te obsequiamos un mantenimiento 🎁"></textarea></div>
                             <div><span class="ios-input-label">⚠️ Sin reparación</span><textarea id="tpl-norepara" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, tu {equipo} no tiene reparación posible 😔"></textarea></div>
                             <div><span class="ios-input-label">⏳ Aviso de retraso</span><textarea id="tpl-retraso" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, la reparación está tomando más tiempo. Gracias ⏳"></textarea></div>
                             <div><span class="ios-input-label">💸 Recordatorio de pago</span><textarea id="tpl-cobro" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, tienes un saldo pendiente de ${valor} 🙏"></textarea></div>
