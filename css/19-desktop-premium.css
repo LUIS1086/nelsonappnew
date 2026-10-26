@@ -16,7 +16,7 @@
   #desktop-topbar { margin-left: var(--sb-w); padding: 12px 24px !important; min-height: 68px; gap: 16px; }
   #desktop-topbar-right { gap: 8px !important; flex-shrink: 0; }
   #desktop-topbar-title { font-size: 20px; font-style: normal !important; letter-spacing: -.01em; line-height: 1.15; }
-  #desktop-topbar-subtitle { font-size: 12px !important; letter-spacing: .22em !important; }
+  #desktop-topbar-subtitle { font-size: 10px !important; letter-spacing: .22em !important; }
   #desktop-topbar > div:first-child { white-space: nowrap; flex-shrink: 0; }
   #desktop-topbar button { white-space: nowrap; }
   #topbar-kpis { display: flex; gap: 10px; margin-right: auto; }
@@ -25,7 +25,7 @@
     display: flex; flex-direction: column; gap: 1px; padding: 6px 12px; border-radius: 12px;
     background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.06); min-width: 0;
   }
-  .topbar-kpi-label { font-size: 12px !important; letter-spacing: .06em !important; text-transform: none !important; opacity: .75; }
+  .topbar-kpi-label { font-size: 10px !important; letter-spacing: .06em !important; text-transform: none !important; opacity: .75; }
   .topbar-kpi-value { font-size: 18px !important; font-variant-numeric: tabular-nums; line-height: 1.1; }
 
   /* ── 2. Menú lateral: más compacto, con scroll si la pantalla es baja ── */

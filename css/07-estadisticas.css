@@ -35,7 +35,7 @@
             letter-spacing: -0.3px; margin: 0; line-height: 1.1;
         }
         .stats-header-sub {
-            font-size: 12px; color: #d8b4fe; font-weight: 700;
+            font-size: 11px; color: #d8b4fe; font-weight: 700;
             margin: 2px 0 0; opacity: 0.85; letter-spacing: 0.3px; text-transform: capitalize;
         }
         .stats-close-btn {
@@ -97,7 +97,7 @@
         }
         .stats-hero-icon { font-size: 15px; }
         .stats-hero-label {
-            font-size: 12px;
+            font-size: 9.5px;
             font-weight: 900;
             letter-spacing: 0.6px;
             text-transform: uppercase;
@@ -116,7 +116,7 @@
         .stats-hero-green .stats-hero-value { color: #6ee7b7; }
         .stats-hero-purple .stats-hero-value { color: #d8b4fe; }
         .stats-hero-trend {
-            font-size: 12px;
+            font-size: 10.5px;
             font-weight: 800;
             margin-top: 5px;
             letter-spacing: 0.2px;
@@ -144,7 +144,7 @@
             display: flex; justify-content: space-between; align-items: center;
         }
         .stats-status-name {
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 800;
             color: #cbd5e1;
             display: flex; align-items: center; gap: 6px;
@@ -192,7 +192,7 @@
             line-height: 1.05;
         }
         .stats-mini-lbl {
-            font-size: 12px;
+            font-size: 8.5px;
             font-weight: 800;
             color: #94a3b8;
             letter-spacing: 0.4px;
@@ -212,13 +212,13 @@
             gap: 10px; margin-bottom: 10px;
         }
         .stats-card-title {
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 900;
             color: #e9d5ff;
             letter-spacing: 0.3px;
         }
         .stats-card-sub {
-            font-size: 12px;
+            font-size: 9.5px;
             font-weight: 700;
             color: #64748b;
             letter-spacing: 0.3px;
@@ -260,7 +260,7 @@
             box-shadow: 0 -2px 10px rgba(16,185,129,0.4);
         }
         .stats-trend-label {
-            font-size: 12px;
+            font-size: 9px;
             font-weight: 800;
             color: #94a3b8;
             margin-top: 6px;
@@ -268,7 +268,7 @@
             text-transform: uppercase;
         }
         .stats-trend-val {
-            font-size: 12px;
+            font-size: 8.5px;
             font-weight: 700;
             color: #64748b;
             margin-top: 1px;
@@ -308,7 +308,7 @@
             gap: 10px;
         }
         .stats-bar-label {
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 700;
             color: #f1f5f9;
             display: flex;
@@ -325,17 +325,17 @@
             justify-content: center;
             min-width: 18px;
             font-weight: 900;
-            font-size: 12px;
+            font-size: 11px;
         }
         .stats-bar-value {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 900;
             color: #cbd5e1;
             font-variant-numeric: tabular-nums;
             white-space: nowrap;
         }
         .stats-bar-pct {
-            font-size: 12px;
+            font-size: 9.5px;
             font-weight: 800;
             color: #94a3b8;
             margin-left: 4px;
@@ -344,7 +344,7 @@
             text-align: center;
             padding: 18px 10px;
             color: #64748b;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
         }
 
@@ -375,7 +375,7 @@
             line-height: 1.15;
         }
         .stats-tec-sub {
-            font-size: 12px;
+            font-size: 9.5px;
             font-weight: 700;
             color: #94a3b8;
             margin-top: 1px;
@@ -388,7 +388,7 @@
             white-space: nowrap;
         }
         .stats-tec-metric-unit {
-            font-size: 12px;
+            font-size: 9.5px;
             font-weight: 700;
             color: #64748b;
             margin-left: 2px;
@@ -406,7 +406,7 @@
             padding: 4px 0;
         }
         .stats-profit-lbl {
-            font-size: 12px; font-weight: 700; color: #cbd5e1;
+            font-size: 11px; font-weight: 700; color: #cbd5e1;
             letter-spacing: 0.2px;
         }
         .stats-profit-val {
@@ -426,7 +426,7 @@
             background: rgba(16,185,129,0.1);
             border: 1px solid rgba(16,185,129,0.25);
             text-align: center;
-            font-size: 12px;
+            font-size: 10.5px;
             font-weight: 900;
             color: #6ee7b7;
             letter-spacing: 0.3px;
@@ -442,7 +442,7 @@
             color: #fb7185;
         }
         .stats-profit-hint {
-            font-size: 12px;
+            font-size: 9.5px;
             font-weight: 600;
             color: #64748b;
             text-align: center;

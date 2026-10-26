@@ -55,7 +55,7 @@
             }
             #sidebar-biz { flex: 1; min-width: 0; }
             #sidebar-biz-short {
-                font-size: 12px; font-weight: 900;
+                font-size: 8px; font-weight: 900;
                 color: var(--accent); letter-spacing: 3px; text-transform: uppercase;
             }
             #sidebar-biz-name {
@@ -69,11 +69,11 @@
                 display: flex; justify-content: space-between; align-items: center;
                 margin-top: 8px;
             }
-            #sidebar-cash-label { font-size: 12px; font-weight: 800; color: #64748b; letter-spacing: 2px; text-transform: uppercase; }
+            #sidebar-cash-label { font-size: 8px; font-weight: 800; color: #64748b; letter-spacing: 2px; text-transform: uppercase; }
             #sidebar-cash-value { font-size: 18px; font-weight: 900; color: #10b981; }
 
             #sidebar-meta-wrap { margin-top: 10px; }
-            #sidebar-meta-label { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 4px; }
+            #sidebar-meta-label { display: flex; justify-content: space-between; font-size: 8px; font-weight: 700; color: #64748b; margin-bottom: 4px; }
 
             /* NAV ITEMS en sidebar */
             #sidebar-nav {
@@ -112,7 +112,7 @@
             body.light-mode #sidebar-footer { border-top-color: #ddd8ce; }
             #sidebar-footer button {
                 flex: 1; padding: 10px; border-radius: 12px;
-                font-size: 12px; font-weight: 800; text-transform: uppercase;
+                font-size: 11px; font-weight: 800; text-transform: uppercase;
                 letter-spacing: 0.5px; cursor: pointer; transition: all 0.2s;
                 border: 1px solid rgba(255,255,255,0.08);
                 background: rgba(255,255,255,0.04);
@@ -145,7 +145,7 @@
                 border-bottom-color: #ddd8ce;
             }
             #desktop-topbar-title { font-size: 20px; font-weight: 900; font-style: italic; }
-            #desktop-topbar-subtitle { font-size: 12px; color: var(--accent); font-weight: 800; letter-spacing: 3px; text-transform: uppercase; }
+            #desktop-topbar-subtitle { font-size: 9px; color: var(--accent); font-weight: 800; letter-spacing: 3px; text-transform: uppercase; }
             #desktop-topbar-right { display: flex; gap: 10px; align-items: center; }
 
             /* Ocultar header mobile en desktop */
@@ -250,7 +250,7 @@
                 border-radius: 11px;
                 background: rgba(249,115,22,0.18);
                 color: var(--accent);
-                font-size: 12px; font-weight: 900;
+                font-size: 10px; font-weight: 900;
                 display: inline-flex; align-items: center; justify-content: center;
                 line-height: 1;
             }
@@ -264,7 +264,7 @@
                 padding: 0 12px 12px;
             }
             #sidebar-status-breakdown-title {
-                font-size: 12px; font-weight: 800;
+                font-size: 9px; font-weight: 800;
                 color: #475569; letter-spacing: 2px;
                 text-transform: uppercase;
                 padding: 0 4px 8px;
@@ -273,14 +273,14 @@
                 display: flex; align-items: center; justify-content: space-between;
                 padding: 6px 12px; border-radius: 10px;
                 cursor: pointer; transition: background 0.15s ease;
-                font-size: 12px; font-weight: 700;
+                font-size: 11px; font-weight: 700;
             }
             .status-row:hover { background: rgba(255,255,255,0.04); }
             body.light-mode .status-row:hover { background: rgba(0,0,0,0.04); }
             .status-row-label { display: flex; align-items: center; gap: 8px; color: #94a3b8; }
             .status-row-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
             .status-row-count {
-                font-size: 12px; font-weight: 900;
+                font-size: 11px; font-weight: 900;
                 color: #cbd5e1;
                 min-width: 20px; text-align: right;
             }
@@ -300,7 +300,7 @@
                 min-width: 68px;
             }
             .topbar-kpi-label {
-                font-size: 12px; font-weight: 800; letter-spacing: 1.5px;
+                font-size: 8px; font-weight: 800; letter-spacing: 1.5px;
                 color: #64748b; text-transform: uppercase;
             }
             .topbar-kpi-value {
@@ -321,7 +321,7 @@
                 border: none !important;
                 padding: 10px 18px !important;
                 font-weight: 900 !important;
-                font-size: 12px !important;
+                font-size: 11px !important;
                 letter-spacing: 1px !important;
                 box-shadow: 0 4px 14px rgba(249,115,22,0.35) !important;
                 display: flex; align-items: center; gap: 6px;
@@ -340,7 +340,7 @@
                 background: rgba(255,255,255,0.08);
                 border: 1px solid rgba(255,255,255,0.12);
                 border-bottom-width: 2px;
-                font-size: 12px; font-weight: 700;
+                font-size: 9px; font-weight: 700;
                 color: #cbd5e1;
                 font-family: monospace;
                 margin-left: 6px;
@@ -384,7 +384,7 @@
             background: rgba(255,255,255,0.08);
             border: 1px solid rgba(255,255,255,0.12);
             border-bottom-width: 2px;
-            font-size: 12px; font-weight: 700;
+            font-size: 9px; font-weight: 700;
             color: #cbd5e1;
             font-family: monospace;
             margin-left: 6px;

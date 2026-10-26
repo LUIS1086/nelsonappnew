@@ -33,10 +33,10 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 }
 .kpi-label       { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 12px; }
 .panel-head-title { font-size: 13.5px; font-weight: 700; }
-.panel-head-sub  { font-size: 12px; }
-.sb-section-label { font-size: 12px; font-weight: 600; }
-.tb-breadcrumb   { font-size: 12px; font-weight: 600; }
-.kpi-sub, .kpi-vs { font-size: 12px; }
+.panel-head-sub  { font-size: 11.5px; }
+.sb-section-label { font-size: 11px; font-weight: 600; }
+.tb-breadcrumb   { font-size: 11px; font-weight: 600; }
+.kpi-sub, .kpi-vs { font-size: 11.5px; }
 .text3-fix, .kpi-vs, .tb-date { color: var(--text2); }   /* --text3 es muy tenue para texto */
 
 /* ── Superficies: borde fino + brillo superior, sombra solo al interactuar ── */
@@ -119,9 +119,9 @@ body.light-mode .tb-title, body.light-mode .sb-biz-name, body.light-mode .efic-v
 /* ── Etiquetas del panel de hoy y caja en frase normal ── */
 .today-title, .today-date, .today-stat-label, .sb-caja-label { text-transform: none; letter-spacing: 0; }
 .today-title { font-size: 14px; }
-.today-stat-label { font-size: 12px; font-weight: 600; }
+.today-stat-label { font-size: 11.5px; font-weight: 600; }
 .today-date { font-size: 12px; }
-.sb-caja-label { font-size: 12px; font-weight: 600; }
+.sb-caja-label { font-size: 11px; font-weight: 600; }
 
 
 /* Etapa 1 · refinamiento visual adicional del Command Center */

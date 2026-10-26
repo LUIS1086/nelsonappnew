@@ -36,7 +36,7 @@
             letter-spacing: -0.3px; margin: 0; line-height: 1.1;
         }
         .export-header-sub {
-            font-size: 12px; color: #fdba74; font-weight: 700;
+            font-size: 11px; color: #fdba74; font-weight: 700;
             margin: 2px 0 0; opacity: 0.85; letter-spacing: 0.3px;
         }
         .export-close-btn {
@@ -66,7 +66,7 @@
             background: transparent;
             border: none;
             color: #94a3b8;
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 800;
             letter-spacing: 0.3px;
             cursor: pointer;
@@ -90,7 +90,7 @@
 
         /* Sección label */
         .export-section-label {
-            font-size: 12px; font-weight: 900;
+            font-size: 9.5px; font-weight: 900;
             color: #64748b;
             letter-spacing: 1.8px;
             text-transform: uppercase;
@@ -112,7 +112,7 @@
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.08);
             color: #94a3b8;
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 800;
             cursor: pointer;
             white-space: nowrap;
@@ -163,7 +163,7 @@
             margin: 0; letter-spacing: -0.2px;
         }
         .export-opt-sub {
-            font-size: 12px; color: #94a3b8; font-weight: 600;
+            font-size: 10.5px; color: #94a3b8; font-weight: 600;
             margin: 2px 0 0;
         }
         .export-opt-count {
@@ -182,7 +182,7 @@
         }
         .export-opt-count-label {
             display: block;
-            font-size: 12px;
+            font-size: 8.5px;
             font-weight: 800;
             letter-spacing: 0.6px;
             text-transform: uppercase;
@@ -202,7 +202,7 @@
             background: rgba(0,0,0,0.35);
         }
         .export-footer-info {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             color: #94a3b8;
             text-align: center;
@@ -210,7 +210,7 @@
             letter-spacing: 0.2px;
         }
         .export-footer-info-hint {
-            font-size: 12px;
+            font-size: 9.5px;
             font-weight: 600;
             color: #64748b;
             text-align: center;
@@ -224,10 +224,10 @@
         }
 
         .swipe-area { touch-action: pan-y; }
-        .garantia-badge { background: linear-gradient(135deg, #10b981, #059669); padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 800; color: white; }
+        .garantia-badge { background: linear-gradient(135deg, #10b981, #059669); padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 800; color: white; }
         .garantia-vencida { background: linear-gradient(135deg, #f43f5e, #e11d48); }
-        .presupuesto-badge { padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 800; }
-        .order-num { font-size: 12px; color: var(--accent); font-weight: 900; letter-spacing: 1px; }
+        .presupuesto-badge { padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 800; }
+        .order-num { font-size: 10px; color: var(--accent); font-weight: 900; letter-spacing: 1px; }
 
         /* Botones de acción de tarjeta — tamaño fijo en px para no escalar con la fuente */
         .order-action-btn {

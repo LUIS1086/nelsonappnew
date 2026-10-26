@@ -60,7 +60,7 @@
         }
         .ac-empty {
             padding: 14px; text-align: center;
-            font-size: 12px; color: #64748b;
+            font-size: 11px; color: #64748b;
             font-weight: 600;
         }
         /* Scrollbar fino para el dropdown */
@@ -79,7 +79,7 @@
             border: 1px solid rgba(251,146,60,0.25);
             border-radius: 12px;
             color: #fb923c;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 900;
             letter-spacing: 0.5px;
             cursor: pointer;
@@ -94,7 +94,7 @@
             border: 1px solid rgba(255,255,255,0.08);
             border-radius: 12px;
             color: #cbd5e1;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 800;
             cursor: pointer;
             transition: all 0.12s ease;
@@ -108,7 +108,7 @@
             border: 1px solid rgba(255,255,255,0.08);
             border-radius: 10px;
             color: #e2e8f0;
-            font-size: 12px;
+            font-size: 10px;
             font-weight: 900;
             font-variant-numeric: tabular-nums;
             cursor: pointer;
