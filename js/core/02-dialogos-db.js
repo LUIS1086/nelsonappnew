@@ -112,6 +112,43 @@
                 } catch(e) { resolve([]); }
             });
         }
+        // Lectura ligera para el listado: recorre IndexedDB registro a registro y
+        // conserva solo los campos que necesita la tarjeta. Evita retener en RAM
+        // miles de fotos/base64 al abrir Órdenes. Los originales no se modifican.
+        async function getOrderListSummaries() {
+            await openDB();
+            return new Promise((resolve, reject) => {
+                const result = [];
+                let tx;
+                try {
+                    tx = db.transaction('orders', 'readonly');
+                    const req = tx.objectStore('orders').openCursor();
+                    req.onsuccess = () => {
+                        const cursor = req.result;
+                        if (!cursor) return;
+                        const o = cursor.value || {};
+                        result.push({
+                            id: o.id, orderNum: o.orderNum, nom: o.nom, equ: o.equ,
+                            det: o.det, tel: o.tel, tecnico: o.tecnico, fecha: o.fecha,
+                            sta: o.sta, garantia: o.garantia, fechaEntrega: o.fechaEntrega,
+                            fechaEstado: o.fechaEstado, fechaEstimada: o.fechaEstimada,
+                            notas: o.notas, origen: o.origen, presupuesto: o.presupuesto,
+                            adelanto: o.adelanto, saldo: o.saldo, val: o.val,
+                            partsUsed: Array.isArray(o.partsUsed) ? o.partsUsed : [],
+                            // La tarjeta solo necesita saber si hay fotos y cuántas.
+                            // La imagen completa se recupera al abrir el modal correspondiente.
+                            fotos: { length: Array.isArray(o.fotos) ? o.fotos.length : 0 },
+                            fotosEntrega: { length: Array.isArray(o.fotosEntrega) ? o.fotosEntrega.length : 0 }
+                        });
+                        cursor.continue();
+                    };
+                    tx.oncomplete = () => resolve(result);
+                    tx.onerror = () => reject(tx.error || new Error('No se pudo leer el listado de órdenes'));
+                    tx.onabort = () => reject(tx.error || new Error('Lectura de órdenes cancelada'));
+                } catch (err) { reject(err); }
+            });
+        }
+
         async function getOne(store, key) {
             await openDB();
             return new Promise((resolve) => {
