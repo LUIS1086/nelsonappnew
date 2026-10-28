@@ -60,7 +60,7 @@
             // Renderizado por lotes pequeños. Con respaldos grandes, construir cientos
             // de tarjetas en una sola tarea bloqueaba el hilo principal del navegador.
             const ORDERS_INITIAL = 12;
-            const ORDERS_BATCH = 8;
+            const ORDERS_BATCH = 4;
             const firstOrdersBatch = orders.slice(0, ORDERS_INITIAL);
             let nextOrderIndex = firstOrdersBatch.length;
 
@@ -142,7 +142,7 @@
                         ? { label: `💳 PARCIAL ${pctPagado}%`, color: '#60a5fa', bg: 'rgba(96,165,250,0.12)', border: 'rgba(96,165,250,0.3)' }
                         : { label: '⏳ PENDIENTE', color: '#fb923c', bg: 'rgba(251,146,60,0.12)', border: 'rgba(251,146,60,0.3)' };
 
-                return `<div class="card order-card-pro" style="position:relative;padding:0;overflow:hidden;border-left:4px solid ${cardAccent};box-shadow:0 4px 12px rgba(0,0,0,0.2),0 0 0 1px ${cardGlow};">
+                return `<div class="card order-card-pro" style="position:relative;padding:0;overflow:hidden;content-visibility:auto;contain-intrinsic-size:auto 420px;border-left:4px solid ${cardAccent};box-shadow:0 4px 12px rgba(0,0,0,0.2),0 0 0 1px ${cardGlow};">
                     <div style="position:absolute;top:-40px;right:-40px;width:140px;height:140px;background:radial-gradient(circle,${cardGlow},transparent 70%);pointer-events:none;"></div>
 
                     <!-- HEADER: avatar + cliente + estado -->
@@ -264,12 +264,17 @@
             // de una sola vez. Cada clic añade un lote pequeño y mantiene la UI receptiva.
             const appendNextOrdersBatch = () => {
                 if (renderId !== window.__nelsonOrdersRenderId || !container.isConnected) return;
+                const batchStartedAt = performance.now();
                 const batch = orders.slice(nextOrderIndex, nextOrderIndex + ORDERS_BATCH);
                 if (!batch.length) return;
-                const fragment = document.createElement('div');
-                fragment.innerHTML = batch.map(renderOrderCard).join('');
-                while (fragment.firstChild) container.appendChild(fragment.firstChild);
+                const htmlContainer = document.createElement('div');
+                htmlContainer.innerHTML = batch.map(renderOrderCard).join('');
+                const batchFragment = document.createDocumentFragment();
+                while (htmlContainer.firstChild) batchFragment.appendChild(htmlContainer.firstChild);
+                // Una sola inserción DOM por lote: reduce recalculados de estilo/layout.
+                container.appendChild(batchFragment);
                 nextOrderIndex += batch.length;
+                if (perfEnabled) console.info('[NelsonApp perf] lote de órdenes', { ms: Math.round(performance.now() - batchStartedAt), batch: batch.length, rendered: nextOrderIndex, total: orders.length });
                 if (nextOrderIndex >= orders.length) {
                     const more = document.getElementById('nelson-orders-load-more');
                     if (more) more.remove();
