@@ -66,6 +66,7 @@ const PRECACHE_URLS = [
     './js/version.js',
     './css/tailwind.css',
     // JS (core + modules + Nelson IA)
+    './js/core/00-diagnostico-rendimiento.js',
     './js/core/01-base-globales.js',
     './js/core/02-dialogos-db.js',
     './js/core/03-auth-pin-biometria.js',
