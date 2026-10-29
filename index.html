@@ -880,7 +880,7 @@
                                 <p style="font-size:15px;font-weight:900;color:#f1f5f9;margin:0;letter-spacing:-0.3px;">Luis Eduardo Gaviria</p>
                                 <p style="font-size:10px;color:#64748b;margin:3px 0 0;font-weight:700;display:flex;align-items:center;gap:6px;">
                                     <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 6px rgba(16,185,129,0.6);animation:pulseDot 2s ease-in-out infinite;"></span>
-                                    NelsonApp Pro · <span id="credits-version">v3.7.0</span>
+                                    NelsonApp Pro · <span id="credits-version">v3.8.0</span>
                                 </p>
                             </div>
                             <span id="credits-arrow" style="font-size:14px;color:#64748b;transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);flex-shrink:0;">▼</span>
@@ -2366,7 +2366,22 @@
 
             <div class="ios-scroll-area">
 
-                <!-- ═══ Hero: Stat cards ═══ -->
+                <!-- Navegación por categorías: conserva los controles originales y solo organiza su acceso -->
+                <div class="cfg-category-shell" aria-label="Categorías de configuración">
+                    <p class="cfg-category-caption">EXPLORAR AJUSTES</p>
+                    <div class="cfg-category-nav" role="tablist" aria-label="Filtrar ajustes por categoría">
+                        <button type="button" class="cfg-category-chip is-active" data-cfg-category="todos" role="tab" aria-selected="true" onclick="setConfigCategory('todos', this)"><span>✦</span> Todo</button>
+                        <button type="button" class="cfg-category-chip" data-cfg-category="Personalización" role="tab" aria-selected="false" onclick="setConfigCategory('Personalización', this)"><span>◈</span> Apariencia</button>
+                        <button type="button" class="cfg-category-chip" data-cfg-category="Mi negocio" role="tab" aria-selected="false" onclick="setConfigCategory('Mi negocio', this)"><span>▦</span> Negocio</button>
+                        <button type="button" class="cfg-category-chip" data-cfg-category="Sistema" role="tab" aria-selected="false" onclick="setConfigCategory('Sistema', this)"><span>⚙</span> Sistema</button>
+                        <button type="button" class="cfg-category-chip" data-cfg-category="Comunicación" role="tab" aria-selected="false" onclick="setConfigCategory('Comunicación', this)"><span>◉</span> Comunicación</button>
+                        <button type="button" class="cfg-category-chip" data-cfg-category="Metas y recordatorios" role="tab" aria-selected="false" onclick="setConfigCategory('Metas y recordatorios', this)"><span>◷</span> Metas</button>
+                        <button type="button" class="cfg-category-chip" data-cfg-category="Operación" role="tab" aria-selected="false" onclick="setConfigCategory('Operación', this)"><span>▤</span> Operación</button>
+                        <button type="button" class="cfg-category-chip" data-cfg-category="Datos y respaldo" role="tab" aria-selected="false" onclick="setConfigCategory('Datos y respaldo', this)"><span>☁</span> Datos</button>
+                    </div>
+                </div>
+
+                <!-- ═══ Resumen del sistema ═══ -->
                 <div class="cfg-stats" id="cfg-stats">
                     <div class="cfg-stat" style="--stat-accent:#f97316;">
                         <div class="cfg-stat-icon">📊</div>
