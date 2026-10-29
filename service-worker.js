@@ -52,11 +52,14 @@ const PRECACHE_URLS = [
     './dashboard.html',
     './css/dashboard.css',
     './css/dashboard-premium.css',
+    './css/dashboard-refresh.css',
     './css/18-native-premium.css',
     './css/19-desktop-premium.css',
     './css/20-responsive-pro.css',
     './css/21-ticket-venta.css',
     './css/22-seguimiento.css',
+    './css/24-ios-fluidez.css',
+    './css/25-visual-refresh.css',
     './js/modules/38-native-feel.js',
     './js/modules/39-ticket-venta.js',
     './js/seguimiento-config.js',
@@ -66,6 +69,7 @@ const PRECACHE_URLS = [
     './js/version.js',
     './css/tailwind.css',
     // JS (core + modules + Nelson IA)
+    './js/core/00-diagnostico-rendimiento.js',
     './js/core/01-base-globales.js',
     './js/core/02-dialogos-db.js',
     './js/core/03-auth-pin-biometria.js',
@@ -169,30 +173,44 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // HTML: network-first
+    // HTML: network-first con límite de espera. En conexiones móviles débiles,
+    // fetch(req) puede quedarse pendiente sin rechazar; sin timeout la navegación
+    // parece congelada aunque exista una copia en caché.
     if (req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html')) {
-        event.respondWith(
-            fetch(req)
-                .then(resp => {
+        const cachedPage = async () => {
+            // Sin señal / señal débil: usar la copia guardada de ESA página.
+            // Con cleanUrls de Vercel, /dashboard puede corresponder a /dashboard.html.
+            const hit = await caches.match(req, { ignoreSearch: true });
+            if (hit) return hit;
+            const u = new URL(req.url);
+            const path = u.pathname.replace(/\/$/, '');
+            if (path && !/\.[a-z0-9]+$/i.test(path)) {
+                const alt = await caches.match(path + '.html');
+                if (alt) return alt;
+            }
+            return (await caches.match('./index.html')) || Response.error();
+        };
+        event.respondWith((async () => {
+            let timeoutId;
+            const timeoutFallback = new Promise(resolve => {
+                timeoutId = setTimeout(async () => {
+                    try { resolve(await cachedPage()); }
+                    catch (_) { resolve(Response.error()); }
+                }, 3500);
+            });
+            const networkRequest = fetch(req).then(resp => {
+                if (resp && resp.ok) {
                     const copy = resp.clone();
                     caches.open(STATIC_CACHE).then(c => c.put(req, copy)).catch(() => {});
-                    return resp;
-                })
-                .catch(async () => {
-                    // Sin señal / señal débil: usar la copia guardada de ESA página.
-                    // Con cleanUrls de Vercel, /dashboard se guarda como /dashboard.html;
-                    // antes no coincidían y se servía index.html (por eso "volvía al index").
-                    const hit = await caches.match(req, { ignoreSearch: true });
-                    if (hit) return hit;
-                    const u = new URL(req.url);
-                    const path = u.pathname.replace(/\/$/, '');
-                    if (path && !/\.[a-z0-9]+$/i.test(path)) {
-                        const alt = await caches.match(path + '.html');
-                        if (alt) return alt;
-                    }
-                    return caches.match('./index.html');
-                })
-        );
+                }
+                return resp;
+            }).catch(async () => cachedPage());
+            try {
+                return await Promise.race([networkRequest, timeoutFallback]);
+            } finally {
+                clearTimeout(timeoutId);
+            }
+        })());
         return;
     }
 
