@@ -47,6 +47,10 @@
                     db = request.result;
                     // Manejar errores en transacciones futuras
                     db.onerror = (e) => console.warn('IndexedDB error:', e.target.error);
+                    // Android puede cerrar la conexión en segundo plano: si pasa, se olvida
+                    // la referencia para que la próxima operación abra una nueva.
+                    db.onclose = () => { db = null; };
+                    db.onversionchange = () => { try { db.close(); } catch (_) {} db = null; };
                     resolve(db);
                 };
                 request.onupgradeneeded = (event) => {
@@ -88,11 +92,11 @@
         const _dbCache = {};          // { storeName: { data: [...], ts: timestamp } }
         const _CACHE_TTL = 3000;       // 3 segundos
         function _invalidateCache(store) {
-            if (store) delete _dbCache[store];
+            if (store) { delete _dbCache[store]; if (store === 'orders') delete _dbCache['orders:lite']; }
             else Object.keys(_dbCache).forEach(k => delete _dbCache[k]);
         }
 
-        async function getAll(store) {
+        async function getAll(store, _retry) {
             // Si hay cache válido, retornar copia rápida
             const cached = _dbCache[store];
             if (cached && (Date.now() - cached.ts) < _CACHE_TTL) {
@@ -109,9 +113,79 @@
                         resolve(data.slice());
                     };
                     req.onerror = () => resolve([]);
-                } catch(e) { resolve([]); }
+                } catch(e) {
+                    // Conexión cerrada por el sistema: reabrir y reintentar una vez (antes devolvía [] en silencio)
+                    if (!_retry && e && e.name === 'InvalidStateError') { db = null; resolve(getAll(store, true)); }
+                    else resolve([]);
+                }
             });
         }
+        // Lectura ligera para el listado: recorre IndexedDB registro a registro y
+        // conserva solo los campos que necesita la tarjeta. Evita retener en RAM
+        // miles de fotos/base64 al abrir Órdenes. Los originales no se modifican.
+        async function getOrderListSummaries() {
+            await openDB();
+            return new Promise((resolve, reject) => {
+                const result = [];
+                let tx;
+                try {
+                    tx = db.transaction('orders', 'readonly');
+                    const req = tx.objectStore('orders').openCursor();
+                    req.onsuccess = () => {
+                        const cursor = req.result;
+                        if (!cursor) return;
+                        const o = cursor.value || {};
+                        result.push({
+                            id: o.id, orderNum: o.orderNum, nom: o.nom, equ: o.equ,
+                            det: o.det, tel: o.tel, tecnico: o.tecnico, fecha: o.fecha,
+                            sta: o.sta, garantia: o.garantia, fechaEntrega: o.fechaEntrega,
+                            fechaEstado: o.fechaEstado, fechaEstimada: o.fechaEstimada,
+                            notas: o.notas, origen: o.origen, presupuesto: o.presupuesto,
+                            adelanto: o.adelanto, saldo: o.saldo, val: o.val,
+                            partsUsed: Array.isArray(o.partsUsed) ? o.partsUsed : [],
+                            // La tarjeta solo necesita saber si hay fotos y cuántas.
+                            // La imagen completa se recupera al abrir el modal correspondiente.
+                            fotos: { length: Array.isArray(o.fotos) ? o.fotos.length : 0 },
+                            fotosEntrega: { length: Array.isArray(o.fotosEntrega) ? o.fotosEntrega.length : 0 }
+                        });
+                        cursor.continue();
+                    };
+                    tx.oncomplete = () => resolve(result);
+                    tx.onerror = () => reject(tx.error || new Error('No se pudo leer el listado de órdenes'));
+                    tx.onabort = () => reject(tx.error || new Error('Lectura de órdenes cancelada'));
+                } catch (err) { reject(err); }
+            });
+        }
+
+        // Lectura liviana de TODAS las órdenes SIN fotos, para totales, metas, badges y avisos.
+        // Esos cálculos solo necesitan estado, fechas y valores; no deben traer base64 a memoria.
+        // Cache de 3 s (se invalida cuando cambian las órdenes), igual que getAll.
+        async function getOrdersLite(_retry) {
+            const cached = _dbCache['orders:lite'];
+            if (cached && (Date.now() - cached.ts) < _CACHE_TTL) return cached.data.slice();
+            await openDB();
+            return new Promise((resolve) => {
+                const result = [];
+                try {
+                    const tx = db.transaction('orders', 'readonly');
+                    const req = tx.objectStore('orders').openCursor();
+                    req.onsuccess = () => {
+                        const cursor = req.result;
+                        if (!cursor) return;
+                        const o = cursor.value || {};
+                        const { fotos, fotosEntrega, ...rest } = o;
+                        result.push(rest);
+                        cursor.continue();
+                    };
+                    tx.oncomplete = () => { _dbCache['orders:lite'] = { data: result, ts: Date.now() }; resolve(result.slice()); };
+                    tx.onerror = tx.onabort = () => resolve([]);
+                } catch (e) {
+                    if (!_retry && e && e.name === 'InvalidStateError') { db = null; resolve(getOrdersLite(true)); }
+                    else resolve([]);
+                }
+            });
+        }
+
         async function getOne(store, key) {
             await openDB();
             return new Promise((resolve) => {
@@ -136,7 +210,7 @@
                 : `⚠️ Error guardando datos (${op}). Intenta de nuevo.`;
             try { showToast(msg, 'error'); } catch(_){}
         }
-        async function put(store, item) {
+        async function put(store, item, _retry) {
             await openDB();
             return new Promise((resolve) => {
                 try {
@@ -145,10 +219,13 @@
                     req.onsuccess = () => { _invalidateCache(store); try { if (store === 'orders' && typeof segOnOrderPut === 'function') segOnOrderPut(item); } catch(_) {} resolve(true); };
                     req.onerror = () => { console.warn('[IDB put] error:', req.error); _idbNotifyError(req.error, 'put'); resolve(false); };
                     tx.onabort = () => { console.warn('[IDB put] tx abort:', tx.error); _idbNotifyError(tx.error, 'put'); resolve(false); };
-                } catch(e) { console.warn('[IDB put] excepción:', e); _idbNotifyError(e, 'put'); resolve(false); }
+                } catch(e) {
+                    if (!_retry && e && e.name === 'InvalidStateError') { db = null; resolve(put(store, item, true)); return; }
+                    console.warn('[IDB put] excepción:', e); _idbNotifyError(e, 'put'); resolve(false);
+                }
             });
         }
-        async function del(store, id) {
+        async function del(store, id, _retry) {
             await openDB();
             return new Promise((resolve) => {
                 try {
@@ -157,7 +234,10 @@
                     req.onsuccess = () => { _invalidateCache(store); try { if (store === 'orders' && typeof segOnOrderDel === 'function') segOnOrderDel(id); } catch(_) {} resolve(true); };
                     req.onerror = () => { console.warn('[IDB del] error:', req.error); _idbNotifyError(req.error, 'del'); resolve(false); };
                     tx.onabort = () => { console.warn('[IDB del] tx abort:', tx.error); _idbNotifyError(tx.error, 'del'); resolve(false); };
-                } catch(e) { console.warn('[IDB del] excepción:', e); _idbNotifyError(e, 'del'); resolve(false); }
+                } catch(e) {
+                    if (!_retry && e && e.name === 'InvalidStateError') { db = null; resolve(del(store, id, true)); return; }
+                    console.warn('[IDB del] excepción:', e); _idbNotifyError(e, 'del'); resolve(false);
+                }
             });
         }
         async function clearStore(store) {

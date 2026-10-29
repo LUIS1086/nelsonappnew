@@ -4,7 +4,7 @@
 
         // ==================== CONFIGURACIÓN INICIAL ====================
         const DB_NAME = 'NelsonAppPro';
-        window.APP_VERSION = 'v3.4.3'; // Única fuente de verdad para la versión de la app
+        window.APP_VERSION = window.APP_VERSION || 'v?'; // La define js/version.js (única fuente de verdad)
         let db = null;
         let searchDebounceTimer = null;
         let currentPhotos = [];
@@ -105,7 +105,7 @@
         // ── Sincroniza la versión en splash y créditos desde window.APP_VERSION ──
         (function syncAppVersion() {
             try {
-                const v = window.APP_VERSION || 'v3.4.3';
+                const v = window.APP_VERSION || 'v?';
                 const ids = ['splash-version', 'credits-version', 'cfg-header-version'];
                 ids.forEach(id => {
                     const el = document.getElementById(id);
@@ -203,8 +203,6 @@
         let currentDeliveryPhotos = [];
         let currentDeliveryOrderId = null;
         let currentPresupuestoOrderId = null;
-        // Estado del editor de precio de venta (null = sin override, número = precio aplicado solo a esta venta)
-        let customSalePrice = null;
 
         // Variable para respaldo automático
         let autoBackupIntervalId = null;
