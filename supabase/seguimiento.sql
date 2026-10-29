@@ -40,6 +40,10 @@ create table if not exists public.seguimiento (
 );
 create index if not exists seguimiento_order_idx on public.seguimiento (order_id);
 
+-- v3: contacto del cliente para avisos automáticos (n8n). NUNCA lo devuelve seg_obtener.
+alter table public.seguimiento add column if not exists telefono text;
+alter table public.seguimiento add column if not exists correo   text;
+
 -- v2: aprobación de presupuesto por el cliente
 alter table public.seguimiento add column if not exists presupuesto_estado text
   check (presupuesto_estado in ('pendiente','enviado','aprobado','rechazado'));
@@ -103,7 +107,7 @@ begin
   insert into public.seguimiento as s (
     token, order_id, numero, cliente, equipo, falla, estado, valor, adelanto, saldo,
     fecha_ingreso, fecha_estado, fecha_estimada, garantia_dias, foto_ingreso, foto_final,
-    negocio, wa_negocio, presupuesto_estado, presupuesto_valor, updated_at
+    negocio, wa_negocio, telefono, presupuesto_estado, presupuesto_valor, updated_at
   ) values (
     p->>'token', (p->>'order_id')::bigint, left(p->>'numero', 20), left(p->>'cliente', 60),
     left(p->>'equipo', 120), left(p->>'falla', 240), coalesce(p->>'estado', 'recibido'),
@@ -111,6 +115,7 @@ begin
     nullif(p->>'fecha_ingreso', '')::timestamptz, nullif(p->>'fecha_estado', '')::timestamptz,
     left(p->>'fecha_estimada', 20), nullif(p->>'garantia_dias', '')::int,
     p->>'foto_ingreso', p->>'foto_final', left(p->>'negocio', 80), left(p->>'wa_negocio', 20),
+    left(nullif(p->>'telefono', ''), 20),
     v_final, case when v_final = 'enviado' then v_pv else null end, now()
   )
   on conflict (token) do update set
@@ -130,6 +135,7 @@ begin
     foto_final     = coalesce(excluded.foto_final,   s.foto_final),
     negocio        = excluded.negocio,
     wa_negocio     = excluded.wa_negocio,
+    telefono       = coalesce(excluded.telefono, s.telefono),
     presupuesto_estado = v_final,
     presupuesto_valor  = case when v_final = 'enviado' then v_pv
                               when v_final in ('aprobado','rechazado') then coalesce(s.presupuesto_valor, v_pv)
@@ -137,9 +143,11 @@ begin
     respuesta_at   = case when v_final = 'enviado' then null else s.respuesta_at end,
     updated_at     = now();
 
-  -- Limpieza automática: entregadas / sin reparación con más de 90 días
+  -- Limpieza automática: entregadas / sin reparación, tras 90 días o (garantía + 30 días) si la garantía es más larga,
+  -- para que los avisos de garantía por vencer (n8n) no pierdan la orden antes de tiempo.
   delete from public.seguimiento
-   where estado in ('entregado', 'no-reparable') and updated_at < now() - interval '90 days';
+   where estado in ('entregado', 'no-reparable')
+     and updated_at < now() - greatest(interval '90 days', make_interval(days => greatest(coalesce(garantia_dias, 0), 0) + 30));
 end;
 $$;
 
