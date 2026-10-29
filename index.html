@@ -17,7 +17,8 @@
     <script src="js/libs/html2canvas.min.js" defer></script>
     <script src="js/libs/qrcode.min.js" defer></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,800&display=swap" rel="stylesheet"></noscript>
     <link rel="stylesheet" href="css/01-tema-variables.css">
     <link rel="stylesheet" href="css/02-componentes-base.css">
     <link rel="stylesheet" href="css/03-modo-claro-accesibilidad.css">
@@ -41,6 +42,8 @@
     <link rel="stylesheet" href="css/20-responsive-pro.css">
     <link rel="stylesheet" href="css/21-ticket-venta.css">
     <link rel="stylesheet" href="css/22-seguimiento.css">
+    <link rel="stylesheet" href="css/24-ios-fluidez.css">
+    <link rel="stylesheet" href="css/25-visual-refresh.css">
 
 <style id="invoice-sale-styles">
 .invoice-sale-cta{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:14px;border-radius:16px;border:1px solid rgba(52,211,153,.32);background:linear-gradient(115deg,rgba(16,185,129,.16),rgba(59,130,246,.08));color:#e5fff4;cursor:pointer;transition:transform .18s,border-color .18s}
@@ -186,15 +189,22 @@
         </div>
 
         <div id="desktop-topbar-right">
-            <button id="topbar-primary-action" onclick="topbarPrimaryAction()" title="Nueva orden (N)">
-                <span>➕</span> <span id="topbar-primary-label">NUEVA ORDEN</span>
+            <button id="topbar-primary-action" class="nn-topbar-btn nn-topbar-primary" onclick="topbarPrimaryAction()" title="Nueva orden (N)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span id="topbar-primary-label">Nueva orden</span>
                 <span class="kbd-hint">N</span>
             </button>
-            <button onclick="document.getElementById('search-orders')?.focus()" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:8px 14px;border-radius:12px;font-size:11px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px;" title="Buscar (/)">
-                🔍 BUSCAR <span class="kbd-hint">/</span>
+            <button class="nn-topbar-btn" onclick="document.getElementById('search-orders')?.focus()" title="Buscar (/)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.65" y2="16.65"/></svg>
+                Buscar <span class="kbd-hint">/</span>
             </button>
-            <button onclick="window.location.href='./dashboard.html'" style="background:rgba(159,122,234,0.15);border:1px solid rgba(159,122,234,0.3);color:#c4b5fd;padding:8px 14px;border-radius:12px;font-size:11px;font-weight:800;cursor:pointer;" title="Command Center">📊 DASHBOARD</button>
-            <button onclick="showShortcutsHelp()" style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);font-size:1rem;cursor:pointer;" title="Atajos de teclado (?)">⌨️</button>
+            <button class="nn-topbar-btn" onclick="window.location.href='./dashboard.html'" title="Command Center">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+                Dashboard
+            </button>
+            <button class="nn-topbar-btn nn-topbar-icon" onclick="showShortcutsHelp()" title="Atajos de teclado (?)" aria-label="Atajos de teclado">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2.5"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></svg>
+            </button>
             <button onclick="toggleTheme()" id="desktop-theme-btn" style="display:none;width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);font-size:1.1rem;cursor:pointer;">🌙</button>
         </div>
     </div>
@@ -255,7 +265,7 @@
         <div class="splash-title" id="splash-biz-name">NELSON</div>
         <div class="splash-sub">Taller &amp; Repuestos</div>
         <div class="splash-bar-track"><div class="splash-bar-fill"></div></div>
-        <div class="splash-version" id="splash-version">v3.3.0</div>
+        <div class="splash-version" id="splash-version">v3.7.0</div>
     </div>
 
     <!-- PIN MODAL -->
@@ -341,7 +351,7 @@
                 </button>
                 <div class="bg-emerald-500/10 px-4 py-2 rounded-2xl border border-emerald-500/20">
                     <p id="total-cash" class="text-emerald-400 font-black text-xl">$0</p>
-                    <p class="text-[8px] font-bold opacity-60 text-right">CAJA NETA</p>
+                    <p class="text-[8px] font-bold opacity-60 text-right">Caja neta</p>
                 </div>
             </div>
         </div>
@@ -349,40 +359,35 @@
 
     <main id="view-taller" class="app-view hidden p-4 space-y-4 max-container">
         <!-- ═══ PANEL DE HOY — Resumen diario de 3 segundos ═══ -->
-        <div id="daily-panel" class="hidden" style="border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#0c1220 0%,#0a0f1a 100%);border:1px solid rgba(99,102,241,0.18);box-shadow:0 6px 18px rgba(99,102,241,0.1);">
-            <div style="padding:12px 14px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.04);background:radial-gradient(circle at 10% -20%,rgba(99,102,241,0.2),transparent 60%);">
-                <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#4f46e5,#818cf8);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;box-shadow:0 4px 12px rgba(99,102,241,0.3);">📋</div>
-                <div style="flex:1;min-width:0;">
-                    <p style="font-size:9px;font-weight:900;color:#818cf8;letter-spacing:2px;text-transform:uppercase;margin:0;">Panel de hoy</p>
-                    <p id="daily-panel-date" style="font-size:11px;font-weight:700;color:#cbd5e1;margin:1px 0 0;"></p>
+        <div id="daily-panel" class="hidden nn-panel">
+            <div class="nn-panel-head">
+                <div class="nn-panel-title">
+                    <p class="nn-panel-eyebrow">Panel de hoy</p>
+                    <p id="daily-panel-date" class="nn-panel-date"></p>
                 </div>
-                <button onclick="_refreshDailyPanel()" style="background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.25);color:#a5b4fc;padding:4px 9px;border-radius:8px;font-size:9.5px;font-weight:900;letter-spacing:0.5px;cursor:pointer;flex-shrink:0;">↻</button>
+                <button type="button" onclick="_refreshDailyPanel()" class="nn-icon-btn" aria-label="Actualizar el panel de hoy">↻</button>
             </div>
-            <div id="daily-panel-items" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:rgba(255,255,255,0.04);"></div>
+            <div id="daily-panel-items" class="nn-stat-row"></div>
         </div>
 
-        <div class="card p-0 overflow-hidden" style="border:1px solid rgba(249,115,22,0.15);">
-            <!-- HERO header con gradiente -->
-            <div style="position:relative;padding:20px 20px 18px;background:linear-gradient(135deg,rgba(249,115,22,0.16) 0%,rgba(234,88,12,0.08) 50%,transparent 100%);border-bottom:1px solid rgba(255,255,255,0.04);overflow:hidden;">
-                <div style="position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(249,115,22,0.18),transparent 70%);pointer-events:none;"></div>
-                <div style="position:relative;display:flex;align-items:center;gap:14px;">
-                    <div style="width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#ea580c,#f97316);display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 10px 24px rgba(249,115,22,0.4);flex-shrink:0;">📝</div>
-                    <div style="flex:1;min-width:0;">
-                        <div style="font-size:9px;font-weight:900;color:#fb923c;letter-spacing:3px;text-transform:uppercase;">Nueva recepción</div>
-                        <div style="font-size:18px;font-weight:900;color:#f1f5f9;letter-spacing:-0.3px;">Registrar entrada de equipo</div>
-                    </div>
-                    <div id="taller-order-preview-num" style="flex-shrink:0;padding:6px 12px;border-radius:10px;background:rgba(15,23,42,0.6);border:1px solid rgba(249,115,22,0.25);font-size:11px;font-weight:900;color:#fb923c;font-family:ui-monospace,monospace;letter-spacing:1px;">#PRÓX.</div>
+        <div class="card p-0 overflow-hidden">
+            <!-- Encabezado del formulario -->
+            <div class="nn-form-head">
+                <div style="min-width:0;">
+                    <span class="nn-eyebrow">Nueva recepción</span>
+                    <h2 class="nn-form-title">Registrar entrada</h2>
                 </div>
+                <div id="taller-order-preview-num" class="nn-id-chip">#PRÓX.</div>
             </div>
 
             <div class="p-5 space-y-5">
                 <!-- SECCIÓN 1: CLIENTE -->
-                <div style="position:relative;padding:14px;background:rgba(59,130,246,0.04);border:1px solid rgba(59,130,246,0.12);border-radius:16px;">
-                    <div style="position:absolute;top:-10px;left:14px;padding:3px 10px;background:#0b0f1e;border:1px solid rgba(59,130,246,0.3);border-radius:99px;font-size:9px;font-weight:900;color:#60a5fa;letter-spacing:2px;">👤 CLIENTE</div>
-                    <div class="space-y-3" style="margin-top:8px;">
+                <div class="nn-section" data-ink="blue">
+                    <div class="nn-section-head">Cliente</div>
+                    <div class="space-y-3">
                         <div>
                             <div class="relative">
-                                <input type="text" id="c-nom" placeholder="Nombre completo del cliente" class="uppercase font-semibold w-full pr-12" autocomplete="off" onkeyup="_debouncedCheckClient()" oninput="ac_onInput(this,'cliente')" onfocus="ac_onInput(this,'cliente')" onblur="ac_onBlur()">
+                                <input type="text" id="c-nom" placeholder="Nombre del cliente" class="uppercase font-semibold w-full pr-12" autocomplete="off" onkeyup="_debouncedCheckClient()" oninput="ac_onInput(this,'cliente')" onfocus="ac_onInput(this,'cliente')" onblur="ac_onBlur()">
                                 <button type="button" onclick="startVoiceInput('c-nom')" id="voice-btn-c-nom" class="voice-mic-btn absolute right-2 top-1/2 -translate-y-1/2" title="Dictado por voz">🎤</button>
                                 <div id="ac-dropdown-cliente" class="ac-dropdown" style="display:none;"></div>
                             </div>
@@ -397,6 +402,7 @@
                                             <span id="client-info-deuda" class="hidden" style="display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:900;letter-spacing:0.4px;text-transform:uppercase;padding:2px 7px;border-radius:99px;background:rgba(251,146,60,0.15);color:#fdba74;border:1px solid rgba(251,146,60,0.3);"></span>
                                         </div>
                                         <div id="client-info-stats" style="font-size:11px;font-weight:700;color:#cbd5e1;line-height:1.3;"></div>
+                                        <div style="font-size:9px;font-weight:700;color:#60a5fa;margin-top:2px;">Toca para ver la ficha completa</div>
                                     </div>
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;"><polyline points="9 18 15 12 9 6"/></svg>
                                 </div>
@@ -410,25 +416,25 @@
                 </div>
 
                 <!-- SECCIÓN 2: EQUIPO -->
-                <div style="position:relative;padding:14px;background:rgba(249,115,22,0.04);border:1px solid rgba(249,115,22,0.12);border-radius:16px;">
-                    <div style="position:absolute;top:-10px;left:14px;padding:3px 10px;background:#0b0f1e;border:1px solid rgba(249,115,22,0.3);border-radius:99px;font-size:9px;font-weight:900;color:#fb923c;letter-spacing:2px;">🔧 EQUIPO</div>
-                    <div class="space-y-3" style="margin-top:8px;">
+                <div class="nn-section" data-ink="orange">
+                    <div class="nn-section-head">Equipo</div>
+                    <div class="space-y-3">
                         <div class="relative">
-                            <input type="text" id="c-equ" placeholder="Marca · modelo · tipo (ej: LG WM3900 Lavadora)" class="uppercase font-bold text-orange-400 w-full pr-12" autocomplete="off" oninput="ac_onInput(this,'equipo')" onfocus="ac_onInput(this,'equipo')" onblur="ac_onBlur()">
+                            <input type="text" id="c-equ" placeholder="Marca y modelo (ej. LG WM3900)" class="uppercase font-bold text-orange-400 w-full pr-12" autocomplete="off" oninput="ac_onInput(this,'equipo')" onfocus="ac_onInput(this,'equipo')" onblur="ac_onBlur()">
                             <button type="button" onclick="startVoiceInput('c-equ')" id="voice-btn-c-equ" class="voice-mic-btn absolute right-2 top-1/2 -translate-y-1/2" title="Dictado por voz">🎤</button>
                             <div id="ac-dropdown-equipo" class="ac-dropdown" style="display:none;"></div>
                         </div>
                         <div class="relative">
-                            <textarea id="c-fal" placeholder="Falla reportada por el cliente · estado físico al recibir · accesorios entregados..." class="h-24 text-xs uppercase w-full pr-10" oninput="suggestDiagnosis()"></textarea>
+                            <textarea id="c-fal" placeholder="Falla reportada, estado al recibir y accesorios" class="h-24 text-xs uppercase w-full pr-10" oninput="suggestDiagnosis()"></textarea>
                             <button type="button" onclick="startVoiceInput('c-fal')" id="voice-btn-c-fal" class="voice-mic-btn absolute right-2 top-3" title="Dictado por voz">🎤</button>
                         </div>
                         <div id="diagnosis-suggestions" class="suggestion-box"></div>
                         <!-- Fotos -->
-                        <div style="display:flex;align-items:center;gap:12px;padding:10px;background:rgba(15,23,42,0.4);border:1px dashed rgba(249,115,22,0.2);border-radius:12px;">
+                        <div class="nn-photo-box">
                             <button onclick="openCamera('recepcion')" class="camera-btn" style="width:48px;height:48px;font-size:20px;">📸</button>
                             <div style="flex:1;min-width:0;">
-                                <div style="font-size:10px;font-weight:900;color:#fb923c;letter-spacing:1px;text-transform:uppercase;">Fotos de recepción</div>
-                                <div style="font-size:10px;color:#94a3b8;margin-top:2px;">Documenta el estado del equipo</div>
+                                <div class="nn-photo-title">Fotos de recepción</div>
+                                <div class="nn-photo-text">Documenta el estado del equipo</div>
                             </div>
                         </div>
                         <div id="previews" class="flex gap-2 overflow-x-auto py-1 no-scrollbar"></div>
@@ -436,16 +442,16 @@
                 </div>
 
                 <!-- SECCIÓN 3: GESTIÓN INTERNA -->
-                <div style="position:relative;padding:14px;background:rgba(139,92,246,0.04);border:1px solid rgba(139,92,246,0.12);border-radius:16px;">
-                    <div style="position:absolute;top:-10px;left:14px;padding:3px 10px;background:#0b0f1e;border:1px solid rgba(139,92,246,0.3);border-radius:99px;font-size:9px;font-weight:900;color:#a78bfa;letter-spacing:2px;">⚙️ GESTIÓN</div>
-                    <div class="space-y-3" style="margin-top:8px;">
+                <div class="nn-section" data-ink="violet">
+                    <div class="nn-section-head">Gestión</div>
+                    <div class="space-y-3">
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">🛡️ GARANTÍA (días)</label>
+                                <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">Garantía (días)</label>
                                 <input type="number" id="c-garantia" placeholder="30" class="w-full text-center font-bold" min="0" value="30">
                             </div>
                             <div>
-                                <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">📋 PRESUPUESTO</label>
+                                <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">Presupuesto</label>
                                 <select id="c-presupuesto" class="w-full font-bold text-xs">
                                     <option value="pendiente">⏳ Pendiente</option>
                                     <option value="enviado">📤 Enviado</option>
@@ -455,17 +461,17 @@
                             </div>
                         </div>
                         <div>
-                            <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">👷 TÉCNICO ASIGNADO</label>
+                            <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">Técnico asignado</label>
                             <select id="c-tecnico" class="w-full font-bold text-sm">
                                 <option value="">Sin asignar</option>
                             </select>
                         </div>
                         <div>
-                            <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">📅 FECHA ESTIMADA DE ENTREGA</label>
+                            <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">Fecha estimada de entrega</label>
                             <input type="date" id="c-fecha-estimada" class="w-full text-sm font-bold text-blue-400">
                         </div>
                         <div>
-                            <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">📣 ¿CÓMO NOS CONOCIÓ?</label>
+                            <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">¿Cómo nos conoció?</label>
                             <select id="c-origen" class="w-full font-bold text-xs">
                                 <option value="">Sin especificar</option>
                                 <option value="recomendacion">🗣️ Recomendación</option>
@@ -481,16 +487,16 @@
                 </div>
 
                 <!-- SECCIÓN 4: DINERO -->
-                <div style="position:relative;padding:14px;background:rgba(16,185,129,0.04);border:1px solid rgba(16,185,129,0.12);border-radius:16px;">
-                    <div style="position:absolute;top:-10px;left:14px;padding:3px 10px;background:#0b0f1e;border:1px solid rgba(16,185,129,0.3);border-radius:99px;font-size:9px;font-weight:900;color:#34d399;letter-spacing:2px;">💰 DINERO</div>
-                    <div class="space-y-3" style="margin-top:8px;">
+                <div class="nn-section" data-ink="green">
+                    <div class="nn-section-head">Dinero</div>
+                    <div class="space-y-3">
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">💰 VALOR ESTIMADO</label>
+                                <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">Valor estimado</label>
                                 <input type="number" id="c-val" placeholder="$0" class="text-emerald-400 font-black text-center text-lg w-full" min="0" step="1000" oninput="calcSaldoPreview()">
                             </div>
                             <div>
-                                <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">💵 ADELANTO</label>
+                                <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">Adelanto</label>
                                 <input type="number" id="c-adelanto" placeholder="$0" class="text-blue-400 font-black text-center text-lg w-full" min="0" step="1000" oninput="calcSaldoPreview()">
                             </div>
                         </div>
@@ -503,20 +509,20 @@
                 </div>
 
                 <!-- SECCIÓN 5: NOTAS INTERNAS -->
-                <div style="position:relative;padding:14px;background:rgba(234,179,8,0.04);border:1px solid rgba(234,179,8,0.12);border-radius:16px;">
-                    <div style="position:absolute;top:-10px;left:14px;padding:3px 10px;background:#0b0f1e;border:1px solid rgba(234,179,8,0.3);border-radius:99px;font-size:9px;font-weight:900;color:#facc15;letter-spacing:2px;">🔒 NOTAS INTERNAS</div>
-                    <div style="margin-top:8px;">
+                <div class="nn-section" data-ink="amber">
+                    <div class="nn-section-head">Notas internas</div>
+                    <div>
                         <div class="relative">
                             <textarea id="c-notas" placeholder="Observaciones del técnico, detalles que no van en el recibo..." class="h-16 text-xs w-full pr-10"></textarea>
                             <button type="button" onclick="startVoiceInput('c-notas')" id="voice-btn-c-notas" class="voice-mic-btn absolute right-2 top-3" title="Dictado por voz">🎤</button>
                         </div>
-                        <div style="font-size:9px;color:#64748b;margin-top:4px;text-align:center;">Estas notas no aparecen en el recibo del cliente</div>
+                        <div class="nn-hint" style="margin-top:6px;text-align:left;">Estas notas no aparecen en el recibo del cliente</div>
                     </div>
                 </div>
 
                 <!-- CTA -->
-                <button id="btn-registrar-entrada" onclick="saveOrder()" style="width:100%;padding:18px;background:linear-gradient(135deg,var(--taller-btn-dark,#ea580c) 0%,var(--taller-btn-primary,#f97316) 60%,var(--taller-btn-light,#fb923c) 100%);border:none;border-radius:18px;color:#fff;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;box-shadow:0 12px 28px var(--taller-btn-shadow,rgba(249,115,22,0.35)),inset 0 1px 0 rgba(255,255,255,0.25);cursor:pointer;transition:all 0.15s ease;display:flex;align-items:center;justify-content:center;gap:10px;" class="active:scale-[0.98]">
-                    <span style="font-size:18px;">✓</span>
+                <button id="btn-registrar-entrada" onclick="saveOrder()" style="width:100%;border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;" class="active:scale-[0.98]">
+                    <span style="font-size:15px;">✓</span>
                     <span>Registrar entrada</span>
                 </button>
             </div>
@@ -526,25 +532,25 @@
         <div id="taller-preview-panel" class="hidden" style="display:none;">
             <div class="card p-5 space-y-4">
                 <div style="display:flex;align-items:center;gap:10px;">
-                    <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-dark));display:flex;align-items:center;justify-content:center;font-size:1.1rem;">👁️</div>
+                    <div class="nn-preview-icon">👁️</div>
                     <div>
                         <div style="font-size:9px;font-weight:900;color:var(--accent);letter-spacing:2px;text-transform:uppercase;">Vista previa</div>
                         <div style="font-size:14px;font-weight:800;">Así se verá la orden</div>
                     </div>
                 </div>
-                <div id="preview-card-live" style="background:linear-gradient(180deg,rgba(249,115,22,0.04),transparent);border:1px dashed rgba(249,115,22,0.25);border-radius:14px;padding:14px;min-height:180px;">
+                <div id="preview-card-live" style="background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.12);border-radius:14px;padding:14px;min-height:180px;">
                     <div style="text-align:center;color:#64748b;font-size:11px;padding:40px 0;">
                         ✏️ Completa el formulario para ver la vista previa
                     </div>
                 </div>
             </div>
 
-            <div class="card p-5 mt-3" style="background:linear-gradient(135deg,rgba(59,130,246,0.06),transparent);border-color:rgba(59,130,246,0.15);">
+            <div class="card p-5 mt-3">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-                    <span style="font-size:16px;">💡</span>
+                    <span style="font-size:15px;">💡</span>
                     <div style="font-size:10px;font-weight:900;color:#60a5fa;letter-spacing:2px;text-transform:uppercase;">Tips del día</div>
                 </div>
-                <div id="taller-tips" style="font-size:12px;color:#94a3b8;line-height:1.5;">
+                <div id="taller-tips" style="font-size:12px;color:#8b94a7;line-height:1.5;">
                     <div style="padding:6px 0;">• Presiona <span class="kbd-hint">N</span> para crear una nueva orden rápido</div>
                     <div style="padding:6px 0;">• Usa <span class="kbd-hint">/</span> para ir directo a buscar</div>
                     <div style="padding:6px 0;">• Toca la cámara para adjuntar fotos de recepción</div>
@@ -559,11 +565,11 @@
             <div class="grid grid-cols-3 gap-2">
                 <button onclick="notifyAllReady()" class="quick-action qa-green">
                     <div class="qa-icon-wrap"><span class="qa-icon">💬</span></div>
-                    <span class="qa-label">Avisar<br>listos</span>
+                    <span class="qa-label">Avisar listos</span>
                 </button>
                 <button onclick="exportMonthlyReport()" class="quick-action qa-blue">
                     <div class="qa-icon-wrap"><span class="qa-icon">📄</span></div>
-                    <span class="qa-label">Reporte<br>mes</span>
+                    <span class="qa-label">Reporte del mes</span>
                 </button>
                 <button onclick="openExportPanel()" class="quick-action qa-orange">
                     <div class="qa-icon-wrap"><span class="qa-icon">⬇️</span></div>
@@ -571,7 +577,7 @@
                 </button>
             </div>
             <div class="relative">
-            <input type="text" id="search-orders" placeholder="🔍 Buscar cliente, equipo o #orden..." class="w-full text-sm font-semibold uppercase tracking-wide pr-12" oninput="onSearchInput()" onfocus="_onSearchFocus()" onblur="_onSearchBlur()" list="search-suggestions">
+            <input type="text" id="search-orders" placeholder="Buscar cliente, equipo o #orden..." class="w-full text-sm font-semibold uppercase tracking-wide pr-12" oninput="onSearchInput()" onfocus="_onSearchFocus()" onblur="_onSearchBlur()" list="search-suggestions">
             <button type="button" onclick="startVoiceInput('search-orders', true)" id="voice-btn-search" class="voice-mic-btn absolute right-2 top-1/2 -translate-y-1/2" title="Buscar por voz">🎤</button>
             </div>
             <!-- Chips de búsquedas recientes (solo visibles con input vacío y con foco) -->
@@ -582,7 +588,7 @@
             <div id="search-client-hits" style="display:none;" class="space-y-2"></div>
             <datalist id="search-suggestions"></datalist>
             <button onclick="toggleFilters()" id="filterToggleBtn" class="filter-toggle w-full py-3 rounded-xl text-xs font-bold uppercase flex items-center justify-between px-4">
-                <span class="flex items-center gap-2">⚙️ FILTROS AVANZADOS</span>
+                <span class="flex items-center gap-2">Filtros avanzados</span>
                 <span class="arrow text-lg">▼</span>
             </button>
             <div id="filter-panel" class="filter-panel card p-5 space-y-4">
@@ -615,65 +621,30 @@
     </main>
 
     <main id="view-ventas" class="app-view hidden p-4 space-y-6 max-container">
-        <div class="card p-5 space-y-4 bg-gradient-to-br from-emerald-900/20 to-transparent">
-            <h3 class="text-center text-[11px] font-black text-emerald-400 uppercase tracking-widest">💵 NUEVA VENTA</h3>
-            <button type="button" onclick="openInvoiceSaleModal()" class="invoice-sale-cta">
-                <span class="invoice-sale-cta-icon">🧾</span>
-                <span><strong>Venta con factura / ticket</strong><small>Datos del cliente · WhatsApp · PDF · imagen · imprimir</small></span>
+        <div class="card p-5 space-y-3 bg-gradient-to-br from-emerald-900/20 to-transparent">
+            <h3 class="text-center text-[11px] font-black text-emerald-400 uppercase tracking-widest">Nueva venta</h3>
+            <button type="button" id="v-new-sale-btn" onclick="openInvoiceSaleModal()" class="invoice-sale-cta">
+                <span class="invoice-sale-cta-icon">🛒</span>
+                <span><strong>Registrar venta</strong><small>Varios productos · rebajas de precio · cliente opcional · ticket por WhatsApp, PDF o impresión</small></span>
                 <span class="invoice-sale-cta-arrow">→</span>
             </button>
-            <!-- Selector custom de producto (reemplaza el select nativo que se veía feo en WebView) -->
-            <button type="button" id="v-select-btn" onclick="openProductPicker()" class="w-full text-left font-bold uppercase text-sm" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:14px;cursor:pointer;gap:10px;">
-                <span id="v-select-label" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#94a3b8;">-- Seleccionar producto --</span>
-                <span style="color:#64748b;font-size:12px;flex-shrink:0;">▼</span>
-            </button>
-            <!-- Select oculto para compatibilidad con el resto del código -->
-            <select id="v-select" class="hidden" aria-hidden="true"></select>
-
-            <!-- Tarjeta de precio del producto seleccionado (aparece al elegir producto) -->
-            <div id="v-price-card" class="hidden" style="display:none;position:relative;overflow:hidden;padding:16px 18px;background:linear-gradient(135deg,rgba(16,185,129,0.10) 0%,rgba(15,23,42,0.4) 100%);border:1px solid rgba(16,185,129,0.22);border-radius:16px;">
-                <div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(16,185,129,0.15),transparent 70%);pointer-events:none;"></div>
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;position:relative;">
-                    <div style="flex:1;min-width:0;">
-                        <div id="v-price-card-label" style="font-size:9px;font-weight:900;color:#34d399;text-transform:uppercase;letter-spacing:2px;margin-bottom:4px;">PRECIO UNITARIO</div>
-                        <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
-                            <span id="v-price-card-amount" style="font-size:26px;font-weight:900;color:#f1f5f9;font-variant-numeric:tabular-nums;letter-spacing:-0.5px;">$0</span>
-                            <span id="v-price-card-strike" class="hidden" style="font-size:13px;color:#64748b;text-decoration:line-through;font-weight:700;"></span>
-                        </div>
-                        <div id="v-price-card-savings" class="hidden" style="margin-top:6px;display:inline-flex;align-items:center;gap:6px;padding:3px 10px;background:rgba(251,146,60,0.15);border:1px solid rgba(251,146,60,0.3);border-radius:99px;font-size:10px;font-weight:900;color:#fb923c;"></div>
-                    </div>
-                    <button type="button" onclick="openPriceEditor()" id="v-price-edit-btn" style="flex-shrink:0;display:flex;align-items:center;gap:6px;padding:10px 14px;background:rgba(251,146,60,0.12);border:1px solid rgba(251,146,60,0.3);border-radius:12px;color:#fb923c;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.8px;cursor:pointer;transition:all 0.15s ease;" aria-label="Modificar precio">
-                        <span style="font-size:14px;">✏️</span><span>Editar</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="flex gap-3">
-                <input type="number" id="v-qty" placeholder="CANT." class="w-24 text-center font-black" min="1" oninput="updatePriceCardTotal()">
-                <button onclick="processSale()" id="v-confirm-btn" class="flex-1 bg-emerald-600 py-3 rounded-xl font-black uppercase text-xs shadow-md active:scale-95 transition">CONFIRMAR VENTA</button>
-            </div>
-            <!-- Total calculado (aparece cuando hay producto + cantidad) -->
-            <div id="v-total-preview" class="hidden" style="display:none;text-align:center;padding:10px;background:rgba(15,23,42,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:12px;">
-                <span style="font-size:10px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:1.5px;">Total a cobrar · </span>
-                <span id="v-total-preview-amount" style="font-size:18px;font-weight:900;color:#34d399;font-variant-numeric:tabular-nums;">$0</span>
-            </div>
         </div>
         <div class="card p-5 space-y-3 bg-gradient-to-br from-rose-900/20 to-transparent border-rose-500/10">
-            <h3 class="text-center text-[11px] font-black text-rose-400 uppercase tracking-widest">💸 REGISTRAR GASTO</h3>
+            <h3 class="text-center text-[11px] font-black text-rose-400 uppercase tracking-widest">Registrar gasto</h3>
             <input type="text" id="g-det" placeholder="Motivo (Ej. Pago luz, Repuestos...)" class="w-full font-bold uppercase text-sm">
             <input type="number" id="g-val" placeholder="VALOR $" class="w-full text-center font-black text-rose-400" min="1">
-            <button onclick="saveGasto()" class="w-full bg-rose-600 py-3 rounded-xl font-black uppercase text-xs shadow-md active:scale-95 transition">💾 GUARDAR GASTO</button>
+            <button onclick="saveGasto()" class="w-full bg-rose-600 py-3 rounded-xl font-black uppercase text-xs shadow-md active:scale-95 transition">Guardar gasto</button>
         </div>
 
         <div class="card p-5">
-            <h3 class="text-[11px] font-black text-slate-400 uppercase mb-3 flex items-center gap-2">💳 CARTERA (Clientes con Deuda)</h3>
+            <h3 class="text-[11px] font-black text-slate-400 uppercase mb-3 flex items-center gap-2">Cartera</h3>
             <div id="cartera-list" class="space-y-2 overflow-y-auto no-scrollbar" style="max-height:360px;"></div>
         </div>
 
         <div class="card p-5">
             <div class="flex justify-between items-center mb-3">
-                <h3 class="text-[11px] font-black text-slate-400 uppercase flex items-center gap-2">🕒 MOVIMIENTOS RECIENTES (HOY)</h3>
-                <button onclick="openMovimientosCompletos()" class="text-[10px] bg-blue-600/20 text-blue-400 border border-blue-500/30 px-3 py-1.5 rounded-xl font-black uppercase active:scale-95 transition">📋 VER TODO</button>
+                <h3 class="text-[11px] font-black text-slate-400 uppercase flex items-center gap-2">Movimientos de hoy</h3>
+                <button onclick="openMovimientosCompletos()" class="text-[10px] bg-blue-600/20 text-blue-400 border border-blue-500/30 px-3 py-1.5 rounded-xl font-black uppercase active:scale-95 transition">Ver todo</button>
             </div>
             <div id="movimientos-history" class="space-y-2 max-h-48 overflow-y-auto no-scrollbar"></div>
         </div>
@@ -682,20 +653,20 @@
             <!-- Header inventario -->
             <div class="flex justify-between items-center mb-3">
                 <div>
-                    <h3 class="text-[11px] font-black text-slate-400 uppercase">📦 INVENTARIO</h3>
+                    <h3 class="text-[11px] font-black text-slate-400 uppercase">Inventario</h3>
                     <p id="stock-summary-text" class="text-[10px] text-slate-500 mt-0.5"></p>
                 </div>
                 <div class="flex gap-2">
                     <button onclick="openStockReport()" class="text-[10px] bg-purple-600/20 text-purple-400 border border-purple-500/30 px-3 py-1.5 rounded-xl font-bold transition active:scale-95">📊</button>
                     <button onclick="openQRBulk()" class="text-[10px] bg-violet-600/20 text-violet-400 border border-violet-500/30 px-3 py-1.5 rounded-xl font-bold transition active:scale-95 hidden" title="Etiquetas QR en lote">🏷️</button>
                     <button onclick="scanBarcode()" class="text-[10px] bg-blue-600/20 text-blue-400 border border-blue-500/30 px-3 py-1.5 rounded-xl font-bold transition active:scale-95 hidden">📷</button>
-                    <button onclick="addStockItem()" class="text-[10px] bg-orange-600/20 text-orange-400 border border-orange-500/30 px-3 py-1.5 rounded-xl font-bold active:scale-95">+ NUEVO</button>
+                    <button onclick="addStockItem()" class="text-[10px] bg-orange-600/20 text-orange-400 border border-orange-500/30 px-3 py-1.5 rounded-xl font-bold active:scale-95">+ Nuevo</button>
                 </div>
             </div>
             <!-- Búsqueda y ordenar -->
             <div class="flex gap-2 mb-3">
                 <div class="relative flex-1">
-                    <input type="text" id="stock-search" placeholder="🔍 Buscar repuesto" class="w-full text-xs py-2 pl-3 pr-9 rounded-xl" oninput="renderStock()">
+                    <input type="text" id="stock-search" placeholder="Buscar repuesto" class="w-full text-xs py-2 pl-3 pr-9 rounded-xl" oninput="renderStock()">
                     <button onclick="openQRScanner('stock')" class="absolute right-2 top-1/2 -translate-y-1/2 text-violet-400 text-base leading-none active:scale-90 transition hidden" title="Escanear código QR/barras">📷</button>
                 </div>
                 <select id="stock-sort" class="text-xs py-2 px-2 rounded-xl w-28 flex-shrink-0" onchange="renderStock()">
@@ -716,81 +687,69 @@
     <main id="view-admin" class="app-view hidden p-4 max-container space-y-4">
 
         <!-- Google Drive -->
-        <div id="drive-status-card" style="border-radius:20px;overflow:hidden;background:linear-gradient(135deg,#0a1628,#0d1f35);border:1px solid #1a2a3a;">
-            <div style="padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
-                <div style="display:flex;align-items:center;gap:14px;">
-                    <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#1e3a5f,#1d4ed8);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(29,78,216,0.4);">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+        <div id="drive-status-card" class="nn-drive-card">
+            <div style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+                <div style="display:flex;align-items:center;gap:12px;min-width:0;">
+                    <div class="nn-drive-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
                     </div>
-                    <div>
-                        <p style="font-size:14px;font-weight:800;color:#60a5fa;margin:0;">Google Drive</p>
-                        <p id="drive-status-text" style="font-size:11px;color:#4a5a7a;margin:2px 0 0;">No conectado</p>
+                    <div style="min-width:0;">
+                        <p style="font-size:13.5px;font-weight:600;color:var(--nn-text);margin:0;">Google Drive</p>
+                        <p id="drive-status-text" style="font-size:11.5px;color:var(--nn-muted);margin:2px 0 0;">No conectado</p>
                     </div>
                 </div>
-                <button id="drive-connect-btn" onclick="driveSignIn()" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:white;padding:10px 18px;border-radius:12px;font-size:11px;font-weight:900;letter-spacing:1px;text-transform:uppercase;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(59,130,246,0.4);white-space:nowrap;">CONECTAR</button>
+                <button id="drive-connect-btn" onclick="driveSignIn()">Conectar</button>
             </div>
-            <div id="drive-actions" class="hidden" style="border-top:1px solid #1a2a3a;padding:12px 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                <button onclick="driveBackupNow()" style="background:#0d2218;border:1px solid #16a34a;color:#4ade80;padding:10px;border-radius:12px;font-size:11px;font-weight:800;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/><path d="M3 19h18"/></svg>SUBIR
+            <div id="drive-actions" class="hidden" style="border-top:1px solid var(--nn-line);padding:10px 12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <button onclick="driveBackupNow()" class="nn-drive-action">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/><path d="M3 19h18"/></svg>Subir
                 </button>
-                <button onclick="driveRestore()" style="background:#0d1a2e;border:1px solid #1d4ed8;color:#60a5fa;padding:10px;border-radius:12px;font-size:11px;font-weight:800;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="7 16 12 21 17 16"/><line x1="12" y1="21" x2="12" y2="9"/><path d="M3 5h18"/></svg>RESTAURAR
+                <button onclick="driveRestore()" class="nn-drive-action">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="7 16 12 21 17 16"/><line x1="12" y1="21" x2="12" y2="9"/><path d="M3 5h18"/></svg>Restaurar
                 </button>
             </div>
         </div>
 
         <!-- ═══ TARJETA NELSON IA — Asistente Inteligente ═══ -->
-        <div id="nia-card" onclick="niaOpen()" role="button" tabindex="0"
-             style="border-radius:22px;overflow:hidden;background:linear-gradient(135deg,#1a0f08 0%,#2d1506 50%,#3d1a04 100%);border:1px solid rgba(249,115,22,0.25);cursor:pointer;position:relative;box-shadow:0 8px 24px rgba(249,115,22,0.12);transition:transform 0.2s ease, box-shadow 0.25s ease;"
-             onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 32px rgba(249,115,22,0.2)';"
-             onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 8px 24px rgba(249,115,22,0.12)';"
-             ontouchstart="this.style.transform='scale(0.98)';" ontouchend="this.style.transform='scale(1)';">
-            <!-- Glow decorativo -->
-            <div style="position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(249,115,22,0.25) 0%,transparent 70%);pointer-events:none;"></div>
-            <div style="position:absolute;bottom:-30px;left:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(236,72,153,0.12) 0%,transparent 70%);pointer-events:none;"></div>
-
-            <div style="padding:18px 18px;display:flex;align-items:center;gap:14px;position:relative;">
+        <div id="nia-card" class="nn-ia-card" onclick="niaOpen()" role="button" tabindex="0">
+            <div style="padding:16px 16px;display:flex;align-items:center;gap:14px;position:relative;">
                 <!-- Avatar -->
-                <div style="width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#f97316 0%,#ea580c 55%,#c2410c 100%);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 6px 18px rgba(249,115,22,0.5),inset 0 1px 0 rgba(255,255,255,0.15);position:relative;">
-                    <span style="font-size:26px;">🧠</span>
+                <div style="width:48px;height:48px;border-radius:14px;background:rgba(249,115,22,0.14);border:1px solid rgba(249,115,22,0.22);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;">
+                    <span style="font-size:23px;">🧠</span>
                     <!-- Badge "IA" -->
-                    <div style="position:absolute;top:-4px;right:-4px;background:#10b981;color:#fff;font-size:9px;font-weight:900;letter-spacing:0.5px;padding:2px 5px;border-radius:6px;border:2px solid #1a0f08;box-shadow:0 2px 6px rgba(16,185,129,0.4);line-height:1;">IA</div>
+                    <div style="position:absolute;top:-4px;right:-6px;background:#10b981;color:#04140d;font-size:8.5px;font-weight:700;letter-spacing:.02em;padding:2px 5px;border-radius:5px;border:2px solid #12151f;line-height:1;">IA</div>
                 </div>
 
                 <!-- Texto -->
                 <div style="flex:1;min-width:0;">
-                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
-                        <p style="font-size:10px;font-weight:900;letter-spacing:3px;color:#fb923c;text-transform:uppercase;margin:0;">ASISTENTE</p>
-                        <span style="font-size:8px;font-weight:900;color:#10b981;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);padding:2px 6px;border-radius:6px;letter-spacing:1px;">GRATIS</span>
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">
+                        <p style="font-size:10.5px;font-weight:600;letter-spacing:.02em;color:#fb923c;margin:0;">Asistente</p>
+                        <span style="font-size:9px;font-weight:600;color:#34d399;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.22);padding:1px 6px;border-radius:5px;">Gratis</span>
                     </div>
-                    <p style="font-size:17px;font-weight:900;color:#fff;margin:0;letter-spacing:-0.3px;">Nelson IA</p>
-                    <p style="font-size:11px;color:#94a3b8;margin:3px 0 0;line-height:1.4;">Pregúntale sobre deudas, órdenes, inventario y te redacta WhatsApps.</p>
+                    <p style="font-size:17px;font-weight:700;color:#edf0f7;margin:0;letter-spacing:-.01em;">Nelson IA</p>
+                    <p style="font-size:11.5px;color:#8b94a7;margin:3px 0 0;line-height:1.4;">Pregúntale por deudas, órdenes, inventario y te redacta WhatsApps.</p>
                 </div>
 
                 <!-- Flecha -->
-                <div style="width:32px;height:32px;border-radius:10px;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                <div style="width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8b94a7" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
             </div>
 
             <!-- Chips de ejemplos -->
-            <div style="padding:0 16px 14px;display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;" onclick="event.stopPropagation();">
-                <button onclick="event.stopPropagation();niaQuickAsk('¿Quién me debe plata?')" style="flex-shrink:0;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.25);color:#fdba74;padding:6px 12px;border-radius:999px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">💰 ¿Quién me debe?</button>
-                <button onclick="event.stopPropagation();niaQuickAsk('¿Qué equipos están listos para avisar?')" style="flex-shrink:0;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.25);color:#fdba74;padding:6px 12px;border-radius:999px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">📢 Equipos listos</button>
-                <button onclick="event.stopPropagation();niaQuickAsk('¿Qué garantías están por vencer?')" style="flex-shrink:0;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.25);color:#fdba74;padding:6px 12px;border-radius:999px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">🛡️ Garantías</button>
-                <button onclick="event.stopPropagation();niaQuickAsk('¿Qué debo hacer hoy?')" style="flex-shrink:0;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.25);color:#fdba74;padding:6px 12px;border-radius:999px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">💡 Plan del día</button>
+            <div class="nn-ia-chips" onclick="event.stopPropagation();">
+                <button onclick="event.stopPropagation();niaQuickAsk('¿Quién me debe plata?')">¿Quién me debe?</button>
+                <button onclick="event.stopPropagation();niaQuickAsk('¿Qué equipos están listos para avisar?')">Equipos listos</button>
+                <button onclick="event.stopPropagation();niaQuickAsk('¿Qué garantías están por vencer?')">Garantías</button>
+                <button onclick="event.stopPropagation();niaQuickAsk('¿Qué debo hacer hoy?')">Plan del día</button>
             </div>
         </div>
 
         <!-- Menú iOS Premium -->
-        <div id="admin-menu-card" style="border-radius:24px;overflow:hidden;background:#0d1117;border:1px solid #1a2235;">
-
-            <div style="background:linear-gradient(135deg,#0f172a,#1e293b);padding:22px 20px 18px;text-align:center;border-bottom:1px solid #1a2235;">
-                <div style="width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,rgba(255,107,26,0.25),rgba(255,107,26,0.08));border:1.5px solid rgba(255,107,26,0.35);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ff6b1a" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>
-                </div>
-                <p style="font-size:10px;font-weight:900;letter-spacing:3px;color:#ff6b1a;text-transform:uppercase;margin:0 0 3px;">Gestión</p>
-                <h3 style="font-size:20px;font-weight:900;color:#f0f4ff;margin:0;">Menú de Datos</h3>
+        <div id="admin-menu-card" class="nn-menu-card">
+            <div class="nn-menu-head">
+                <h3>Menú de datos</h3>
+                <p>Estadísticas, garantías, respaldos y ajustes del taller.</p>
             </div>
 
             <div class="admin-menu-list" style="padding:10px 12px;">
@@ -918,7 +877,7 @@
                                 <p style="font-size:15px;font-weight:900;color:#f1f5f9;margin:0;letter-spacing:-0.3px;">Luis Eduardo Gaviria</p>
                                 <p style="font-size:10px;color:#64748b;margin:3px 0 0;font-weight:700;display:flex;align-items:center;gap:6px;">
                                     <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 6px rgba(16,185,129,0.6);animation:pulseDot 2s ease-in-out infinite;"></span>
-                                    NelsonApp Pro · <span id="credits-version">v3.3.0</span>
+                                    NelsonApp Pro · <span id="credits-version">v3.7.0</span>
                                 </p>
                             </div>
                             <span id="credits-arrow" style="font-size:14px;color:#64748b;transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);flex-shrink:0;">▼</span>
@@ -991,7 +950,7 @@
 
     <!-- ===== MODAL CHAT INTERNO DE ORDEN ===== -->
     <!-- ===== MODAL SELECTOR DE PRODUCTO (reemplaza select nativo) ===== -->
-    <div id="modal-product-picker" class="hidden fixed inset-0 z-[4200] modal-product-picker-wrap" onclick="if(event.target===this)closeProductPicker()" style="background:rgba(5,6,15,0.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);">
+    <div id="modal-product-picker" class="hidden fixed inset-0 z-[4200] modal-product-picker-wrap" onclick="if(event.target===this)closeProductPicker()" style="z-index:8200;background:rgba(5,6,15,0.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);">
         <div id="pp-sheet" style="width:100%;max-width:560px;background:linear-gradient(180deg,#14172a 0%,#0d0f1a 100%);border-top-left-radius:28px;border-top-right-radius:28px;border:1px solid rgba(16,185,129,0.2);border-bottom:none;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 -20px 60px rgba(0,0,0,0.6);">
             <!-- Handle decorativo -->
             <div style="display:flex;justify-content:center;padding:10px 0 4px;">
@@ -1018,7 +977,7 @@
     </div>
 
     <!-- ===== MODAL EDITOR DE PRECIO (rebaja / ajuste puntual) ===== -->
-    <div id="modal-price-editor" class="hidden fixed inset-0 z-[4300] modal-product-picker-wrap" onclick="if(event.target===this)closePriceEditor()" style="background:rgba(5,6,15,0.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);">
+    <div id="modal-price-editor" class="hidden fixed inset-0 z-[4300] modal-product-picker-wrap" onclick="if(event.target===this)closePriceEditor()" style="z-index:8300;background:rgba(5,6,15,0.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);">
         <div style="width:100%;max-width:560px;background:linear-gradient(180deg,#14172a 0%,#0d0f1a 100%);border-top-left-radius:28px;border-top-right-radius:28px;border:1px solid rgba(251,146,60,0.25);border-bottom:none;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 -20px 60px rgba(0,0,0,0.6);">
             <!-- Handle -->
             <div style="display:flex;justify-content:center;padding:10px 0 4px;">
@@ -2382,7 +2341,7 @@
                         <div class="cfg-title-wrap">
                             <p class="cfg-eyebrow">
                                 <span id="cfg-header-biz">NelsonApp Pro</span>
-                                <span class="cfg-version" id="cfg-header-version">v3.3.0</span>
+                                <span class="cfg-version" id="cfg-header-version">v3.7.0</span>
                             </p>
                             <h3 class="cfg-h1">Configuración</h3>
                         </div>
@@ -3077,6 +3036,8 @@
 
     </div><!-- /main-content-area -->
 
+    <script src="js/core/00-diagnostico-rendimiento.js"></script>
+    <script src="js/version.js"></script>
     <script src="js/core/01-base-globales.js"></script>
     <script src="js/core/02-dialogos-db.js"></script>
     <script src="js/core/03-auth-pin-biometria.js"></script>
@@ -3151,22 +3112,23 @@
     <!-- Venta con datos de cliente y ticket imprimible -->
     <div id="invoice-sale-modal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="invoice-sale-title" onclick="if(event.target===this)closeInvoiceSaleModal()">
       <div class="invoice-panel">
-        <div class="invoice-head"><div><h2 id="invoice-sale-title">🧾 Venta y comprobante</h2><p>Registra la venta, descuenta inventario y genera el ticket para el cliente.</p></div><button type="button" class="invoice-close" onclick="closeInvoiceSaleModal()" aria-label="Cerrar">×</button></div>
+        <div class="invoice-head"><div><h2 id="invoice-sale-title">🛒 Nueva venta</h2><p>Registra la venta, descuenta inventario y genera el ticket para el cliente.</p></div><button type="button" class="invoice-close" onclick="closeInvoiceSaleModal()" aria-label="Cerrar">×</button></div>
         <form id="invoice-sale-form" onsubmit="submitInvoiceSale(event)">
           <div class="invoice-grid">
-            <div class="invoice-field full"><label for="inv-product">Producto disponible</label><select id="inv-product" onchange="selectInvoiceProduct()"><option value="">Cargando inventario…</option></select></div>
+            <div class="invoice-field full"><label for="inv-product-btn">Producto</label><input type="hidden" id="inv-product"><button type="button" id="inv-product-btn" class="inv-picker-btn" onclick="openProductPicker()"><span id="inv-product-label" class="inv-picker-label">🔍 Buscar producto del inventario…</span><span class="inv-picker-arrow">▼</span></button></div>
             <div class="invoice-field"><label for="inv-qty">Cantidad</label><input id="inv-qty" type="number" min="1" step="1" value="1" oninput="updateInvoicePreview()"></div>
             <div class="invoice-field"><label for="inv-price">Precio unitario</label><input id="inv-price" type="number" min="0" step="1" oninput="updateInvoicePreview()"></div>
+            <div class="invoice-field full"><div class="inv-price-row"><span id="inv-price-hint">Elige un producto para ver su precio de inventario</span><button type="button" class="inv-price-edit" onclick="openPriceEditor()" title="Abre descuentos rápidos, redondeo y ajuste fino del precio (solo para esta venta)">✏️ Rebaja / ajustar precio</button></div></div>
             <div class="invoice-field full"><button type="button" class="inv-add" onclick="addInvoiceLine()">➕ Agregar al ticket</button></div>
             <div class="invoice-field full"><label>Productos del ticket</label><div id="inv-cart"><div class="inv-cart-empty">Aún no agregas productos al ticket</div></div></div>
-            <div class="invoice-field"><label for="inv-client">Nombre del cliente</label><input id="inv-client" maxlength="120" placeholder="Nombre y apellidos" required></div>
+            <div class="invoice-field" style="position:relative"><label for="inv-client">Cliente (opcional)</label><input id="inv-client" maxlength="120" placeholder="Vacío = Cliente de mostrador" autocomplete="off" oninput="invoiceClientSuggest()" onfocus="invoiceClientSuggest()" onblur="setTimeout(invoiceClientHide,180)"><div id="inv-client-hits" class="inv-client-hits hidden"></div></div>
             <div class="invoice-field"><label for="inv-id">Documento / NIT (opcional)</label><input id="inv-id" maxlength="40" placeholder="CC, NIT u otro"></div>
             <div class="invoice-field"><label for="inv-phone">Teléfono (opcional)</label><input id="inv-phone" maxlength="30" inputmode="tel" placeholder="Número de contacto"></div>
             <div class="invoice-field"><label for="inv-payment">Método de pago</label><select id="inv-payment"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Otro</option></select></div>
             <div class="invoice-field full"><label for="inv-notes">Observaciones (opcional)</label><textarea id="inv-notes" rows="2" maxlength="300" placeholder="Garantía, referencia u observaciones"></textarea></div>
           </div>
           <div class="invoice-total"><span>Total de la venta</span><strong id="inv-total">$0</strong></div>
-          <p class="invoice-note">Puedes agregar varios productos al mismo ticket. Si dejas un producto elegido sin pulsar «Agregar», se incluye al registrar. Este flujo genera un comprobante comercial que puedes enviar por WhatsApp, descargar en PDF o imagen, o imprimir. No sustituye una factura electrónica validada por la DIAN. Verifica los requisitos tributarios aplicables a tu negocio.</p>
+          <p class="invoice-note">Agrega varios productos al mismo ticket; si dejas uno elegido sin pulsar «Agregar», se incluye al registrar. La rebaja de precio aplica solo a esta venta (el inventario no cambia). Si no escribes cliente, el ticket sale a nombre de «Cliente de mostrador». Es un comprobante comercial que puedes enviar por WhatsApp, descargar en PDF o imagen, o imprimir; no sustituye una factura electrónica validada por la DIAN.</p>
           <div class="invoice-actions"><button type="button" onclick="closeInvoiceSaleModal()">Cancelar</button><button class="primary" id="inv-submit" type="submit">✓ Registrar venta y generar ticket</button></div>
         </form>
       </div>
