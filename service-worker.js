@@ -62,6 +62,7 @@ const PRECACHE_URLS = [
     './css/25-visual-refresh.css',
     './css/26-configuracion-splash-majestuoso.css',
     './css/27-dashboard-home-premium.css',
+    './css/28-experiencia-premium.css',
     './css/dashboard-home-command-center.css',
     './js/modules/38-native-feel.js',
     './js/modules/39-ticket-venta.js',
