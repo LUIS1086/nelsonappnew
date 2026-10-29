@@ -168,7 +168,7 @@
   }
   setTimeout(() => maybeAuto(20), 45000);
   setInterval(() => maybeAuto(20), 30 * 60000);
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') maybeAuto(20); });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') setTimeout(() => maybeAuto(20), 6000); });
   // Se llama al terminar un respaldo en Drive: la segunda copia queda al día (máx. una vez cada 30 min)
   window.respSupabaseHook = function () { setTimeout(() => maybeAuto(0.5), 3000); };
 

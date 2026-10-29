@@ -2,6 +2,17 @@
    Lista de ordenes, factura, estados y WhatsApp
    (extraido sin cambios de index.html; el orden de carga importa) */
         async function renderOrders() {
+            // Identificador de renderizado: evita que una búsqueda/pestaña anterior
+            // siga agregando tarjetas mientras ya se está mostrando otra vista.
+            const renderId = (window.__nelsonOrdersRenderId || 0) + 1;
+            window.__nelsonOrdersRenderId = renderId;
+            // Retirar el paginador anterior incluso si la nueva búsqueda queda vacía.
+            const previousMoreButton = document.getElementById('nelson-orders-load-more');
+            if (previousMoreButton) previousMoreButton.remove();
+            // Diagnóstico opt-in: abrir la URL con ?perf=1. Solo registra tiempos y
+            // cantidades; nunca nombres, teléfonos, órdenes ni fotografías.
+            const perfEnabled = new URLSearchParams(window.location.search).has('perf');
+            const perfStart = performance.now();
             // Si no hay búsqueda activa (ni texto, ni cliente exacto, ni orden exacta), limpiar hits de arriba
             if (!filters.text && !filters.exactClient && !filters.exactOrderId) {
                 const hits = document.getElementById('search-client-hits');
@@ -15,7 +26,9 @@
             }
 
             const cur = getCurrency();
-            let orders = await getAll('orders');
+            let orders = typeof getOrderListSummaries === 'function' ? await getOrderListSummaries() : await getAll('orders');
+            if (perfEnabled) console.info('[NelsonApp perf] lectura órdenes', { ms: Math.round(performance.now() - perfStart), count: orders.length });
+            if (renderId !== window.__nelsonOrdersRenderId) return;
 
             // FILTROS ESTRICTOS (tienen prioridad sobre texto libre)
             if (filters.exactOrderId) {
@@ -43,11 +56,21 @@
             orders.sort((a,b) => b.fecha - a.fecha);
             const today = new Date();
             const container = document.getElementById('orders-list');
-            if (!orders.length) { container.innerHTML = '<div class="text-center py-12 opacity-50">📭 No hay órdenes</div>'; return; }
-            // RENDERIZADO PROGRESIVO: primeros 30 items → respuesta inmediata al cambiar de tab
-            const ORDERS_INITIAL = 30;
+            if (!orders.length) {
+                container.innerHTML = `<div class="nn-empty">
+                    <div class="nn-empty-icon">🧰</div>
+                    <div class="nn-empty-title">Aún no hay órdenes</div>
+                    <div class="nn-empty-text">Registra la primera recepción y aparecerá aquí con su estado y saldo.</div>
+                    <button type="button" class="nn-empty-btn" onclick="tab('taller')">Nueva recepción</button>
+                </div>`;
+                return;
+            }
+            // Renderizado por lotes pequeños. Con respaldos grandes, construir cientos
+            // de tarjetas en una sola tarea bloqueaba el hilo principal del navegador.
+            const ORDERS_INITIAL = 12;
+            const ORDERS_BATCH = 4;
             const firstOrdersBatch = orders.slice(0, ORDERS_INITIAL);
-            const remainingOrders  = orders.slice(ORDERS_INITIAL);
+            let nextOrderIndex = firstOrdersBatch.length;
 
             const renderOrderCard = (o) => {
                 const canEditValue = (o.sta === 'reparado' || o.sta === 'entregado');
@@ -127,7 +150,7 @@
                         ? { label: `💳 PARCIAL ${pctPagado}%`, color: '#60a5fa', bg: 'rgba(96,165,250,0.12)', border: 'rgba(96,165,250,0.3)' }
                         : { label: '⏳ PENDIENTE', color: '#fb923c', bg: 'rgba(251,146,60,0.12)', border: 'rgba(251,146,60,0.3)' };
 
-                return `<div class="card order-card-pro" style="position:relative;padding:0;overflow:hidden;border-left:4px solid ${cardAccent};box-shadow:0 4px 12px rgba(0,0,0,0.2),0 0 0 1px ${cardGlow};">
+                return `<div class="card order-card-pro" style="position:relative;padding:0;overflow:hidden;content-visibility:auto;contain-intrinsic-size:auto 420px;border-left:4px solid ${cardAccent};box-shadow:0 4px 12px rgba(0,0,0,0.2),0 0 0 1px ${cardGlow};">
                     <div style="position:absolute;top:-40px;right:-40px;width:140px;height:140px;background:radial-gradient(circle,${cardGlow},transparent 70%);pointer-events:none;"></div>
 
                     <!-- HEADER: avatar + cliente + estado -->
@@ -240,18 +263,48 @@
                 </div>`;
             };
 
-            // Pintar primer batch inmediatamente (el usuario ve algo YA)
+            // Pintar una primera página pequeña para que la navegación responda rápido.
+            if (renderId !== window.__nelsonOrdersRenderId) return;
             container.innerHTML = firstOrdersBatch.map(renderOrderCard).join('');
+            if (perfEnabled) console.info('[NelsonApp perf] render inicial', { ms: Math.round(performance.now() - perfStart), rendered: firstOrdersBatch.length, total: orders.length });
 
-            // Si quedan más, pintarlos en segundo paso (UI sigue respondiendo)
-            if (remainingOrders.length > 0) {
-                requestAnimationFrame(() => {
-                    setTimeout(() => {
-                        const fragment = document.createElement('div');
-                        fragment.innerHTML = remainingOrders.map(renderOrderCard).join('');
-                        while (fragment.firstChild) container.appendChild(fragment.firstChild);
-                    }, 0);
+            // Paginación bajo demanda: no crear cientos/miles de tarjetas en el DOM
+            // de una sola vez. Cada clic añade un lote pequeño y mantiene la UI receptiva.
+            const appendNextOrdersBatch = () => {
+                if (renderId !== window.__nelsonOrdersRenderId || !container.isConnected) return;
+                const batchStartedAt = performance.now();
+                const batch = orders.slice(nextOrderIndex, nextOrderIndex + ORDERS_BATCH);
+                if (!batch.length) return;
+                const htmlContainer = document.createElement('div');
+                htmlContainer.innerHTML = batch.map(renderOrderCard).join('');
+                const batchFragment = document.createDocumentFragment();
+                while (htmlContainer.firstChild) batchFragment.appendChild(htmlContainer.firstChild);
+                // Una sola inserción DOM por lote: reduce recalculados de estilo/layout.
+                container.appendChild(batchFragment);
+                nextOrderIndex += batch.length;
+                if (perfEnabled) console.info('[NelsonApp perf] lote de órdenes', { ms: Math.round(performance.now() - batchStartedAt), batch: batch.length, rendered: nextOrderIndex, total: orders.length });
+                if (nextOrderIndex >= orders.length) {
+                    const more = document.getElementById('nelson-orders-load-more');
+                    if (more) more.remove();
+                }
+            };
+            if (nextOrderIndex < orders.length) {
+                const more = document.createElement('button');
+                more.id = 'nelson-orders-load-more';
+                more.type = 'button';
+                more.className = 'w-full my-4 px-4 py-3 rounded-xl font-bold text-sm';
+                more.style.cssText = 'background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.35);color:#fb923c;';
+                more.textContent = `Cargar más órdenes (${orders.length - nextOrderIndex} restantes)`;
+                more.addEventListener('click', () => {
+                    if (renderId !== window.__nelsonOrdersRenderId) return;
+                    more.disabled = true;
+                    appendNextOrdersBatch();
+                    if (nextOrderIndex < orders.length) {
+                        more.textContent = `Cargar más órdenes (${orders.length - nextOrderIndex} restantes)`;
+                        more.disabled = false;
+                    }
                 });
+                container.insertAdjacentElement('afterend', more);
             }
         }
 

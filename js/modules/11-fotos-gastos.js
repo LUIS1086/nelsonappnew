@@ -8,7 +8,11 @@
         // la app vuelve a primer plano después de saltar a otra app (WhatsApp).
         // Aplicamos varias técnicas de repaint para forzar al WebView a re-pintar.
         // ════════════════════════════════════════════════════════════════════════
+        let _lastRepaintAt = 0;
         function _forceRepaintAfterWAReturn() {
+            // Los eventos visibilitychange/pageshow pueden llegar juntos: un repintado basta.
+            if (Date.now() - _lastRepaintAt < 1000) return;
+            _lastRepaintAt = Date.now();
             try {
                 // Técnica 1: scroll micro para forzar repaint
                 const sx = window.scrollX, sy = window.scrollY;

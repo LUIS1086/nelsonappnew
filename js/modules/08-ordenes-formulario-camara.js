@@ -4,7 +4,7 @@
         // Modificar updateTotal, etc. (resto del código igual excepto funciones de mejora 6 y 7)
         async function updateTotal() {
             const lastCierre = Number(localStorage.getItem('lastCierreCaja')) || 0;
-            const orders = await getAll('orders');
+            const orders = await getOrdersLite();
             const sales = await getAll('sales');
             const gastos = await getAll('gastos');
             const totalOrders = orders.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha) > lastCierre).reduce((a,b) => a + (b.val||0), 0);

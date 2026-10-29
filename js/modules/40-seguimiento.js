@@ -222,7 +222,7 @@
   window.segPollRespuestas = pollRespuestas;
   setTimeout(pollRespuestas, 7000);
   setInterval(() => { if (document.visibilityState === 'visible') pollRespuestas(); }, 60000);
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') pollRespuestas(); });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') setTimeout(pollRespuestas, 2500); });
   window.addEventListener('online', () => setTimeout(pollRespuestas, 1500));
 
   /* ───────────────────────── Mensajes de WhatsApp ───────────────────────── */
