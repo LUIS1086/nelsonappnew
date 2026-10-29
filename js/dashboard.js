@@ -314,7 +314,7 @@ function loadBiz() {
     const ver   = String(window.APP_VERSION || c.version || localStorage.getItem('appVersion') || '').replace(/^v/i, '') || '?';
     document.getElementById('sb-short').textContent = short.toUpperCase();
     document.getElementById('sb-name').textContent  = name.toUpperCase().replace('TODO REPUESTOS','').trim() || 'NELSON';
-    document.getElementById('tb-title').textContent = (name.toUpperCase()) + ' — COMMAND CENTER';
+    document.getElementById('tb-title').textContent = 'Command Center';
     const verEl = document.getElementById('sb-version');
     if (verEl) verEl.textContent = `v${ver} · Nelson App Pro`;
     document.title = `${name} — Dashboard`;
