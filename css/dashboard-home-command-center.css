@@ -1,0 +1,28 @@
+/* NelsonAppNew v3.8.2 — Command Center finishing layer. Presentation only. */
+:root { --nc-line: rgba(148,163,184,.14); --nc-surface: rgba(15,23,42,.76); }
+body { background: #080d18 !important; background-image: radial-gradient(ellipse at 8% -8%,rgba(59,130,246,.09),transparent 34%),radial-gradient(ellipse at 95% 0%,rgba(249,115,22,.07),transparent 30%) !important; }
+.shell { border-color: var(--nc-line) !important; }
+.sidebar { background: linear-gradient(180deg,#0b1220,#080e19) !important; border-right: 1px solid var(--nc-line) !important; }
+.sb-brand { border-bottom-color: var(--nc-line) !important; }
+.sb-logo-icon { box-shadow: 0 0 0 5px rgba(249,115,22,.055),0 12px 28px rgba(249,115,22,.12) !important; }
+.nav-item { border: 1px solid transparent !important; transition: background .18s,border-color .18s,transform .18s !important; }
+.nav-item:hover { transform: translateX(2px); border-color: rgba(148,163,184,.1) !important; }
+.nav-item.active { background: linear-gradient(100deg,rgba(249,115,22,.16),rgba(249,115,22,.035)) !important; border-color: rgba(249,115,22,.18) !important; box-shadow: inset 3px 0 #fb923c !important; }
+.topbar { background: rgba(8,13,24,.88) !important; border-bottom: 1px solid var(--nc-line) !important; backdrop-filter: blur(22px) saturate(140%) !important; }
+.tb-title { letter-spacing: -.035em !important; font-weight: 800 !important; }
+.tb-search { border-color: var(--nc-line) !important; background: rgba(148,163,184,.055) !important; }
+.tb-search:focus-within { border-color: rgba(96,165,250,.48) !important; box-shadow: 0 0 0 3px rgba(59,130,246,.09) !important; }
+.today-panel, .kpi, .insight-card, .alert-banner, .chart-card, .panel-card, .data-card { border-color: var(--nc-line) !important; box-shadow: 0 12px 32px rgba(0,0,0,.12) !important; }
+.today-panel { background: linear-gradient(135deg,rgba(15,23,42,.94),rgba(15,23,42,.72)) !important; border-radius: 20px !important; }
+.kpi { border-radius: 19px !important; background: linear-gradient(145deg,rgba(17,26,44,.94),rgba(11,18,32,.92)) !important; transition: transform .18s ease,border-color .18s ease,box-shadow .18s ease !important; }
+.kpi:hover { transform: translateY(-2px); border-color: rgba(148,163,184,.25) !important; box-shadow: 0 18px 38px rgba(0,0,0,.20) !important; }
+.kpi-val { letter-spacing: -.045em !important; }
+.kpi-accent-line { opacity: .75 !important; }
+button, .tb-icon-btn { -webkit-tap-highlight-color: transparent; }
+button:focus-visible, input:focus-visible, [role="button"]:focus-visible { outline: 2px solid #60a5fa !important; outline-offset: 3px; }
+@media (max-width:780px) {
+  .topbar { background: rgba(8,13,24,.94) !important; }
+  .main { padding-top: 16px !important; }
+  .today-panel, .kpi { border-radius: 16px !important; }
+}
+@media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; } }
