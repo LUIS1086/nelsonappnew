@@ -17,7 +17,8 @@
     <script src="js/libs/html2canvas.min.js" defer></script>
     <script src="js/libs/qrcode.min.js" defer></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,800&display=swap" rel="stylesheet"></noscript>
     <link rel="stylesheet" href="css/01-tema-variables.css">
     <link rel="stylesheet" href="css/02-componentes-base.css">
     <link rel="stylesheet" href="css/03-modo-claro-accesibilidad.css">
@@ -41,6 +42,7 @@
     <link rel="stylesheet" href="css/20-responsive-pro.css">
     <link rel="stylesheet" href="css/21-ticket-venta.css">
     <link rel="stylesheet" href="css/22-seguimiento.css">
+    <link rel="stylesheet" href="css/24-ios-fluidez.css">
 
 <style id="invoice-sale-styles">
 .invoice-sale-cta{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:14px;border-radius:16px;border:1px solid rgba(52,211,153,.32);background:linear-gradient(115deg,rgba(16,185,129,.16),rgba(59,130,246,.08));color:#e5fff4;cursor:pointer;transition:transform .18s,border-color .18s}
@@ -255,7 +257,7 @@
         <div class="splash-title" id="splash-biz-name">NELSON</div>
         <div class="splash-sub">Taller &amp; Repuestos</div>
         <div class="splash-bar-track"><div class="splash-bar-fill"></div></div>
-        <div class="splash-version" id="splash-version">v3.3.0</div>
+        <div class="splash-version" id="splash-version">v3.7.0</div>
     </div>
 
     <!-- PIN MODAL -->
@@ -397,6 +399,7 @@
                                             <span id="client-info-deuda" class="hidden" style="display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:900;letter-spacing:0.4px;text-transform:uppercase;padding:2px 7px;border-radius:99px;background:rgba(251,146,60,0.15);color:#fdba74;border:1px solid rgba(251,146,60,0.3);"></span>
                                         </div>
                                         <div id="client-info-stats" style="font-size:11px;font-weight:700;color:#cbd5e1;line-height:1.3;"></div>
+                                        <div style="font-size:9px;font-weight:700;color:#60a5fa;margin-top:2px;">Toca para ver la ficha completa</div>
                                     </div>
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;"><polyline points="9 18 15 12 9 6"/></svg>
                                 </div>
@@ -615,48 +618,13 @@
     </main>
 
     <main id="view-ventas" class="app-view hidden p-4 space-y-6 max-container">
-        <div class="card p-5 space-y-4 bg-gradient-to-br from-emerald-900/20 to-transparent">
+        <div class="card p-5 space-y-3 bg-gradient-to-br from-emerald-900/20 to-transparent">
             <h3 class="text-center text-[11px] font-black text-emerald-400 uppercase tracking-widest">💵 NUEVA VENTA</h3>
-            <button type="button" onclick="openInvoiceSaleModal()" class="invoice-sale-cta">
-                <span class="invoice-sale-cta-icon">🧾</span>
-                <span><strong>Venta con factura / ticket</strong><small>Datos del cliente · WhatsApp · PDF · imagen · imprimir</small></span>
+            <button type="button" id="v-new-sale-btn" onclick="openInvoiceSaleModal()" class="invoice-sale-cta">
+                <span class="invoice-sale-cta-icon">🛒</span>
+                <span><strong>Registrar venta</strong><small>Varios productos · rebajas de precio · cliente opcional · ticket por WhatsApp, PDF o impresión</small></span>
                 <span class="invoice-sale-cta-arrow">→</span>
             </button>
-            <!-- Selector custom de producto (reemplaza el select nativo que se veía feo en WebView) -->
-            <button type="button" id="v-select-btn" onclick="openProductPicker()" class="w-full text-left font-bold uppercase text-sm" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:14px;cursor:pointer;gap:10px;">
-                <span id="v-select-label" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#94a3b8;">-- Seleccionar producto --</span>
-                <span style="color:#64748b;font-size:12px;flex-shrink:0;">▼</span>
-            </button>
-            <!-- Select oculto para compatibilidad con el resto del código -->
-            <select id="v-select" class="hidden" aria-hidden="true"></select>
-
-            <!-- Tarjeta de precio del producto seleccionado (aparece al elegir producto) -->
-            <div id="v-price-card" class="hidden" style="display:none;position:relative;overflow:hidden;padding:16px 18px;background:linear-gradient(135deg,rgba(16,185,129,0.10) 0%,rgba(15,23,42,0.4) 100%);border:1px solid rgba(16,185,129,0.22);border-radius:16px;">
-                <div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(16,185,129,0.15),transparent 70%);pointer-events:none;"></div>
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;position:relative;">
-                    <div style="flex:1;min-width:0;">
-                        <div id="v-price-card-label" style="font-size:9px;font-weight:900;color:#34d399;text-transform:uppercase;letter-spacing:2px;margin-bottom:4px;">PRECIO UNITARIO</div>
-                        <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
-                            <span id="v-price-card-amount" style="font-size:26px;font-weight:900;color:#f1f5f9;font-variant-numeric:tabular-nums;letter-spacing:-0.5px;">$0</span>
-                            <span id="v-price-card-strike" class="hidden" style="font-size:13px;color:#64748b;text-decoration:line-through;font-weight:700;"></span>
-                        </div>
-                        <div id="v-price-card-savings" class="hidden" style="margin-top:6px;display:inline-flex;align-items:center;gap:6px;padding:3px 10px;background:rgba(251,146,60,0.15);border:1px solid rgba(251,146,60,0.3);border-radius:99px;font-size:10px;font-weight:900;color:#fb923c;"></div>
-                    </div>
-                    <button type="button" onclick="openPriceEditor()" id="v-price-edit-btn" style="flex-shrink:0;display:flex;align-items:center;gap:6px;padding:10px 14px;background:rgba(251,146,60,0.12);border:1px solid rgba(251,146,60,0.3);border-radius:12px;color:#fb923c;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.8px;cursor:pointer;transition:all 0.15s ease;" aria-label="Modificar precio">
-                        <span style="font-size:14px;">✏️</span><span>Editar</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="flex gap-3">
-                <input type="number" id="v-qty" placeholder="CANT." class="w-24 text-center font-black" min="1" oninput="updatePriceCardTotal()">
-                <button onclick="processSale()" id="v-confirm-btn" class="flex-1 bg-emerald-600 py-3 rounded-xl font-black uppercase text-xs shadow-md active:scale-95 transition">CONFIRMAR VENTA</button>
-            </div>
-            <!-- Total calculado (aparece cuando hay producto + cantidad) -->
-            <div id="v-total-preview" class="hidden" style="display:none;text-align:center;padding:10px;background:rgba(15,23,42,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:12px;">
-                <span style="font-size:10px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:1.5px;">Total a cobrar · </span>
-                <span id="v-total-preview-amount" style="font-size:18px;font-weight:900;color:#34d399;font-variant-numeric:tabular-nums;">$0</span>
-            </div>
         </div>
         <div class="card p-5 space-y-3 bg-gradient-to-br from-rose-900/20 to-transparent border-rose-500/10">
             <h3 class="text-center text-[11px] font-black text-rose-400 uppercase tracking-widest">💸 REGISTRAR GASTO</h3>
@@ -918,7 +886,7 @@
                                 <p style="font-size:15px;font-weight:900;color:#f1f5f9;margin:0;letter-spacing:-0.3px;">Luis Eduardo Gaviria</p>
                                 <p style="font-size:10px;color:#64748b;margin:3px 0 0;font-weight:700;display:flex;align-items:center;gap:6px;">
                                     <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 6px rgba(16,185,129,0.6);animation:pulseDot 2s ease-in-out infinite;"></span>
-                                    NelsonApp Pro · <span id="credits-version">v3.3.0</span>
+                                    NelsonApp Pro · <span id="credits-version">v3.7.0</span>
                                 </p>
                             </div>
                             <span id="credits-arrow" style="font-size:14px;color:#64748b;transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);flex-shrink:0;">▼</span>
@@ -991,7 +959,7 @@
 
     <!-- ===== MODAL CHAT INTERNO DE ORDEN ===== -->
     <!-- ===== MODAL SELECTOR DE PRODUCTO (reemplaza select nativo) ===== -->
-    <div id="modal-product-picker" class="hidden fixed inset-0 z-[4200] modal-product-picker-wrap" onclick="if(event.target===this)closeProductPicker()" style="background:rgba(5,6,15,0.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);">
+    <div id="modal-product-picker" class="hidden fixed inset-0 z-[4200] modal-product-picker-wrap" onclick="if(event.target===this)closeProductPicker()" style="z-index:8200;background:rgba(5,6,15,0.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);">
         <div id="pp-sheet" style="width:100%;max-width:560px;background:linear-gradient(180deg,#14172a 0%,#0d0f1a 100%);border-top-left-radius:28px;border-top-right-radius:28px;border:1px solid rgba(16,185,129,0.2);border-bottom:none;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 -20px 60px rgba(0,0,0,0.6);">
             <!-- Handle decorativo -->
             <div style="display:flex;justify-content:center;padding:10px 0 4px;">
@@ -1018,7 +986,7 @@
     </div>
 
     <!-- ===== MODAL EDITOR DE PRECIO (rebaja / ajuste puntual) ===== -->
-    <div id="modal-price-editor" class="hidden fixed inset-0 z-[4300] modal-product-picker-wrap" onclick="if(event.target===this)closePriceEditor()" style="background:rgba(5,6,15,0.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);">
+    <div id="modal-price-editor" class="hidden fixed inset-0 z-[4300] modal-product-picker-wrap" onclick="if(event.target===this)closePriceEditor()" style="z-index:8300;background:rgba(5,6,15,0.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);">
         <div style="width:100%;max-width:560px;background:linear-gradient(180deg,#14172a 0%,#0d0f1a 100%);border-top-left-radius:28px;border-top-right-radius:28px;border:1px solid rgba(251,146,60,0.25);border-bottom:none;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 -20px 60px rgba(0,0,0,0.6);">
             <!-- Handle -->
             <div style="display:flex;justify-content:center;padding:10px 0 4px;">
@@ -2382,7 +2350,7 @@
                         <div class="cfg-title-wrap">
                             <p class="cfg-eyebrow">
                                 <span id="cfg-header-biz">NelsonApp Pro</span>
-                                <span class="cfg-version" id="cfg-header-version">v3.3.0</span>
+                                <span class="cfg-version" id="cfg-header-version">v3.7.0</span>
                             </p>
                             <h3 class="cfg-h1">Configuración</h3>
                         </div>
@@ -2660,12 +2628,13 @@
                     </div>
                     <div id="cfg-wapp" class="ios-body">
                         <div class="ios-body-inner space-y-3">
-                            <div class="ios-variables">Variables: <span>{cliente} {equipo} {valor} {orden} {dias}</span></div>
+                            <div class="ios-variables">Variables: <span>{cliente} {equipo} {valor} {orden} {dias} {vence} {restan}</span></div>
                             <div><span class="ios-input-label">📥 Al recibir equipo</span><textarea id="tpl-recepcion" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, recibimos tu {equipo}. Orden {orden}. Te avisamos cuando esté listo 🙌"></textarea></div>
                             <div><span class="ios-input-label">🔍 En revisión</span><textarea id="tpl-revision" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, tu {equipo} está siendo revisado 🔍"></textarea></div>
                             <div><span class="ios-input-label">💼 Enviar presupuesto</span><textarea id="tpl-presupuesto" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, el presupuesto para tu {equipo} es de ${valor}. ¿Apruebas? ✅"></textarea></div>
                             <div><span class="ios-input-label">✅ Equipo listo</span><textarea id="tpl-listo" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, tu {equipo} ya está listo! Valor: ${valor} 🎉"></textarea></div>
                             <div><span class="ios-input-label">🛡️ Recordatorio garantía</span><textarea id="tpl-garantia" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, tu {equipo} tiene garantía de {dias} días 🛡️"></textarea></div>
+                            <div><span class="ios-input-label">🎁 Garantía por vencer + mantenimiento de obsequio</span><textarea id="tpl-garantiavence" rows="4" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, la garantía de tu {equipo} vence {restan} ({vence}). Te obsequiamos un mantenimiento 🎁"></textarea></div>
                             <div><span class="ios-input-label">⚠️ Sin reparación</span><textarea id="tpl-norepara" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, tu {equipo} no tiene reparación posible 😔"></textarea></div>
                             <div><span class="ios-input-label">⏳ Aviso de retraso</span><textarea id="tpl-retraso" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, la reparación está tomando más tiempo. Gracias ⏳"></textarea></div>
                             <div><span class="ios-input-label">💸 Recordatorio de pago</span><textarea id="tpl-cobro" rows="3" class="w-full text-xs" placeholder="🔧 *{negocio}*&#10;&#10;Hola {cliente}, tienes un saldo pendiente de ${valor} 🙏"></textarea></div>
@@ -3076,6 +3045,8 @@
 
     </div><!-- /main-content-area -->
 
+    <script src="js/core/00-diagnostico-rendimiento.js"></script>
+    <script src="js/version.js"></script>
     <script src="js/core/01-base-globales.js"></script>
     <script src="js/core/02-dialogos-db.js"></script>
     <script src="js/core/03-auth-pin-biometria.js"></script>
@@ -3150,22 +3121,23 @@
     <!-- Venta con datos de cliente y ticket imprimible -->
     <div id="invoice-sale-modal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="invoice-sale-title" onclick="if(event.target===this)closeInvoiceSaleModal()">
       <div class="invoice-panel">
-        <div class="invoice-head"><div><h2 id="invoice-sale-title">🧾 Venta y comprobante</h2><p>Registra la venta, descuenta inventario y genera el ticket para el cliente.</p></div><button type="button" class="invoice-close" onclick="closeInvoiceSaleModal()" aria-label="Cerrar">×</button></div>
+        <div class="invoice-head"><div><h2 id="invoice-sale-title">🛒 Nueva venta</h2><p>Registra la venta, descuenta inventario y genera el ticket para el cliente.</p></div><button type="button" class="invoice-close" onclick="closeInvoiceSaleModal()" aria-label="Cerrar">×</button></div>
         <form id="invoice-sale-form" onsubmit="submitInvoiceSale(event)">
           <div class="invoice-grid">
-            <div class="invoice-field full"><label for="inv-product">Producto disponible</label><select id="inv-product" onchange="selectInvoiceProduct()"><option value="">Cargando inventario…</option></select></div>
+            <div class="invoice-field full"><label for="inv-product-btn">Producto</label><input type="hidden" id="inv-product"><button type="button" id="inv-product-btn" class="inv-picker-btn" onclick="openProductPicker()"><span id="inv-product-label" class="inv-picker-label">🔍 Buscar producto del inventario…</span><span class="inv-picker-arrow">▼</span></button></div>
             <div class="invoice-field"><label for="inv-qty">Cantidad</label><input id="inv-qty" type="number" min="1" step="1" value="1" oninput="updateInvoicePreview()"></div>
             <div class="invoice-field"><label for="inv-price">Precio unitario</label><input id="inv-price" type="number" min="0" step="1" oninput="updateInvoicePreview()"></div>
+            <div class="invoice-field full"><div class="inv-price-row"><span id="inv-price-hint">Elige un producto para ver su precio de inventario</span><button type="button" class="inv-price-edit" onclick="openPriceEditor()" title="Abre descuentos rápidos, redondeo y ajuste fino del precio (solo para esta venta)">✏️ Rebaja / ajustar precio</button></div></div>
             <div class="invoice-field full"><button type="button" class="inv-add" onclick="addInvoiceLine()">➕ Agregar al ticket</button></div>
             <div class="invoice-field full"><label>Productos del ticket</label><div id="inv-cart"><div class="inv-cart-empty">Aún no agregas productos al ticket</div></div></div>
-            <div class="invoice-field"><label for="inv-client">Nombre del cliente</label><input id="inv-client" maxlength="120" placeholder="Nombre y apellidos" required></div>
+            <div class="invoice-field" style="position:relative"><label for="inv-client">Cliente (opcional)</label><input id="inv-client" maxlength="120" placeholder="Vacío = Cliente de mostrador" autocomplete="off" oninput="invoiceClientSuggest()" onfocus="invoiceClientSuggest()" onblur="setTimeout(invoiceClientHide,180)"><div id="inv-client-hits" class="inv-client-hits hidden"></div></div>
             <div class="invoice-field"><label for="inv-id">Documento / NIT (opcional)</label><input id="inv-id" maxlength="40" placeholder="CC, NIT u otro"></div>
             <div class="invoice-field"><label for="inv-phone">Teléfono (opcional)</label><input id="inv-phone" maxlength="30" inputmode="tel" placeholder="Número de contacto"></div>
             <div class="invoice-field"><label for="inv-payment">Método de pago</label><select id="inv-payment"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Otro</option></select></div>
             <div class="invoice-field full"><label for="inv-notes">Observaciones (opcional)</label><textarea id="inv-notes" rows="2" maxlength="300" placeholder="Garantía, referencia u observaciones"></textarea></div>
           </div>
           <div class="invoice-total"><span>Total de la venta</span><strong id="inv-total">$0</strong></div>
-          <p class="invoice-note">Puedes agregar varios productos al mismo ticket. Si dejas un producto elegido sin pulsar «Agregar», se incluye al registrar. Este flujo genera un comprobante comercial que puedes enviar por WhatsApp, descargar en PDF o imagen, o imprimir. No sustituye una factura electrónica validada por la DIAN. Verifica los requisitos tributarios aplicables a tu negocio.</p>
+          <p class="invoice-note">Agrega varios productos al mismo ticket; si dejas uno elegido sin pulsar «Agregar», se incluye al registrar. La rebaja de precio aplica solo a esta venta (el inventario no cambia). Si no escribes cliente, el ticket sale a nombre de «Cliente de mostrador». Es un comprobante comercial que puedes enviar por WhatsApp, descargar en PDF o imagen, o imprimir; no sustituye una factura electrónica validada por la DIAN.</p>
           <div class="invoice-actions"><button type="button" onclick="closeInvoiceSaleModal()">Cancelar</button><button class="primary" id="inv-submit" type="submit">✓ Registrar venta y generar ticket</button></div>
         </form>
       </div>

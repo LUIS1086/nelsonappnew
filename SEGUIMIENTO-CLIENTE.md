@@ -18,7 +18,7 @@ garantía y un botón de WhatsApp al taller. No instala nada y no ve teléfono n
 - En cada orden, botón **🔗**: QR, enlace, enviar por WhatsApp, copiar, **🖨️ hoja con QR** para entregar al cliente.
 - Cada cambio de estado se publica solo. Los avisos de WhatsApp (recibido, revisión, presupuesto, listo, retraso)
   ya llevan el enlace. Sin internet: queda en cola y se publica al volver la conexión.
-- Eliminar una orden borra su seguimiento. Las entregadas se limpian solas a los 90 días.
+- Eliminar una orden borra su seguimiento. Las entregadas se limpian solas a los 90 días (o a la garantía + 30 días, si la garantía es más larga).
 
 ## Seguridad
 - Las tablas no se pueden leer ni escribir directamente (RLS sin políticas).
