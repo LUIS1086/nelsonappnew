@@ -10,7 +10,9 @@
                 address: document.getElementById('config-business-address').value,
                 nit: document.getElementById('config-business-nit').value,
                 footer: document.getElementById('config-business-footer').value,
-                orderPrefix: document.getElementById('config-order-prefix').value
+                orderPrefix: document.getElementById('config-order-prefix').value,
+                tagline: (document.getElementById('config-business-tagline')||{}).value || '',
+                brandline: (document.getElementById('config-business-brandline')||{}).value || ''
             };
             localStorage.setItem('businessConfig', JSON.stringify(config));
             document.getElementById('business-short-name').innerText = config.shortName || 'TODO REPUESTOS';
@@ -27,6 +29,7 @@
                 document.getElementById('config-business-nit').value = config.nit || '';
                 document.getElementById('config-business-footer').value = config.footer || '';
                 document.getElementById('config-order-prefix').value = config.orderPrefix || '';
+                { const t=document.getElementById('config-business-tagline'), b=document.getElementById('config-business-brandline'); if(t) t.value = config.tagline || ''; if(b) b.value = config.brandline || ''; }
                 document.getElementById('business-short-name').innerText = config.shortName || 'TODO REPUESTOS';
                 document.getElementById('business-name-display').innerHTML = config.name || 'NELSON';
             }
@@ -422,32 +425,51 @@
             `).join('');
         }
 
-        // Filtro de búsqueda en vivo
+        // Navegación por categorías y búsqueda combinadas; no cambia los ajustes ni sus funciones.
+        let _cfgActiveCategory = 'todos';
+
+        function setConfigCategory(category, button) {
+            _cfgActiveCategory = category || 'todos';
+            document.querySelectorAll('#modal-config .cfg-category-chip').forEach(chip => {
+                const active = chip.dataset.cfgCategory === _cfgActiveCategory;
+                chip.classList.toggle('is-active', active);
+                chip.setAttribute('aria-selected', active ? 'true' : 'false');
+            });
+            const scroller = document.querySelector('#modal-config .ios-scroll-area');
+            if (scroller) scroller.scrollTo({ top: 0, behavior: 'smooth' });
+            const input = document.getElementById('cfg-search-input');
+            filterConfigRows(input ? input.value : '');
+        }
+
         function filterConfigRows(query) {
             const q = (query || '').toLowerCase().trim();
             const modal = document.getElementById('modal-config');
             if (!modal) return;
             const groups = modal.querySelectorAll('.ios-group');
             groups.forEach(group => {
+                const label = group.previousElementSibling;
+                const labelText = label && label.classList.contains('ios-group-label') ? label.textContent.trim() : '';
+                const categoryMatch = _cfgActiveCategory === 'todos' || labelText === _cfgActiveCategory;
                 const rows = group.querySelectorAll(':scope > .ios-row');
                 let visibleCount = 0;
                 rows.forEach(row => {
                     const title = (row.querySelector('.ios-row-title')?.textContent || '').toLowerCase();
-                    const sub   = (row.querySelector('.ios-row-sub')?.textContent || '').toLowerCase();
-                    const match = !q || title.includes(q) || sub.includes(q);
+                    const sub = (row.querySelector('.ios-row-sub')?.textContent || '').toLowerCase();
+                    const match = categoryMatch && (!q || title.includes(q) || sub.includes(q));
                     row.classList.toggle('cfg-hidden-row', !match);
                     if (match) visibleCount++;
                 });
-                const label = group.previousElementSibling;
                 if (label && label.classList.contains('ios-group-label')) {
                     label.classList.toggle('cfg-hidden-group', visibleCount === 0);
                 }
                 group.classList.toggle('cfg-hidden-group', visibleCount === 0);
             });
-            // Oculta hero cuando hay búsqueda
             const stats = modal.querySelector('.cfg-stats');
             const quick = modal.querySelector('.cfg-quick');
+            const categories = modal.querySelector('.cfg-category-shell');
+            const hasFilter = !!q || _cfgActiveCategory !== 'todos';
             if (stats) stats.style.display = q ? 'none' : '';
             if (quick) quick.style.display = q ? 'none' : '';
+            if (categories) categories.classList.toggle('is-filtered', _cfgActiveCategory !== 'todos');
         }
 

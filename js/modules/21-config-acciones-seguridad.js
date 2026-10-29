@@ -189,26 +189,50 @@
         });
 
         // ==================== SPLASH SCREEN ====================
+        // v3.8.4: tiempo adaptativo. Arranque en frío (primera vez en la sesión) = splash completo;
+        // arranque en caliente (recarga / vuelta de segundo plano) = splash breve. Se puede saltar tocando.
         (function initSplash() {
-            const bizConfig = localStorage.getItem('businessConfig');
-            if (bizConfig) {
-                try {
-                    const cfg = JSON.parse(bizConfig);
-                    if (cfg.name) document.getElementById('splash-biz-name').innerText = cfg.name;
-                    if (cfg.shortName) {
-                        const el = document.getElementById('splash-pin-bizname');
-                        if (el) el.innerText = cfg.shortName;
-                    }
-                } catch(e) {}
-            }
-            setTimeout(() => {
-                const splash = document.getElementById('splash-screen');
+            const splash = document.getElementById('splash-screen');
+            if (!splash) { try { showPinModal(); } catch(e) {} return; }
+            try {
+                const cfg = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+                if (cfg.name) document.getElementById('splash-biz-name').innerText = cfg.name;
+                if (cfg.tagline) document.getElementById('splash-tagline').innerText = cfg.tagline;
+                if (cfg.brandline) document.getElementById('splash-brandline').innerText = cfg.brandline;
+                if (cfg.shortName) {
+                    const el = document.getElementById('splash-pin-bizname');
+                    if (el) el.innerText = cfg.shortName;
+                }
+            } catch(e) {}
+
+            let caliente = false;
+            try { caliente = sessionStorage.getItem('nn_splash_visto') === '1'; sessionStorage.setItem('nn_splash_visto', '1'); } catch(e) {}
+            const reducido = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const MIN_MS = caliente ? 350 : (reducido ? 600 : 1300);
+            const FADE_MS = caliente || reducido ? 220 : 520;
+            splash.style.setProperty('--splash-ms', MIN_MS + 'ms');
+            splash.style.setProperty('--splash-fade', FADE_MS + 'ms');
+
+            let cerrado = false, minOk = false, cargado = document.readyState === 'complete';
+            function cerrar() {
+                if (cerrado) return;
+                cerrado = true;
                 splash.classList.add('fade-out');
-                setTimeout(() => {
+                let fin = false;
+                const terminar = () => {
+                    if (fin) return; fin = true;
                     splash.style.display = 'none';
                     showPinModal();
-                }, 600);
-            }, 1800);
+                };
+                splash.addEventListener('transitionend', e => { if (e.target === splash) terminar(); });
+                setTimeout(terminar, FADE_MS + 120); // respaldo si no hay transitionend
+            }
+            function intentar() { if (minOk && cargado) cerrar(); }
+            setTimeout(() => { minOk = true; intentar(); }, MIN_MS);
+            if (!cargado) window.addEventListener('load', () => { cargado = true; intentar(); }, { once: true });
+            setTimeout(cerrar, 4000); // tope de seguridad: nunca dejar la app atascada en el splash
+            // Saltar con un toque una vez que la animación ya se vio
+            splash.addEventListener('click', () => { if (minOk || caliente) cerrar(); });
         })();
 
         // ==================== NUMPAD PIN ====================
