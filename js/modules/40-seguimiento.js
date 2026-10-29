@@ -102,7 +102,8 @@
       presupuesto: o.presupuesto || 'pendiente', presu_valor: (o.presupuesto === 'enviado') ? (Number(o.val) || 0) : null, // el valor a aprobar siempre se muestra
       valor: val ? (Number(o.val) || 0) : null, adelanto: val ? (Number(o.adelanto) || 0) : null, saldo: val ? (Number(o.saldo) || 0) : null,
       fecha_ingreso: iso(o.fecha), fecha_estado: iso(o.fechaEstado || o.fechaEntrega), fecha_estimada: o.fechaEstimada || null,
-      garantia_dias: Number(o.garantia) || null, negocio: bizName(), wa_negocio: waNum(b.phone)
+      garantia_dias: Number(o.garantia) || null, negocio: bizName(), wa_negocio: waNum(b.phone),
+      telefono: waNum(o.tel) || null // solo para los avisos automáticos (n8n); seg_obtener nunca lo devuelve al cliente
     };
     const sigs = {}; const prev = sentPhoto.get(token) || {};
     if (op.mostrarFotos) {
@@ -114,7 +115,7 @@
     return { body, sigs };
   }
 
-  const fingerprint = o => [o.sta, o.presupuesto, o.val, o.adelanto, o.saldo, o.equ, o.det, o.nom, o.fechaEstimada, o.garantia, o.orderNum, (o.fotos || []).length, (o.fotosEntrega || []).length, JSON.stringify(opts())].join('|');
+  const fingerprint = o => [o.sta, o.presupuesto, o.val, o.adelanto, o.saldo, o.equ, o.det, o.nom, o.tel, o.fechaEstimada, o.garantia, o.orderNum, (o.fotos || []).length, (o.fotosEntrega || []).length, JSON.stringify(opts())].join('|');
   const OLD_DONE = o => (o.sta === 'entregado' || o.sta === 'no-reparable') && (Date.now() - (Number(o.fechaEstado || o.fecha) || 0)) > 60 * 864e5;
 
   function setPending(id, on) {
@@ -221,7 +222,7 @@
   window.segPollRespuestas = pollRespuestas;
   setTimeout(pollRespuestas, 7000);
   setInterval(() => { if (document.visibilityState === 'visible') pollRespuestas(); }, 60000);
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') pollRespuestas(); });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') setTimeout(pollRespuestas, 2500); });
   window.addEventListener('online', () => setTimeout(pollRespuestas, 1500));
 
   /* ───────────────────────── Mensajes de WhatsApp ───────────────────────── */

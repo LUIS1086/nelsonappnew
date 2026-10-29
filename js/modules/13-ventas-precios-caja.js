@@ -1,27 +1,10 @@
 /* Nelson App Pro · js/modules/13-ventas-precios-caja.js
    Ventas, selector de producto, editor de precios y caja
    (extraido sin cambios de index.html; el orden de carga importa) */
+        // Venta unificada: el selector de producto vive en el modal «Nueva venta» (39-ticket-venta.js).
+        // Se conserva el nombre porque inventario, importación y anulación lo llaman tras cambiar el stock.
         async function updateVentaSelect() {
-            const stock = await getAll('stock');
-            document.getElementById('v-select').innerHTML =
-                '<option value="">-- Seleccionar producto --</option>' +
-                stock.filter(s => s.q > 0).sort((a,b)=>a.n.localeCompare(b.n))
-                     .map(s=>`<option value="${s.id}">${escapeHtml(s.n)} · ${s.q} uds · ${getCurrency()}${s.p.toLocaleString()}</option>`)
-                     .join('');
-            // Si había un producto seleccionado visualmente pero ya no existe, limpiar label
-            const sel = document.getElementById('v-select');
-            const lbl = document.getElementById('v-select-label');
-            if (sel && lbl && sel.value) {
-                const still = stock.find(s => String(s.id) === String(sel.value) && s.q > 0);
-                if (!still) {
-                    sel.value = '';
-                    lbl.innerText = '-- Seleccionar producto --';
-                    lbl.style.color = '#94a3b8';
-                    // Limpiar estado del precio y ocultar tarjeta
-                    customSalePrice = null;
-                    if (typeof hidePriceCard === 'function') hidePriceCard();
-                }
-            }
+            if (typeof window.refreshInvoiceStock === 'function') await window.refreshInvoiceStock();
         }
 
         // ============ SELECTOR CUSTOM DE PRODUCTO (bottom sheet) ============
@@ -107,125 +90,23 @@
         async function pickProduct(id) {
             const stock = await getAll('stock');
             const item = stock.find(s => s.id === id);
-            if (!item) { closeProductPicker(); return; }
-            // Sincronizar con el select oculto para que processSale siga funcionando
-            const sel = document.getElementById('v-select');
-            if (sel) sel.value = String(item.id);
-            // Label del botón selector
-            const lbl = document.getElementById('v-select-label');
-            if (lbl) {
-                const cur = getCurrency();
-                lbl.innerHTML = `<span style="color:#f1f5f9;">${escapeHtml(item.n)}</span> <span style="color:#64748b;font-weight:700;font-size:11px;">· ${item.q} uds</span>`;
-                lbl.style.color = '';
-            }
-            // Reset cualquier override previo y mostrar tarjeta de precio
-            customSalePrice = null;
-            showPriceCard(item);
-            updatePriceCardTotal();
+            if (item && typeof window.invoicePickProduct === 'function') window.invoicePickProduct(item);
             closeProductPicker();
-            setTimeout(() => document.getElementById('v-qty')?.focus(), 200);
-        }
-
-        // ============ TARJETA DE PRECIO DEL PRODUCTO SELECCIONADO ============
-        function showPriceCard(item) {
-            const card = document.getElementById('v-price-card');
-            const amount = document.getElementById('v-price-card-amount');
-            const strike = document.getElementById('v-price-card-strike');
-            const savings = document.getElementById('v-price-card-savings');
-            const label = document.getElementById('v-price-card-label');
-            const editBtn = document.getElementById('v-price-edit-btn');
-            if (!card || !amount) return;
-            const cur = getCurrency();
-            const origP = Number(item.p) || 0;
-            const hasOverride = customSalePrice !== null && customSalePrice !== origP;
-            const shown = hasOverride ? customSalePrice : origP;
-            amount.innerText = cur + shown.toLocaleString();
-
-            if (hasOverride) {
-                // Mostrar precio original tachado + badge de ahorro/recargo
-                strike.classList.remove('hidden');
-                strike.innerText = cur + origP.toLocaleString();
-                savings.classList.remove('hidden');
-                const diff = shown - origP;
-                if (diff < 0) {
-                    const pct = origP > 0 ? Math.round((diff / origP) * -100) : 0;
-                    savings.innerHTML = `<span>💸</span> Rebaja ${cur}${Math.abs(diff).toLocaleString()} · ${pct}%`;
-                    savings.style.background = 'rgba(248,113,113,0.12)';
-                    savings.style.borderColor = 'rgba(248,113,113,0.3)';
-                    savings.style.color = '#f87171';
-                } else {
-                    savings.innerHTML = `<span>↑</span> Recargo ${cur}${diff.toLocaleString()}`;
-                    savings.style.background = 'rgba(52,211,153,0.12)';
-                    savings.style.borderColor = 'rgba(52,211,153,0.3)';
-                    savings.style.color = '#34d399';
-                }
-                label.innerText = 'PRECIO AJUSTADO PARA ESTA VENTA';
-                label.style.color = '#fb923c';
-                amount.style.color = '#fb923c';
-                card.style.borderColor = 'rgba(251,146,60,0.35)';
-                card.style.background = 'linear-gradient(135deg,rgba(251,146,60,0.10) 0%,rgba(15,23,42,0.4) 100%)';
-                if (editBtn) editBtn.innerHTML = '<span style="font-size:14px;">✏️</span><span>Cambiar</span>';
-            } else {
-                strike.classList.add('hidden');
-                savings.classList.add('hidden');
-                label.innerText = 'PRECIO UNITARIO';
-                label.style.color = '#34d399';
-                amount.style.color = '#f1f5f9';
-                card.style.borderColor = 'rgba(16,185,129,0.22)';
-                card.style.background = 'linear-gradient(135deg,rgba(16,185,129,0.10) 0%,rgba(15,23,42,0.4) 100%)';
-                if (editBtn) editBtn.innerHTML = '<span style="font-size:14px;">✏️</span><span>Editar</span>';
-            }
-            card.classList.remove('hidden');
-            card.style.display = '';
-        }
-
-        function hidePriceCard() {
-            const card = document.getElementById('v-price-card');
-            if (card) { card.classList.add('hidden'); card.style.display = 'none'; }
-            const tp = document.getElementById('v-total-preview');
-            if (tp) { tp.classList.add('hidden'); tp.style.display = 'none'; }
-        }
-
-        async function updatePriceCardTotal() {
-            const sel = document.getElementById('v-select');
-            const qtyEl = document.getElementById('v-qty');
-            const tp = document.getElementById('v-total-preview');
-            const tpAmount = document.getElementById('v-total-preview-amount');
-            if (!sel || !qtyEl || !tp || !tpAmount) return;
-            if (!sel.value) { tp.classList.add('hidden'); tp.style.display = 'none'; return; }
-            const qty = parseInt(qtyEl.value);
-            if (!qty || qty <= 0) { tp.classList.add('hidden'); tp.style.display = 'none'; return; }
-            const stock = await getAll('stock');
-            const item = stock.find(s => String(s.id) === String(sel.value));
-            if (!item) return;
-            const origP = Number(item.p) || 0;
-            const unit = (customSalePrice !== null) ? customSalePrice : origP;
-            const cur = getCurrency();
-            tpAmount.innerText = cur + (unit * qty).toLocaleString();
-            tp.classList.remove('hidden');
-            tp.style.display = '';
         }
 
         // ============ EDITOR DE PRECIO (modal bottom-sheet) ============
         async function openPriceEditor() {
-            const sel = document.getElementById('v-select');
-            if (!sel || !sel.value) return;
-            const stock = await getAll('stock');
-            const item = stock.find(s => String(s.id) === String(sel.value));
-            if (!item) return;
-            const origP = Number(item.p) || 0;
+            const ctx = typeof window.invoicePricingContext === 'function' ? window.invoicePricingContext() : null;
+            if (!ctx) return showAlert('Primero elige un producto para poder ajustar su precio.', 'warning');
+            const origP = ctx.origP;
             const cur = getCurrency();
-            // Poblar UI del modal
-            document.getElementById('pe-product-name').innerText = item.n || 'Producto';
+            document.getElementById('pe-product-name').innerText = ctx.name || 'Producto';
             document.getElementById('pe-currency').innerText = cur;
             document.getElementById('pe-original').innerText = cur + origP.toLocaleString();
             const input = document.getElementById('pe-input');
-            // Si ya hay override activo, precargarlo; si no, usar el precio original como punto de partida
-            const starting = (customSalePrice !== null) ? customSalePrice : origP;
-            input.value = starting;
+            input.value = ctx.current;
             input.dataset.origP = String(origP);
             updatePriceEditorPreview();
-            // Abrir modal
             const modal = document.getElementById('modal-price-editor');
             modal.classList.remove('hidden');
             setTimeout(() => { input.focus(); input.select(); }, 280);
@@ -330,17 +211,7 @@
             if (!input) return;
             const val = parseFloat(input.value);
             if (isNaN(val) || val < 0) return showAlert('Ingresa un precio válido', 'warning');
-            const origP = Number(input.dataset.origP) || 0;
-            // Si queda igual al original, lo tratamos como "sin override"
-            customSalePrice = (val === origP) ? null : val;
-            // Refrescar tarjeta
-            const sel = document.getElementById('v-select');
-            if (sel && sel.value) {
-                const stock = await getAll('stock');
-                const item = stock.find(s => String(s.id) === String(sel.value));
-                if (item) showPriceCard(item);
-            }
-            updatePriceCardTotal();
+            if (typeof window.invoiceSetPrice === 'function') window.invoiceSetPrice(val);
             closePriceEditor();
             if (navigator.vibrate) { try { navigator.vibrate(15); } catch(e){} }
         }
@@ -349,56 +220,12 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 const pe = document.getElementById('modal-price-editor');
-                if (pe && !pe.classList.contains('hidden')) { closePriceEditor(); return; }
+                if (pe && !pe.classList.contains('hidden')) { closePriceEditor(); e.stopImmediatePropagation(); return; }
                 const m = document.getElementById('modal-product-picker');
-                if (m && !m.classList.contains('hidden')) closeProductPicker();
+                if (m && !m.classList.contains('hidden')) { closeProductPicker(); e.stopImmediatePropagation(); }
             }
         });
 
-        async function processSale() {
-            const id  = document.getElementById('v-select').value;
-            const qty = parseInt(document.getElementById('v-qty').value);
-            if (!id || isNaN(qty) || qty <= 0) return showAlert('Selecciona un producto e ingresa una cantidad válida.', 'warning');
-            const stock = await getAll('stock');
-            const item  = stock.find(x => x.id == id);
-            if (!item || qty > item.q) return showAlert('Stock insuficiente para esta cantidad.', 'error');
-
-            // Precio personalizado para esta venta (no modifica el inventario)
-            const origP = Number(item.p) || 0;
-            const priceOverridden = (customSalePrice !== null && customSalePrice !== origP);
-            const unitPrice = priceOverridden ? customSalePrice : origP;
-
-            const prevQ = item.q;
-            item.q -= qty;
-            await put('stock', item); // Solo se descuenta stock — el precio del producto (item.p) NO se toca
-            const saleRecord = {
-                id: _uid(),
-                item: item.n,
-                val: unitPrice * qty,
-                qty,
-                stockId: item.id,
-                fecha: Date.now()
-            };
-            if (priceOverridden) {
-                saleRecord.precioUnit = unitPrice;
-                saleRecord.precioOriginal = origP;
-                saleRecord.precioModificado = true;
-            }
-            await put('sales', saleRecord);
-            const motivoMov = priceOverridden
-                ? `Venta (precio ajustado: ${getCurrency()}${unitPrice.toLocaleString()} c/u)`
-                : 'Venta';
-            await addStockMovementRecord(item.id, 'salida', qty, motivoMov, prevQ);
-            playBeep();
-            await renderStock(); await updateVentaSelect(); await updateTotal();
-            // Reset completo del formulario de venta
-            document.getElementById('v-qty').value = '';
-            const sel = document.getElementById('v-select'); if (sel) sel.value = '';
-            const lbl = document.getElementById('v-select-label');
-            if (lbl) { lbl.innerText = '-- Seleccionar producto --'; lbl.style.color = '#94a3b8'; }
-            customSalePrice = null;
-            hidePriceCard();
-        }
         async function annulSale(id) {
             showConfirm('¿Anular esta venta y devolver al stock?', async () => {
                 const sales = await getAll('sales');

@@ -42,6 +42,7 @@
                     diasGarantia: dias,
                     fechaEntrega: o.fechaEntrega,
                     fechaVencimiento: expira,
+                    avisoWA: o.garantiaAvisoWA || 0,
                     diasRestantes,
                     estado
                 });
@@ -161,6 +162,16 @@
             const expDate = new Date(g.fechaVencimiento);
             const fechaTxt = `${String(expDate.getDate()).padStart(2,'0')}/${String(expDate.getMonth()+1).padStart(2,'0')}/${expDate.getFullYear()}`;
             const numLabel = g.orderNum ? `#${String(g.orderNum).padStart(4,'0')}` : '';
+            // Botón WhatsApp: aviso de pronto vencimiento + mantenimiento de obsequio (no aplica a vencidas)
+            let waBtn = '';
+            if (g.estado !== 'vencida') {
+                const sent = !!g.avisoWA;
+                const sentTxt = sent ? new Date(g.avisoWA).toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit' }) : '';
+                waBtn = `<button type="button" class="garantia-wa-btn${sent ? ' sent' : ''}" onclick="event.stopPropagation();garantiaAvisarWA(${g.id})" title="${sent ? 'Avisado el ' + sentTxt + ' · tocar para reenviar' : 'Avisar por WhatsApp: vencimiento + mantenimiento de obsequio'}" aria-label="Avisar por WhatsApp">
+                    <span style="font-size:17px;line-height:1;">💬</span>
+                    <span class="garantia-wa-lbl">${sent ? '✓ ' + sentTxt : 'Avisar'}</span>
+                </button>`;
+            }
             return `<div class="garantia-card ${cls}" onclick="_openOrderFromGarantia(${g.id})">
                 <div class="garantia-icon" style="background:${iconBg};">${icon}</div>
                 <div class="garantia-info">
@@ -172,51 +183,35 @@
                         <span style="color:#64748b;font-weight:600;">🛡️ ${g.diasGarantia}d total</span>
                     </div>
                 </div>
+                ${waBtn}
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;"><polyline points="9 18 15 12 9 6"/></svg>
-                <div class="garantia-wa-actions" onclick="event.stopPropagation()" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;width:100%;">
-                    <button type="button" onclick="avisarObsequioMantenimiento(${g.id})" style="border:1px solid rgba(16,185,129,.35);background:rgba(16,185,129,.12);color:#34d399;border-radius:9px;padding:8px 10px;font-size:11px;font-weight:800;cursor:pointer;">🎁 Avisar mantenimiento gratis</button>
-                    <button type="button" onclick="avisarVencimientoGarantia(${g.id})" style="border:1px solid rgba(245,158,11,.35);background:rgba(245,158,11,.12);color:#fbbf24;border-radius:9px;padding:8px 10px;font-size:11px;font-weight:800;cursor:pointer;">🛡️ Avisar garantía</button>
-                </div>
             </div>`;
         }
 
-        function _abrirWhatsAppGarantia(g, mensaje) {
-            if (!g || !g.tel) {
-                if (typeof showToast === 'function') showToast('Este cliente no tiene teléfono registrado en la orden.', 'warning');
-                else alert('Este cliente no tiene teléfono registrado en la orden.');
-                return;
-            }
-            let numero = String(g.tel).replace(/\\D/g, '');
-            // Números colombianos: añadir +57 si están guardados como 10 dígitos.
-            if (numero.length === 10 && numero.startsWith('3')) numero = '57' + numero;
-            if (numero.length < 10) {
-                if (typeof showToast === 'function') showToast('El número de WhatsApp parece incompleto. Revisa los datos del cliente.', 'warning');
-                else alert('El número de WhatsApp parece incompleto. Revisa los datos del cliente.');
-                return;
-            }
-            window.open('https://wa.me/' + numero + '?text=' + encodeURIComponent(mensaje), '_blank');
-        }
-
-        async function avisarObsequioMantenimiento(orderId) {
-            const g = _garantiasCache.find(item => String(item.id) === String(orderId));
+        // Avisa por WhatsApp: garantía por vencer + obsequio de mantenimiento
+        async function garantiaAvisarWA(orderId) {
+            const g = _garantiasCache.find(x => x.id === orderId);
             if (!g) return;
-            const negocio = (typeof _safeBizConfig === 'function' ? _safeBizConfig().name : '') || 'Todo Repuestos Nelson';
-            const mensaje = `🔧 *${negocio}*\\n\\nHola ${g.nom}, queremos obsequiarte un mantenimiento gratuito para tu ${g.equ}. 🎁\\n\\nEs un detalle por confiar en nuestro trabajo. Escríbenos para coordinar el día y la hora que más te convengan.\\n\\n¡Gracias por preferirnos!`;
-            _abrirWhatsAppGarantia(g, mensaje);
-        }
-
-        async function avisarVencimientoGarantia(orderId) {
-            const g = _garantiasCache.find(item => String(item.id) === String(orderId));
-            if (!g) return;
-            const negocio = (typeof _safeBizConfig === 'function' ? _safeBizConfig().name : '') || 'Todo Repuestos Nelson';
-            const fecha = new Date(g.fechaVencimiento).toLocaleDateString('es-CO', {day:'2-digit', month:'long', year:'numeric'});
-            let detalle;
-            if (g.diasRestantes < 0) detalle = `la garantía venció el ${fecha}`;
-            else if (g.diasRestantes === 0) detalle = `la garantía vence hoy (${fecha})`;
-            else if (g.diasRestantes === 1) detalle = `la garantía vence mañana (${fecha})`;
-            else detalle = `la garantía está próxima a vencer el ${fecha} (faltan ${g.diasRestantes} días)`;
-            const mensaje = `🔧 *${negocio}*\\n\\nHola ${g.nom}, te escribimos para recordarte que ${detalle} para tu ${g.equ}.\\n\\nSi tienes alguna duda, estamos atentos para ayudarte. ¡Gracias por confiar en nosotros!`;
-            _abrirWhatsAppGarantia(g, mensaje);
+            const num = String(g.tel || '').replace(/\D/g, '');
+            if (!num) { showToast('Este cliente no tiene teléfono registrado', 'warning'); return; }
+            const prefix = num.startsWith('57') ? '' : '57';
+            const d = new Date(g.fechaVencimiento);
+            const vence = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+            const restan = g.diasRestantes <= 0 ? 'hoy'
+                         : g.diasRestantes === 1 ? 'mañana'
+                         : `en ${g.diasRestantes} días`;
+            const order = await getOne('orders', orderId);
+            if (!order) return;
+            const msg = buildWhatsappMsg('garantiavence', order, { vence, restan });
+            // Marcar como avisado (evita enviar el mismo aviso dos veces sin darse cuenta)
+            try {
+                order.garantiaAvisoWA = Date.now();
+                await put('orders', order);
+                g.avisoWA = order.garantiaAvisoWA;
+                _renderGarantias();
+            } catch (e) { console.warn('[garantiaAvisarWA] no se pudo marcar el aviso', e); }
+            sessionStorage.setItem('_waJump', '1');
+            window.open(`https://wa.me/${prefix}${num}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
         async function _openOrderFromGarantia(orderId) {

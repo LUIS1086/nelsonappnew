@@ -41,7 +41,7 @@
             if (low.length) showToast(`Stock bajo: ${low.length} productos con menos de ${threshold} unidades`, 'warning');
         }
         async function checkOverdueOrders() {
-            const orders = await getAll('orders');
+            const orders = await getOrdersLite();
             const today = new Date();
             const overdue = orders.filter(o => o.sta !== 'entregado' && getBusinessDaysDiff(new Date(o.fecha), today) >= 60);
             if (overdue.length) showToast(`${overdue.length} órdenes con más de 60 días pendientes`, 'warning');

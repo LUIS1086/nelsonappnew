@@ -4,7 +4,7 @@
         // Modificar updateTotal, etc. (resto del código igual excepto funciones de mejora 6 y 7)
         async function updateTotal() {
             const lastCierre = Number(localStorage.getItem('lastCierreCaja')) || 0;
-            const orders = await getAll('orders');
+            const orders = await getOrdersLite();
             const sales = await getAll('sales');
             const gastos = await getAll('gastos');
             const totalOrders = orders.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha) > lastCierre).reduce((a,b) => a + (b.val||0), 0);
@@ -98,11 +98,11 @@
                 }
                 o.fotos = [...(o.fotos || []), blob];
                 await put('orders', o);
+                window._fotosCambiaron = true;
                 showToast(`✅ Foto agregada (${o.fotos.length}/3)`, 'success');
-                if (o.fotos.length >= 3) {
-                    closeCamera();
-                    await openPhotoModal(_retomarOrdenId, 'recepcion');
-                }
+                // Vuelve al visor para ver la foto y, si hace falta, agregar otra
+                closeCamera();
+                await openPhotoModal(_retomarOrdenId, 'recepcion');
             } else if (cameraMode === 'entrega') {
                 if (currentDeliveryPhotos.length >= 3) { showAlert("Máximo 3 fotos de entrega.", "warning"); return; }
                 currentDeliveryPhotos.push(blob);

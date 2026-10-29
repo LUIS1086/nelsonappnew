@@ -1,6 +1,6 @@
 /* Nelson App Pro · js/modules/39-ticket-venta.js
-   Venta con comprobante (Caja & Inventario):
-   formulario → registra venta y descuenta stock → modal "Venta registrada" con acciones:
+   VENTA UNIFICADA (Caja & Inventario) — único módulo de ventas:
+   formulario (selector buscable, varios productos, rebaja de precio, cliente opcional) → registra venta y descuenta stock → modal "Venta registrada" con acciones:
    WhatsApp al cliente · compartir imagen · PDF · imagen · imprimir.
    También permite reabrir el ticket de una venta desde el historial de la caja (openSaleTicket). */
 (function () {
@@ -24,8 +24,10 @@
 
   /* ───────────────────────── Formulario de venta (carrito) ───────────────────────── */
   let invoiceStock = [];
-  let cart = [];        // { stockId, n, qty, price }
+  let cart = [];        // { stockId, n, qty, price, orig }  (orig = precio de inventario)
   let submitting = false;
+  let invoiceClients = [];   // clientes conocidos para sugerir en el formulario
+  let clientHits = [];
 
   const lineTotal = l => l.qty * l.price;
   const cartTotal = () => cart.reduce((a, l) => a + lineTotal(l), 0);
@@ -45,58 +47,139 @@
     if (!item || !Number.isInteger(qty) || qty < 1 || !Number.isFinite(price) || price < 0) return { error: 'Revisa producto, cantidad y precio.' };
     const ya = (cart.find(l => String(l.stockId) === String(item.id)) || { qty: 0 }).qty;
     if (ya + qty > Number(item.q)) return { error: 'Stock insuficiente de «' + item.n + '». Disponible: ' + Number(item.q) + (ya ? ' (ya agregaste ' + ya + ')' : '') };
-    return { line: { stockId: item.id, n: item.n, qty, price } };
+    return { line: { stockId: item.id, n: item.n, qty, price, orig: Number(item.p) || 0 } };
   }
 
   function renderCart() {
     const box = byId('inv-cart'); if (!box) return;
     if (!cart.length) { box.innerHTML = '<div class="inv-cart-empty">Aún no agregas productos al ticket</div>'; return; }
-    box.innerHTML = cart.map((l, i) =>
-      '<div class="inv-line"><div class="inv-line-main"><strong>' + esc(l.n) + '</strong><small>' + esc(l.qty) + ' × ' + esc(money(l.price)) + '</small></div>' +
-      '<span class="inv-line-sub">' + esc(money(lineTotal(l))) + '</span>' +
-      '<button type="button" class="inv-line-x" onclick="removeInvoiceLine(' + i + ')" aria-label="Quitar ' + esc(l.n) + '">✕</button></div>').join('');
+    box.innerHTML = cart.map((l, i) => {
+      const orig = Number(l.orig), off = Number.isFinite(orig) && orig > 0 && l.price !== orig;
+      const tag = !off ? '' : (l.price < orig
+        ? ' · <span class="inv-line-off">−' + Math.round((orig - l.price) / orig * 100) + '% (antes ' + esc(money(orig)) + ')</span>'
+        : ' · <span class="inv-line-up">recargo</span>');
+      return '<div class="inv-line"><div class="inv-line-main"><strong>' + esc(l.n) + '</strong><small>' + esc(l.qty) + ' × ' + esc(money(l.price)) + tag + '</small></div>' +
+        '<span class="inv-line-sub">' + esc(money(lineTotal(l))) + '</span>' +
+        '<button type="button" class="inv-line-x" onclick="removeInvoiceLine(' + i + ')" aria-label="Quitar ' + esc(l.n) + '">✕</button></div>';
+    }).join('');
+  }
+
+  const norm = v => (typeof _normalizeSearch === 'function' ? _normalizeSearch(v) : String(v == null ? '' : v).toLowerCase());
+
+  // Deja el formulario sin producto elegido (se usa al abrir y tras «Agregar»)
+  function clearPendingProduct() {
+    byId('inv-product').value = ''; byId('inv-qty').value = 1; byId('inv-price').value = '';
+    const lbl = byId('inv-product-label');
+    if (lbl) { lbl.textContent = '🔍 Buscar producto del inventario…'; lbl.classList.remove('has-value'); }
+    renderPriceHint();
+  }
+
+  // Línea informativa bajo el precio: precio de inventario, rebaja o recargo
+  function renderPriceHint() {
+    const el = byId('inv-price-hint'); if (!el) return;
+    const id = byId('inv-product').value;
+    const item = id ? invoiceStock.find(p => String(p.id) === String(id)) : null;
+    if (!item) { el.style.color = '#94a3b8'; el.textContent = 'Elige un producto para ver su precio de inventario'; return; }
+    const orig = Number(item.p) || 0, raw = byId('inv-price').value, price = Number(raw);
+    const diff = raw === '' || !Number.isFinite(price) ? 0 : price - orig;
+    if (!diff) { el.style.color = '#94a3b8'; el.textContent = 'Precio de inventario: ' + money(orig); }
+    else if (diff < 0) { el.style.color = '#fb923c'; el.innerHTML = '💸 Rebaja de <b>' + esc(money(-diff)) + '</b> (' + (orig > 0 ? Math.round(-diff / orig * 100) : 0) + '%) sobre ' + esc(money(orig)); }
+    else { el.style.color = '#6ee7b7'; el.innerHTML = '↑ Recargo de <b>' + esc(money(diff)) + '</b> sobre ' + esc(money(orig)); }
+  }
+
+  async function loadInvoiceClients() {
+    try {
+      const [clientes, orders] = await Promise.all([getAll('clientes'), getAll('orders')]);
+      const map = new Map();
+      clientes.forEach(c => { if (c.nombre) map.set(c.nombre, { nombre: c.nombre, telefono: c.telefono || '' }); });
+      orders.forEach(o => {
+        if (!o.nom) return;
+        const ex = map.get(o.nom);
+        if (!ex) map.set(o.nom, { nombre: o.nom, telefono: o.tel || '' });
+        else if (!ex.telefono && o.tel) ex.telefono = o.tel;
+      });
+      invoiceClients = [...map.values()];
+    } catch (e) { invoiceClients = []; console.warn('No se pudieron cargar los clientes para sugerir:', e); }
   }
 
   window.openInvoiceSaleModal = async function () {
     const modal = byId('invoice-sale-modal'); if (!modal) return;
     modal.classList.remove('hidden');
-    byId('invoice-sale-form').reset(); byId('inv-qty').value = 1;
-    cart = []; renderCart();
+    byId('invoice-sale-form').reset();
+    cart = []; renderCart(); clearPendingProduct(); window.invoiceClientHide();
     submitting = false; const btn = byId('inv-submit'); if (btn) btn.disabled = false;
-    const sel = byId('inv-product'); sel.innerHTML = '<option value="">Cargando inventario…</option>';
+    window.updateInvoicePreview();
     try {
-      invoiceStock = await getAll('stock');
-      const available = invoiceStock.filter(p => Number(p.q) > 0).sort((a, b) => String(a.n || '').localeCompare(String(b.n || '')));
-      sel.innerHTML = '<option value="">Selecciona un producto</option>' + available.map(p => '<option value="' + esc(p.id) + '">' + esc(p.n) + ' · ' + Number(p.q) + ' uds · ' + money(p.p) + '</option>').join('');
-      if (!available.length) sel.innerHTML = '<option value="">No hay productos con stock</option>';
-      window.updateInvoicePreview();
+      const [stock] = await Promise.all([getAll('stock'), loadInvoiceClients()]);
+      invoiceStock = stock;
     } catch (err) {
-      sel.innerHTML = '<option value="">No se pudo cargar el inventario</option>';
       alertBox('No se pudo cargar el inventario. Intenta de nuevo.', 'error');
     }
   };
 
-  window.closeInvoiceSaleModal = function () { const m = byId('invoice-sale-modal'); if (m) m.classList.add('hidden'); };
+  window.closeInvoiceSaleModal = function () { const m = byId('invoice-sale-modal'); if (m) m.classList.add('hidden'); window.invoiceClientHide(); };
 
-  window.selectInvoiceProduct = function () {
-    const item = invoiceStock.find(p => String(p.id) === String((byId('inv-product') || {}).value));
-    byId('inv-price').value = item ? (Number(item.p) || 0) : '';
+  // El selector buscable (13-ventas-precios-caja.js) entrega aquí el producto elegido
+  window.invoicePickProduct = function (item) {
+    if (!item) return;
+    const i = invoiceStock.findIndex(p => String(p.id) === String(item.id));
+    if (i >= 0) invoiceStock[i] = item; else invoiceStock.push(item);
+    byId('inv-product').value = String(item.id);
+    const lbl = byId('inv-product-label');
+    if (lbl) { lbl.textContent = item.n + ' · ' + Number(item.q) + ' uds · ' + money(item.p); lbl.classList.add('has-value'); }
+    byId('inv-price').value = Number(item.p) || 0;
+    if (!(parseInt(byId('inv-qty').value, 10) >= 1)) byId('inv-qty').value = 1;
     window.updateInvoicePreview();
+    setTimeout(() => { const q = byId('inv-qty'); if (q) { q.focus(); q.select(); } }, 200);
+  };
+
+  // Datos que necesita el editor de precio (rebaja rápida, redondeo, ajuste fino)
+  window.invoicePricingContext = function () {
+    const id = byId('inv-product').value; if (!id) return null;
+    const item = invoiceStock.find(p => String(p.id) === String(id)); if (!item) return null;
+    const raw = byId('inv-price').value, price = Number(raw);
+    return { name: item.n, origP: Number(item.p) || 0, current: raw !== '' && Number.isFinite(price) ? price : (Number(item.p) || 0) };
+  };
+  window.invoiceSetPrice = function (v) { byId('inv-price').value = v; window.updateInvoicePreview(); };
+
+  // Inventario/importar/anular llaman a updateVentaSelect(): mantiene fresco el stock del formulario
+  window.refreshInvoiceStock = async function () {
+    try { invoiceStock = await getAll('stock'); renderPriceHint(); } catch (e) { /* no crítico */ }
   };
 
   // Total = productos ya agregados + el producto que esté en pantalla (se incluye al registrar).
   window.updateInvoicePreview = function () {
     const pend = readPending();
     byId('inv-total').textContent = money(cartTotal() + (pend && pend.line ? lineTotal(pend.line) : 0));
+    renderPriceHint();
   };
 
   window.addInvoiceLine = function () {
     const pend = readPending();
-    if (!pend) { alertBox('Selecciona un producto para agregarlo al ticket.', 'warning'); return; }
+    if (!pend) { alertBox('Elige un producto para agregarlo al ticket.', 'warning'); return; }
     if (pend.error) { alertBox(pend.error, 'warning'); return; }
     mergeInto(cart, pend.line);
-    byId('inv-product').value = ''; byId('inv-qty').value = 1; byId('inv-price').value = '';
+    clearPendingProduct();
     renderCart(); window.updateInvoicePreview();
+  };
+
+  /* ── Cliente opcional con sugerencias (nombre y teléfono se completan solos) ── */
+  window.invoiceClientSuggest = function () {
+    const box = byId('inv-client-hits'), input = byId('inv-client'); if (!box || !input) return;
+    const q = norm(input.value);
+    if (q.length < 2) { window.invoiceClientHide(); return; }
+    clientHits = invoiceClients.filter(c => norm(c.nombre).includes(q)).slice(0, 5);
+    if (!clientHits.length || (clientHits.length === 1 && norm(clientHits[0].nombre) === q)) { window.invoiceClientHide(); return; }
+    box.innerHTML = clientHits.map((c, i) => '<button type="button" onmousedown="event.preventDefault()" onclick="invoicePickClient(' + i + ')">' + esc(c.nombre) +
+      (c.telefono ? '<small>📱 ' + esc(c.telefono) + '</small>' : '') + '</button>').join('');
+    box.classList.remove('hidden');
+  };
+  window.invoiceClientHide = function () { const box = byId('inv-client-hits'); if (box) { box.classList.add('hidden'); box.innerHTML = ''; } };
+  window.invoicePickClient = function (i) {
+    const c = clientHits[i]; if (!c) return;
+    byId('inv-client').value = c.nombre;
+    const ph = byId('inv-phone'); if (ph && !ph.value.trim() && c.telefono) ph.value = c.telefono;
+    window.invoiceClientHide();
   };
 
   window.removeInvoiceLine = function (i) {
@@ -110,9 +193,8 @@
     if (pend && pend.error) { alertBox(pend.error, 'warning'); return; }
     const lines = cart.map(l => ({ ...l }));
     if (pend && pend.line) mergeInto(lines, pend.line); // lo que quedó en pantalla sin pulsar «Agregar»
-    const client = byId('inv-client').value.trim();
+    const client = byId('inv-client').value.trim() || 'Cliente de mostrador';
     if (!lines.length) { alertBox('Agrega al menos un producto al ticket.', 'warning'); return; }
-    if (!client) { alertBox('Escribe el nombre del cliente.', 'warning'); return; }
 
     submitting = true;
     const btn = byId('inv-submit'); if (btn) btn.disabled = true;
@@ -144,7 +226,7 @@
           }, common);
           await put('sales', sale); doneSales.push(sale);
           if (typeof addStockMovementRecord === 'function') {
-            try { await addStockMovementRecord(f.id, 'salida', l.qty, 'Venta con comprobante ' + invoiceNo, prevQ); }
+            try { await addStockMovementRecord(f.id, 'salida', l.qty, 'Venta con comprobante ' + invoiceNo + (l.price !== (Number(f.p) || 0) ? ' (precio ajustado: ' + money(l.price) + ' c/u)' : ''), prevQ); }
             catch (e) { console.warn('No se pudo registrar el movimiento de stock:', e); }
           }
         }
@@ -424,6 +506,8 @@
 
   document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
+    const pp = byId('modal-product-picker'), pe = byId('modal-price-editor');
+    if ((pp && !pp.classList.contains('hidden')) || (pe && !pe.classList.contains('hidden'))) return;
     const tk = byId('ticket-sale-modal');
     if (tk && !tk.classList.contains('hidden')) { window.closeSaleTicket(); return; }
     window.closeInvoiceSaleModal();

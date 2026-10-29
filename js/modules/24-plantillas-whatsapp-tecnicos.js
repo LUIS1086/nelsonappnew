@@ -9,6 +9,7 @@
                 presupuesto: document.getElementById('tpl-presupuesto').value,
                 listo:       document.getElementById('tpl-listo').value,
                 garantia:    document.getElementById('tpl-garantia').value,
+                garantiavence: (document.getElementById('tpl-garantiavence') || {}).value || '',
                 norepara:    document.getElementById('tpl-norepara').value,
                 retraso:     document.getElementById('tpl-retraso').value,
                 cobro:       document.getElementById('tpl-cobro').value
@@ -37,13 +38,13 @@
                 }
                 localStorage.setItem('tplsBizMigrated_v1', '1');
             }
-            const ids = ['recepcion','revision','presupuesto','listo','garantia','norepara','retraso','cobro'];
+            const ids = ['recepcion','revision','presupuesto','listo','garantia','garantiavence','norepara','retraso','cobro'];
             ids.forEach(k => {
                 const el = document.getElementById('tpl-' + k);
                 if (el) el.value = tpls[k] || '';
             });
         }
-        function buildWhatsappMsg(type, order) {
+        function buildWhatsappMsg(type, order, extra) {
             const saved = localStorage.getItem('whatsappTemplates');
             const tpls  = saved ? JSON.parse(saved) : {};
             const biz   = _safeBizConfig();
@@ -54,6 +55,7 @@
                 presupuesto: '🔧 *{negocio}*\n\nHola {cliente}, el presupuesto para reparar tu {equipo} es de ${valor}. Por favor confírmanos si apruebas la reparación ✅',
                 listo:       '🔧 *{negocio}*\n\nHola {cliente}, tu {equipo} ya está listo! Valor: ${valor}. Puedes pasar a recogerlo cuando gustes 🎉',
                 garantia:    '🔧 *{negocio}*\n\nHola {cliente}, recuerda que tu {equipo} tiene garantía de {dias} días desde la fecha de entrega. Estamos a tu servicio 🛡️',
+                garantiavence: '🔧 *{negocio}*\n\nHola {cliente} 👋, te recordamos que la garantía de tu {equipo} vence {restan} ({vence}) 🛡️\n\nComo agradecimiento por confiar en nosotros, queremos *obsequiarte un mantenimiento* de tu {equipo} sin costo 🎁. Escríbenos o pásate por el local para agendarlo antes de que venza la garantía. ¡Te esperamos! 🙌',
                 norepara:    '🔧 *{negocio}*\n\nHola {cliente}, lamentamos informarte que tu {equipo} no tiene reparación posible o no conseguimos el repuesto. Puedes pasar a recogerlo cuando gustes 😔',
                 retraso:     '🔧 *{negocio}*\n\nHola {cliente}, te informamos que la reparación de tu {equipo} está tomando un poco más de tiempo del previsto. Te avisamos en cuanto esté listo, gracias por tu paciencia ⏳',
                 cobro:       '🔧 *{negocio}*\n\nHola {cliente}, tienes un saldo pendiente de ${valor} por la reparación de tu {equipo}. Te agradecemos pasar a cancelar cuando gustes 🙏'
@@ -65,7 +67,9 @@
                 .replace(/{equipo}/g,  order.equ || '')
                 .replace(/{valor}/g,   (order.val || 0).toLocaleString())
                 .replace(/{orden}/g,   formatOrderNum(order.orderNum || 0))
-                .replace(/{dias}/g,    order.garantia || '');
+                .replace(/{dias}/g,    order.garantia || '')
+                .replace(/{vence}/g,   (extra && extra.vence)  || '')
+                .replace(/{restan}/g,  (extra && extra.restan) || '');
             return (typeof segAppendLink === 'function') ? segAppendLink(msg, order, type) : msg;
         }
 

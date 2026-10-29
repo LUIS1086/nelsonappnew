@@ -8,7 +8,11 @@
         // la app vuelve a primer plano después de saltar a otra app (WhatsApp).
         // Aplicamos varias técnicas de repaint para forzar al WebView a re-pintar.
         // ════════════════════════════════════════════════════════════════════════
+        let _lastRepaintAt = 0;
         function _forceRepaintAfterWAReturn() {
+            // Los eventos visibilitychange/pageshow pueden llegar juntos: un repintado basta.
+            if (Date.now() - _lastRepaintAt < 1000) return;
+            _lastRepaintAt = Date.now();
             try {
                 // Técnica 1: scroll micro para forzar repaint
                 const sx = window.scrollX, sy = window.scrollY;
@@ -83,8 +87,10 @@
         async function openPhotoModal(id, tipo = 'recepcion') {
             const orders = await getAll('orders');
             const o = orders.find(x => x.id === id);
-            const fotos = tipo === 'entrega' ? o?.fotosEntrega : o?.fotos;
-            if (!fotos?.length) return showAlert(`Esta orden no tiene fotos de ${tipo === 'entrega' ? 'entrega' : 'recepción'} registradas.`, "info");
+            if (!o) return;
+            const fotos = (tipo === 'entrega' ? o.fotosEntrega : o.fotos) || [];
+            // Entrega sin fotos se maneja desde su propio modal; recepción sin fotos abre el visor para poder tomarlas ahora
+            if (!fotos.length && tipo === 'entrega') return showAlert('Esta orden no tiene fotos de entrega registradas.', "info");
 
             _fotoModalOrderId = id;
             _fotoModalTipo = tipo;
@@ -93,7 +99,7 @@
             const icon  = tipo === 'entrega' ? '📷' : '📸';
             const label = tipo === 'entrega' ? 'ENTREGA' : 'RECEPCIÓN';
             document.getElementById('modal-fotos-title').className = `font-black mb-3 text-center text-xl ${color}`;
-            document.getElementById('modal-fotos-title').innerText = `${icon} ${label} · ${escapeHtml(o.equ)} (${fotos.length})`;
+            document.getElementById('modal-fotos-title').innerText = `${icon} ${label} · ${o.equ || ''} (${fotos.length}${tipo === 'entrega' ? '' : '/3'})`;
 
             // Botón retomar: color según tipo
             const btnRetomar = document.getElementById('btn-retomar-fotos');
@@ -105,8 +111,21 @@
                 btnRetomar.innerHTML = '📸 RETOMAR FOTOS';
             }
 
+            // Botón principal según cuántas fotos hay: tomar / agregar / máximo
+            const btnBorrar = document.getElementById('btn-borrar-fotos');
+            if (tipo !== 'entrega') {
+                btnRetomar.disabled = false; btnRetomar.style.opacity = ''; 
+                if (fotos.length === 0) btnRetomar.innerHTML = '📸 TOMAR FOTO AHORA';
+                else if (fotos.length < 3) btnRetomar.innerHTML = `📸 AGREGAR FOTO (${fotos.length}/3)`;
+                else { btnRetomar.innerHTML = '📸 MÁXIMO 3 FOTOS'; btnRetomar.disabled = true; btnRetomar.style.opacity = '.5'; }
+            }
+            if (btnBorrar) btnBorrar.style.display = fotos.length ? '' : 'none';
+
             const container = document.getElementById('modal-fotos-container');
             container.innerHTML = '';
+            if (!fotos.length) {
+                container.innerHTML = '<div style="text-align:center;padding:28px 16px;border:1px dashed rgba(251,146,60,.4);border-radius:18px;color:#fdba74;font-weight:700;font-size:13px;line-height:1.5;">📷 Esta orden aún no tiene fotos de recepción.<br><span style="color:#94a3b8;font-weight:600;font-size:11px;">Toma hasta 3 fotos del equipo tal como llegó.</span></div>';
+            }
 
             fotos.forEach((blob, idx) => {
                 const wrapper = document.createElement('div');
@@ -129,10 +148,12 @@
             document.getElementById('modal-fotos').classList.remove('hidden');
         }
 
+        window._fotosCambiaron = false;   // true si se agregaron fotos a una orden ya registrada
         function closePhotoModal() {
             document.getElementById('modal-fotos').classList.add('hidden');
             document.getElementById('modal-fotos-container').innerHTML = '';
             _fotoModalOrderId = null;
+            if (window._fotosCambiaron) { window._fotosCambiaron = false; if (typeof renderOrders === 'function') renderOrders(); }
         }
 
         async function borrarFotoIndividual(idx) {
