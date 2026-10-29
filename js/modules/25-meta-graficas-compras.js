@@ -38,7 +38,7 @@
             wrap.classList.remove('hidden');
             const now   = new Date();
             const start = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-            const orders = await getAll('orders');
+            const orders = await getOrdersLite();
             const sales  = await getAll('sales');
             const total  = orders.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha) >= start).reduce((a,b) => a+(b.val||0), 0)
                          + sales.filter(s => s.fecha >= start && s.tipo !== 'adelanto' && s.tipo !== 'cobro_entrega').reduce((a,b) => a+(b.val||0), 0);

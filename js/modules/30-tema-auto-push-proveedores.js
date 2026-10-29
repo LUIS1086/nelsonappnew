@@ -86,7 +86,7 @@
         // Notificaciones automáticas: órdenes vencidas + stock bajo
         async function checkAndNotifyOverdue() {
             if (Notification.permission !== 'granted') return;
-            const orders = await getAll('orders');
+            const orders = await getOrdersLite();
             const now    = Date.now();
             const vencidas = orders.filter(o =>
                 o.sta !== 'entregado' && o.fechaEstimada &&

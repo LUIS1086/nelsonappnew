@@ -43,7 +43,6 @@
                     fechaEntrega: o.fechaEntrega,
                     fechaVencimiento: expira,
                     avisoWA: o.garantiaAvisoWA || 0,
-                    avisoWAIntento: o.garantiaAvisoWAIntento || 0,
                     diasRestantes,
                     estado
                 });
@@ -201,27 +200,18 @@
             const restan = g.diasRestantes <= 0 ? 'hoy'
                          : g.diasRestantes === 1 ? 'mañana'
                          : `en ${g.diasRestantes} días`;
-            // Abrir una pestaña vacía de forma síncrona dentro del clic del usuario.
-            // Si esperamos a getOne()/put(), algunos navegadores móviles bloquean el popup.
-            const waWindow = window.open('about:blank', '_blank');
-            if (!waWindow) {
-                showToast('El navegador bloqueó la ventana de WhatsApp. Permite ventanas emergentes e inténtalo de nuevo.', 'warning');
-                return;
-            }
             const order = await getOne('orders', orderId);
-            if (!order) { waWindow.close(); return; }
+            if (!order) return;
             const msg = buildWhatsappMsg('garantiavence', order, { vence, restan });
-            // Registrar únicamente el intento: abrir WhatsApp no demuestra que el
-            // usuario haya enviado el mensaje. El campo garantiaAvisoWA se reserva
-            // para una confirmación explícita de envío en una futura mejora de UI.
+            // Marcar como avisado (evita enviar el mismo aviso dos veces sin darse cuenta)
             try {
-                order.garantiaAvisoWAIntento = Date.now();
+                order.garantiaAvisoWA = Date.now();
                 await put('orders', order);
-                g.avisoWAIntento = order.garantiaAvisoWAIntento;
-            } catch (e) { console.warn('[garantiaAvisarWA] no se pudo registrar el intento', e); }
-            try { sessionStorage.setItem('_waJump', '1'); } catch (e) { /* almacenamiento opcional */ }
-            waWindow.location.href = `https://wa.me/${prefix}${num}?text=${encodeURIComponent(msg)}`;
-            showToast('WhatsApp abierto. El aviso no se marca como enviado; confirma el envío con el cliente.', 'info');
+                g.avisoWA = order.garantiaAvisoWA;
+                _renderGarantias();
+            } catch (e) { console.warn('[garantiaAvisarWA] no se pudo marcar el aviso', e); }
+            sessionStorage.setItem('_waJump', '1');
+            window.open(`https://wa.me/${prefix}${num}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
         async function _openOrderFromGarantia(orderId) {

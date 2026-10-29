@@ -285,12 +285,11 @@
                 // Solo refrescar si la app ya está desbloqueada (no en pantalla de PIN)
                 const pinModal = document.getElementById('pin-modal');
                 if (pinModal && pinModal.classList.contains('hidden')) {
-                    updateTotal();
-                    // Forzar repintado del body en caso de pantalla negra en Android WebView
-                    document.body.style.display = 'none';
-                    // eslint-disable-next-line no-unused-expressions
-                    document.body.offsetHeight; // trigger reflow
-                    document.body.style.display = '';
+                    // Se deja primero que el sistema repinte la pantalla (repintado liviano en
+                    // 11-fotos-gastos.js) y los totales se refrescan un instante después,
+                    // una sola vez aunque el evento se dispare varias veces.
+                    clearTimeout(window.__nelsonResumeTotalTimer);
+                    window.__nelsonResumeTotalTimer = setTimeout(() => { try { updateTotal(); } catch (_) {} }, 700);
                 }
             }
         });
