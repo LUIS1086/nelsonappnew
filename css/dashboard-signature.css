@@ -1,0 +1,33 @@
+/* NelsonAppNew Signature — Command Center companion layer */
+:root { --sig-amber:#f59e0b; --sig-orange:#fb7c24; --sig-emerald:#10b981; }
+body {
+  background-image: radial-gradient(ellipse at 12% -12%, rgba(249,115,22,.10), transparent 34%),
+                    radial-gradient(ellipse at 96% 8%, rgba(16,185,129,.06), transparent 30%);
+  background-attachment: fixed;
+}
+.sidebar {
+  background: linear-gradient(180deg,#0b1220 0%,#0d1423 55%,#101827 100%) !important;
+  border-right: 1px solid rgba(148,163,184,.13) !important;
+  box-shadow: 12px 0 38px rgba(0,0,0,.14);
+}
+.sb-logo-icon {
+  border-radius: 15px !important;
+  background: linear-gradient(145deg,#ffb45e,#f97316 65%,#c2410c) !important;
+  box-shadow: 0 8px 22px rgba(249,115,22,.24), inset 0 1px rgba(255,255,255,.35);
+}
+.sb-caja { border-radius: 18px !important; border-color: rgba(255,255,255,.09) !important; background: linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018)) !important; }
+.nav-item { border: 1px solid transparent; border-radius: 13px !important; transition: background .18s ease,border-color .18s ease,transform .18s ease !important; }
+.nav-item:hover { transform: translateX(2px); background: rgba(255,255,255,.045) !important; }
+.nav-item.active { background: linear-gradient(100deg,rgba(249,115,22,.17),rgba(249,115,22,.055)) !important; border-color: rgba(249,115,22,.22) !important; box-shadow: inset 3px 0 #fb923c; }
+.topbar { background: rgba(11,16,29,.82) !important; border-bottom-color: rgba(148,163,184,.12) !important; backdrop-filter: blur(18px) saturate(145%); -webkit-backdrop-filter: blur(18px) saturate(145%); }
+.panel, .kpi-card, .chart-card, .widget, .today-stat, .dd-panel {
+  border-radius: 19px;
+  border-color: rgba(148,163,184,.14);
+  box-shadow: 0 12px 32px rgba(0,0,0,.15), inset 0 1px rgba(255,255,255,.025);
+}
+button, .nav-item, a { transition: transform .18s ease,box-shadow .18s ease,border-color .18s ease; }
+button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid #fbbf24 !important; outline-offset: 3px; }
+body.light-mode { background-image: radial-gradient(ellipse at 5% -10%,rgba(249,115,22,.08),transparent 36%),radial-gradient(ellipse at 95% 8%,rgba(16,185,129,.05),transparent 32%); }
+body.light-mode .topbar { background: rgba(253,252,249,.88) !important; }
+body.light-mode .panel, body.light-mode .kpi-card, body.light-mode .chart-card, body.light-mode .widget, body.light-mode .today-stat, body.light-mode .dd-panel { border-color: rgba(120,113,108,.17); box-shadow: 0 10px 26px rgba(41,37,36,.055),inset 0 1px rgba(255,255,255,.8); }
+@media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; } }
