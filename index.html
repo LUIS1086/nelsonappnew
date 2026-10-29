@@ -19,31 +19,7 @@
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,800&display=swap" rel="stylesheet"></noscript>
-    <link rel="stylesheet" href="css/01-tema-variables.css">
-    <link rel="stylesheet" href="css/02-componentes-base.css">
-    <link rel="stylesheet" href="css/03-modo-claro-accesibilidad.css">
-    <link rel="stylesheet" href="css/04-navegacion-movil.css">
-    <link rel="stylesheet" href="css/05-modal-exportar.css">
-    <link rel="stylesheet" href="css/06-taller-repuestos.css">
-    <link rel="stylesheet" href="css/07-estadisticas.css">
-    <link rel="stylesheet" href="css/08-ordenes-avisar-listos.css">
-    <link rel="stylesheet" href="css/09-busqueda-config-red.css">
-    <link rel="stylesheet" href="css/10-splash-pin-biometria.css">
-    <link rel="stylesheet" href="css/11-responsive-escritorio.css">
-    <link rel="stylesheet" href="css/16-aviso-actualizacion.css">
-    <link rel="stylesheet" href="css/tailwind.css">
-    <link rel="stylesheet" href="css/17-responsive-premium-hardening.css">
-    <link rel="stylesheet" href="css/12-extras-1.css">
-    <link rel="stylesheet" href="css/13-extras-2.css">
-    <link rel="stylesheet" href="css/14-configuracion-command-center.css">
-    <link rel="stylesheet" href="css/15-nelson-ia.css">
-    <link rel="stylesheet" href="css/18-native-premium.css">
-    <link rel="stylesheet" href="css/19-desktop-premium.css">
-    <link rel="stylesheet" href="css/20-responsive-pro.css">
-    <link rel="stylesheet" href="css/21-ticket-venta.css">
-    <link rel="stylesheet" href="css/22-seguimiento.css">
-    <link rel="stylesheet" href="css/24-ios-fluidez.css">
-    <link rel="stylesheet" href="css/25-visual-refresh.css">
+    <link rel="stylesheet" href="css/app.bundle.css">
 
 <style id="invoice-sale-styles">
 .invoice-sale-cta{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:14px;border-radius:16px;border:1px solid rgba(52,211,153,.32);background:linear-gradient(115deg,rgba(16,185,129,.16),rgba(59,130,246,.08));color:#e5fff4;cursor:pointer;transition:transform .18s,border-color .18s}
@@ -258,14 +234,16 @@
     <div id="main-content-area">
 
     <!-- SPLASH SCREEN -->
-    <div id="splash-screen">
+    <div id="splash-screen" role="status" aria-live="polite" aria-label="Cargando la aplicación">
+        <p class="splash-brandline" id="splash-brandline">Gestión inteligente · Taller Pro</p>
         <div class="splash-logo-wrap">
-            <div class="splash-logo-ring">🔧</div>
+            <div class="splash-logo-ring"><img src="icons/icon-192x192.png" width="116" height="116" alt="" decoding="async" fetchpriority="high"></div>
         </div>
         <div class="splash-title" id="splash-biz-name">NELSON</div>
-        <div class="splash-sub">Taller &amp; Repuestos</div>
+        <div class="splash-sub" id="splash-tagline">Taller &amp; Repuestos</div>
         <div class="splash-bar-track"><div class="splash-bar-fill"></div></div>
-        <div class="splash-version" id="splash-version">v3.7.0</div>
+        <div class="splash-version" id="splash-version">v3.9.0</div>
+        <div class="splash-status">Preparando tu espacio de trabajo</div>
     </div>
 
     <!-- PIN MODAL -->
@@ -877,7 +855,7 @@
                                 <p style="font-size:15px;font-weight:900;color:#f1f5f9;margin:0;letter-spacing:-0.3px;">Luis Eduardo Gaviria</p>
                                 <p style="font-size:10px;color:#64748b;margin:3px 0 0;font-weight:700;display:flex;align-items:center;gap:6px;">
                                     <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 6px rgba(16,185,129,0.6);animation:pulseDot 2s ease-in-out infinite;"></span>
-                                    NelsonApp Pro · <span id="credits-version">v3.7.0</span>
+                                    NelsonApp Pro · <span id="credits-version">v3.9.0</span>
                                 </p>
                             </div>
                             <span id="credits-arrow" style="font-size:14px;color:#64748b;transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);flex-shrink:0;">▼</span>
@@ -2341,7 +2319,7 @@
                         <div class="cfg-title-wrap">
                             <p class="cfg-eyebrow">
                                 <span id="cfg-header-biz">NelsonApp Pro</span>
-                                <span class="cfg-version" id="cfg-header-version">v3.7.0</span>
+                                <span class="cfg-version" id="cfg-header-version">v3.9.0</span>
                             </p>
                             <h3 class="cfg-h1">Configuración</h3>
                         </div>
@@ -2363,7 +2341,22 @@
 
             <div class="ios-scroll-area">
 
-                <!-- ═══ Hero: Stat cards ═══ -->
+                <!-- Navegación por categorías: conserva los controles originales y solo organiza su acceso -->
+                <div class="cfg-category-shell" aria-label="Categorías de configuración">
+                    <p class="cfg-category-caption">EXPLORAR AJUSTES</p>
+                    <div class="cfg-category-nav" role="tablist" aria-label="Filtrar ajustes por categoría">
+                        <button type="button" class="cfg-category-chip is-active" data-cfg-category="todos" role="tab" aria-selected="true" onclick="setConfigCategory('todos', this)"><span>✦</span> Todo</button>
+                        <button type="button" class="cfg-category-chip" data-cfg-category="Personalización" role="tab" aria-selected="false" onclick="setConfigCategory('Personalización', this)"><span>◈</span> Apariencia</button>
+                        <button type="button" class="cfg-category-chip" data-cfg-category="Mi negocio" role="tab" aria-selected="false" onclick="setConfigCategory('Mi negocio', this)"><span>▦</span> Negocio</button>
+                        <button type="button" class="cfg-category-chip" data-cfg-category="Sistema" role="tab" aria-selected="false" onclick="setConfigCategory('Sistema', this)"><span>⚙</span> Sistema</button>
+                        <button type="button" class="cfg-category-chip" data-cfg-category="Comunicación" role="tab" aria-selected="false" onclick="setConfigCategory('Comunicación', this)"><span>◉</span> Comunicación</button>
+                        <button type="button" class="cfg-category-chip" data-cfg-category="Metas y recordatorios" role="tab" aria-selected="false" onclick="setConfigCategory('Metas y recordatorios', this)"><span>◷</span> Metas</button>
+                        <button type="button" class="cfg-category-chip" data-cfg-category="Operación" role="tab" aria-selected="false" onclick="setConfigCategory('Operación', this)"><span>▤</span> Operación</button>
+                        <button type="button" class="cfg-category-chip" data-cfg-category="Datos y respaldo" role="tab" aria-selected="false" onclick="setConfigCategory('Datos y respaldo', this)"><span>☁</span> Datos</button>
+                    </div>
+                </div>
+
+                <!-- ═══ Resumen del sistema ═══ -->
                 <div class="cfg-stats" id="cfg-stats">
                     <div class="cfg-stat" style="--stat-accent:#f97316;">
                         <div class="cfg-stat-icon">📊</div>
@@ -2498,6 +2491,8 @@
                             <input type="text" id="config-business-address" placeholder="Dirección" class="w-full text-sm">
                             <input type="text" id="config-business-nit" placeholder="NIT / RUC" class="w-full text-sm">
                             <input type="text" id="config-business-footer" placeholder="Pie de factura" class="w-full text-sm">
+                            <input type="text" id="config-business-tagline" placeholder="Lema bajo el nombre (ej: Taller &amp; Repuestos)" class="w-full text-sm" maxlength="40">
+                            <input type="text" id="config-business-brandline" placeholder="Línea superior del inicio (ej: Gestión inteligente · Taller Pro)" class="w-full text-sm" maxlength="48">
                             <button onclick="saveBusinessConfig()" class="ios-save-btn" style="background:#0a84ff;color:white;">💾 Guardar datos</button>
                         </div>
                     </div>
@@ -2863,6 +2858,14 @@
                                 <span id="cfg-storage-total" style="font-size:13px;font-weight:900;color:#f5f5f7;">— KB</span>
                             </div>
                             <button onclick="cfgRefreshStorage()" class="ios-save-btn" style="background:#374151;color:#e5e7eb;">🔄 Recalcular</button>
+                            <div style="padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);">
+                                <p style="font-size:11px;font-weight:700;color:#8e8e93;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Archivar órdenes viejas</p>
+                                <div style="display:flex;gap:8px;align-items:center;">
+                                    <select id="archivo-meses" class="text-sm" style="flex:1;"><option value="6">+6 meses</option><option value="12" selected>+12 meses</option><option value="24">+24 meses</option></select>
+                                    <button onclick="archivarOrdenesViejas()" class="ios-save-btn" style="flex:1;margin:0;background:#b45309;color:#fff;">📦 Archivar</button>
+                                </div>
+                                <p id="archivo-info" style="font-size:11px;color:#8e8e93;margin-top:6px;">Descarga un respaldo y luego borra las órdenes entregadas antiguas para mantener la app rápida.</p>
+                            </div>
                         </div>
                     </div>
                     <!-- Mantenimiento -->
@@ -3198,6 +3201,8 @@
 <script src="js/seguimiento-config.js"></script>
 <script src="js/modules/40-seguimiento.js"></script>
 <script src="js/modules/41-respaldo-supabase.js"></script>
+<script src="js/modules/43-archivo-ordenes.js"></script>
+<script src="js/modules/44-asistente-negocio.js"></script>
 
     <script src="js/nelson-ia.js"></script>
 
