@@ -60,6 +60,7 @@ const PRECACHE_URLS = [
     './css/22-seguimiento.css',
     './css/24-ios-fluidez.css',
     './css/25-visual-refresh.css',
+    './css/26-configuracion-splash-majestuoso.css',
     './js/modules/38-native-feel.js',
     './js/modules/39-ticket-venta.js',
     './js/seguimiento-config.js',
