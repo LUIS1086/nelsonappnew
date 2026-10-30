@@ -1,0 +1,142 @@
+/* ══════════════════════════════════════════════════════════════════════
+   Nelson App Pro · css/24-ios-dash.css   (v3.7.1)
+   Capa iOS para el Command Center (dashboard.html), en tema oscuro y claro.
+   Se carga DESPUÉS de dashboard.css y dashboard-premium.css: solo refina.
+   Para volver al diseño anterior, quita su <link> en dashboard.html.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Paleta iOS (oscuro por defecto; claro con body.light-mode) ── */
+:root {
+  --ios-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", Inter, "Segoe UI", Roboto, system-ui, sans-serif;
+  --ios-ease: cubic-bezier(.32, .72, 0, 1);
+  --bg: #000000;  --bg2: #0a0a0c;
+  --panel: #1c1c1e;  --panel2: #2c2c2e;  --panel3: #3a3a3c;
+  --border: rgba(255, 255, 255, .07);  --border-hi: rgba(255, 255, 255, .14);
+  --text: #ffffff;  --text2: rgba(235, 235, 245, .62);  --text3: rgba(235, 235, 245, .36);
+  --accent: #ff8a1f;  --accent-glow: rgba(255, 138, 31, .18);  --accent-dim: rgba(255, 138, 31, .12);
+  --green: #30d158;  --green-dim: rgba(48, 209, 88, .14);
+  --red: #ff453a;    --red-dim: rgba(255, 69, 58, .14);
+  --blue: #0a84ff;   --blue-dim: rgba(10, 132, 255, .15);
+  --violet: #bf5af2; --violet-dim: rgba(191, 90, 242, .15);
+  --amber: #ff9f0a;  --amber-dim: rgba(255, 159, 10, .15);
+  --r: 16px;  --r-sm: 10px;  --r-lg: 20px;
+}
+body.light-mode {
+  --bg: #f2f2f7;  --bg2: #e5e5ea;
+  --panel: #ffffff;  --panel2: #f2f2f7;  --panel3: #e9e9ee;
+  --border: rgba(60, 60, 67, .12);  --border-hi: rgba(60, 60, 67, .2);
+  --text: #000000;  --text2: rgba(60, 60, 67, .68);  --text3: rgba(60, 60, 67, .46);
+  --accent: #f26a00;  --accent-glow: rgba(242, 106, 0, .14);  --accent-dim: rgba(242, 106, 0, .1);
+  --green: #1f9d4a;  --green-dim: rgba(52, 199, 89, .14);
+  --red: #e0261b;    --red-dim: rgba(255, 59, 48, .12);
+  --blue: #0067d6;   --blue-dim: rgba(0, 122, 255, .12);
+  --violet: #8944cf; --violet-dim: rgba(175, 82, 222, .12);
+  --amber: #c26a00;  --amber-dim: rgba(255, 149, 0, .14);
+}
+
+/* ── 2. Tipografía del sistema y cifras tabulares ── */
+*, *::before, *::after { font-family: var(--ios-font); }
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+.tb-clock, .kpi-val, .mov-val, .today-stat-val, .sb-caja-value, .dd-row-val, .dd-summary-val {
+  font-family: var(--ios-font) !important; font-variant-numeric: tabular-nums;
+}
+.kpi-val, .today-stat-val, .sb-caja-value { font-weight: 700 !important; letter-spacing: -.02em; }
+[style*="font-weight:900"], [style*="font-weight: 900"], [style*="font-weight:800"], [style*="font-weight: 800"] { font-weight: 700 !important; }
+
+/* ── 3. Fluidez: se elimina lo que más cuesta pintar ──
+   · 3 manchas fijas con blur(130px), ruido SVG a pantalla completa y cuadrícula fija.
+   · Animaciones infinitas de puntos "en vivo". */
+.glow-orb { display: none !important; }
+body::before, body::after { display: none !important; }
+.sidebar, .kpi, .panel-card, .meta-card, .today-panel, .insight-card, .today-stat, .sb-caja {
+  -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+}
+.sb-logo, .sb-logo-icon, .live-dot, .alert-dot, [class*="live"] { animation: none !important; }
+.sb-logo-icon { box-shadow: none !important; background: var(--accent) !important; }
+.kpi-accent-line { display: none !important; }   /* línea de color superior de cada KPI */
+.sheet-backdrop { background: rgba(0, 0, 0, .45) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+body.light-mode .sheet-backdrop { background: rgba(0, 0, 0, .3) !important; }
+
+/* ── 4. Superficies planas (tarjetas, KPIs, paneles) ── */
+.kpi, .panel-card, .meta-card, .today-panel, .insight-card {
+  background: var(--panel) !important;
+  border: .5px solid var(--border) !important;
+  border-radius: 20px !important;
+  box-shadow: none !important;
+}
+.kpi::before, .panel-card::before, .kpi::after { display: none !important; }   /* barras/brillos de color superiores */
+.kpi:hover, .panel-card:hover { transform: none !important; box-shadow: none !important; border-color: var(--border) !important; }
+.today-stat { background: var(--panel2) !important; border: 0 !important; border-radius: 14px !important; box-shadow: none !important; }
+.today-stat.has-alert, .today-stat.ready { background: var(--green-dim) !important; }
+.sb-caja { background: var(--green-dim) !important; border: 0 !important; box-shadow: none !important; border-radius: 16px !important; }
+.kpi-val { color: var(--text) !important; background: none !important; -webkit-text-fill-color: currentColor !important; }
+.kpi-val.up   { color: var(--green) !important; }
+.kpi-val.down { color: var(--red) !important; }
+.kpi-label, .panel-head-title, .sb-section-label, .tb-breadcrumb { letter-spacing: 0 !important; text-transform: none !important; }
+.panel-head { border-color: var(--border) !important; }
+
+/* ── 5. Barra superior (UINavigationBar) ── */
+.topbar {
+  background: rgba(0, 0, 0, .72) !important;
+  border-bottom: .5px solid var(--border-hi) !important;
+  -webkit-backdrop-filter: saturate(1.8) blur(16px); backdrop-filter: saturate(1.8) blur(16px);
+}
+body.light-mode .topbar { background: rgba(242, 242, 247, .78) !important; }
+.tb-title { color: var(--text) !important; font-weight: 700 !important; letter-spacing: -.02em !important; }
+.tb-left, .tb-left > div { min-width: 0; }
+.tb-left { flex: 1 1 0; }
+.tb-title, .tb-breadcrumb { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }   /* ya no se encima con el buscador */
+@media (min-width: 780px) and (max-width: 1500px) { .tb-date { display: none !important; } .tb-search input { width: 140px !important; } }
+.insight-card { border-radius: 16px !important; }
+.tb-search {
+  background: var(--panel2) !important; border: 0 !important; border-radius: 12px !important; box-shadow: none !important;
+}
+.tb-search:focus-within { background: var(--panel3) !important; box-shadow: 0 0 0 2px var(--accent) !important; }
+.tb-clock { background: var(--panel2) !important; border: 0 !important; letter-spacing: 0 !important; font-weight: 600; }
+.tb-icon-btn { background: var(--panel2) !important; border: 0 !important; border-radius: 12px !important; }
+.tb-action { border: 0 !important; border-radius: 12px !important; font-weight: 600 !important; letter-spacing: 0 !important; box-shadow: none !important; }
+.tb-action.green  { background: var(--green-dim) !important; color: var(--green) !important; }
+.tb-action.blue   { background: var(--blue-dim) !important;  color: var(--blue) !important; }
+.tb-action.accent { background: var(--accent) !important; color: #fff !important; }
+
+/* ── 6. Menú lateral: elemento activo teñido, sin barra ni degradado ── */
+.sidebar { background: var(--bg) !important; border-right: .5px solid var(--border-hi) !important; }
+body.light-mode .sidebar { background: rgba(255, 255, 255, .9) !important; }
+.nav-item { border-radius: 12px !important; font-weight: 500; }
+.nav-item::before { display: none !important; }
+.nav-item, .nav-item.active { border-color: transparent !important; }
+.nav-item.active { background: var(--accent-dim) !important; color: var(--accent) !important; box-shadow: none !important; font-weight: 600; }
+.sb-btn { background: var(--panel2) !important; border: 0 !important; border-radius: 12px !important; font-weight: 600; }
+
+/* ── 7. Selectores segmentados (7d/30d/90d y sucursales) ── */
+.range-btn, .branch-btn { border-radius: 9px !important; font-weight: 600 !important; letter-spacing: 0 !important; box-shadow: none !important; }
+.range-btn.active, .branch-btn.active {
+  background: var(--panel3) !important; color: var(--text) !important; border-color: transparent !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .25) !important;
+}
+body.light-mode .range-btn.active, body.light-mode .branch-btn.active { background: #fff !important; box-shadow: 0 1px 3px rgba(0, 0, 0, .14) !important; }
+
+/* ── 8. Móvil: barra inferior y hojas estilo iOS ── */
+@media (max-width: 779px) {
+  .bnav {
+    background: rgba(28, 28, 30, .78) !important;
+    border-top: .5px solid var(--border-hi) !important; box-shadow: none !important;
+    -webkit-backdrop-filter: saturate(1.8) blur(18px); backdrop-filter: saturate(1.8) blur(18px);
+  }
+  body.light-mode .bnav { background: rgba(249, 249, 249, .82) !important; }
+  .bnav-item { color: var(--text2) !important; font-weight: 600 !important; letter-spacing: 0 !important; }
+  .bnav-item.active { color: var(--accent) !important; }
+  .bnav-item.active::before { display: none !important; }
+  .bnav-fab { background: var(--accent) !important; border-radius: 50% !important; box-shadow: 0 6px 16px rgba(0, 0, 0, .35) !important; }
+  .bnav-badge { box-shadow: 0 0 0 2px var(--bg) !important; font-weight: 700 !important; }
+  .sheet { background: var(--panel) !important; border: 0 !important; border-radius: 28px 28px 0 0 !important; box-shadow: 0 -10px 40px rgba(0, 0, 0, .4) !important; transition-timing-function: var(--ios-ease) !important; }
+  .sheet-title { letter-spacing: .04em !important; font-weight: 600 !important; text-transform: none !important; }
+  .sheet-tile { background: var(--panel2) !important; border: 0 !important; border-radius: 16px !important; box-shadow: none !important; }
+  .dash-modal { background: var(--panel) !important; border: .5px solid var(--border-hi) !important; box-shadow: none !important; }
+}
+.dash-modal-backdrop { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+
+/* ── 9. Toque suave y accesibilidad ── */
+button:active, [role="button"]:active { opacity: .72; }
+@media (hover: none) { .kpi:hover, .panel-card:hover, .tb-icon-btn:hover, .sb-btn:hover, .branch-btn:hover { transform: none !important; } }
+@media (prefers-reduced-motion: reduce) { .sheet { transition: none !important; } }
