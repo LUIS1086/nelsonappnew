@@ -64,6 +64,7 @@ const PRECACHE_URLS = [
     './css/27-dashboard-home-premium.css',
     './css/28-experiencia-premium.css',
     './css/29-ordenes-experience-pro.css',
+    './css/30-caja-inventario-experience-pro.css',
     './css/dashboard-home-command-center.css',
     './css/dashboard-command-center-pro.css',
     './js/modules/38-native-feel.js',
