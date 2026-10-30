@@ -1,0 +1,26 @@
+/* NelsonAppNew v3.8.6 · Caja & Inventario Experience Pro
+   Capa estrictamente visual: conserva handlers, IDs, datos y reglas de negocio. */
+#view-ventas { --sales-line:rgba(148,163,184,.17); --sales-glow:rgba(16,185,129,.10); }
+#view-ventas > .card { position:relative; overflow:hidden; border:1px solid var(--sales-line); border-radius:20px !important; background:linear-gradient(145deg,rgba(30,41,59,.78),rgba(15,23,42,.9)); box-shadow:0 12px 30px rgba(2,6,23,.13),inset 0 1px rgba(255,255,255,.035); }
+#view-ventas > .card:first-child { border-color:rgba(16,185,129,.24); background:radial-gradient(circle at 100% 0,rgba(16,185,129,.13),transparent 48%),linear-gradient(145deg,rgba(6,78,59,.24),rgba(15,23,42,.92)); }
+#view-ventas > .card:nth-child(2) { border-color:rgba(244,63,94,.2); background:radial-gradient(circle at 100% 0,rgba(244,63,94,.1),transparent 48%),linear-gradient(145deg,rgba(76,5,25,.18),rgba(15,23,42,.92)); }
+#view-ventas h3 { letter-spacing:.09em; }
+#view-ventas button { touch-action:manipulation; transition:transform .16s ease,border-color .16s ease,filter .16s ease; }
+#view-ventas button:active { transform:scale(.975); }
+#view-ventas input:not([type="checkbox"]),#view-ventas select { min-height:43px; border-radius:12px; }
+#view-ventas #g-det,#view-ventas #g-val { border:1px solid rgba(244,63,94,.18); background:rgba(15,23,42,.62); }
+#view-ventas #cartera-list,#view-ventas #movimientos-history,#view-ventas #stock-list { scrollbar-width:thin; scrollbar-color:rgba(148,163,184,.3) transparent; }
+#view-ventas #stock-search { min-height:46px !important; padding-left:13px !important; border:1px solid var(--sales-line) !important; background:rgba(15,23,42,.68) !important; }
+#view-ventas #stock-search:focus { border-color:rgba(16,185,129,.55) !important; box-shadow:0 0 0 3px rgba(16,185,129,.1); }
+#view-ventas #stock-sort { min-height:46px !important; border:1px solid var(--sales-line); background:rgba(15,23,42,.68); }
+#view-ventas #category-filter-wrap { padding:3px 1px 10px; }
+#view-ventas #category-filter-wrap button { min-height:34px; border-radius:999px !important; padding:7px 12px !important; border:1px solid var(--sales-line); white-space:nowrap; }
+#view-ventas #stock-list > * { border-radius:15px; }
+#view-ventas #stock-summary-text { line-height:1.5; }
+body:not(.dark-mode) #view-ventas > .card { background:linear-gradient(145deg,#fff,#f8fafc); border-color:rgba(100,116,139,.18); box-shadow:0 12px 28px rgba(15,23,42,.06),inset 0 1px #fff; }
+body:not(.dark-mode) #view-ventas > .card:first-child { background:radial-gradient(circle at 100% 0,rgba(16,185,129,.09),transparent 48%),linear-gradient(145deg,#fff,#f4fbf7); border-color:rgba(16,185,129,.22); }
+body:not(.dark-mode) #view-ventas > .card:nth-child(2) { background:radial-gradient(circle at 100% 0,rgba(244,63,94,.07),transparent 48%),linear-gradient(145deg,#fff,#fff7f8); border-color:rgba(244,63,94,.18); }
+body:not(.dark-mode) #view-ventas #g-det,body:not(.dark-mode) #view-ventas #g-val,body:not(.dark-mode) #view-ventas #stock-search,body:not(.dark-mode) #view-ventas #stock-sort { background:#fff !important; color:#172033 !important; border-color:rgba(100,116,139,.24) !important; }
+@media(min-width:900px) { #view-ventas { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px !important; align-items:start; } #view-ventas > .card { min-width:0; } #view-ventas > .card:first-child,#view-ventas > .card:nth-child(2) { grid-column:span 1; } #view-ventas > .card:last-child { grid-column:1/-1; } #view-ventas #stock-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; max-height:650px; } }
+@media(max-width:480px) { #view-ventas > .card { border-radius:17px !important; padding:15px !important; } #view-ventas #stock-sort { width:104px; } }
+@media(prefers-reduced-motion:reduce) { #view-ventas button { transition:none; } }
