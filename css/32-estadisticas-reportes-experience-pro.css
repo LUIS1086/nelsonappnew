@@ -1,0 +1,47 @@
+/* NelsonAppNew v3.8.8 · Capa visual aditiva para estadísticas y reportes.
+   No altera cálculos, datos, eventos ni estructura funcional. */
+#modal-stats .stats-modal-wrap{
+  max-width: min(620px,100%); max-height: min(94dvh,980px);
+  border:1px solid rgba(96,165,250,.24);
+  border-radius:26px;
+  background:linear-gradient(155deg,#101b30 0%,#0b1220 58%,#101827 100%);
+  box-shadow:0 32px 90px rgba(2,8,23,.62),0 0 0 1px rgba(255,255,255,.035),0 18px 55px rgba(37,99,235,.12);
+}
+#modal-stats .stats-modal-header{
+  background:radial-gradient(ellipse at 8% 0%,rgba(59,130,246,.27),transparent 58%),radial-gradient(ellipse at 100% 0%,rgba(249,115,22,.16),transparent 52%),linear-gradient(135deg,#14243b,#111a2b);
+  border-bottom-color:rgba(148,163,184,.16);padding:19px 20px;
+}
+#modal-stats .stats-header-icon{background:linear-gradient(135deg,#2563eb,#f97316);box-shadow:0 8px 22px rgba(37,99,235,.28)}
+#modal-stats .stats-header-title{font-size:19px;letter-spacing:-.55px}
+#modal-stats .stats-header-sub{color:#a9c8f5}
+#modal-stats .stats-body{padding:16px;gap:14px;scrollbar-width:thin;scrollbar-color:rgba(96,165,250,.35) transparent}
+#modal-stats .stats-hero-card,#modal-stats .stats-mini-card,#modal-stats .stats-card{
+  border-radius:18px;box-shadow:0 9px 24px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.045);
+}
+#modal-stats .stats-hero-card{padding:16px 15px 14px}
+#modal-stats .stats-hero-green{--hero-bg-top:rgba(16,185,129,.17);--hero-bg-bot:rgba(6,78,59,.16);--hero-border:rgba(52,211,153,.27);--hero-shadow:rgba(16,185,129,.10)}
+#modal-stats .stats-hero-purple{--hero-bg-top:rgba(59,130,246,.19);--hero-bg-bot:rgba(30,64,175,.15);--hero-border:rgba(96,165,250,.28);--hero-shadow:rgba(59,130,246,.12)}
+#modal-stats .stats-hero-green .stats-hero-value{color:#6ee7b7}
+#modal-stats .stats-hero-purple .stats-hero-value{color:#93c5fd}
+#modal-stats .stats-hero-value{font-size:clamp(19px,4vw,25px);overflow-wrap:anywhere}
+#modal-stats .stats-mini-grid{gap:9px}
+#modal-stats .stats-mini-card{padding:12px 5px 11px;background:rgba(148,163,184,.065);border-color:rgba(148,163,184,.12)}
+#modal-stats .stats-mini-val{font-size:clamp(15px,3vw,19px)}
+#modal-stats .stats-mini-lbl{font-size:9px;letter-spacing:.35px}
+#modal-stats .stats-card{padding:15px;background:linear-gradient(145deg,rgba(30,41,59,.72),rgba(15,23,42,.62));border-color:rgba(148,163,184,.14)}
+#modal-stats .stats-card-title{font-size:12px;color:#dbeafe}
+#modal-stats .stats-card-sub{color:#94a3b8}
+#modal-stats .stats-status-bar-track{height:7px;background:rgba(148,163,184,.13)}
+#modal-stats .stats-close-btn{width:36px;height:36px;border-radius:12px;background:rgba(148,163,184,.12);border-color:rgba(148,163,184,.2)}
+#modal-monthly-report>div:first-child{max-width:620px!important;border-color:rgba(96,165,250,.24)!important;border-radius:26px!important;background:linear-gradient(155deg,#101b30,#0b1220 65%,#111827)!important;box-shadow:0 32px 90px rgba(2,8,23,.62),0 18px 55px rgba(37,99,235,.12)!important}
+#modal-monthly-report>div:first-child>div:first-child{background:radial-gradient(ellipse at 8% 0%,rgba(59,130,246,.28),transparent 58%),radial-gradient(ellipse at 100% 0%,rgba(249,115,22,.16),transparent 52%),linear-gradient(135deg,#14243b,#111a2b)!important;border-bottom-color:rgba(148,163,184,.16)!important}
+#monthly-report-content{scrollbar-width:thin;scrollbar-color:rgba(96,165,250,.35) transparent}
+#monthly-report-content>div,#monthly-report-content section{border-radius:16px}
+@media(max-width:480px){
+ #modal-stats{padding:8px!important}#modal-stats .stats-modal-wrap{max-height:96dvh;border-radius:21px}
+ #modal-stats .stats-body{padding:11px;gap:11px}#modal-stats .stats-hero-grid{gap:8px}
+ #modal-stats .stats-hero-card{padding:12px 10px}#modal-stats .stats-hero-label{font-size:8.5px}
+ #modal-stats .stats-mini-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #modal-monthly-report{padding:8px!important}#modal-monthly-report>div:first-child{max-height:96dvh!important;border-radius:21px!important}
+}
+@media(prefers-reduced-motion:no-preference){#modal-stats .stats-card,#modal-stats .stats-hero-card,#modal-stats .stats-mini-card{transition:border-color .2s ease,transform .2s ease,box-shadow .2s ease}#modal-stats .stats-hero-card:active{transform:scale(.99)}}
