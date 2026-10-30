@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/dashboard.css">
 <link rel="stylesheet" href="css/dashboard-premium.css">
-<link rel="stylesheet" href="css/dashboard-refresh.css">
+<link rel="stylesheet" href="css/24-ios-dash.css">
 </head>
 <body>
 
@@ -97,15 +97,15 @@
   </div>
   <div class="tb-right">
     <div class="tb-search">
-      <span class="tb-search-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.65" y2="16.65"/></svg></span>
-      <input type="text" id="tb-search-input" placeholder="Buscar cliente u orden..." oninput="dashSearch(this.value)">
+      <span class="tb-search-icon">🔍</span>
+      <input type="text" id="tb-search-input" placeholder="Buscar cliente, orden o repuesto..." oninput="dashSearch(this.value)">
     </div>
     <div class="tb-date"  id="tb-date">—</div>
     <div class="tb-clock" id="tb-clock">00:00:00</div>
-    <button class="tb-action green"  onclick="goAction('notify')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5A9 9 0 0 1 8 19l-5 1 1-4.5A8.5 8.5 0 1 1 21 11.5Z"/></svg>Avisar</button>
-    <button class="tb-action blue"   onclick="goAction('report')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7Z"/><path d="M14 2v5h5M9 13h6M9 17h6"/></svg>Reporte</button>
-    <button class="tb-action green" onclick="goApp('ventas')" title="Abrir Caja & Stock para generar un ticket"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2Z"/><path d="M9 7h6M9 11h6"/></svg>Venta + ticket</button>
-    <button class="tb-action accent" onclick="goApp('taller')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nueva orden</button>
+    <button class="tb-action green"  onclick="goAction('notify')">💬 Avisar</button>
+    <button class="tb-action blue"   onclick="goAction('report')">📄 Reporte</button>
+    <button class="tb-action green" onclick="goApp('ventas')" title="Abrir Caja & Stock para generar un ticket">🧾 Venta + ticket</button>
+    <button class="tb-action accent" onclick="goApp('taller')">+ Nueva orden</button>
     <div class="tb-icon-btn" onclick="toggleDashTheme()" id="theme-btn" title="Tema">🌙</div>
   </div>
 </header>
@@ -141,7 +141,7 @@
     <div class="kpi" style="--kpi-glow:rgba(16,217,126,0.12)" onclick="openKpiModal('caja')">
       <div class="kpi-accent-line" style="background:linear-gradient(to right,var(--green),transparent)"></div>
       <div class="kpi-info-tip" data-tip="Reparaciones entregadas + ventas de mostrador − gastos, todo desde el último cierre de caja.">i</div>
-      <div class="kpi-icon" style="background:var(--green-dim);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H18a2 2 0 0 1 2 2v1"/><path d="M3 7.5V18a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9H5.5A2.5 2.5 0 0 1 3 7.5Z"/><circle cx="16.5" cy="13.5" r="1"/></svg></div>
+      <div class="kpi-icon" style="background:var(--green-dim);">💵</div>
       <div class="kpi-label">Caja Neta</div>
       <div class="kpi-val" id="kpi-caja">$0</div>
       <div class="kpi-footer">
@@ -153,7 +153,7 @@
     <div class="kpi" style="--kpi-glow:rgba(61,184,245,0.1)" onclick="openKpiModal('activas')">
       <div class="kpi-accent-line" style="background:linear-gradient(to right,var(--blue),transparent)"></div>
       <div class="kpi-info-tip" data-tip="Órdenes que aún no se entregan al cliente: recibidas, en revisión y reparadas (listas para entrega).">i</div>
-      <div class="kpi-icon" style="background:var(--blue-dim);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 10h6M9 14h6"/></svg></div>
+      <div class="kpi-icon" style="background:var(--blue-dim);">📋</div>
       <div class="kpi-label">Órdenes Activas</div>
       <div class="kpi-val" id="kpi-activas">0</div>
       <div class="kpi-footer">
@@ -165,7 +165,7 @@
     <div class="kpi" style="--kpi-glow:rgba(249,115,22,0.1)" onclick="openKpiModal('ingresos')">
       <div class="kpi-accent-line" style="background:linear-gradient(to right,var(--accent),transparent)"></div>
       <div class="kpi-info-tip" data-tip="Suma de reparaciones entregadas + ventas de mostrador desde el día 1 del mes en curso.">i</div>
-      <div class="kpi-icon" style="background:var(--accent-dim);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg></div>
+      <div class="kpi-icon" style="background:var(--accent-dim);">🔧</div>
       <div class="kpi-label">Ingresos del Mes</div>
       <div class="kpi-val" id="kpi-ingresos">$0</div>
       <div class="kpi-footer">
@@ -177,7 +177,7 @@
     <div class="kpi" style="--kpi-glow:rgba(159,122,234,0.1)" onclick="openKpiModal('inventario')">
       <div class="kpi-accent-line" style="background:linear-gradient(to right,var(--violet),transparent)"></div>
       <div class="kpi-info-tip" data-tip="Valor total del inventario (precio × cantidad de cada repuesto). Click para ver stock crítico.">i</div>
-      <div class="kpi-icon" style="background:var(--violet-dim);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 8-9-5-9 5 9 5 9-5Z"/><path d="m3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></div>
+      <div class="kpi-icon" style="background:var(--violet-dim);">📦</div>
       <div class="kpi-label">Valor Inventario</div>
       <div class="kpi-val" id="kpi-inventario">$0</div>
       <div class="kpi-footer">
