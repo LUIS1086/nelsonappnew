@@ -21,14 +21,26 @@
 
         // (sidebar sync is embedded in tab() and syncSidebarCash() above)
         function showToast(msg, type = 'info') {
-            const colors = { info: '#3b82f6', success: '#10b981', warning: '#f97316', error: '#ef4444' };
+            const tones = { info: '#60a5fa', success: '#34d399', warning: '#f59e0b', error: '#fb7185' };
             const icons = { info: 'ℹ️', success: '✅', warning: '⚠️', error: '❌' };
             const toast = document.createElement('div');
-            toast.style.cssText = `position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);background:${colors[type]};color:white;padding:10px 18px;border-radius:999px;font-size:12px;font-weight:800;z-index:99999;opacity:0;transition:all 0.3s ease;max-width:90vw;text-align:center;box-shadow:0 8px 20px rgba(0,0,0,0.4);`;
-            toast.innerText = `${icons[type]} ${msg}`;
+            toast.className = 'nn-toast';
+            toast.style.setProperty('--tone', tones[type] || tones.info);
+            toast.setAttribute('role', 'status');
+            const icon = document.createElement('span');
+            icon.className = 'nn-toast-icon';
+            icon.setAttribute('aria-hidden', 'true');
+            icon.textContent = icons[type] || icons.info;
+            const text = document.createElement('span');
+            text.className = 'nn-toast-text';
+            text.textContent = String(msg ?? '');
+            toast.append(icon, text);
             document.body.appendChild(toast);
-            requestAnimationFrame(() => { toast.style.opacity = '1'; toast.style.transform = 'translateX(-50%) translateY(0)'; });
-            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3500);
+            requestAnimationFrame(() => toast.classList.add('is-on'));
+            setTimeout(() => {
+                toast.classList.remove('is-on');
+                setTimeout(() => toast.remove(), 260);
+            }, 3800);
         }
 
         function requestNotificationPermission() { /* No-op en WebView, usamos toasts internos */ }
