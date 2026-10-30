@@ -33,27 +33,26 @@
                 const bajoMinimo = stock.filter(s => (s.q || 0) <= (s.minStock || threshold) && (s.q || 0) > 0).length;
 
                 const cards = [
-                    { label:'Listos', count:listos, tone:'#34d399', action:'notifyAllReady()' },
-                    { label:'Vencidos', count:vencidos, tone:'#fb7185', action:"tab('ordenes')" },
-                    { label:'Bajo mínimo', count:bajoMinimo, tone:'#fbbf24', action:'openOrdenesCompra()' }
+                    { emoji:'📢', label:'Listos', count:listos, color:'#34d399', bg:'rgba(16,185,129,0.08)', border:'rgba(16,185,129,0.25)', action:'notifyAllReady()' },
+                    { emoji:'⏰', label:'Vencidos', count:vencidos, color:'#f87171', bg:'rgba(244,63,94,0.08)', border:'rgba(244,63,94,0.25)', action:"tab('ordenes')" },
+                    { emoji:'📦', label:'Bajo mín.', count:bajoMinimo, color:'#fbbf24', bg:'rgba(245,158,11,0.08)', border:'rgba(245,158,11,0.25)', action:'openOrdenesCompra()' }
                 ];
 
                 items.innerHTML = cards.map(c => `
-                    <div class="nn-stat${c.count > 0 ? ' is-live' : ''}" style="--nn-tone:${c.tone}" onclick="${c.action}">
-                        <div class="nn-stat-value">${c.count}</div>
-                        <div class="nn-stat-label">${c.label}</div>
+                    <div onclick="${c.action}" style="background:${c.bg};padding:10px 6px;cursor:pointer;text-align:center;border-bottom:3px solid ${c.count > 0 ? c.border : 'transparent'};transition:transform 0.15s;" ontouchstart="this.style.transform='scale(0.96)'" ontouchend="this.style.transform='scale(1)'">
+                        <div style="font-size:18px;line-height:1;margin-bottom:3px;">${c.emoji}</div>
+                        <div style="font-size:20px;font-weight:900;color:${c.count > 0 ? c.color : '#475569'};font-variant-numeric:tabular-nums;line-height:1;letter-spacing:-0.5px;">${c.count}</div>
+                        <div style="font-size:8.5px;font-weight:800;color:#64748b;letter-spacing:0.6px;text-transform:uppercase;margin-top:3px;">${c.label}</div>
                     </div>
                 `).join('');
 
                 // Si TODO está en 0, mostrar mensaje limpio
                 const total = listos + vencidos + bajoMinimo;
                 if (total === 0) {
-                    items.innerHTML = `<div class="nn-stat-empty">
-                        <span class="nn-stat-empty-dot"></span>
-                        <div>
-                            <div class="nn-stat-empty-title">Todo al día</div>
-                            <div class="nn-stat-empty-text">Sin pendientes urgentes</div>
-                        </div>
+                    items.innerHTML = `<div style="grid-column:1 / -1;background:rgba(16,185,129,0.06);padding:14px 10px;text-align:center;">
+                        <div style="font-size:18px;margin-bottom:3px;">✨</div>
+                        <div style="font-size:11.5px;font-weight:800;color:#34d399;letter-spacing:0.3px;">Todo al día</div>
+                        <div style="font-size:9.5px;font-weight:600;color:#64748b;margin-top:2px;">Sin pendientes urgentes</div>
                     </div>`;
                 }
 
@@ -284,9 +283,9 @@
             if (!label) return;
             const active = document.querySelector('.app-view:not(.hidden)');
             const activeId = active ? active.id : '';
-            if (activeId === 'view-ventas')      label.innerText = 'Nueva venta';
-            else if (activeId === 'view-taller') label.innerText = 'Guardar orden';
-            else                                  label.innerText = 'Nueva orden';
+            if (activeId === 'view-ventas')      label.innerText = 'NUEVA VENTA';
+            else if (activeId === 'view-taller') label.innerText = 'GUARDAR ORDEN';
+            else                                  label.innerText = 'NUEVA ORDEN';
         }
 
         // --- Overlay de atajos ---

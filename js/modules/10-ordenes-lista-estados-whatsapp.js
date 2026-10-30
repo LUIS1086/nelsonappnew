@@ -56,15 +56,7 @@
             orders.sort((a,b) => b.fecha - a.fecha);
             const today = new Date();
             const container = document.getElementById('orders-list');
-            if (!orders.length) {
-                container.innerHTML = `<div class="nn-empty">
-                    <div class="nn-empty-icon">🧰</div>
-                    <div class="nn-empty-title">Aún no hay órdenes</div>
-                    <div class="nn-empty-text">Registra la primera recepción y aparecerá aquí con su estado y saldo.</div>
-                    <button type="button" class="nn-empty-btn" onclick="tab('taller')">Nueva recepción</button>
-                </div>`;
-                return;
-            }
+            if (!orders.length) { container.innerHTML = '<div class="text-center py-12 opacity-50">📭 No hay órdenes</div>'; return; }
             // Renderizado por lotes pequeños. Con respaldos grandes, construir cientos
             // de tarjetas en una sola tarea bloqueaba el hilo principal del navegador.
             const ORDERS_INITIAL = 12;
