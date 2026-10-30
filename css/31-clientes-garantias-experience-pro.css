@@ -1,0 +1,45 @@
+/* NelsonAppNew v3.8.7 · Clientes, datos y garantías Experience Pro
+   Capa visual aditiva: no altera lógica, handlers, IDs, almacenamiento ni datos. */
+#view-admin { --data-line:rgba(148,163,184,.17); --data-glass:rgba(15,23,42,.72); }
+#view-admin #drive-status-card,
+#view-admin #nia-card,
+#view-admin #admin-menu-card { border:1px solid var(--data-line); border-radius:22px; overflow:hidden; box-shadow:0 14px 34px rgba(2,6,23,.14),inset 0 1px rgba(255,255,255,.035); }
+#view-admin #drive-status-card { background:linear-gradient(135deg,rgba(30,64,175,.13),var(--data-glass)); }
+#view-admin #nia-card { background:radial-gradient(circle at 100% 0,rgba(249,115,22,.15),transparent 48%),linear-gradient(145deg,rgba(30,41,59,.9),rgba(15,23,42,.94)); cursor:pointer; transition:transform .2s ease,border-color .2s ease; }
+#view-admin #nia-card:active { transform:scale(.99); }
+#view-admin #admin-menu-card { background:linear-gradient(145deg,rgba(30,41,59,.78),rgba(15,23,42,.92)); }
+#view-admin .nn-menu-head { padding:18px 18px 12px; }
+#view-admin .nn-menu-head h3 { font-size:17px; letter-spacing:-.025em; }
+#view-admin .nn-menu-head p { line-height:1.5; }
+#view-admin .admin-menu-list > button { min-height:72px; border:1px solid transparent !important; border-radius:16px !important; transition:background .18s ease,border-color .18s ease,transform .18s ease; }
+#view-admin .admin-menu-list > button:hover,
+#view-admin .admin-menu-list > button:focus-visible { background:rgba(148,163,184,.075) !important; border-color:var(--data-line) !important; outline:none; }
+#view-admin .admin-menu-list > button:active { transform:scale(.985); }
+#view-admin .nn-ia-chips { display:flex; flex-wrap:wrap; gap:7px; padding:0 16px 15px; }
+#view-admin .nn-ia-chips button { min-height:34px; border:1px solid rgba(148,163,184,.2); border-radius:999px; padding:7px 11px; background:rgba(148,163,184,.08); color:var(--nn-text,#e5e7eb); font-size:11px; font-weight:650; }
+/* Garantías */
+#modal-garantias .garantias-wrap { width:min(100%,620px); max-height:min(90dvh,850px); border:1px solid rgba(16,185,129,.22); border-radius:26px; overflow:hidden; background:linear-gradient(155deg,#111c2e,#0b1220 70%); box-shadow:0 28px 90px rgba(0,0,0,.48); }
+#modal-garantias .garantias-header { padding:19px 20px 15px; background:radial-gradient(circle at 100% 0,rgba(16,185,129,.17),transparent 52%),linear-gradient(120deg,rgba(6,78,59,.32),rgba(15,23,42,.5)); border-bottom:1px solid rgba(148,163,184,.13); }
+#modal-garantias .garantias-header-title { font-size:21px; letter-spacing:-.035em; }
+#modal-garantias .garantias-search-wrap { padding:14px 16px 8px; }
+#modal-garantias .garantias-search-input { min-height:46px; border:1px solid rgba(148,163,184,.2); border-radius:14px; background:rgba(2,6,23,.36); }
+#modal-garantias .garantias-search-input:focus { outline:none; border-color:rgba(16,185,129,.65); box-shadow:0 0 0 3px rgba(16,185,129,.11); }
+#modal-garantias .garantias-kpi-grid { gap:10px; padding:10px 16px 14px; }
+#modal-garantias .garantias-kpi-card { min-width:0; border:1px solid rgba(148,163,184,.15); border-radius:17px; padding:13px 9px; background:linear-gradient(145deg,rgba(30,41,59,.8),rgba(15,23,42,.9)); transition:transform .18s ease,border-color .18s ease; }
+#modal-garantias .garantias-kpi-card:active { transform:scale(.97); }
+#modal-garantias .garantias-kpi-val { font-size:24px; font-weight:850; letter-spacing:-.04em; }
+#modal-garantias .garantias-list { padding:0 16px 18px; overflow:auto; overscroll-behavior:contain; }
+#modal-garantias .garantias-list > * { border:1px solid rgba(148,163,184,.13); border-radius:15px; margin-bottom:9px; background:rgba(30,41,59,.48); }
+body:not(.dark-mode) #view-admin #drive-status-card,
+body:not(.dark-mode) #view-admin #admin-menu-card { background:linear-gradient(145deg,#fff,#f5f8fc); border-color:rgba(100,116,139,.2); box-shadow:0 12px 30px rgba(15,23,42,.06); }
+body:not(.dark-mode) #view-admin #nia-card { background:radial-gradient(circle at 100% 0,rgba(249,115,22,.11),transparent 48%),linear-gradient(145deg,#fff,#f8fafc); border-color:rgba(249,115,22,.2); }
+body:not(.dark-mode) #view-admin .admin-menu-list > button:hover,
+body:not(.dark-mode) #view-admin .admin-menu-list > button:focus-visible { background:rgba(100,116,139,.07) !important; }
+body:not(.dark-mode) #view-admin .nn-ia-chips button { color:#263449; background:#f1f5f9; border-color:#dbe3ed; }
+body:not(.dark-mode) #modal-garantias .garantias-wrap { background:linear-gradient(155deg,#fff,#f6faf8 75%); border-color:rgba(16,185,129,.2); }
+body:not(.dark-mode) #modal-garantias .garantias-header { background:linear-gradient(120deg,#ecfdf5,#f8fafc); }
+body:not(.dark-mode) #modal-garantias .garantias-search-input { background:#fff; color:#172033; border-color:#dbe3ed; }
+body:not(.dark-mode) #modal-garantias .garantias-kpi-card { background:linear-gradient(145deg,#fff,#f8fafc); border-color:#e2e8f0; }
+body:not(.dark-mode) #modal-garantias .garantias-list > * { background:#fff; border-color:#e2e8f0; }
+@media(max-width:480px) { #view-admin { padding-left:12px !important; padding-right:12px !important; } #view-admin #admin-menu-card,#view-admin #nia-card,#view-admin #drive-status-card { border-radius:18px; } #view-admin .admin-menu-list > button { min-height:68px; } #modal-garantias .garantias-wrap { max-height:92dvh; border-radius:21px; } #modal-garantias .garantias-kpi-grid { gap:7px; padding-left:12px; padding-right:12px; } #modal-garantias .garantias-kpi-card { padding:11px 5px; } }
+@media(prefers-reduced-motion:reduce) { #view-admin *,#modal-garantias * { transition:none !important; animation:none !important; } }
