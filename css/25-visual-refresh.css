@@ -1,0 +1,667 @@
+/* ══════════════════════════════════════════════════════════════════════
+   Nelson App Pro · css/25-visual-refresh.css   (v3.8.0)
+   Capa de dirección visual "mostrador de taller".
+
+   QUÉ HACE
+   · Unifica la jerarquía visual: una superficie, un acento, radios y
+     espaciados coherentes. Sustituye el aspecto de "tarjetas dentro de
+     tarjetas con degradados" por superficies planas separadas por líneas.
+   · Etiquetas en minúscula/mayúscula inicial (no todo en MAYÚSCULAS).
+   · Números de dinero con cifras tabulares.
+   · Corrige el aviso (toast) que tapaba el contenido y el alto de la
+     cabecera en móvil.
+
+   CÓMO DESACTIVARLA
+   Quita su <link> en index.html (es la última capa, solo refina).
+   No toca estructura, IDs, eventos ni lógica de negocio.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Tokens ─────────────────────────────────────────────────────── */
+:root {
+  --nn-bg:        #0a0c12;
+  --nn-surface:   #12151f;
+  --nn-surface-2: #171b27;
+  --nn-line:      rgba(255, 255, 255, .07);
+  --nn-line-2:    rgba(255, 255, 255, .12);
+  --nn-text:      #edf0f7;
+  --nn-muted:     #8b94a7;
+  --nn-faint:     #5b6478;
+  --nn-accent:    var(--accent, #f97316);
+  --nn-accent-soft: rgba(249, 115, 22, .12);
+  --nn-green:     #10b981;
+  --nn-rose:      #f43f5e;
+  --nn-amber:     #f59e0b;
+  --nn-blue:      #60a5fa;
+  --nn-violet:    #a78bfa;
+  --nn-r-lg:      20px;
+  --nn-r-md:      14px;
+  --nn-r-sm:      10px;
+}
+
+html, body { background: var(--nn-bg) !important; }
+body { color: var(--nn-text); }
+
+/* Dinero y contadores siempre alineados */
+#total-cash, #total-cash-sidebar, .nn-money,
+input[type="number"], .nn-stat-value, .topbar-kpi-value { font-variant-numeric: tabular-nums; }
+* { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.14) transparent; }
+
+/* ── 2. Cabecera móvil: marca más pequeña, caja neta sin caja ──────── */
+@media (max-width: 1023px) {
+  #app-header {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 9px) !important;
+    padding-bottom: 9px !important;
+    background: rgba(10, 12, 18, .88) !important;
+    border-bottom: 1px solid var(--nn-line) !important;
+    box-shadow: none !important;
+  }
+  #business-short-name {
+    font-size: 9.5px !important; font-weight: 600 !important;
+    letter-spacing: .16em !important; color: var(--nn-accent) !important; opacity: .95;
+  }
+  #business-name-display {
+    font-size: 1.3rem !important; line-height: 1.15 !important;
+    font-weight: 700 !important; letter-spacing: -.02em !important;
+  }
+  #app-header .bg-emerald-500\/10 {
+    background: transparent !important; border: 0 !important;
+    padding: 0 !important; border-radius: 0 !important; text-align: right;
+  }
+  #app-header #total-cash { font-size: 1.05rem !important; color: #34d399 !important; line-height: 1.15 !important; }
+  #app-header .bg-emerald-500\/10 p:last-child {
+    font-size: 9.5px !important; font-weight: 600 !important;
+    letter-spacing: .06em !important; color: var(--nn-faint) !important;
+  }
+  .app-view { padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px)) !important; }
+  body { padding-bottom: 0 !important; }
+}
+
+/* Los campos de dinero conservan su color semántico */
+#c-equ { color: #fb923c !important; }
+#c-val { color: #34d399 !important; }
+#c-adelanto { color: #60a5fa !important; }
+#c-fecha-estimada { color: #60a5fa !important; }
+#client-alert:empty, #val-error:empty { display: none !important; }
+
+/* ── 3. Barra inferior: pestaña activa teñida, no "pastilla blanca" ── */
+@media (max-width: 1023px) {
+  .bottom-nav-mobile {
+    height: 62px !important;
+    border-radius: 18px !important;
+    background: rgba(18, 21, 31, .88) !important;
+    border: 1px solid var(--nn-line-2) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .5) !important;
+  }
+  .nav-btn { color: var(--nn-faint) !important; }
+  .nav-btn .nav-label {
+    font-size: 9.5px !important; font-weight: 600 !important;
+    letter-spacing: .01em !important;
+  }
+  .nav-btn.nav-active { color: var(--nn-accent) !important; }
+  .nav-btn.nav-active::before {
+    background: var(--nn-accent-soft) !important;
+    border: 1px solid rgba(249, 115, 22, .18) !important;
+    border-radius: 14px !important;
+    box-shadow: none !important;
+  }
+}
+
+/* ── 4. Superficies: planas, un radio por nivel ────────────────────── */
+.card {
+  background: var(--nn-surface) !important;
+  background-image: none !important;
+  border: 1px solid var(--nn-line) !important;
+  border-radius: var(--nn-r-lg) !important;
+  box-shadow: none !important;
+}
+.card:hover { border-color: var(--nn-line) !important; }
+
+/* ── 5. Campos: un solo estilo para toda la app ────────────────────── */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+textarea, select {
+  background: var(--nn-surface-2) !important;
+  border: 1px solid var(--nn-line) !important;
+  border-radius: 12px !important;
+  color: var(--nn-text) !important;
+  min-height: 48px;
+  padding: 13px 14px !important;
+  font-weight: 500 !important;
+}
+textarea { min-height: 96px; }
+input:focus, textarea:focus, select:focus {
+  border-color: rgba(249, 115, 22, .55) !important;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, .15) !important;
+  background: var(--nn-surface-2) !important;
+}
+::placeholder { color: var(--nn-faint) !important; opacity: 1 !important; }
+
+/* ── 6. Avisos (toast): tarjeta discreta, abajo y fuera del contenido ── */
+.nn-toast {
+  position: fixed; left: 50%; top: auto;
+  bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  z-index: 99999;
+  display: flex; align-items: flex-start; gap: 10px;
+  width: max-content; max-width: min(92vw, 420px);
+  padding: 11px 14px;
+  translate: -50% 8px; opacity: 0;
+  background: #1b2130; border: 1px solid var(--nn-line-2);
+  border-radius: 14px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .55);
+  color: var(--nn-text);
+  font-size: 12.5px; font-weight: 500; line-height: 1.4; text-align: left;
+  pointer-events: none;
+  transition: opacity .22s ease, translate .22s ease;
+}
+.nn-toast.is-on { opacity: 1; translate: -50% 0; }
+@media (min-width: 1024px) {
+  .nn-toast { left: auto; right: 24px; bottom: 24px; translate: 0 8px; }
+  .nn-toast.is-on { translate: 0 0; }
+}
+.nn-toast-icon { font-size: 14px; line-height: 1.25; flex-shrink: 0; filter: saturate(.9); }
+.nn-toast-text { flex: 1; min-width: 0; }
+
+/* ── 7. Panel de hoy: de banner con degradado a fila de 3 cifras ───── */
+.nn-panel {
+  background: var(--nn-surface) !important;
+  border: 1px solid var(--nn-line) !important;
+  border-radius: 18px !important;
+  box-shadow: none !important;
+  overflow: hidden;
+}
+.nn-panel-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--nn-line);
+  background: none !important;
+}
+.nn-panel-title { flex: 1; min-width: 0; }
+.nn-panel-eyebrow {
+  margin: 0; font-size: 11px; font-weight: 600;
+  letter-spacing: .01em; color: var(--nn-muted);
+}
+.nn-panel-date { margin: 2px 0 0; font-size: 12.5px; font-weight: 600; color: var(--nn-text); }
+.nn-icon-btn {
+  width: 34px; height: 34px; flex-shrink: 0;
+  display: grid; place-items: center;
+  border-radius: 10px; border: 1px solid var(--nn-line);
+  background: rgba(255, 255, 255, .04);
+  color: var(--nn-muted); font-size: 15px; cursor: pointer;
+}
+.nn-icon-btn:active { background: rgba(255, 255, 255, .08); }
+
+.nn-stat-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.nn-stat {
+  padding: 12px 8px 11px; text-align: center; cursor: pointer;
+  border-left: 1px solid var(--nn-line);
+  transition: background-color .15s ease;
+}
+.nn-stat:first-child { border-left: 0; }
+.nn-stat:active { background: rgba(255, 255, 255, .04); }
+.nn-stat-value {
+  font-size: 19px; font-weight: 700; line-height: 1;
+  color: var(--nn-faint);
+}
+.nn-stat.is-live .nn-stat-value { color: var(--nn-tone); }
+.nn-stat-label {
+  font-size: 10.5px; font-weight: 600; color: var(--nn-muted);
+  margin-top: 5px; letter-spacing: .01em;
+}
+.nn-stat-empty {
+  grid-column: 1 / -1; display: flex; align-items: center; gap: 10px;
+  padding: 14px; background: rgba(16, 185, 129, .06);
+}
+.nn-stat-empty-dot {
+  width: 8px; height: 8px; border-radius: 99px; background: #34d399; flex-shrink: 0;
+}
+.nn-stat-empty-title { font-size: 12.5px; font-weight: 600; color: #6ee7b7; }
+.nn-stat-empty-text { font-size: 11.5px; color: var(--nn-muted); }
+
+/* ── 8. Formulario de recepción: un solo lienzo con secciones ──────── */
+.nn-form-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 12px; padding: 18px 18px 16px;
+  border-bottom: 1px solid var(--nn-line);
+  background: none !important;
+}
+.nn-eyebrow {
+  display: block; font-size: 10.5px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--nn-accent); margin-bottom: 6px;
+}
+.nn-form-title {
+  margin: 0; font-size: 19px; line-height: 1.2;
+  font-weight: 700; letter-spacing: -.01em; color: var(--nn-text);
+}
+.nn-id-chip {
+  flex-shrink: 0; padding: 5px 10px; border-radius: 8px;
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid var(--nn-line);
+  font-size: 11px; font-weight: 600; letter-spacing: .04em;
+  color: var(--nn-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.nn-section {
+  position: relative !important;
+  padding: 0 !important;
+  background: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+.nn-section + .nn-section {
+  margin-top: 18px !important;
+  padding-top: 18px !important;
+  border-top: 1px solid var(--nn-line) !important;
+}
+.nn-section-head {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 11px;
+  font-size: 11.5px; font-weight: 700;
+  letter-spacing: .01em; text-transform: none;
+  color: #a8b1c2;
+}
+.nn-section-head::before {
+  content: ""; width: 3px; height: 12px; border-radius: 2px;
+  background: var(--nn-accent);
+}
+
+#view-taller label {
+  font-size: 11px !important; font-weight: 600 !important;
+  letter-spacing: .01em !important; text-transform: none !important;
+  color: var(--nn-muted) !important;
+}
+
+.nn-photo-box {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, .03);
+  border: 1px solid var(--nn-line);
+  border-radius: 14px;
+}
+.nn-photo-box .camera-btn {
+  background: rgba(249, 115, 22, .12) !important;
+  box-shadow: none !important;
+  border: 1px solid rgba(249, 115, 22, .18) !important;
+  width: 46px !important; height: 46px !important;
+  border-radius: 12px !important;
+  font-size: 20px !important;
+}
+.voice-mic-btn {
+  width: 36px !important; height: 36px !important;
+  background: rgba(255, 255, 255, .05) !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+  font-size: 15px !important;
+}
+.nn-photo-title { font-size: 12.5px; font-weight: 600; color: var(--nn-text); }
+.nn-photo-text { font-size: 11.5px; color: var(--nn-muted); margin-top: 2px; }
+.nn-hint { font-size: 11px !important; color: var(--nn-faint) !important; }
+
+/* Botón principal del formulario: un único naranja sólido */
+#btn-registrar-entrada {
+  background: var(--nn-accent) !important;
+  background-image: none !important;
+  border-radius: 14px !important;
+  height: 54px; padding: 0 !important;
+  font-size: 14px !important; font-weight: 700 !important;
+  letter-spacing: 0 !important; text-transform: none !important;
+  box-shadow: 0 8px 20px rgba(249, 115, 22, .22) !important;
+}
+#btn-registrar-entrada:active { box-shadow: 0 3px 10px rgba(249, 115, 22, .2) !important; }
+
+/* Panel lateral de vista previa (escritorio) */
+#view-taller #taller-preview-panel .card {
+  background: var(--nn-surface) !important;
+  background-image: none !important;
+  border-color: var(--nn-line) !important;
+}
+.nn-preview-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: grid; place-items: center; flex-shrink: 0;
+  font-size: 17px;
+  background: var(--nn-accent-soft);
+  border: 1px solid rgba(249, 115, 22, .18);
+}
+#taller-preview-panel [style*="letter-spacing:2px"] {
+  text-transform: none !important;
+  letter-spacing: .02em !important;
+  font-size: 11px !important; font-weight: 600 !important;
+  color: var(--nn-muted) !important;
+}
+
+/* ── 9. Acciones rápidas de Órdenes ────────────────────────────────── */
+.quick-action {
+  background: var(--nn-surface) !important;
+  background-image: none !important;
+  border: 1px solid var(--nn-line) !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+  min-height: 84px !important;
+  gap: 8px !important;
+}
+.quick-action::before { display: none !important; }
+.qa-icon-wrap {
+  width: 32px !important; height: 32px !important;
+  border-radius: 10px !important;
+  background: rgba(255, 255, 255, .05) !important;
+  box-shadow: none !important;
+}
+.qa-green  .qa-icon-wrap { background: rgba(16, 185, 129, .14) !important; }
+.qa-blue   .qa-icon-wrap { background: rgba(96, 165, 250, .14) !important; }
+.qa-orange .qa-icon-wrap { background: rgba(249, 115, 22, .14) !important; }
+.qa-label {
+  color: var(--nn-text) !important;
+  font-size: 11.5px !important; font-weight: 600 !important;
+  letter-spacing: 0 !important; text-transform: none !important;
+}
+
+.filter-toggle {
+  background: var(--nn-surface) !important;
+  border: 1px solid var(--nn-line) !important;
+  border-radius: 14px !important;
+  min-height: 48px; padding: 12px 14px !important;
+  font-size: 12.5px !important; font-weight: 600 !important;
+  text-transform: none !important; letter-spacing: 0 !important;
+  color: var(--nn-muted) !important;
+}
+.filter-toggle .arrow { color: var(--nn-faint) !important; font-size: 11px !important; }
+
+/* ── 10. Caja: cabeceras sobrias y acciones secundarias ────────────── */
+#view-ventas .card {
+  background: var(--nn-surface) !important;
+  background-image: none !important;
+  border-color: var(--nn-line) !important;
+  padding: 16px !important;
+}
+#view-ventas .card h3 {
+  text-align: left !important;
+  text-transform: none !important;
+  letter-spacing: .01em !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: var(--nn-muted) !important;
+  margin: 0 0 12px !important;
+  display: flex; align-items: center; gap: 8px;
+}
+#view-ventas .card h3::before {
+  content: ""; width: 3px; height: 12px; border-radius: 2px;
+  background: var(--nn-line-2); flex-shrink: 0;
+}
+.invoice-sale-cta {
+  background: var(--nn-surface-2) !important;
+  background-image: none !important;
+  border: 1px solid var(--nn-line) !important;
+  border-radius: 14px !important;
+  color: var(--nn-text) !important;
+  padding: 12px !important;
+  gap: 12px !important;
+}
+.invoice-sale-cta-icon {
+  background: rgba(16, 185, 129, .14) !important;
+  border-radius: 11px !important;
+  width: 40px !important; height: 40px !important;
+}
+.invoice-sale-cta strong { font-size: 13px !important; font-weight: 600 !important; }
+.invoice-sale-cta small { font-size: 11.5px !important; color: var(--nn-muted) !important; line-height: 1.4 !important; }
+.invoice-sale-cta-arrow { color: var(--nn-faint) !important; font-size: 18px !important; }
+
+/* Guardar gasto: acción secundaria, no un segundo botón primario */
+#view-ventas button[onclick="saveGasto()"] {
+  background: rgba(244, 63, 94, .1) !important;
+  border: 1px solid rgba(244, 63, 94, .28) !important;
+  color: #fda4af !important;
+  border-radius: 12px !important;
+  height: 46px; padding: 0 !important;
+  font-size: 12.5px !important; font-weight: 600 !important;
+  text-transform: none !important; letter-spacing: 0 !important;
+  box-shadow: none !important;
+}
+/* Botones de herramienta (inventario): fantasma, no chips de colores */
+#view-ventas .card button[class*="600/20"] {
+  background: rgba(255, 255, 255, .05) !important;
+  border-color: var(--nn-line) !important;
+  color: var(--nn-text) !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+/* ── 11. Datos: menú calmado, sin ocho degradados distintos ────────── */
+.nn-drive-card {
+  background: var(--nn-surface) !important;
+  background-image: none !important;
+  border: 1px solid var(--nn-line) !important;
+  border-radius: 18px !important;
+  overflow: hidden;
+}
+.nn-drive-icon {
+  width: 42px; height: 42px; border-radius: 11px;
+  display: grid; place-items: center; flex-shrink: 0;
+  background: rgba(96, 165, 250, .12);
+  color: #7cb2fb;
+}
+#drive-connect-btn {
+  background: rgba(96, 165, 250, .14) !important;
+  background-image: none !important;
+  border: 1px solid rgba(96, 165, 250, .28) !important;
+  color: #93c5fd !important;
+  border-radius: 10px !important;
+  height: 38px; padding: 0 14px !important;
+  font-size: 12.5px !important; font-weight: 600 !important;
+  letter-spacing: 0 !important; text-transform: none !important;
+  box-shadow: none !important;
+  white-space: nowrap;
+}
+.nn-drive-action {
+  background: rgba(255, 255, 255, .04) !important;
+  border: 1px solid var(--nn-line) !important;
+  color: var(--nn-text) !important;
+  border-radius: 10px !important;
+  height: 40px;
+  font-size: 12px !important; font-weight: 600 !important;
+  text-transform: none !important; letter-spacing: 0 !important;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+
+.nn-ia-card {
+  background: var(--nn-surface) !important;
+  background-image: none !important;
+  border: 1px solid rgba(249, 115, 22, .18) !important;
+  border-radius: 18px !important;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: none !important;
+}
+.nn-ia-chips {
+  display: flex !important; flex-wrap: wrap !important;
+  gap: 6px !important;
+  padding: 0 16px 14px !important;
+  overflow: visible !important;
+}
+.nn-ia-chips button {
+  flex: 0 0 auto;
+  background: rgba(249, 115, 22, .1) !important;
+  border: 1px solid rgba(249, 115, 22, .2) !important;
+  color: #fdba74 !important;
+  border-radius: 999px !important;
+  padding: 5px 11px !important;
+  font-size: 11px !important; font-weight: 500 !important;
+  white-space: nowrap;
+}
+
+.nn-menu-card {
+  background: var(--nn-surface) !important;
+  border: 1px solid var(--nn-line) !important;
+  border-radius: 18px !important;
+  overflow: hidden;
+}
+.nn-menu-head { padding: 16px 16px 14px; border-bottom: 1px solid var(--nn-line); }
+.nn-menu-head h3 {
+  margin: 0; font-size: 15px; font-weight: 600;
+  letter-spacing: -.01em; color: var(--nn-text);
+}
+.nn-menu-head p { margin: 3px 0 0; font-size: 11.5px; color: var(--nn-muted); line-height: 1.4; }
+
+.admin-menu-list { padding: 6px 10px 12px !important; }
+.admin-menu-list > button {
+  padding: 10px 8px !important;
+  border-radius: 14px !important;
+}
+.admin-menu-list > button > div > div:first-child {
+  background-image: none !important;
+  background: rgba(255, 255, 255, .06) !important;
+  box-shadow: none !important;
+  border-radius: 12px !important;
+  width: 42px !important; height: 42px !important;
+}
+.admin-menu-list > button p:first-of-type {
+  color: var(--nn-text) !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  letter-spacing: -.005em !important;
+}
+.admin-menu-list > button p + p {
+  color: var(--nn-muted) !important;
+  font-size: 11.5px !important;
+  line-height: 1.35 !important;
+}
+.admin-menu-list > button > svg { stroke: var(--nn-faint) !important; }
+.admin-menu-list > p {
+  font-size: 10px !important; font-weight: 700 !important;
+  letter-spacing: .1em !important; color: var(--nn-faint) !important;
+}
+.admin-menu-list > div[style*="height:1px"] { background: var(--nn-line) !important; }
+
+/* ── 12. Escritorio: barra superior y menú lateral coherentes ──────── */
+@media (min-width: 1024px) {
+  #sidebar {
+    background: #0c0f17 !important;
+    border-right: 1px solid var(--nn-line) !important;
+  }
+  #desktop-topbar {
+    background: var(--nn-bg) !important;
+    border-bottom: 1px solid var(--nn-line) !important;
+  }
+  #desktop-topbar-subtitle {
+    font-size: 9.5px !important; font-weight: 600 !important;
+    letter-spacing: .16em !important; color: var(--nn-accent) !important;
+  }
+  #desktop-topbar-title {
+    font-size: 17px !important; font-weight: 700 !important;
+    font-style: normal !important; letter-spacing: -.01em !important;
+  }
+  #desktop-topbar-right { gap: 8px !important; }
+  #desktop-topbar-right .nn-topbar-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    height: 38px; padding: 0 12px;
+    background: rgba(255, 255, 255, .05) !important;
+    border: 1px solid var(--nn-line) !important;
+    border-radius: 10px !important;
+    color: var(--nn-muted) !important;
+    font-size: 12.5px !important; font-weight: 600 !important;
+    letter-spacing: 0 !important; text-transform: none !important;
+    box-shadow: none !important;
+    cursor: pointer;
+  }
+  #desktop-topbar-right .nn-topbar-btn svg { flex-shrink: 0; opacity: .9; }
+  #desktop-topbar-right .nn-topbar-btn:hover {
+    background: rgba(255, 255, 255, .08) !important;
+    color: var(--nn-text) !important;
+  }
+  #desktop-topbar-right .nn-topbar-icon { padding: 0 10px; }
+  #desktop-topbar-right .nn-topbar-primary,
+  #desktop-topbar-right button#topbar-primary-action {
+    background: var(--nn-accent) !important;
+    border-color: transparent !important;
+    color: #fff !important;
+    height: 38px !important;
+    padding: 0 12px !important;
+    border-radius: 10px !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    gap: 7px !important;
+  }
+  #desktop-topbar-right .nn-topbar-primary:hover { background: #fb8c3c !important; }
+  #topbar-primary-action .kbd-hint {
+    background: rgba(0, 0, 0, .18) !important;
+    border-color: rgba(255, 255, 255, .28) !important;
+    color: #fff !important;
+  }
+  .nn-topbar-btn .kbd-hint { font-size: 9px !important; }
+
+  /* Menú lateral: un solo acento, sin lavado con degradado */
+  .sidebar-nav-item {
+    border-radius: 10px !important;
+    border: 1px solid transparent !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: var(--nn-muted) !important;
+    font-weight: 600 !important;
+  }
+  .sidebar-nav-item:hover {
+    background: rgba(255, 255, 255, .04) !important;
+    border-color: var(--nn-line) !important;
+    color: var(--nn-text) !important;
+  }
+  .sidebar-nav-item.active {
+    background: var(--nn-accent-soft) !important;
+    border-color: rgba(249, 115, 22, .18) !important;
+    color: var(--nn-accent) !important;
+  }
+  .sidebar-nav-item.active::before { display: none !important; }
+  #sidebar-cash {
+    background: rgba(16, 185, 129, .07) !important;
+    border: 1px solid rgba(16, 185, 129, .16) !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+  }
+  #sidebar-cash-label {
+    font-size: 10px !important; font-weight: 600 !important;
+    letter-spacing: .01em !important; text-transform: none !important;
+    color: #6ee7b7 !important;
+  }
+  #sidebar-cash-value {
+    font-size: 20px !important; font-weight: 700 !important;
+    color: #34d399 !important;
+  }
+}
+
+/* ── 13. Estados vacíos con dirección, no un texto perdido ─────────── */
+.nn-empty {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 4px; padding: 40px 20px; text-align: center;
+}
+.nn-empty-icon {
+  width: 52px; height: 52px; display: grid; place-items: center;
+  border-radius: 16px; margin-bottom: 8px;
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid var(--nn-line);
+  font-size: 24px;
+}
+.nn-empty-title { font-size: 15px; font-weight: 600; color: var(--nn-text); }
+.nn-empty-text {
+  font-size: 12.5px; color: var(--nn-muted); line-height: 1.45;
+  max-width: 290px;
+}
+.nn-empty-btn {
+  margin-top: 16px; height: 44px; padding: 0 18px;
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 0; border-radius: 12px;
+  background: var(--nn-accent); color: #fff;
+  font-size: 13px; font-weight: 600;
+}
+
+/* ── 14. Ventanas modales sobre la misma superficie ────────────────── */
+.modal-custom > div:first-child { background-color: var(--nn-surface) !important; }
+.modal-custom { -webkit-backdrop-filter: blur(6px) !important; backdrop-filter: blur(6px) !important; }
+
+/* ── 15. Foco visible y movimiento reducido ────────────────────────── */
+:where(button, a, [role="button"], input, select, textarea, summary):focus-visible {
+  outline: 2px solid var(--nn-accent) !important;
+  outline-offset: 2px !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nn-toast { transition: none; }
+  .nn-stat { transition: none; }
+}
