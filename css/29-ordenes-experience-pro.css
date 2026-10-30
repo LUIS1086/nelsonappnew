@@ -1,0 +1,28 @@
+/* NelsonAppNew v3.8.5 · Órdenes Experience Pro
+   Capa visual aditiva: no altera el renderizado ni la lógica de órdenes. */
+#view-ordenes { --orders-accent:#f97316; --orders-line:rgba(148,163,184,.16); }
+#view-ordenes > .space-y-3 { gap:16px !important; }
+#view-ordenes .quick-action { min-height:86px; border:1px solid var(--orders-line); border-radius:17px !important; background:linear-gradient(145deg,rgba(30,41,59,.82),rgba(15,23,42,.72)); box-shadow:0 10px 26px rgba(2,6,23,.13),inset 0 1px rgba(255,255,255,.045); transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease; }
+#view-ordenes .quick-action:active { transform:scale(.975); }
+#view-ordenes .qa-icon-wrap { width:37px;height:37px;border-radius:12px;display:grid;place-items:center;background:rgba(255,255,255,.055); }
+#view-ordenes .qa-label { font-size:10px;letter-spacing:.055em; }
+#search-orders { min-height:52px !important;padding:0 52px 0 16px !important;border:1px solid var(--orders-line) !important;border-radius:16px !important;background:linear-gradient(145deg,rgba(30,41,59,.78),rgba(15,23,42,.82)) !important;color:#f8fafc !important;box-shadow:0 8px 22px rgba(2,6,23,.12),inset 0 1px rgba(255,255,255,.04);font-size:13px !important;letter-spacing:.01em; }
+#search-orders:focus { border-color:rgba(249,115,22,.55) !important;box-shadow:0 0 0 3px rgba(249,115,22,.10),0 10px 26px rgba(2,6,23,.16) !important; }
+#filterToggleBtn { min-height:48px;border:1px solid var(--orders-line);border-radius:15px !important;background:linear-gradient(110deg,rgba(30,41,59,.78),rgba(15,23,42,.76));color:#cbd5e1;letter-spacing:.075em; }
+#filter-panel { border:1px solid var(--orders-line);border-radius:18px !important;background:linear-gradient(145deg,rgba(30,41,59,.72),rgba(15,23,42,.84));box-shadow:0 14px 34px rgba(2,6,23,.16); }
+#orders-list { display:grid;grid-template-columns:minmax(0,1fr);gap:14px !important;align-items:start; }
+#orders-list > .order-card-pro { min-width:0;border:1px solid rgba(148,163,184,.16) !important;border-radius:19px !important;background:linear-gradient(145deg,rgba(30,41,59,.96),rgba(10,16,30,.98)) !important;box-shadow:0 12px 30px rgba(2,6,23,.2),inset 0 1px rgba(255,255,255,.035) !important; }
+#orders-list > .order-card-pro h3 { overflow-wrap:anywhere; }
+#orders-list > .order-card-pro button { touch-action:manipulation; }
+#orders-list .order-num { display:inline-flex;align-items:center;min-height:22px;padding:3px 8px;border-radius:8px;background:rgba(249,115,22,.13);border:1px solid rgba(249,115,22,.24);color:#fdba74;font-weight:900;letter-spacing:.06em; }
+#orders-list .garantia-badge,#orders-list .deadline-badge { border-radius:999px; }
+#orders-list .nn-empty { border:1px dashed rgba(148,163,184,.24);border-radius:22px;padding:34px 20px;background:radial-gradient(circle at 50% 0,rgba(249,115,22,.09),transparent 55%),rgba(15,23,42,.42); }
+body:not(.dark-mode) #search-orders { background:linear-gradient(145deg,#fff,#f8fafc) !important;color:#0f172a !important;border-color:rgba(100,116,139,.22) !important; }
+body:not(.dark-mode) #filter-panel { background:linear-gradient(145deg,#fff,#f8fafc);border-color:rgba(100,116,139,.2); }
+body:not(.dark-mode) #orders-list > .order-card-pro { background:linear-gradient(145deg,#fff,#f8fafc) !important;border-color:rgba(100,116,139,.2) !important;box-shadow:0 12px 30px rgba(15,23,42,.075),inset 0 1px #fff !important; }
+body:not(.dark-mode) #orders-list > .order-card-pro h3 { color:#172033 !important; }
+body:not(.dark-mode) #orders-list > .order-card-pro p { color:#c2410c !important; }
+@media (min-width:760px) { #orders-list { grid-template-columns:repeat(2,minmax(0,1fr));gap:16px !important; } #orders-list > .order-card-pro { height:100%; } }
+@media (min-width:1280px) { #orders-list { grid-template-columns:repeat(2,minmax(0,1fr));gap:18px !important; } }
+@media (max-width:420px) { #view-ordenes .quick-action { min-height:78px;padding:9px 5px; } #view-ordenes .qa-label { font-size:9px; } #orders-list > .order-card-pro { border-radius:16px !important; } }
+@media (prefers-reduced-motion:reduce) { #view-ordenes .quick-action { transition:none; } }
