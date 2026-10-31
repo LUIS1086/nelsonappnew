@@ -59,6 +59,7 @@ const PRECACHE_URLS = [
     './css/21-ticket-venta.css',
     './css/22-seguimiento.css',
     './css/24-ios-fluidez.css',
+    './css/25-visual-refresh.css',
     './js/modules/38-native-feel.js',
     './js/modules/39-ticket-venta.js',
     './js/seguimiento-config.js',

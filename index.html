@@ -43,6 +43,7 @@
     <link rel="stylesheet" href="css/21-ticket-venta.css">
     <link rel="stylesheet" href="css/22-seguimiento.css">
     <link rel="stylesheet" href="css/24-ios-fluidez.css">
+    <link rel="stylesheet" href="css/25-visual-refresh.css">
 
 <style id="invoice-sale-styles">
 .invoice-sale-cta{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:14px;border-radius:16px;border:1px solid rgba(52,211,153,.32);background:linear-gradient(115deg,rgba(16,185,129,.16),rgba(59,130,246,.08));color:#e5fff4;cursor:pointer;transition:transform .18s,border-color .18s}
@@ -257,7 +258,7 @@
         <div class="splash-title" id="splash-biz-name">NELSON</div>
         <div class="splash-sub">Taller &amp; Repuestos</div>
         <div class="splash-bar-track"><div class="splash-bar-fill"></div></div>
-        <div class="splash-version" id="splash-version">v3.8.0</div>
+        <div class="splash-version" id="splash-version">v3.8.2</div>
     </div>
 
     <!-- PIN MODAL -->
@@ -886,7 +887,7 @@
                                 <p style="font-size:15px;font-weight:900;color:#f1f5f9;margin:0;letter-spacing:-0.3px;">Luis Eduardo Gaviria</p>
                                 <p style="font-size:10px;color:#64748b;margin:3px 0 0;font-weight:700;display:flex;align-items:center;gap:6px;">
                                     <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 6px rgba(16,185,129,0.6);animation:pulseDot 2s ease-in-out infinite;"></span>
-                                    NelsonApp Pro · <span id="credits-version">v3.8.0</span>
+                                    NelsonApp Pro · <span id="credits-version">v3.8.2</span>
                                 </p>
                             </div>
                             <span id="credits-arrow" style="font-size:14px;color:#64748b;transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);flex-shrink:0;">▼</span>
@@ -1550,19 +1551,26 @@
                 </div>
                 <button onclick="closeOrdenesCompra()" class="text-white bg-black/30 w-9 h-9 rounded-full font-bold text-lg">✕</button>
             </div>
-            <div class="p-4 space-y-3 max-h-[70vh] overflow-y-auto no-scrollbar">
-                <!-- Selector de proveedor -->
-                <div>
-                    <label class="text-[10px] text-slate-400 font-bold block mb-1">PROVEEDOR</label>
+            <div class="p-4 space-y-4 max-h-[72vh] overflow-y-auto no-scrollbar">
+                <section class="rounded-2xl border border-white/10 bg-white/[.03] p-3">
+                    <label for="oc-proveedor" class="text-xs text-slate-300 font-bold block mb-2">Proveedor</label>
                     <select id="oc-proveedor" class="w-full font-bold text-sm"></select>
-                </div>
-                <!-- Lista de artículos -->
-                <div>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2">Artículos a pedir</p>
+                    <div id="oc-proveedor-contacto" class="text-xs text-slate-400 mt-2" aria-live="polite"></div>
+                </section>
+                <section>
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                        <div>
+                            <p class="text-sm text-white font-bold">Productos del inventario</p>
+                            <p id="oc-selection-count" class="text-xs text-slate-400 mt-1">Selecciona los productos que vas a pedir</p>
+                        </div>
+                        <button type="button" id="oc-select-low" class="text-xs font-bold text-orange-300 border border-orange-400/30 rounded-lg px-3 py-2">Seleccionar bajo mínimo</button>
+                    </div>
+                    <input id="oc-search" type="search" placeholder="Buscar producto o código…" aria-label="Buscar productos del inventario" class="w-full text-sm mb-2">
                     <div id="oc-items-list" class="space-y-2"></div>
-                </div>
-                <!-- Notas -->
-                <textarea id="oc-notas" rows="2" placeholder="Notas para el proveedor…" class="w-full text-xs"></textarea>
+                </section>
+                <label class="block text-xs text-slate-300 font-bold">Notas para el proveedor
+                    <textarea id="oc-notas" rows="2" placeholder="Fecha de entrega, forma de pago u otra indicación…" class="w-full text-sm font-normal mt-2"></textarea>
+                </label>
                 <!-- Botones -->
                 <div class="grid grid-cols-2 gap-2">
                     <button onclick="sendOCWhatsApp()" class="bg-emerald-600 py-3 rounded-xl font-black text-xs uppercase active:scale-95 transition">💬 WhatsApp</button>
@@ -1595,8 +1603,8 @@
             </div>
             <div class="p-4 space-y-3 max-h-[70vh] overflow-y-auto no-scrollbar">
                 <input type="hidden" id="prov-id">
-                <input type="text" id="prov-nombre" placeholder="NOMBRE DEL PROVEEDOR" class="w-full uppercase font-bold">
-                <input type="tel" id="prov-tel" placeholder="TELÉFONO / WHATSAPP" class="w-full">
+                <label class="block text-xs text-slate-300 font-bold">Nombre del proveedor<input type="text" id="prov-nombre" placeholder="Ej. Repuestos La 14" class="w-full uppercase font-bold mt-1"></label>
+                <label class="block text-xs text-slate-300 font-bold">WhatsApp de contacto<input type="tel" id="prov-tel" placeholder="Ej. 300 123 4567" autocomplete="tel" class="w-full mt-1"><span class="block text-[11px] text-slate-500 font-normal mt-1">Incluye el indicativo de país para números internacionales.</span></label>
                 <input type="text" id="prov-ciudad" placeholder="Ciudad" class="w-full text-sm">
                 <input type="text" id="prov-catalogo" placeholder="Productos que suministra..." class="w-full text-sm">
                 <div class="grid grid-cols-2 gap-2">
@@ -2191,7 +2199,10 @@
                 <!-- Proveedor y notas -->
                 <div>
                     <label class="text-[10px] text-slate-400 block mb-1">PROVEEDOR</label>
-                    <input type="text" id="stock-modal-supplier" placeholder="Nombre del proveedor" class="w-full text-sm">
+                    <input type="text" id="stock-modal-supplier" list="stock-supplier-options" placeholder="Selecciona o escribe el proveedor" class="w-full text-sm">
+                    <datalist id="stock-supplier-options"></datalist>
+                    <label for="stock-modal-supplier-tel" class="block text-[10px] text-slate-400 mt-2 mb-1">WHATSAPP / CONTACTO DEL PROVEEDOR</label>
+                    <input type="tel" id="stock-modal-supplier-tel" placeholder="Ej. 300 123 4567" autocomplete="tel" class="w-full text-sm">
                 </div>
                 <div>
                     <label class="text-[10px] text-slate-400 block mb-1">NOTAS</label>
@@ -2350,7 +2361,7 @@
                         <div class="cfg-title-wrap">
                             <p class="cfg-eyebrow">
                                 <span id="cfg-header-biz">NelsonApp Pro</span>
-                                <span class="cfg-version" id="cfg-header-version">v3.8.0</span>
+                                <span class="cfg-version" id="cfg-header-version">v3.8.2</span>
                             </p>
                             <h3 class="cfg-h1">Configuración</h3>
                         </div>
@@ -3129,14 +3140,15 @@
             <div class="invoice-field"><label for="inv-price">Precio unitario</label><input id="inv-price" type="number" min="0" step="1" oninput="updateInvoicePreview()"></div>
             <div class="invoice-field full"><div class="inv-price-row"><span id="inv-price-hint">Elige un producto para ver su precio de inventario</span><button type="button" class="inv-price-edit" onclick="openPriceEditor()" title="Abre descuentos rápidos, redondeo y ajuste fino del precio (solo para esta venta)">✏️ Rebaja / ajustar precio</button></div></div>
             <div class="invoice-field full"><button type="button" class="inv-add" onclick="addInvoiceLine()">➕ Agregar al ticket</button></div>
-            <div class="invoice-field full"><label>Productos del ticket</label><div id="inv-cart"><div class="inv-cart-empty">Aún no agregas productos al ticket</div></div></div>
+            <div class="invoice-field full"><div class="inv-cart-heading"><label>Productos del ticket</label><span id="inv-cart-count" role="status" aria-live="polite">0 productos</span></div><div id="inv-cart"><div class="inv-cart-empty">Aún no agregas productos al ticket</div></div></div>
             <div class="invoice-field" style="position:relative"><label for="inv-client">Cliente (opcional)</label><input id="inv-client" maxlength="120" placeholder="Vacío = Cliente de mostrador" autocomplete="off" oninput="invoiceClientSuggest()" onfocus="invoiceClientSuggest()" onblur="setTimeout(invoiceClientHide,180)"><div id="inv-client-hits" class="inv-client-hits hidden"></div></div>
             <div class="invoice-field"><label for="inv-id">Documento / NIT (opcional)</label><input id="inv-id" maxlength="40" placeholder="CC, NIT u otro"></div>
             <div class="invoice-field"><label for="inv-phone">Teléfono (opcional)</label><input id="inv-phone" maxlength="30" inputmode="tel" placeholder="Número de contacto"></div>
-            <div class="invoice-field"><label for="inv-payment">Método de pago</label><select id="inv-payment"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Otro</option></select></div>
+            <div class="invoice-field"><label for="inv-payment">Método de pago</label><select id="inv-payment"><option value="Efectivo">Efectivo</option><option value="Transferencia">Transferencia</option><option value="Tarjeta">Tarjeta</option><option value="Otro">Otro</option></select></div>
+            <div class="invoice-field full hidden" id="inv-cash-wrap"><label for="inv-cash-received">Dinero recibido <span>(opcional)</span></label><input id="inv-cash-received" type="number" min="0" step="1" inputmode="decimal" placeholder="Escribe cuánto entrega el cliente"><small id="inv-cash-change" aria-live="polite">El cambio se calcula con el total de la venta.</small></div>
             <div class="invoice-field full"><label for="inv-notes">Observaciones (opcional)</label><textarea id="inv-notes" rows="2" maxlength="300" placeholder="Garantía, referencia u observaciones"></textarea></div>
           </div>
-          <div class="invoice-total"><span>Total de la venta</span><strong id="inv-total">$0</strong></div>
+          <div class="invoice-total"><div><span>Total de la venta</span><small id="inv-summary-count">0 productos · 0 unidades</small></div><strong id="inv-total">$0</strong></div>
           <p class="invoice-note">Agrega varios productos al mismo ticket; si dejas uno elegido sin pulsar «Agregar», se incluye al registrar. La rebaja de precio aplica solo a esta venta (el inventario no cambia). Si no escribes cliente, el ticket sale a nombre de «Cliente de mostrador». Es un comprobante comercial que puedes enviar por WhatsApp, descargar en PDF o imagen, o imprimir; no sustituye una factura electrónica validada por la DIAN.</p>
           <div class="invoice-actions"><button type="button" onclick="closeInvoiceSaleModal()">Cancelar</button><button class="primary" id="inv-submit" type="submit">✓ Registrar venta y generar ticket</button></div>
         </form>
