@@ -1,0 +1,83 @@
+/* Nelson App Pro · css/01-tema-variables.css
+   Variables de color, dark mode y fix de escalado de texto
+   (extraido sin cambios de index.html; el orden de carga importa) */
+
+        * { font-family: 'Inter', sans-serif; }
+
+        /* ===== VARIABLES DE COLOR ===== */
+        :root {
+            --bg-dark:      #0d0f1a;
+            --bg-dark2:     #131520;
+            --card-dark:    #181b28;
+            --border-dark:  rgba(255,255,255,0.06);
+            --text-dark:    #e8eaf6;
+            --text-muted:   #6b7a99;
+            --accent:       #f97316;
+            --accent-dark:  #ea580c;
+            --success:      #10b981;
+            --danger:       #f43f5e;
+            --info:         #38bdf8;
+
+            /* Light mode — crema/papel */
+            --bg-light:     #f5f3ee;
+            --bg-light2:    #ede9e0;
+            --card-light:   #fdfcf9;
+            --border-light: #ddd8ce;
+            --text-light:   #1c1917;
+            --text-muted-l: #78716c;
+        }
+
+        /* ===== FIX: bloquear auto-escalado de texto del sistema Android/iOS ===== */
+        html {
+            -webkit-text-size-adjust: 100%;
+            -moz-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+
+        /* ===== DARK MODE (default) ===== */
+        body {
+            background: var(--bg-dark);
+            color: var(--text-dark);
+            padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+            -webkit-tap-highlight-color: transparent;
+            transition: background 0.35s ease, color 0.35s ease;
+        }
+        .card {
+            background: var(--card-dark);
+            border-radius: 1.5rem;
+            border: 1px solid var(--border-dark);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.04) inset;
+            transition: background 0.35s ease;
+        }
+        input, textarea, select {
+            background: #1e2235 !important;
+            border: 1px solid rgba(255,255,255,0.08) !important;
+            border-radius: 1rem !important;
+            padding: 0.75rem 1rem !important;
+            color: #e8eaf6 !important;
+            font-size: 1rem !important;
+            line-height: 1.4 !important;
+            transition: all 0.2s;
+        }
+        input::placeholder, textarea::placeholder {
+            font-size: 0.95rem !important;
+            font-weight: 500 !important;
+            opacity: 0.55;
+        }
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--accent) !important;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(249,115,22,0.18);
+        }
+        .filter-toggle {
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: all 0.2s;
+        }
+        .filter-toggle:hover { background: rgba(249,115,22,0.15); border-color: rgba(249,115,22,0.35); }
+        .modal-custom { background: rgba(5,6,15,0.88); backdrop-filter: blur(16px); }
+        .suggestion-box { background: #1e2235; border: 1px solid rgba(255,255,255,0.08); border-radius: 0.75rem; padding: 0.5rem; margin-top: 4px; max-height: 120px; overflow-y: auto; display: none; }
+        .suggestion-item { padding: 6px 10px; border-radius: 0.5rem; cursor: pointer; font-size: 12px; font-weight: 700; color: var(--accent); }
+        .suggestion-item:hover { background: rgba(249,115,22,0.15); }
+

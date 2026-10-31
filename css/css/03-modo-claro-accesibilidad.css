@@ -1,0 +1,110 @@
+/* Nelson App Pro · css/03-modo-claro-accesibilidad.css
+   Modo claro, panel de salud, alto contraste, tamanos de letra
+   (extraido sin cambios de index.html; el orden de carga importa) */
+        /* ===== LIGHT MODE — crema/papel ===== */
+        body.light-mode {
+            background: var(--bg-light);
+            color: var(--text-light);
+        }
+        body.light-mode .card {
+            background: var(--card-light);
+            border-color: var(--border-light);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07), 0 1px 0 rgba(255,255,255,0.9) inset;
+        }
+        body.light-mode input,
+        body.light-mode textarea,
+        body.light-mode select {
+            background: #f0ece3 !important;
+            border: 1px solid #cdc8bc !important;
+            color: var(--text-light) !important;
+        }
+        body.light-mode input:focus,
+        body.light-mode textarea:focus,
+        body.light-mode select:focus {
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 0 3px rgba(249,115,22,0.15) !important;
+        }
+        body.light-mode .filter-toggle {
+            background: rgba(255,255,255,0.7);
+            border-color: var(--border-light);
+        }
+        body.light-mode nav {
+            background: rgba(253,252,249,0.92) !important;
+            border-color: var(--border-light) !important;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.06) !important;
+        }
+        body.light-mode header {
+            background: rgba(245,243,238,0.92) !important;
+            border-color: var(--border-light) !important;
+        }
+        body.light-mode .text-slate-400 { color: var(--text-muted-l) !important; }
+        body.light-mode .text-slate-500 { color: var(--text-muted-l) !important; }
+        body.light-mode .text-white      { color: var(--text-light) !important; }
+        body.light-mode .bg-black\/40,
+        body.light-mode .bg-black\/30    { background: rgba(0,0,0,0.04) !important; }
+        body.light-mode .bg-slate-800\/40,
+        body.light-mode .bg-slate-800\/60 { background: rgba(0,0,0,0.04) !important; }
+        body.light-mode .bg-\[#111827\]  { background: var(--card-light) !important; }
+        body.light-mode .bg-\[#111827\] *,
+        body.light-mode .bg-slate-800 *  { color: var(--text-light); }
+        body.light-mode .suggestion-box  { background: #f0ece3; border-color: var(--border-light); }
+        body.light-mode .modal-custom    { background: rgba(200,195,185,0.75); backdrop-filter: blur(16px); }
+        body.light-mode .cfg-section     { border-color: var(--border-light); }
+        body.light-mode .order-num       { color: var(--accent); }
+        /* Textos de saldo/montos en light mode */
+        body.light-mode .text-emerald-400 { color: #059669 !important; }
+        body.light-mode .text-rose-400    { color: #e11d48 !important; }
+        body.light-mode .text-blue-400    { color: #2563eb !important; }
+        body.light-mode .text-orange-400,
+        body.light-mode .text-orange-500  { color: #c2410c !important; }
+        /* Cards con gradiente en light */
+        body.light-mode .bg-gradient-to-br { background: var(--card-light) !important; }
+
+        /* ===== PANEL DE SALUD DE LA APP ===== */
+        #modal-app-health { z-index: 9800; }
+        .health-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 14px; border-radius: 16px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: all 0.2s;
+        }
+        .health-dot {
+            width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+            box-shadow: 0 0 8px currentColor;
+        }
+        .health-dot.ok     { background: #10b981; color: #10b981; }
+        .health-dot.warn   { background: #f59e0b; color: #f59e0b; }
+        .health-dot.danger { background: #f43f5e; color: #f43f5e; }
+        .health-dot.info   { background: #38bdf8; color: #38bdf8; }
+        @keyframes health-pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        .health-dot.loading { background: #6b7a99; animation: health-pulse 1s ease infinite; }
+        .health-score-ring {
+            width: 80px; height: 80px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; font-weight: 900;
+            position: relative; flex-shrink: 0;
+        }
+
+        @media (prefers-color-scheme: light) {
+            body:not(.dark-mode) {
+                background: var(--bg-light);
+                color: var(--text-light);
+            }
+        }
+
+        /* ===== ALTO CONTRASTE ===== */
+        body.high-contrast { background: #000 !important; color: #fff !important; }
+        body.high-contrast .card { background: #0a0a0a !important; border: 2px solid rgba(255,255,255,0.4) !important; }
+        body.high-contrast input,
+        body.high-contrast textarea,
+        body.high-contrast select { background: #000 !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.5) !important; }
+        body.high-contrast button { border: 1px solid rgba(255,255,255,0.3); }
+
+        /* ===== TAMAÑOS DE LETRA ===== */
+        html.font-small  { font-size: 15px; }
+        html.font-normal { font-size: 18px; }
+        html.font-large  { font-size: 20px; }
+
+        .tab-active { color: var(--accent); font-weight: 700; transform: translateY(-2px); }
+
