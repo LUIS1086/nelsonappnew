@@ -450,33 +450,17 @@
                             </div>
                         </div>
                         <div>
-                            <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">Técnico asignado</label>
-                            <select id="c-tecnico" class="w-full font-bold text-sm">
-                                <option value="">Sin asignar</option>
+                            <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">📣 ¿CÓMO NOS CONOCIÓ?</label>
+                            <select id="c-origen" class="w-full font-bold text-xs">
+                                <option value="">Sin especificar</option>
+                                <option value="recomendacion">🗣️ Recomendación</option>
+                                <option value="redes">📱 Redes sociales</option>
+                                <option value="cliente_frecuente">⭐ Cliente frecuente</option>
+                                <option value="google">🔍 Google</option>
+                                <option value="local">🏠 Pasó por el local</option>
+                                <option value="whatsapp">💬 WhatsApp</option>
+                                <option value="otro">📌 Otro</option>
                             </select>
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">Fecha estimada de entrega</label>
-                            <input type="date" id="c-fecha-estimada" class="w-full text-sm font-bold text-blue-400">
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">¿Cómo nos conoció?</label>
-                            <div class="origin-picker" id="c-origen-picker">
-                                <select id="c-origen" class="origin-native-select" tabindex="-1" aria-hidden="true">
-                                    <option value="">Sin especificar</option>
-                                    <option value="recomendacion">🗣️ Recomendación</option>
-                                    <option value="redes">📱 Redes sociales</option>
-                                    <option value="cliente_frecuente">⭐ Cliente frecuente</option>
-                                    <option value="google">🔍 Google</option>
-                                    <option value="local">🏠 Pasó por el local</option>
-                                    <option value="whatsapp">💬 WhatsApp</option>
-                                    <option value="otro">📌 Otro</option>
-                                </select>
-                                <button type="button" id="c-origen-trigger" class="origin-picker-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="c-origen-menu">
-                                    <span id="c-origen-value" class="origin-picker-value origin-picker-placeholder">Sin especificar</span><span class="origin-picker-caret" aria-hidden="true">▾</span>
-                                </button>
-                                <div id="c-origen-menu" class="origin-picker-menu" role="listbox" aria-label="¿Cómo nos conoció?" hidden></div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -617,10 +601,10 @@
 
     <main id="view-ventas" class="app-view hidden p-4 space-y-6 max-container">
         <div class="card p-5 space-y-3 bg-gradient-to-br from-emerald-900/20 to-transparent">
-            <h3 class="text-center text-[11px] font-black text-emerald-400 uppercase tracking-widest">Nueva venta</h3>
+            <h3 class="text-left text-[11px] font-black text-emerald-400 uppercase tracking-widest">Punto de venta</h3>
             <button type="button" id="v-new-sale-btn" onclick="openInvoiceSaleModal()" class="invoice-sale-cta">
                 <span class="invoice-sale-cta-icon">🛒</span>
-                <span><strong>Registrar venta</strong><small>Varios productos · rebajas de precio · cliente opcional · ticket por WhatsApp, PDF o impresión</small></span>
+                <span><strong>Nueva venta</strong><small>Agrega productos, registra el pago y genera el comprobante.</small></span>
                 <span class="invoice-sale-cta-arrow">→</span>
             </button>
         </div>
