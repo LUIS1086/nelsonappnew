@@ -38,6 +38,14 @@
   --nn-r-sm:      10px;
 }
 
+/* Mantén los emojis en una fuente de color del sistema. Inter no incluye
+   glifos emoji y algunos navegadores terminan mostrando símbolos negros. */
+.sidebar-nav-icon, #sidebar-logo-icon, #desktop-topbar-right button,
+.voice-mic-btn, .nn-preview-icon, .camera-btn {
+  font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif !important;
+  font-variant-emoji: emoji;
+}
+
 html, body { background: var(--nn-bg) !important; }
 body { color: var(--nn-text); }
 

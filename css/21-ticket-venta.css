@@ -28,8 +28,9 @@
 .inv-add{width:100%;border:1px dashed rgba(52,211,153,.55);background:rgba(16,185,129,.1);color:#6ee7b7;border-radius:12px;padding:12px;font-size:12px;font-weight:900;min-height:44px;cursor:pointer}
 .inv-add:active{transform:scale(.98)}
 #inv-cart{display:flex;flex-direction:column;gap:8px}
+.inv-cart-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}.inv-cart-heading label{margin:0}.inv-cart-heading span{font-size:10px;color:#94a3b8;font-weight:700}
 .inv-cart-empty{font-size:11px;color:#64748b;text-align:center;padding:12px;border:1px dashed #334155;border-radius:11px}
-.inv-line{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #334155;background:#111c30;border-radius:11px}
+.inv-line{display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:auto auto;align-items:center;gap:4px 10px;padding:10px 12px;border:1px solid #334155;background:#111c30;border-radius:11px}.inv-line-main{grid-column:1;grid-row:1}.inv-line-qty{grid-column:1;grid-row:2}.inv-line-sub{grid-column:2;grid-row:1}.inv-line-x{grid-column:3;grid-row:1 / span 2}.inv-line-qty{display:flex;align-items:center;gap:5px}.inv-line-qty button{width:30px;height:30px;border:1px solid #334155;background:#1e293b;color:#e2e8f0;border-radius:8px;font-size:16px;cursor:pointer}.inv-line-qty button:disabled{opacity:.4;cursor:not-allowed}.inv-line-qty span{min-width:18px;text-align:center;font-size:12px;font-weight:800;color:#e2e8f0}
 .inv-line-main{flex:1;min-width:0}
 .inv-line-main strong{display:block;font-size:12px;color:#f1f5f9;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .inv-line-main small{font-size:10px;color:#94a3b8}
@@ -67,3 +68,4 @@
 .inv-client-hits button small{font-size:10px;color:#94a3b8;font-weight:600}
 .inv-line-off{color:#fb923c;font-weight:800}
 .inv-line-up{color:#6ee7b7;font-weight:800}
+.invoice-total > div{display:flex;flex-direction:column;gap:4px}.invoice-total small{font-size:11px;color:#94a3b8;font-weight:600}.invoice-field#inv-cash-wrap label span{font-size:10px;color:#94a3b8;font-weight:500;text-transform:none;letter-spacing:0}#inv-cash-change{font-size:11px;color:#94a3b8}
