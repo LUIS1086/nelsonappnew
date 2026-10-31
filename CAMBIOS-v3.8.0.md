@@ -46,3 +46,12 @@ Quita estas dos líneas y todo queda como en v3.7.0:
 - `js/version.js` sube a `v3.8.0`; el service worker toma la versión de ahí, así que la caché se renueva sola.
 - `service-worker.js` incluye las dos hojas nuevas en el precache.
 - Verificado a 430×932 (móvil) y 1280×900 (escritorio) en Chrome. Falta probarlo en un iPhone y un Android reales.
+
+
+## Renovación visual de configuración avanzada y splash
+
+- Se incorpora `css/26-configuracion-splash-majestuoso.css` como capa visual aislada para elevar el panel de Configuración avanzada y la pantalla de inicio.
+- Configuración avanzada: cabecera azul noche con acentos celestes y naranja, tarjetas de estado más legibles, acciones rápidas con mayor jerarquía, grupos refinados, controles con foco visible y mejor adaptación a móviles pequeños y pantallas grandes.
+- Splash: fondo multicapa, identidad visual más cuidada, animaciones suaves, indicador de preparación y respeto por la preferencia de movimiento reducido del sistema.
+- Se añade la nueva hoja de estilos a la precarga del service worker para mejorar su disponibilidad en el uso PWA/offline.
+- No se modificaron funciones de configuración, datos, órdenes, autenticación ni almacenamiento. La versión sigue centralizada en `js/version.js`.
