@@ -74,26 +74,40 @@
             });
         }
 
-        function toggleOriginPicker() {
+        function positionOriginPicker() {
+            const menu = document.getElementById('c-origen-menu');
+            const trigger = document.getElementById('c-origen-trigger');
+            if (!menu || !trigger || menu.hidden) return;
+            const rect = trigger.getBoundingClientRect();
+            const width = Math.min(rect.width, window.innerWidth - 16);
+            menu.style.width = `${width}px`;
+            menu.style.maxHeight = `${Math.max(160, window.innerHeight - 24)}px`;
+            const menuHeight = menu.getBoundingClientRect().height;
+            const left = Math.max(8, Math.min(rect.left, window.innerWidth - width - 8));
+            const top = rect.bottom + menuHeight + 12 <= window.innerHeight
+                ? rect.bottom + 8
+                : Math.max(12, rect.top - menuHeight - 8);
+            menu.style.left = `${left}px`;
+            menu.style.top = `${top}px`;
+        }
+
+        function toggleOriginPicker(focusDirection) {
             const menu = document.getElementById('c-origen-menu');
             if (!menu) return;
             if (!menu.hidden) { closeOriginPicker(false); return; }
             _originPickerBuildOptions();
             syncOriginPicker();
             const trigger = document.getElementById('c-origen-trigger');
-            const rect = trigger.getBoundingClientRect();
             menu.hidden = false;
-            menu.style.left = '0px'; menu.style.top = '0px'; menu.style.width = `${rect.width}px`;
-            menu.style.maxHeight = `${Math.max(160, window.innerHeight - 24)}px`;
-            const menuHeight = menu.getBoundingClientRect().height;
-            const left = Math.max(8, Math.min(rect.left, window.innerWidth - rect.width - 8));
-            const top = rect.bottom + menuHeight + 12 <= window.innerHeight
-                ? rect.bottom + 8
-                : Math.max(12, rect.top - menuHeight - 8);
-            menu.style.left = `${left}px`; menu.style.top = `${top}px`;
             trigger.setAttribute('aria-expanded', 'true');
-            const selected = menu.querySelector('[aria-selected="true"]') || menu.querySelector('.origin-picker-option');
-            if (selected) selected.focus({ preventScroll: true });
+            positionOriginPicker();
+            if (focusDirection !== undefined) {
+                const options = [...menu.querySelectorAll('.origin-picker-option')];
+                const target = focusDirection > 0 ? options[0]
+                    : focusDirection < 0 ? options[options.length - 1]
+                    : menu.querySelector('[aria-selected="true"]') || options[0];
+                if (target) target.focus({ preventScroll: true });
+            }
         }
 
         function closeOriginPicker(returnFocus) {
@@ -106,11 +120,41 @@
         }
 
         function originPickerTriggerKeydown(e) {
-            if (['Enter', ' ', 'ArrowDown', 'ArrowUp'].includes(e.key)) {
+            const menu = document.getElementById('c-origen-menu');
+            if (menu && !menu.hidden && e.key === 'Escape') {
                 e.preventDefault();
-                toggleOriginPicker();
+                closeOriginPicker(true);
+                return;
+            }
+            if (menu && !menu.hidden && ['ArrowDown', 'ArrowUp'].includes(e.key)) {
+                e.preventDefault();
+                const options = [...menu.querySelectorAll('.origin-picker-option')];
+                const selected = menu.querySelector('[aria-selected="true"]') || options[0];
+                const current = options.indexOf(document.activeElement);
+                const from = current >= 0 ? current : options.indexOf(selected);
+                const next = e.key === 'ArrowDown'
+                    ? Math.min(options.length - 1, from + 1)
+                    : Math.max(0, from - 1);
+                if (options[next]) options[next].focus({ preventScroll: true });
+                return;
+            }
+            if (!menu || menu.hidden) {
+                if (!['Enter', ' ', 'ArrowDown', 'ArrowUp'].includes(e.key)) return;
+                e.preventDefault();
+                const direction = e.key === 'ArrowDown' ? 1 : e.key === 'ArrowUp' ? -1 : undefined;
+                toggleOriginPicker(direction);
             }
         }
+
+        function initOriginPicker() {
+            const trigger = document.getElementById('c-origen-trigger');
+            if (!trigger || trigger.dataset.originPickerReady) return;
+            trigger.dataset.originPickerReady = '1';
+            trigger.addEventListener('click', () => toggleOriginPicker());
+            trigger.addEventListener('keydown', originPickerTriggerKeydown);
+            syncOriginPicker();
+        }
+        initOriginPicker();
 
         function ac_onInput(inputEl, kind) {
             if (_acBlurTimer) { clearTimeout(_acBlurTimer); _acBlurTimer = null; }
@@ -195,9 +239,8 @@
             }
             if (!e.target.closest('#c-origen-picker') && !e.target.closest('#c-origen-menu')) closeOriginPicker(false);
         });
-        document.addEventListener('scroll', e => {
-            if (!e.target.closest || !e.target.closest('#c-origen-menu')) closeOriginPicker(false);
-        }, true);
+        document.addEventListener('scroll', positionOriginPicker, true);
+        window.addEventListener('resize', positionOriginPicker);
 
         function calcSaldoPreview() {
             const val = Number(document.getElementById('c-val').value) || 0;
