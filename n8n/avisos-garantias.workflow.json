@@ -1,0 +1,25 @@
+{
+  "name": "Nelson · Avisos de garantías por vencer (BORRADOR)",
+  "nodes": [
+    { "parameters": { "rule": { "interval": [ { "triggerAtHour": 9 } ] } }, "name": "Cada día 9am", "type": "n8n-nodes-base.scheduleTrigger", "typeVersion": 1.2, "position": [0, 0] },
+    { "parameters": {
+        "url": "=https://TU-PROYECTO.supabase.co/rest/v1/garantias_aviso?avisado_en=is.null&vence=lte.{{ $now.plus({days:7}).toISODate() }}&vence=gte.{{ $now.toISODate() }}&select=*",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [ { "name": "apikey", "value": "TU_SERVICE_KEY" }, { "name": "Authorization", "value": "Bearer TU_SERVICE_KEY" } ] } },
+      "name": "Leer garantías (7 días)", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [240, 0] },
+    { "parameters": { "jsCode": "return $input.all().map(i => ({ json: { ...i.json, texto: `Hola ${i.json.cliente}, te recordamos que la garantía de tu ${i.json.equipo} vence el ${i.json.vence}. Si quieres, te hacemos una revisión sin costo antes de que termine.` } }));" },
+      "name": "Armar mensaje", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [480, 0] },
+    { "parameters": {}, "name": "ENVIAR AQUÍ (WhatsApp/SMS/correo)", "type": "n8n-nodes-base.noOp", "typeVersion": 1, "position": [720, 0] },
+    { "parameters": { "method": "PATCH", "url": "=https://TU-PROYECTO.supabase.co/rest/v1/garantias_aviso?id=eq.{{ $json.id }}", "sendHeaders": true,
+        "headerParameters": { "parameters": [ { "name": "apikey", "value": "TU_SERVICE_KEY" }, { "name": "Authorization", "value": "Bearer TU_SERVICE_KEY" } ] },
+        "sendBody": true, "specifyBody": "json", "jsonBody": "={ \"avisado_en\": \"{{ $now.toISO() }}\" }" },
+      "name": "Marcar como avisado", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [960, 0] }
+  ],
+  "connections": {
+    "Cada día 9am": { "main": [ [ { "node": "Leer garantías (7 días)", "type": "main", "index": 0 } ] ] },
+    "Leer garantías (7 días)": { "main": [ [ { "node": "Armar mensaje", "type": "main", "index": 0 } ] ] },
+    "Armar mensaje": { "main": [ [ { "node": "ENVIAR AQUÍ (WhatsApp/SMS/correo)", "type": "main", "index": 0 } ] ] },
+    "ENVIAR AQUÍ (WhatsApp/SMS/correo)": { "main": [ [ { "node": "Marcar como avisado", "type": "main", "index": 0 } ] ] }
+  },
+  "settings": { "executionOrder": "v1" }
+}
