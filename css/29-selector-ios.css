@@ -1,0 +1,109 @@
+/* Nelson App Pro · css/29-selector-ios.css
+   Hoja de selección estilo iOS (action sheet) que reemplaza el desplegable nativo de Android
+   en todos los <select>. La construye js/modules/45-selector-ios.js.
+   Todo cuelga de clases .nn-sheet-* para no chocar con el resto de la hoja de estilos. */
+
+.nn-sheet-root {
+    --nn-acc: var(--taller-btn-primary, var(--accent, #f97316));
+    position: fixed; inset: 0; z-index: 8000;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding: 0 8px calc(8px + env(safe-area-inset-bottom, 0px));
+    visibility: hidden; pointer-events: none;
+    font-family: inherit; -webkit-tap-highlight-color: transparent;
+}
+.nn-sheet-root.is-open { visibility: visible; pointer-events: auto; }
+
+.nn-sheet-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(0, 0, 0, .45);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    opacity: 0; transition: opacity .28s ease;
+}
+.nn-sheet-root.is-open .nn-sheet-backdrop { opacity: 1; }
+
+.nn-sheet-wrap {
+    position: relative; width: 100%; max-width: 520px;
+    display: flex; flex-direction: column; gap: 8px;
+    max-height: min(82vh, 680px);
+    transform: translateY(calc(100% + 24px));
+    transition: transform .36s cubic-bezier(.32, .72, 0, 1);
+}
+.nn-sheet-root.is-open .nn-sheet-wrap { transform: translateY(0); }
+.nn-sheet-wrap.is-dragging { transition: none; }
+
+.nn-sheet-card {
+    display: flex; flex-direction: column; min-height: 0; overflow: hidden;
+    background: rgba(44, 44, 48, .92);
+    -webkit-backdrop-filter: saturate(180%) blur(30px); backdrop-filter: saturate(180%) blur(30px);
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 22px;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, .55);
+}
+.nn-sheet-head { padding: 6px 16px 0; touch-action: none; cursor: grab; }
+.nn-sheet-grab { width: 36px; height: 5px; margin: 4px auto 8px; border-radius: 3px; background: rgba(255, 255, 255, .22); }
+.nn-sheet-title {
+    margin: 0; padding: 2px 0 12px; text-align: center;
+    font-size: 13px; line-height: 1.2; font-weight: 600; color: #98989f; letter-spacing: .1px;
+}
+.nn-sheet-title:empty { display: none; }
+
+.nn-sheet-search { padding: 0 12px 10px; }
+.nn-sheet-search input {
+    width: 100%; height: 36px; padding: 0 12px; border: 0; outline: 0; border-radius: 10px;
+    background: rgba(118, 118, 128, .24); color: #fff; font-size: 16px;
+}
+.nn-sheet-search input::placeholder { color: #8e8e93; }
+
+.nn-sheet-list {
+    overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+    border-top: 1px solid rgba(255, 255, 255, .08);
+}
+.nn-opt {
+    display: flex; align-items: center; gap: 12px; width: 100%; min-height: 54px;
+    padding: 8px 16px; border: 0; border-top: 1px solid rgba(255, 255, 255, .07);
+    background: transparent; color: #f5f5f7; text-align: left; cursor: pointer;
+    font: inherit; font-size: 17px; line-height: 1.25; font-weight: 400;
+}
+.nn-sheet-list > .nn-opt:first-child { border-top: 0; }
+.nn-opt:active, .nn-opt:focus-visible { background: rgba(255, 255, 255, .1); }
+/* El anillo de foco global (17-responsive-premium-hardening) se sustituye aquí por un tinte de fondo */
+.nn-sheet-root :focus-visible { outline: none !important; box-shadow: none !important; }
+.nn-opt[aria-selected="true"] { font-weight: 600; }
+.nn-opt[aria-disabled="true"] { opacity: .35; pointer-events: none; }
+.nn-opt-ico {
+    flex: 0 0 34px; width: 34px; height: 34px; display: grid; place-items: center;
+    border-radius: 10px; background: rgba(255, 255, 255, .08); font-size: 19px; line-height: 1;
+}
+.nn-opt-txt { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.nn-opt-check { flex: 0 0 22px; width: 22px; height: 22px; color: var(--nn-acc); opacity: 0; }
+.nn-opt-check svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.nn-opt[aria-selected="true"] .nn-opt-check { opacity: 1; }
+.nn-opt-group {
+    padding: 14px 16px 6px; font-size: 13px; font-weight: 600; color: #98989f;
+    border-top: 1px solid rgba(255, 255, 255, .07);
+}
+.nn-sheet-empty { padding: 22px 16px; text-align: center; color: #8e8e93; font-size: 15px; }
+
+.nn-sheet-cancel {
+    flex: 0 0 auto; height: 56px; border: 0; border-radius: 22px; cursor: pointer;
+    background: rgba(58, 58, 62, .96); color: var(--nn-acc);
+    font: inherit; font-size: 17px; font-weight: 600;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .4);
+}
+.nn-sheet-cancel:active, .nn-sheet-cancel:focus-visible { background: rgba(78, 78, 84, .98); }
+
+/* Escritorio: ventana centrada en lugar de hoja inferior */
+@media (min-width: 768px) {
+    .nn-sheet-root { align-items: center; padding: 24px; }
+    .nn-sheet-wrap { max-width: 380px; transform: scale(.94); opacity: 0; transition: transform .26s cubic-bezier(.32, .72, 0, 1), opacity .2s ease; }
+    .nn-sheet-root.is-open .nn-sheet-wrap { transform: scale(1); opacity: 1; }
+    .nn-sheet-grab { display: none; }
+    .nn-opt:hover { background: rgba(255, 255, 255, .07); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nn-sheet-backdrop, .nn-sheet-wrap { transition: none !important; }
+}
+
+/* El campo cerrado indica que se puede tocar */
+select:not([multiple]):not([data-native]) { cursor: pointer; touch-action: manipulation; }
