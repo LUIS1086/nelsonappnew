@@ -97,7 +97,7 @@
                 const stock = await getAll('stock');
                 const item  = stock.find(s => s.id === stockId);
                 if (!item) return showAlert('Repuesto no encontrado', 'error');
-                if (!item.supplier || !item.supplier.trim()) return showAlert('Este repuesto no tiene proveedor asignado. Edítalo y agrega el proveedor.', 'info');
+                if ((!item.supplier || !item.supplier.trim()) && !item.supplierPhone) return showAlert('Agrega el proveedor o su número de WhatsApp en los datos del producto.', 'info');
 
                 const cantidadSugerida = Math.max(1, (item.minStock || 3) * 2 - (item.q || 0));
                 const qtyInput = document.getElementById(`oc-qty-${stockId}`);
@@ -105,15 +105,15 @@
 
                 // Buscar match en tabla de proveedores (por nombre, case-insensitive)
                 const provs = await getAll('proveedores');
-                const supplierNorm = item.supplier.trim().toLowerCase();
-                const matchProv = provs.find(p => (p.nombre || '').trim().toLowerCase() === supplierNorm)
+                const supplierNorm = (item.supplier || '').trim().toLowerCase();
+                const matchProv = supplierNorm ? (provs.find(p => (p.nombre || '').trim().toLowerCase() === supplierNorm)
                                 || provs.find(p => (p.nombre || '').trim().toLowerCase().includes(supplierNorm))
-                                || provs.find(p => supplierNorm.includes((p.nombre || '').trim().toLowerCase()));
+                                || provs.find(p => supplierNorm.includes((p.nombre || '').trim().toLowerCase()))) : null;
 
                 const biz = _safeBizConfig();
                 const bizName = biz.name || 'Todo Repuestos Nelson';
 
-                let mensaje = `Hola, ${matchProv && matchProv.nombre ? matchProv.nombre.split(' ')[0] : ''}\n\n`;
+                let mensaje = `Hola, ${matchProv?.nombre ? matchProv.nombre.split(' ')[0] : ''}\n\n`;
                 mensaje += `Te escribo de *${bizName}*. Necesito el siguiente repuesto:\n\n`;
                 mensaje += `📦 *${item.n}*\n`;
                 if (item.code) mensaje += `🔖 Código: ${item.code}\n`;
@@ -121,13 +121,14 @@
                 mensaje += `¿Tienes disponibilidad y cuál sería el precio?\n\nGracias.`;
 
                 // Si hay proveedor con teléfono, abrir WhatsApp directo
-                if (matchProv && matchProv.telefono) {
-                    const tel = matchProv.telefono.replace(/\D/g, '');
-                    const prefix = tel.length === 10 ? '57' : '';
+                const contact = matchProv?.tel || matchProv?.telefono || item.supplierPhone;
+                if (contact) {
+                    const tel = contact.replace(/\D/g, '');
+                    const prefix = tel.startsWith('57') ? '' : (tel.length === 10 ? '57' : '');
                     const url = `https://wa.me/${prefix}${tel}?text=${encodeURIComponent(mensaje)}`;
                     sessionStorage.setItem('_waJump', '1');
                     window.open(url, '_blank');
-                    showToast(`📱 Enviando a ${matchProv.nombre}`, 'success');
+                    showToast(`📱 Enviando a ${matchProv?.nombre || item.supplier}`, 'success');
                 } else {
                     // No hay match con teléfono → solo copiar el mensaje al portapapeles
                     try {
@@ -146,7 +147,8 @@
         async function _buildOCText() {
             const stock  = await getAll('stock');
             const threshold = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
-            const bajos  = stock.filter(s => s.q <= (s.minStock || threshold));
+            const selectedIds = [...document.querySelectorAll('#oc-items-list .oc-item-check:checked')].map(el => Number(el.dataset.stockId));
+            const bajos  = stock.filter(s => selectedIds.includes(s.id));
             const biz    = _safeBizConfig();
             const notas  = document.getElementById('oc-notas').value.trim();
             const provId = document.getElementById('oc-proveedor').value;
@@ -159,6 +161,7 @@
             txt += `📅 ${fecha}\n`;
             if (prov) txt += `👤 Proveedor: *${prov.nombre}*\n`;
             txt += `\n*ARTÍCULOS REQUERIDOS:*\n`;
+            if (!bajos.length) { showAlert('Selecciona al menos un producto para la orden.', 'warning'); return null; }
             bajos.forEach(s => {
                 const qty = parseInt(document.getElementById(`oc-qty-${s.id}`)?.value) || 1;
                 txt += `• ${s.n}${s.code ? ` (${s.code})` : ''} — *${qty} uds*\n`;
@@ -168,15 +171,19 @@
         }
 
         async function sendOCWhatsApp() {
-            const { txt, prov } = await _buildOCText();
-            if (!prov?.tel) return showAlert('Selecciona un proveedor con teléfono registrado para enviar por WhatsApp.', 'warning');
-            const num = prov.tel.replace(/\D/g,'');
+            const order = await _buildOCText();
+            if (!order) return;
+            const { txt, prov } = order;
+            const num = (prov?.tel || '').replace(/\D/g,'');
+            if (!num) return showAlert('Selecciona un proveedor con WhatsApp registrado para enviar por WhatsApp.', 'warning');
             const prefix = num.startsWith('57') ? '' : '57';
             sessionStorage.setItem('_waJump','1'); window.open(`https://wa.me/${prefix}${num}?text=${encodeURIComponent(txt)}`, '_blank');
         }
 
         async function copyOCText() {
-            const { txt } = await _buildOCText();
+            const order = await _buildOCText();
+            if (!order) return;
+            const { txt } = order;
             try {
                 await navigator.clipboard.writeText(txt);
                 showToast('Orden copiada al portapapeles ✅', 'success');

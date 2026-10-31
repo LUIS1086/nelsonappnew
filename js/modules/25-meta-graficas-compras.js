@@ -192,25 +192,27 @@
             const threshold = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
 
             const sel = document.getElementById('oc-proveedor');
-            sel.innerHTML = '<option value="">— Sin proveedor específico —</option>' +
-                provs.map(p => `<option value="${p.id}">${escapeHtml(p.nombre)}</option>`).join('');
+            sel.innerHTML = '<option value="">Selecciona un proveedor…</option>' +
+                provs.map(p => `<option value="${p.id}">${escapeHtml(p.nombre)}${p.tel ? ' · ' + escapeHtml(p.tel) : ''}</option>`).join('');
+            sel.onchange = renderOCSupplier;
 
             // Items bajo mínimo
             const bajos = stock.filter(s => s.q <= (s.minStock || threshold));
-            document.getElementById('oc-subtitle').innerText =
-                `${bajos.length} repuesto${bajos.length!==1?'s':''} bajo mínimo`;
+            document.getElementById('oc-subtitle').innerText = `${stock.length} productos disponibles · ${bajos.length} bajo mínimo`;
 
             const cur = getCurrency();
             const list = document.getElementById('oc-items-list');
 
-            if (!bajos.length) {
-                list.innerHTML = '<p class="text-center text-slate-500 text-sm py-6">✅ Todo el stock está sobre el mínimo</p>';
+            document.getElementById('oc-product-search').value = '';
+            if (!stock.length) {
+                list.innerHTML = '<p class="text-center text-slate-500 text-sm py-6">No hay productos en el inventario.</p>';
             } else {
-                list.innerHTML = bajos.map(s => {
+                list.innerHTML = stock.sort((a,b) => (a.q <= (a.minStock || threshold) ? -1 : 0) - (b.q <= (b.minStock || threshold) ? -1 : 0) || a.n.localeCompare(b.n)).map(s => {
                     const hasSupplier = (s.supplier || '').trim().length > 0;
-                    const supplierShort = hasSupplier ? (s.supplier.length > 18 ? s.supplier.substring(0,18) + '…' : s.supplier) : '';
+                    const isLow = s.q <= (s.minStock || threshold);
                     return `
-                    <div class="flex items-center gap-3 bg-black/20 rounded-xl p-3 border border-amber-500/20">
+                    <div data-oc-product="${escapeHtml((s.n+' '+(s.code||'')+' '+(s.supplier||'')).toLowerCase())}" class="flex items-center gap-3 bg-black/20 rounded-xl p-3 border ${isLow ? 'border-amber-500/25' : 'border-white/5'}">
+                        <input type="checkbox" class="oc-item-check accent-orange-500 w-4 h-4 flex-shrink-0" data-stock-id="${s.id}" ${isLow ? 'checked' : ''} onchange="updateOCSummary()" aria-label="Agregar ${escapeHtml(s.n)} a la orden">
                         <div class="flex-1 min-w-0">
                             <p class="text-xs font-black text-white truncate">${escapeHtml(s.n)}</p>
                             <p class="text-[10px] text-slate-400">
@@ -218,21 +220,43 @@
                                 · Mín: ${s.minStock || threshold}
                                 ${s.code ? `· ${s.code}` : ''}
                             </p>
-                            ${hasSupplier ? `<p class="text-[9.5px] text-cyan-400 font-bold mt-1">📌 ${escapeHtml(supplierShort)}</p>` : ''}
+                            ${hasSupplier ? `<p class="text-[9.5px] text-cyan-400 font-bold mt-1">📌 ${escapeHtml(s.supplier)}${s.supplierPhone ? ` · ${escapeHtml(s.supplierPhone)}` : ''}</p>` : ''}
                         </div>
                         <div class="flex items-center gap-1 flex-shrink-0">
-                            <input type="number" value="${Math.max(1,(s.minStock||threshold)*2 - s.q)}"
-                                min="1" class="w-12 text-center text-xs font-black text-amber-400"
-                                id="oc-qty-${s.id}">
+                            <input type="number" value="${Math.max(1,(s.minStock||threshold)*2 - s.q)}" min="1" class="w-16 text-center text-xs font-black text-amber-400" id="oc-qty-${s.id}" onclick="event.stopPropagation()" aria-label="Cantidad de ${escapeHtml(s.n)}">
                             <span class="text-[10px] text-slate-500 mr-1">uds</span>
-                            ${hasSupplier ? `<button onclick="pedirAProveedor(${s.id})" title="Pedir a ${escapeHtml(s.supplier).replace(/"/g,'&quot;')}" style="background:linear-gradient(135deg,#16a34a,#15803d);border:none;color:#fff;width:30px;height:30px;border-radius:8px;font-size:12px;cursor:pointer;box-shadow:0 2px 6px rgba(22,163,74,0.35);" class="active:scale-90 transition">📱</button>` : ''}
+                            ${hasSupplier ? `<button type="button" onclick="pedirAProveedor(${s.id})" title="Pedir por WhatsApp a ${escapeHtml(s.supplier).replace(/"/g,'&quot;')}" class="bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 w-8 h-8 rounded-lg">💬</button>` : ''}
                         </div>
                     </div>`;
                 }).join('');
             }
 
             document.getElementById('oc-notas').value = '';
+            document.getElementById('oc-proveedor-info').innerHTML = '<span>Elige un proveedor para ver sus datos de contacto.</span>';
+            updateOCSummary();
             document.getElementById('modal-ordenes-compra').classList.remove('hidden');
+        }
+
+        function filterOCProducts() {
+            const q = (document.getElementById('oc-product-search').value || '').trim().toLowerCase();
+            document.querySelectorAll('#oc-items-list [data-oc-product]').forEach(row => { row.style.display = row.dataset.ocProduct.includes(q) ? '' : 'none'; });
+        }
+
+        function updateOCSummary() {
+            const count = document.querySelectorAll('#oc-items-list .oc-item-check:checked').length;
+            const el = document.getElementById('oc-subtitle');
+            if (el) el.dataset.selected = `${count} producto${count === 1 ? '' : 's'} seleccionado${count === 1 ? '' : 's'}`;
+            const countEl = document.getElementById('oc-selected-count');
+            if (countEl) countEl.textContent = el.dataset.selected;
+        }
+
+        async function renderOCSupplier() {
+            const id = Number(document.getElementById('oc-proveedor').value);
+            const p = id ? await getOne('proveedores', id) : null;
+            const tel = (p?.tel || '').replace(/\D/g, '');
+            document.getElementById('oc-proveedor-info').innerHTML = p
+                ? `<div><strong class="text-white">${escapeHtml(p.nombre)}</strong>${p.ciudad ? ` · ${escapeHtml(p.ciudad)}` : ''}${p.tiempo ? `<br>Entrega estimada: ${p.tiempo} día${p.tiempo === 1 ? '' : 's'}` : ''}</div>${p.tel ? `<a class="text-emerald-400 font-bold" href="https://wa.me/${tel.startsWith('57') ? tel : '57'+tel}" target="_blank" rel="noopener">💬 ${escapeHtml(p.tel)}</a>` : '<span class="text-amber-300">Sin WhatsApp registrado</span>'}`
+                : '<span>Elige un proveedor para ver sus datos de contacto.</span>';
         }
 
         function closeOrdenesCompra() {

@@ -13,7 +13,8 @@
                 s.n.toLowerCase().includes(st) ||
                 (s.code || '').toLowerCase().includes(st) ||
                 (s.cat  || '').toLowerCase().includes(st) ||
-                (s.supplier || '').toLowerCase().includes(st)
+                (s.supplier || '').toLowerCase().includes(st) ||
+                (s.supplierPhone || '').toLowerCase().includes(st)
             );
 
             if (activeStockCategory) stock = stock.filter(s => (s.cat || '') === activeStockCategory);
@@ -80,6 +81,7 @@
                             ${isOut ? '<span class="text-[9px] bg-rose-500/20 text-rose-400 px-1.5 py-0.5 rounded-full font-black flex-shrink-0">AGOTADO</span>' : isLow ? '<span class="text-[9px] bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded-full font-black flex-shrink-0">BAJO</span>' : ''}
                         </div>
                         ${s.code ? `<p class="text-[10px] text-slate-500 font-mono">${s.code}</p>` : ''}
+                        ${(s.supplier || s.supplierPhone) ? `<p class="text-[10px] text-cyan-400 font-bold truncate">📌 ${escapeHtml(s.supplier || 'Proveedor')}${s.supplierPhone ? ` · ${escapeHtml(s.supplierPhone)}` : ''}</p><button type="button" onclick="pedirAProveedor(${s.id})" class="text-[10px] text-emerald-400 font-bold text-left" title="Pedir al proveedor por WhatsApp">💬 Pedir por WhatsApp</button>` : ''}
                         <div class="flex items-center gap-2 mt-0.5">
                             <p class="text-emerald-400 text-xs font-black">${getCurrency()}${s.p.toLocaleString()}</p>
                             ${s.cost > 0 ? `<p class="text-slate-500 text-[10px]">costo: ${getCurrency()}${s.cost.toLocaleString()}</p>` : ''}
@@ -198,6 +200,7 @@
             document.getElementById('stock-modal-qty').value         = item ? item.q   : '';
             document.getElementById('stock-modal-min').value         = item ? (item.minStock || '') : '';
             document.getElementById('stock-modal-supplier').value    = item ? (item.supplier || '') : '';
+            document.getElementById('stock-modal-supplier-phone').value = item ? (item.supplierPhone || '') : '';
             document.getElementById('stock-modal-notes').value       = item ? (item.notes || '') : '';
             const prev = document.getElementById('stock-img-preview');
             if (prev) prev.innerHTML = item?.img ? `<img src="${item.img}" style="width:100%;height:100%;object-fit:cover;">` : '🔧';
@@ -219,6 +222,7 @@
             const cat      = document.getElementById('stock-modal-category').value;
             const minStock = parseInt(document.getElementById('stock-modal-min').value) || 0;
             const supplier = document.getElementById('stock-modal-supplier').value.trim();
+            const supplierPhone = document.getElementById('stock-modal-supplier-phone').value.trim();
             const notes    = document.getElementById('stock-modal-notes').value.trim();
             const imgInput = document.getElementById('stock-modal-img');
             const img      = imgInput?._imgData || (id ? (await getAll('stock')).find(s=>s.id==id)?.img : null) || null;
@@ -229,7 +233,7 @@
 
             const isNew  = !id;
             const prevQ  = isNew ? 0 : ((await getAll('stock')).find(s=>s.id==parseInt(id))?.q || 0);
-            const itemData = { id: id ? parseInt(id) : Date.now(), n, p, q, cost, code, cat, minStock, supplier, notes, img };
+            const itemData = { id: id ? parseInt(id) : Date.now(), n, p, q, cost, code, cat, minStock, supplier, supplierPhone, notes, img };
             await put('stock', itemData);
 
             if (!isNew && q !== prevQ) {
