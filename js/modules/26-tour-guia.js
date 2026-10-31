@@ -142,6 +142,8 @@
         // Verifica al inicio si se debe mostrar el tour de bienvenida
         function _maybeShowTourOnStart() {
             try {
+                // v3.9.0: instalación nueva (sin datos del negocio) → primero el asistente de negocio
+                if (typeof _necesitaAsistenteNegocio === 'function' && _necesitaAsistenteNegocio()) { setTimeout(abrirAsistenteNegocio, 900); return; }
                 if (localStorage.getItem('tourCompleted') === '1') return;
                 // Solo si no hay todavía órdenes (usuario realmente nuevo) o el flag explícito
                 getAll('orders').then(orders => {

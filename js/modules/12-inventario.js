@@ -198,6 +198,7 @@
             document.getElementById('stock-modal-qty').value         = item ? item.q   : '';
             document.getElementById('stock-modal-min').value         = item ? (item.minStock || '') : '';
             document.getElementById('stock-modal-supplier').value    = item ? (item.supplier || '') : '';
+            document.getElementById('stock-modal-supplier-phone').value = item ? (item.supplierPhone || '') : '';
             document.getElementById('stock-modal-notes').value       = item ? (item.notes || '') : '';
             const prev = document.getElementById('stock-img-preview');
             if (prev) prev.innerHTML = item?.img ? `<img src="${item.img}" style="width:100%;height:100%;object-fit:cover;">` : '🔧';
@@ -219,6 +220,7 @@
             const cat      = document.getElementById('stock-modal-category').value;
             const minStock = parseInt(document.getElementById('stock-modal-min').value) || 0;
             const supplier = document.getElementById('stock-modal-supplier').value.trim();
+            const supplierPhone = document.getElementById('stock-modal-supplier-phone').value.trim();
             const notes    = document.getElementById('stock-modal-notes').value.trim();
             const imgInput = document.getElementById('stock-modal-img');
             const img      = imgInput?._imgData || (id ? (await getAll('stock')).find(s=>s.id==id)?.img : null) || null;
@@ -229,7 +231,7 @@
 
             const isNew  = !id;
             const prevQ  = isNew ? 0 : ((await getAll('stock')).find(s=>s.id==parseInt(id))?.q || 0);
-            const itemData = { id: id ? parseInt(id) : Date.now(), n, p, q, cost, code, cat, minStock, supplier, notes, img };
+            const itemData = { id: id ? parseInt(id) : Date.now(), n, p, q, cost, code, cat, minStock, supplier, supplierPhone, notes, img };
             await put('stock', itemData);
 
             if (!isNew && q !== prevQ) {
