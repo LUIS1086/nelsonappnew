@@ -1,0 +1,150 @@
+/* ══════════════════════════════════════════════════════════════════════
+   Nelson App Pro · css/dashboard-refresh.css   (v3.8.0)
+   Capa final del Command Center. Se carga DESPUÉS de dashboard-premium.css.
+
+   QUÉ HACE
+   · Corrige el solapamiento de la barra superior: el título ya no se mete
+     debajo del buscador a 1280 px.
+   · Deja una sola acción primaria (naranja); el resto son botones fantasma.
+   · Quita la rejilla de fondo, los orbes y las franjas de color de los KPI:
+     una superficie, un acento.
+   · Aplana el panel "Estado del taller".
+
+   Para desactivarla, quita su <link> en dashboard.html.
+   No toca lógica, IDs ni eventos.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Lienzo limpio: sin rejilla ni resplandores de fondo ─────────── */
+body::after { display: none !important; }
+.glow-orb  { display: none !important; }
+
+/* ── 2. Barra superior: reparto elástico, sin solapes ───────────────── */
+/* Solo escritorio: en móvil el topbar es de dos filas y debe fluir. */
+@media (min-width: 781px) {
+  .topbar {
+    height: 64px !important;
+    gap: 16px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+  .tb-left {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    gap: 12px !important;
+  }
+  .tb-left > div:first-child { min-width: 0 !important; }
+  .tb-title {
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    letter-spacing: -.01em !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tb-breadcrumb {
+    font-size: 10px !important;
+    letter-spacing: .06em !important;
+    color: var(--text2) !important;
+  }
+  .tb-right {
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    gap: 6px !important;
+  }
+  .tb-search {
+    flex: 0 1 280px;
+    min-width: 140px;
+  }
+  .tb-search input { flex: 1 1 auto; width: auto !important; min-width: 0 !important; font-size: 12px !important; }
+  .tb-date  { white-space: nowrap; font-size: 11px !important; color: var(--text2) !important; }
+  .tb-clock { font-size: 11px !important; padding: 4px 10px !important; }
+}
+
+@media (min-width: 781px) and (max-width: 1500px) { .tb-date { display: none !important; } }
+@media (min-width: 781px) and (max-width: 1400px) { .tb-clock { display: none !important; } }
+@media (min-width: 781px) and (max-width: 1150px) { .tb-search { flex-basis: 170px; } }
+@media (min-width: 781px) {
+  .tb-icon-btn {
+    width: 34px !important; height: 34px !important;
+    min-width: 34px !important; min-height: 34px !important;
+    border-radius: 9px !important;
+  }
+}
+
+/* ── 3. Acciones: una primaria y el resto fantasma ──────────────────── */
+.tb-action {
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px !important;
+  border-radius: 9px !important;
+  letter-spacing: 0 !important;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, .05) !important;
+  border: 1px solid rgba(255, 255, 255, .09) !important;
+  color: var(--text2) !important;
+  box-shadow: none !important;
+}
+.tb-action:hover {
+  background: rgba(255, 255, 255, .08) !important;
+  color: var(--text) !important;
+}
+.tb-action.accent,
+.tb-action.accent:hover {
+  background: var(--accent) !important;
+  border-color: transparent !important;
+  color: #fff !important;
+}
+.tb-action svg { flex-shrink: 0; opacity: .9; }
+
+@media (min-width: 781px) {
+  .tb-action {
+    height: 34px;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+  }
+}
+
+/* ── 4. KPIs: superficie plana, sin franja de color ni glow ─────────── */
+.kpi {
+  background: var(--bg2) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+}
+.kpi:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  border-color: var(--border-hi) !important;
+}
+.kpi-accent-line { display: none !important; }
+.kpi::after { display: none !important; }
+.kpi-icon {
+  background: rgba(255, 255, 255, .05) !important;
+  color: var(--text2) !important;
+  border-radius: 10px !important;
+}
+.today-date {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: .04em !important;
+  color: var(--text2) !important;
+}
+
+/* ── 5. Panel "Estado del taller" plano ─────────────────────────────── */
+.today-panel {
+  background: var(--bg2) !important;
+  background-image: none !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: none !important;
+  padding: 16px 20px !important;
+}
+.today-panel::before { display: none !important; }
+.today-stat {
+  background: rgba(255, 255, 255, .025) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+
+/* ── 6. Tarjetas: sin sombras apiladas ──────────────────────────────── */
+.panel-card, .meta-card, .insight-card { box-shadow: none !important; }
