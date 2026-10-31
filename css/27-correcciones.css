@@ -1,0 +1,45 @@
+/* Nelson App Pro · css/27-correcciones.css  (se carga la última)
+   Correcciones puntuales encontradas al revisar la app en pantalla (móvil 390 px y escritorio 1280 px).
+   Cada regla explica el defecto que arregla. */
+
+/* El botón de micrófono (dictado por voz) quedaba encima del texto de los campos:
+   otra regla posterior dejaba el padding derecho en 14 px aunque el campo tiene pr-12. */
+/* (La regla ganadora usa input:not(...):not(...):not(...):not(...) con !important → especificidad 0,4,1;
+   por eso aquí se repite ese patrón y se suma [id] para superarla sin tocar las demás hojas.) */
+input[id]:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):has(+ .voice-mic-btn),
+textarea[id]:has(+ .voice-mic-btn) {
+    padding-right: 56px !important;
+}
+
+/* ── Accesibilidad ─────────────────────────────────────────────────────────── */
+
+/* Áreas táctiles: el botón ↻ del Panel de hoy (28×24) y los chips de preguntas rápidas de
+   Nelson IA (31 px) quedaban por debajo de lo cómodo para el dedo. */
+#daily-panel button { min-width: 36px; min-height: 32px; }
+button[onclick*="niaQuickAsk"] { min-height: 36px; }
+
+/* Texto blanco sobre el naranja de marca (el acento es configurable en Apariencia, así que no se
+   cambia el color): una sombra suave mejora la lectura del botón principal. */
+#btn-registrar-entrada { text-shadow: 0 1px 2px rgba(0, 0, 0, .35); }
+
+/* Navegación con teclado (escritorio): anillo de foco visible y de baja especificidad,
+   para que cualquier regla propia de un componente pueda sobrescribirlo. */
+:where(button, a[href], summary, [role="button"], [tabindex]:not([tabindex="-1"])):focus-visible {
+    outline: 2px solid #fb923c;
+    outline-offset: 2px;
+}
+
+/* ── Orden de compra y proveedores ─────────────────────────────────────────────
+   Utilidades Tailwind que usa el nuevo modal de Orden de compra pero que no están en
+   css/tailwind.css (no se recompiló). Se definen aquí para no regenerar todo Tailwind. */
+.max-h-\[76vh\] { max-height: 76vh; }
+.min-h-10 { min-height: 2.5rem; }
+.text-orange-300 { color: #fdba74; }
+.text-amber-300 { color: #fcd34d; }
+.border-amber-500\/25 { border-color: rgba(245, 158, 11, .25); }
+.accent-orange-500 { accent-color: #f97316; }
+
+/* Inventario: el precio/costo/margen se partía en varias líneas en pantallas angostas
+   (más aún con la línea del proveedor). Que se acomoden en filas en vez de apretarse. */
+#stock-list .flex.items-center.gap-2.mt-0\.5 { flex-wrap: wrap; row-gap: 2px; }
+#stock-list .flex.items-center.gap-2.mt-0\.5 > p { white-space: nowrap; }

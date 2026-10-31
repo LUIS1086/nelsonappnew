@@ -12,7 +12,7 @@
   --bg: #000000;  --bg2: #0a0a0c;
   --panel: #1c1c1e;  --panel2: #2c2c2e;  --panel3: #3a3a3c;
   --border: rgba(255, 255, 255, .07);  --border-hi: rgba(255, 255, 255, .14);
-  --text: #ffffff;  --text2: rgba(235, 235, 245, .62);  --text3: rgba(235, 235, 245, .36);
+  --text: #ffffff;  --text2: rgba(235, 235, 245, .72);  --text3: rgba(235, 235, 245, .58);
   --accent: #ff8a1f;  --accent-glow: rgba(255, 138, 31, .18);  --accent-dim: rgba(255, 138, 31, .12);
   --green: #30d158;  --green-dim: rgba(48, 209, 88, .14);
   --red: #ff453a;    --red-dim: rgba(255, 69, 58, .14);
@@ -25,9 +25,11 @@ body.light-mode {
   --bg: #f2f2f7;  --bg2: #e5e5ea;
   --panel: #ffffff;  --panel2: #f2f2f7;  --panel3: #e9e9ee;
   --border: rgba(60, 60, 67, .12);  --border-hi: rgba(60, 60, 67, .2);
-  --text: #000000;  --text2: rgba(60, 60, 67, .68);  --text3: rgba(60, 60, 67, .46);
-  --accent: #f26a00;  --accent-glow: rgba(242, 106, 0, .14);  --accent-dim: rgba(242, 106, 0, .1);
-  --green: #1f9d4a;  --green-dim: rgba(52, 199, 89, .14);
+  /* Contraste (WCAG AA ≥ 4.5:1 sobre blanco): los grises y el naranja/verde originales de iOS
+     daban 2.4–3:1 en texto pequeño. Se oscurecen solo en modo claro. */
+  --text: #000000;  --text2: rgba(60, 60, 67, .80);  --text3: rgba(60, 60, 67, .68);
+  --accent: #c94f00;  --accent-glow: rgba(201, 79, 0, .14);  --accent-dim: rgba(201, 79, 0, .1);
+  --green: #15803d;  --green-dim: rgba(52, 199, 89, .14);
   --red: #e0261b;    --red-dim: rgba(255, 59, 48, .12);
   --blue: #0067d6;   --blue-dim: rgba(0, 122, 255, .12);
   --violet: #8944cf; --violet-dim: rgba(175, 82, 222, .12);
@@ -140,3 +142,11 @@ body.light-mode .range-btn.active, body.light-mode .branch-btn.active { backgrou
 button:active, [role="button"]:active { opacity: .72; }
 @media (hover: none) { .kpi:hover, .panel-card:hover, .tb-icon-btn:hover, .sb-btn:hover, .branch-btn:hover { transform: none !important; } }
 @media (prefers-reduced-motion: reduce) { .sheet { transition: none !important; } }
+
+/* Pantallas táctiles: los selectores de rango (7d/30d/90d) medían 21 px de alto. */
+@media (pointer: coarse) {
+  .range-btn { min-height: 32px; }
+}
+
+/* Botón de acción principal: texto oscuro sobre el naranja vivo del modo oscuro (blanco daba 2.4:1). */
+body:not(.light-mode) .tb-action.accent { color: #1a0d00 !important; }

@@ -1,0 +1,61 @@
+/* Nelson App Pro · css/26-iconos-svg.css
+   Estilo de los iconos SVG que inyecta js/modules/42-ios-iconos.js.
+   Sin esta hoja los <svg> no tienen tamaño ni trazo: se pintan enormes y negros.
+   Reglas: el icono hereda tamaño (em) y color (currentColor) del elemento que lo contiene,
+   igual que antes lo hacía el emoji. */
+
+/* Contenedores que sustituyen TODO su contenido por un icono */
+.ios-ic, .ios-tile {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    flex-shrink: 0;
+}
+.ios-ic > svg, .ios-tile > svg {
+    width: 1.15em;
+    height: 1.15em;
+    display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    overflow: visible;
+}
+/* Menú lateral: el icono toma el color del texto y se tiñe de naranja al estar activo */
+.ios-tile { color: #94a3b8; }
+.sidebar-nav-btn:hover .ios-tile,
+.sidebar-nav-btn.active .ios-tile,
+.sidebar-nav-btn.nav-active .ios-tile,
+.sidebar-nav-active .ios-tile { color: #fb923c; }
+.ios-tile > svg { width: 1.2em; height: 1.2em; }
+
+/* Acciones rápidas, botón principal de la barra superior y micrófono */
+.qa-icon.ios-ic > svg { width: 1.25em; height: 1.25em; }
+#topbar-primary-action > .ios-ic > svg,
+#topbar-primary-action > span.ios-ic > svg { width: 1.05em; height: 1.05em; }
+.voice-mic-btn.ios-ic > svg { width: 18px; height: 18px; }
+
+/* Icono pequeño delante de un texto (etiquetas, botones del menú) */
+.ios-ic-inline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.1em;
+    height: 1.1em;
+    margin-right: .15em;
+    vertical-align: -0.18em;
+    line-height: 1;
+    flex-shrink: 0;
+}
+.ios-ic-inline > svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
