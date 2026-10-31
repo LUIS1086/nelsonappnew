@@ -27,6 +27,9 @@ const PRECACHE_URLS = [
     './icons/icon-512x512.png',
     // CSS
     './css/app.bundle.css',
+    './css/26-ios-iconos.css',
+    './css/27-listas-profesionales.css',
+    './css/28-formularios-profesionales.css',
     './js/libs/html2canvas.min.js',
     './js/libs/qrcode.min.js',
     './js/libs/jspdf.umd.min.js',
@@ -43,6 +46,7 @@ const PRECACHE_URLS = [
     './js/seguimiento-config.js',
     './js/modules/40-seguimiento.js',
     './js/modules/41-respaldo-supabase.js',
+    './js/modules/42-ios-iconos.js',
     './js/modules/43-archivo-ordenes.js',
     './js/modules/44-asistente-negocio.js',
     './js/dashboard.js',

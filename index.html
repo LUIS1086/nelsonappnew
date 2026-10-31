@@ -20,6 +20,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,800&display=swap" rel="stylesheet"></noscript>
     <link rel="stylesheet" href="css/app.bundle.css">
+    <link rel="stylesheet" href="css/26-ios-iconos.css">
+    <link rel="stylesheet" href="css/27-listas-profesionales.css">
+    <link rel="stylesheet" href="css/28-formularios-profesionales.css">
+
+<style id="origin-picker-styles">
+.origin-picker{position:relative;width:100%}.origin-native-select{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.origin-picker-trigger{width:100%;min-height:46px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 13px;border:1px solid rgba(148,163,184,.2);border-radius:13px;background:#171a20;color:#e7e9ed;text-align:left;font:600 13px Inter,system-ui,sans-serif;cursor:pointer;transition:border-color .16s,background .16s}
+.origin-picker-trigger:hover,.origin-picker-trigger[aria-expanded="true"]{border-color:rgba(251,146,60,.52);background:#1d2027}.origin-picker-trigger:focus-visible,.origin-picker-option:focus-visible{outline:2px solid #fb923c;outline-offset:2px}.origin-picker-value{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.origin-picker-placeholder{color:#a3aab5}.origin-picker-caret{color:#98a0ab;font-size:11px;transition:transform .16s}.origin-picker-trigger[aria-expanded="true"] .origin-picker-caret{transform:rotate(180deg)}
+.origin-picker-menu{position:fixed;z-index:9500;overflow:auto;overscroll-behavior:contain;padding:7px;border:1px solid rgba(255,255,255,.13);border-radius:17px;background:#292a2e;box-shadow:0 18px 55px rgba(0,0,0,.52);scrollbar-width:thin;scrollbar-color:#51535b transparent}.origin-picker-menu[hidden]{display:none!important}.origin-picker-option{width:100%;min-height:46px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 13px;border:0;border-radius:11px;background:transparent;color:#f1f1f2;text-align:left;font:600 14px Inter,system-ui,sans-serif;cursor:pointer}.origin-picker-option:hover{background:rgba(255,255,255,.07)}.origin-picker-option[aria-selected="true"]{background:rgba(251,146,60,.17);color:#ffad62}.origin-picker-check{width:18px;flex-shrink:0;text-align:center;color:#ff922e;font-size:17px}
+</style>
 
 <style id="invoice-sale-styles">
 .invoice-sale-cta{width:100%;display:flex;align-items:center;gap:13px;text-align:left;padding:15px;border-radius:16px;border:1px solid rgba(52,211,153,.24);background:#101d27;color:#e5fff4;cursor:pointer;transition:background .18s,border-color .18s,transform .18s}
@@ -451,16 +461,22 @@
                         </div>
                         <div>
                             <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">¿Cómo nos conoció?</label>
-                            <select id="c-origen" class="w-full font-bold text-xs">
-                                <option value="">Sin especificar</option>
-                                <option value="recomendacion">🗣️ Recomendación</option>
-                                <option value="redes">📱 Redes sociales</option>
-                                <option value="cliente_frecuente">⭐ Cliente frecuente</option>
-                                <option value="google">🔍 Google</option>
-                                <option value="local">🏠 Pasó por el local</option>
-                                <option value="whatsapp">💬 WhatsApp</option>
-                                <option value="otro">📌 Otro</option>
-                            </select>
+                            <div class="origin-picker" id="c-origen-picker">
+                                <select id="c-origen" class="origin-native-select" tabindex="-1" aria-hidden="true">
+                                    <option value="">Sin especificar</option>
+                                    <option value="recomendacion">🗣️ Recomendación</option>
+                                    <option value="redes">📱 Redes sociales</option>
+                                    <option value="cliente_frecuente">⭐ Cliente frecuente</option>
+                                    <option value="google">🔍 Google</option>
+                                    <option value="local">🏠 Pasó por el local</option>
+                                    <option value="whatsapp">💬 WhatsApp</option>
+                                    <option value="otro">📌 Otro</option>
+                                </select>
+                                <button type="button" id="c-origen-trigger" class="origin-picker-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="c-origen-menu" onclick="toggleOriginPicker()" onkeydown="originPickerTriggerKeydown(event)">
+                                    <span id="c-origen-value" class="origin-picker-value origin-picker-placeholder">Sin especificar</span><span class="origin-picker-caret" aria-hidden="true">▾</span>
+                                </button>
+                                <div id="c-origen-menu" class="origin-picker-menu" role="listbox" aria-label="¿Cómo nos conoció?" hidden></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -3220,6 +3236,7 @@
 <script src="js/seguimiento-config.js"></script>
 <script src="js/modules/40-seguimiento.js"></script>
 <script src="js/modules/41-respaldo-supabase.js"></script>
+<script src="js/modules/42-ios-iconos.js"></script>
 <script src="js/modules/43-archivo-ordenes.js"></script>
 <script src="js/modules/44-asistente-negocio.js"></script>
 
