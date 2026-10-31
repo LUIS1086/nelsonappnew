@@ -1,0 +1,38 @@
+/* Iconos SVG unificados recuperados y adaptados del paquete de referencia. */
+.ios-ic,
+.ios-tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+.ios-ic svg,
+.ios-tile svg,
+.ios-ic-inline svg {
+  display: block;
+  width: 1.15em;
+  height: 1.15em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sidebar-nav-icon.ios-tile svg { width: 21px; height: 21px; }
+.qa-icon.ios-ic svg { width: 1.05em; height: 1.05em; }
+.voice-mic-btn.ios-ic svg { width: 18px; height: 18px; }
+
+.ios-ic-inline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.05em;
+  height: 1.05em;
+  margin-right: .28em;
+  vertical-align: -.16em;
+  color: currentColor;
+}
+.ios-ic-inline svg { width: 100%; height: 100%; }
