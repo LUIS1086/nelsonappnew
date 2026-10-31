@@ -41,6 +41,7 @@ const PRECACHE_URLS = [
     './js/modules/40-seguimiento.js',
     './js/modules/41-respaldo-supabase.js',
     './js/modules/42-ios-iconos.js',
+    './js/modules/45-selector-ios.js',
     './js/dashboard.js',
     './js/version.js',
     // JS (core + modules + Nelson IA)

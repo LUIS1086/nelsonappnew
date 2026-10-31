@@ -21,3 +21,16 @@ Solo se trajeron los cambios de proveedores / órdenes de compra / inventario. N
 
 ## No incluido (siguen en tu rama `3.9.0`)
 Listas y formularios "profesionales" (css 26/27/28 de esa rama), splash, asistente de negocio, archivar órdenes, configuración premium, dashboard nuevo, flujo n8n.
+
+---
+
+# v3.8.6 — selector estilo iOS para todos los desplegables
+
+- Los 19 `<select>` de la app ya no abren el desplegable nativo de Android (el que no se podía estilizar): ahora abren una
+  **hoja de selección estilo iOS** — fondo desenfocado, cantos redondeados, filas de 54 px, emoji en tarjeta, marca de selección
+  con el color de acento que elijas en Apariencia, botón "Cancelar" aparte, arrastrar hacia abajo para cerrar.
+  En escritorio se muestra como ventana centrada; con más de 12 opciones aparece un buscador (ignora tildes).
+- Funciona con teclado (Enter/Espacio abren; ↑ ↓ navegan; Esc cierra) y respeta "reducir movimiento".
+- El `<select>` real sigue mandando: al elegir se dispara `change`, así que ningún `onchange` existente se rompe.
+- Un select puede conservar el desplegable del sistema con `data-native`.
+- Archivos: `js/modules/45-selector-ios.js` y `css/29-selector-ios.css`.
