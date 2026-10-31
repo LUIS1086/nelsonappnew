@@ -40,5 +40,12 @@ for(const f of walk(path.join(root,'js')).filter(f=>f.endsWith('.js')&&!f.includ
     for(const f of walk(path.join(root,'js')).filter(f=>f.endsWith('.js')&&!f.includes(path.sep+'libs'+path.sep)&&!f.endsWith('version.js'))){
       if(/APP_VERSION\s*=\s*['"]v\d/.test(fs.readFileSync(f,'utf8'))) err('Versión fija en '+path.relative(root,f)+' (solo js/version.js puede definirla)'); }
     console.log('· Versión de la app y del service worker: '+v); } }
+// ── Bundles de CSS: deben estar al día respecto a las hojas fuente ──
+try{ cp.execFileSync(process.execPath,[path.join(__dirname,'build-css.js'),'--check'],{stdio:'pipe'}); }
+catch(e){ err('Los bundles de CSS están desactualizados. Corre:  node tools/build-css.js\n'+String(e.stdout).trim()); }
+// ── El HTML debe enlazar los bundles, no las hojas sueltas ──
+['index.html','dashboard.html'].forEach(f=>{ const t=fs.readFileSync(path.join(root,f),'utf8');
+  const sueltas=[...t.matchAll(/<link rel="stylesheet" href="css\/(?!(?:app|dashboard)\.bundle\.css)[^"]+">/g)];
+  if(sueltas.length) err(f+' enlaza '+sueltas.length+' hoja(s) CSS suelta(s); deben ir dentro del bundle (tools/build-css.js)'); });
 console.log(errores?`\n${errores} problema(s) encontrados`:`✓ Todo en orden (${refs.length} archivos css/js, precache y manifest correctos)`);
 process.exit(errores?1:0);
