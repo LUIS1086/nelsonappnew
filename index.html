@@ -19,30 +19,7 @@
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,800&display=swap" rel="stylesheet"></noscript>
-    <link rel="stylesheet" href="css/01-tema-variables.css">
-    <link rel="stylesheet" href="css/02-componentes-base.css">
-    <link rel="stylesheet" href="css/03-modo-claro-accesibilidad.css">
-    <link rel="stylesheet" href="css/04-navegacion-movil.css">
-    <link rel="stylesheet" href="css/05-modal-exportar.css">
-    <link rel="stylesheet" href="css/06-taller-repuestos.css">
-    <link rel="stylesheet" href="css/07-estadisticas.css">
-    <link rel="stylesheet" href="css/08-ordenes-avisar-listos.css">
-    <link rel="stylesheet" href="css/09-busqueda-config-red.css">
-    <link rel="stylesheet" href="css/10-splash-pin-biometria.css">
-    <link rel="stylesheet" href="css/11-responsive-escritorio.css">
-    <link rel="stylesheet" href="css/16-aviso-actualizacion.css">
-    <link rel="stylesheet" href="css/tailwind.css">
-    <link rel="stylesheet" href="css/17-responsive-premium-hardening.css">
-    <link rel="stylesheet" href="css/12-extras-1.css">
-    <link rel="stylesheet" href="css/13-extras-2.css">
-    <link rel="stylesheet" href="css/14-configuracion-command-center.css">
-    <link rel="stylesheet" href="css/15-nelson-ia.css">
-    <link rel="stylesheet" href="css/18-native-premium.css">
-    <link rel="stylesheet" href="css/19-desktop-premium.css">
-    <link rel="stylesheet" href="css/20-responsive-pro.css">
-    <link rel="stylesheet" href="css/21-ticket-venta.css">
-    <link rel="stylesheet" href="css/22-seguimiento.css">
-    <link rel="stylesheet" href="css/24-ios-fluidez.css">
+    <link rel="stylesheet" href="css/app.bundle.css">
 
 <style id="invoice-sale-styles">
 .invoice-sale-cta{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:14px;border-radius:16px;border:1px solid rgba(52,211,153,.32);background:linear-gradient(115deg,rgba(16,185,129,.16),rgba(59,130,246,.08));color:#e5fff4;cursor:pointer;transition:transform .18s,border-color .18s}
@@ -257,7 +234,7 @@
         <div class="splash-title" id="splash-biz-name">NELSON</div>
         <div class="splash-sub">Taller &amp; Repuestos</div>
         <div class="splash-bar-track"><div class="splash-bar-fill"></div></div>
-        <div class="splash-version" id="splash-version">v3.8.0</div>
+        <div class="splash-version" id="splash-version">v3.8.5</div>
     </div>
 
     <!-- PIN MODAL -->
@@ -465,7 +442,7 @@
                         </div>
                         <div>
                             <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">📅 FECHA ESTIMADA DE ENTREGA</label>
-                            <input type="date" id="c-fecha-estimada" class="w-full text-sm font-bold text-blue-400">
+                            <input type="date" id="c-fecha-estimada" aria-label="Fecha estimada de entrega" class="w-full text-sm font-bold text-blue-400">
                         </div>
                         <div>
                             <label class="text-[10px] text-slate-400 block mb-1 ml-1 font-bold">📣 ¿CÓMO NOS CONOCIÓ?</label>
@@ -590,8 +567,8 @@
             </button>
             <div id="filter-panel" class="filter-panel card p-5 space-y-4">
                 <div class="grid grid-cols-2 gap-3">
-                    <div><label class="text-[10px] text-slate-400 block mb-1">Desde</label><input type="date" id="filter-date-from" class="text-xs w-full" onchange="applyFilters()"></div>
-                    <div><label class="text-[10px] text-slate-400 block mb-1">Hasta</label><input type="date" id="filter-date-to" class="text-xs w-full" onchange="applyFilters()"></div>
+                    <div><label for="filter-date-from" class="text-[10px] text-slate-400 block mb-1">Desde</label><input type="date" id="filter-date-from" class="text-xs w-full" onchange="applyFilters()"></div>
+                    <div><label for="filter-date-to" class="text-[10px] text-slate-400 block mb-1">Hasta</label><input type="date" id="filter-date-to" class="text-xs w-full" onchange="applyFilters()"></div>
                 </div>
                 <div>
                     <label class="text-[10px] text-slate-400 block mb-2">Estado</label>
@@ -722,7 +699,7 @@
                 <div style="width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#f97316 0%,#ea580c 55%,#c2410c 100%);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 6px 18px rgba(249,115,22,0.5),inset 0 1px 0 rgba(255,255,255,0.15);position:relative;">
                     <span style="font-size:26px;">🧠</span>
                     <!-- Badge "IA" -->
-                    <div style="position:absolute;top:-4px;right:-4px;background:#10b981;color:#fff;font-size:9px;font-weight:900;letter-spacing:0.5px;padding:2px 5px;border-radius:6px;border:2px solid #1a0f08;box-shadow:0 2px 6px rgba(16,185,129,0.4);line-height:1;">IA</div>
+                    <div style="position:absolute;top:-4px;right:-4px;background:#10b981;color:#052e16;font-size:9px;font-weight:900;letter-spacing:0.5px;padding:2px 5px;border-radius:6px;border:2px solid #1a0f08;box-shadow:0 2px 6px rgba(16,185,129,0.4);line-height:1;">IA</div>
                 </div>
 
                 <!-- Texto -->
@@ -886,7 +863,7 @@
                                 <p style="font-size:15px;font-weight:900;color:#f1f5f9;margin:0;letter-spacing:-0.3px;">Luis Eduardo Gaviria</p>
                                 <p style="font-size:10px;color:#64748b;margin:3px 0 0;font-weight:700;display:flex;align-items:center;gap:6px;">
                                     <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 6px rgba(16,185,129,0.6);animation:pulseDot 2s ease-in-out infinite;"></span>
-                                    NelsonApp Pro · <span id="credits-version">v3.8.0</span>
+                                    NelsonApp Pro · <span id="credits-version">v3.8.5</span>
                                 </p>
                             </div>
                             <span id="credits-arrow" style="font-size:14px;color:#64748b;transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);flex-shrink:0;">▼</span>
@@ -1542,27 +1519,29 @@
 
     <!-- ===== MODAL ÓRDENES DE COMPRA ===== -->
     <div id="modal-ordenes-compra" class="hidden fixed inset-0 z-[3200] modal-custom flex flex-col items-center justify-center p-4">
-        <div class="bg-[#111827] border border-white/10 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl view-enter">
+        <div class="bg-[#111827] border border-white/10 w-full max-w-lg rounded-[2rem] overflow-hidden shadow-2xl view-enter">
             <div class="bg-gradient-to-r from-orange-700 to-orange-500 p-5 flex justify-between items-center">
                 <div>
-                    <h3 class="text-white font-black text-lg">📦 ORDEN DE COMPRA</h3>
-                    <p id="oc-subtitle" class="text-orange-200 text-[10px] font-bold mt-0.5">Repuestos bajo mínimo</p>
+                    <h3 class="text-white font-black text-lg">📦 Orden de compra</h3>
+                    <p id="oc-subtitle" class="text-orange-200 text-[10px] font-bold mt-0.5">Productos del inventario</p>
                 </div>
                 <button onclick="closeOrdenesCompra()" class="text-white bg-black/30 w-9 h-9 rounded-full font-bold text-lg">✕</button>
             </div>
-            <div class="p-4 space-y-3 max-h-[70vh] overflow-y-auto no-scrollbar">
+            <div class="p-4 space-y-3 max-h-[76vh] overflow-y-auto no-scrollbar">
                 <!-- Selector de proveedor -->
                 <div>
-                    <label class="text-[10px] text-slate-400 font-bold block mb-1">PROVEEDOR</label>
+                    <div class="flex items-center justify-between mb-1"><label class="text-[10px] text-slate-400 font-bold">PROVEEDOR</label><button onclick="openProveedoresModal()" class="text-[10px] text-teal-300 font-bold">+ Gestionar proveedores</button></div>
                     <select id="oc-proveedor" class="w-full font-bold text-sm"></select>
+                    <div id="oc-proveedor-info" class="mt-2 min-h-10 flex items-center justify-between gap-2 bg-black/20 border border-white/5 rounded-xl px-3 py-2 text-[10px] text-slate-400"></div>
                 </div>
                 <!-- Lista de artículos -->
                 <div>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2">Artículos a pedir</p>
+                    <div class="flex items-center justify-between mb-2"><p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Productos del inventario</p><span id="oc-selected-count" class="text-[10px] text-orange-300 font-bold"></span></div>
+                    <input type="search" id="oc-product-search" placeholder="Buscar producto, código o proveedor…" oninput="filterOCProducts()" class="w-full text-xs mb-2">
                     <div id="oc-items-list" class="space-y-2"></div>
                 </div>
                 <!-- Notas -->
-                <textarea id="oc-notas" rows="2" placeholder="Notas para el proveedor…" class="w-full text-xs"></textarea>
+                <textarea id="oc-notas" rows="2" placeholder="Notas para el proveedor (forma de entrega, urgencia, condiciones)…" class="w-full text-xs"></textarea>
                 <!-- Botones -->
                 <div class="grid grid-cols-2 gap-2">
                     <button onclick="sendOCWhatsApp()" class="bg-emerald-600 py-3 rounded-xl font-black text-xs uppercase active:scale-95 transition">💬 WhatsApp</button>
@@ -2194,6 +2173,10 @@
                     <input type="text" id="stock-modal-supplier" placeholder="Nombre del proveedor" class="w-full text-sm">
                 </div>
                 <div>
+                    <label class="text-[10px] text-slate-400 block mb-1">WHATSAPP / CONTACTO DEL PROVEEDOR</label>
+                    <input type="tel" id="stock-modal-supplier-phone" placeholder="Ej: +57 300 123 4567" class="w-full text-sm" autocomplete="tel">
+                </div>
+                <div>
                     <label class="text-[10px] text-slate-400 block mb-1">NOTAS</label>
                     <textarea id="stock-modal-notes" rows="2" placeholder="Notas internas..." class="w-full text-xs"></textarea>
                 </div>
@@ -2350,7 +2333,7 @@
                         <div class="cfg-title-wrap">
                             <p class="cfg-eyebrow">
                                 <span id="cfg-header-biz">NelsonApp Pro</span>
-                                <span class="cfg-version" id="cfg-header-version">v3.8.0</span>
+                                <span class="cfg-version" id="cfg-header-version">v3.8.5</span>
                             </p>
                             <h3 class="cfg-h1">Configuración</h3>
                         </div>

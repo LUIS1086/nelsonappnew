@@ -12,26 +12,42 @@ Google Drive (respaldo) · PWA/TWA (PWABuilder) · Vercel.
 ```
 index.html              Solo estructura HTML (carga css/ y js/ en orden)
 dashboard.html          Panel de indicadores (solo estructura)
-css/dashboard.css       Estilos base del panel
-css/dashboard-premium.css  Capa premium del panel (quita su <link> para volver al diseño anterior)
+css/app.bundle.css      GENERADO: todas las hojas del index unidas (es lo único que enlaza index.html)
+css/dashboard.bundle.css  GENERADO: hojas del dashboard unidas (lo único que enlaza dashboard.html)
+css/dashboard.css       Estilos base del panel (fuente del bundle)
+css/dashboard-premium.css  Capa premium del panel (fuente del bundle)
 js/dashboard.js         Lógica del panel
 js/libs/              html2canvas y qrcode locales (funcionan sin internet)
 service-worker.js       Offline + actualización (CACHE_VERSION)
 manifest.json           Manifiesto PWA
 vercel.json             Cabeceras y caché
 icons/                  Iconos de la app
-css/01…16-*.css         Estilos propios, en el orden de la cascada
+css/01…27-*.css         Hojas fuente, en el orden de la cascada (la lista y el orden viven en tools/build-css.js)
+docs/css-archivados/    Hojas que ya no se cargan, guardadas por si se quieren recuperar
 css/tailwind.css        Tailwind compilado (generado; no editar a mano)
 js/core/01…03-*.js      Base: errores globales, IndexedDB, PIN y biometría
 js/modules/00…37-*.js   Módulos de la app (órdenes, inventario, caja, Drive, QR, etc.)
 js/nelson-ia.js         Asistente Nelson IA
-tools/verificar.js      Revisa que no falte nada antes de subir
+tools/build-css.js      Une y minifica las hojas en los 2 bundles (correr tras editar cualquier css/NN-*.css)
+tools/verificar.js      Revisa que no falte nada antes de subir (incluye que los bundles estén al día)
+tools/capturas.py       Capturas móvil/escritorio para comparar antes y después (necesita playwright)
 tools/tailwind/         Configuración para recompilar css/tailwind.css
 .well-known/            assetlinks.json (TWA / Android)
 ```
 
 > **El orden importa.** Son scripts clásicos (no ES Modules) para conservar las funciones
 > globales y los `onclick` inline. Se cargan en el orden en que aparecen en `index.html`.
+
+## Flujo de trabajo con CSS
+
+```bash
+# 1. edita la hoja fuente (p. ej. css/27-correcciones.css)
+node tools/build-css.js      # 2. regenera css/app.bundle.css y css/dashboard.bundle.css
+node tools/verificar.js      # 3. revisa todo antes de subir
+```
+
+No edites los `*.bundle.css` a mano: se sobrescriben. Para comparar visualmente antes/después:
+`python3 tools/capturas.py capturas/antes`, haz el cambio y `python3 tools/capturas.py capturas/despues`.
 
 ## Antes de subir cambios
 
@@ -50,16 +66,19 @@ npm install        # solo la primera vez
 npm run build
 ```
 
-Luego sube el `css/tailwind.css` nuevo junto con tus cambios. Las clases armadas con variables
+Luego corre `node tools/build-css.js` (Tailwind va dentro del bundle) y sube `css/tailwind.css` y los bundles junto con tus cambios. Las clases armadas con variables
 (p. ej. `text-${color}-400`) no se detectan: agrégalas a `safelist` en `tools/tailwind/tailwind.config.js`.
 
 ## Cómo agregar un archivo nuevo
 
-1. Crea el archivo en `css/` o `js/modules/` con el siguiente número.
-2. Agrega su `<link>` / `<script>` en `index.html`, en la posición correcta.
+**Hoja CSS:** créala en `css/` con el siguiente número, agrega su nombre (sin `.css`) a la lista correspondiente de `tools/build-css.js` en la posición de cascada que quieras y corre `node tools/build-css.js`. No hace falta tocar el HTML ni el precache.
+
+**Script JS:**
+1. Crea el archivo en `js/modules/` con el siguiente número.
+2. Agrega su `<script>` en `index.html`, en la posición correcta.
 3. Agrégalo a `PRECACHE_URLS` en `service-worker.js`.
-4. Sube `CACHE_VERSION` en `service-worker.js` (los usuarios verán el aviso "Nueva versión disponible").
-5. Ejecuta `node tools/verificar.js`.
+
+En ambos casos: sube la versión en `js/version.js` (los usuarios verán el aviso "Nueva versión disponible") y ejecuta `node tools/verificar.js`.
 
 ## Despliegue
 
