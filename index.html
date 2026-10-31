@@ -22,15 +22,16 @@
     <link rel="stylesheet" href="css/app.bundle.css">
 
 <style id="invoice-sale-styles">
-.invoice-sale-cta{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:14px;border-radius:16px;border:1px solid rgba(52,211,153,.32);background:linear-gradient(115deg,rgba(16,185,129,.16),rgba(59,130,246,.08));color:#e5fff4;cursor:pointer;transition:transform .18s,border-color .18s}
-.invoice-sale-cta:active{transform:scale(.985)}.invoice-sale-cta-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:rgba(16,185,129,.18);font-size:22px;flex-shrink:0}
-.invoice-sale-cta strong,.invoice-sale-cta small{display:block}.invoice-sale-cta strong{font-size:12px;font-weight:900}.invoice-sale-cta small{font-size:10px;color:#9ca3af;margin-top:4px;line-height:1.4}.invoice-sale-cta-arrow{margin-left:auto;color:#6ee7b7;font-size:22px}
-#invoice-sale-modal{position:fixed;inset:0;z-index:8000;background:rgba(2,6,23,.82);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:14px}
-#invoice-sale-modal.hidden{display:none}.invoice-panel{width:min(680px,100%);max-height:92dvh;overflow:auto;background:#0f172a;color:#e5e7eb;border:1px solid rgba(148,163,184,.2);border-radius:22px;box-shadow:0 25px 80px #0009;padding:20px}
-.invoice-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:18px}.invoice-head h2{font-size:19px;font-weight:900;margin:0}.invoice-head p{font-size:11px;color:#94a3b8;margin:5px 0 0}.invoice-close{border:1px solid #334155;background:#1e293b;color:#cbd5e1;border-radius:10px;width:38px;height:38px;font-size:18px}
-.invoice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.invoice-field{display:flex;flex-direction:column;gap:6px;min-width:0}.invoice-field.full{grid-column:1/-1}.invoice-field label{font-size:10px;color:#94a3b8;font-weight:800;text-transform:uppercase;letter-spacing:.8px}.invoice-field input,.invoice-field select,.invoice-field textarea{width:100%;box-sizing:border-box;border:1px solid #334155;background:#111c30;color:#f8fafc;border-radius:11px;padding:11px 12px;font-size:13px;min-height:42px}.invoice-total{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding:15px;border:1px solid rgba(52,211,153,.25);background:rgba(16,185,129,.08);border-radius:14px}.invoice-total strong{font-size:22px;color:#6ee7b7}.invoice-actions{display:flex;gap:10px;margin-top:16px}.invoice-actions button{flex:1;border-radius:12px;padding:13px;font-size:12px;font-weight:900;border:1px solid #334155;background:#1e293b;color:#e2e8f0}.invoice-actions .primary{background:linear-gradient(135deg,#059669,#10b981);color:#022c22;border:0}
-.invoice-note{font-size:10px;color:#94a3b8;line-height:1.5;margin-top:12px}
-@media(max-width:520px){.invoice-panel{padding:15px;border-radius:18px}.invoice-grid{grid-template-columns:1fr}.invoice-field.full{grid-column:auto}.invoice-actions{flex-direction:column}.invoice-head h2{font-size:17px}}
+.invoice-sale-cta{width:100%;display:flex;align-items:center;gap:13px;text-align:left;padding:15px;border-radius:16px;border:1px solid rgba(52,211,153,.24);background:#101d27;color:#e5fff4;cursor:pointer;transition:background .18s,border-color .18s,transform .18s}
+.invoice-sale-cta:hover{background:#14252d;border-color:rgba(52,211,153,.48)}.invoice-sale-cta:active{transform:scale(.99)}.invoice-sale-cta-icon{width:44px;height:44px;display:grid;place-items:center;border-radius:13px;background:#153d37;color:#6ee7b7;font-size:21px;flex-shrink:0}
+.invoice-sale-cta strong,.invoice-sale-cta small{display:block}.invoice-sale-cta strong{font-size:13px;font-weight:800}.invoice-sale-cta small{font-size:11px;color:#98a8ae;margin-top:4px;line-height:1.4}.invoice-sale-cta-arrow{margin-left:auto;color:#6ee7b7;font-size:20px}
+#invoice-sale-modal{position:fixed;inset:0;z-index:8000;background:rgba(2,10,16,.78);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:14px}
+#invoice-sale-modal.hidden{display:none}.invoice-panel{width:min(900px,100%);max-height:94dvh;overflow:auto;background:#0c151c;color:#e5ecee;border:1px solid rgba(148,163,184,.18);border-radius:22px;box-shadow:0 30px 90px #000b;padding:0}
+.invoice-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:19px 22px;border-bottom:1px solid rgba(148,163,184,.12);background:#101d25}.invoice-head h2{font-size:20px;font-weight:800;letter-spacing:-.45px;margin:0}.invoice-head p{font-size:11px;color:#91a2aa;margin:5px 0 0}.invoice-head-kicker{font-size:9px;color:#62c7a5;font-weight:800;letter-spacing:1.2px;margin-bottom:5px}.invoice-close{border:1px solid #34444a;background:#1a2931;color:#cbd5e1;border-radius:11px;width:38px;height:38px;font-size:18px;cursor:pointer}.invoice-close:hover{background:#263841}
+.invoice-form{padding:18px 22px 20px}.invoice-layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(260px,.8fr);gap:18px;align-items:start}.invoice-main,.invoice-details{min-width:0}.invoice-section-title{font-size:13px;color:#e6eeee;font-weight:800;margin:0 0 12px;letter-spacing:-.1px}.invoice-section-caption{font-size:10px;color:#809198;font-weight:500;margin:4px 0 0}.invoice-product-block{padding:16px;border:1px solid rgba(74,187,151,.22);border-radius:17px;background:#10211f}.invoice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.invoice-field{display:flex;flex-direction:column;gap:6px;min-width:0}.invoice-field.full{grid-column:1/-1}.invoice-field label{font-size:10px;color:#a1b0b4;font-weight:700;letter-spacing:.25px}.invoice-field input,.invoice-field select,.invoice-field textarea{width:100%;box-sizing:border-box;border:1px solid #2b3a40;background:#111e25;color:#f1f5f5;border-radius:10px;padding:11px 12px;font-size:13px;min-height:43px;outline:none;transition:border-color .15s,box-shadow .15s}.invoice-field input:focus,.invoice-field select:focus,.invoice-field textarea:focus{border-color:#4bbf9a;box-shadow:0 0 0 3px rgba(75,191,154,.12)}.invoice-field input::placeholder,.invoice-field textarea::placeholder{color:#65777d}.invoice-grid .inv-price-row{margin-top:1px}.invoice-grid .inv-add{border-style:solid;border-color:#2f9f7e;background:#16765f;color:#f1fff9;font-size:12px;letter-spacing:.1px}.invoice-grid .inv-add:hover{background:#19876c}
+.invoice-details{padding:16px;border:1px solid rgba(148,163,184,.13);border-radius:17px;background:#101a20}.invoice-details .invoice-grid{grid-template-columns:1fr;gap:11px}.invoice-details .invoice-field.full{grid-column:auto}.invoice-cart-section{margin-top:18px}.invoice-cart-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}.invoice-cart-heading .invoice-section-title{margin:0}.invoice-total{display:flex;align-items:center;justify-content:space-between;margin-top:17px;padding:16px 18px;border:1px solid rgba(63,190,147,.3);background:#10251f;border-radius:15px}.invoice-total span{font-size:12px;color:#a8b9b6;font-weight:700}.invoice-total strong{font-size:25px;letter-spacing:-.5px;color:#69dfb1}.invoice-note{font-size:10px;color:#829197;line-height:1.5;margin:10px 2px 0}.invoice-actions{display:flex;gap:10px;margin-top:15px}.invoice-actions button{flex:1;border-radius:11px;padding:13px;font-size:12px;font-weight:800;border:1px solid #34434a;background:#17252c;color:#dbe4e5;cursor:pointer;min-height:46px}.invoice-actions button:hover{background:#22333b}.invoice-actions .primary{background:#15906d;color:#f4fffa;border:1px solid #15906d}.invoice-actions .primary:hover{background:#1aa27b}.invoice-actions .primary:disabled{opacity:.55;cursor:wait}
+@media(max-width:680px){#invoice-sale-modal{padding:8px;align-items:flex-end}.invoice-panel{max-height:96dvh;border-radius:20px 20px 14px 14px}.invoice-head{padding:16px}.invoice-form{padding:15px 16px 18px}.invoice-layout{grid-template-columns:1fr;gap:14px}.invoice-details .invoice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.invoice-details .invoice-field.full{grid-column:1/-1}}
+@media(max-width:420px){.invoice-details .invoice-grid{grid-template-columns:1fr}.invoice-details .invoice-field.full{grid-column:auto}.invoice-actions{flex-direction:column-reverse}.invoice-head h2{font-size:18px}}
 </style>
 
 </head>
@@ -1511,27 +1512,29 @@
 
     <!-- ===== MODAL ÓRDENES DE COMPRA ===== -->
     <div id="modal-ordenes-compra" class="hidden fixed inset-0 z-[3200] modal-custom flex flex-col items-center justify-center p-4">
-        <div class="bg-[#111827] border border-white/10 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl view-enter">
+        <div class="bg-[#111827] border border-white/10 w-full max-w-lg rounded-[2rem] overflow-hidden shadow-2xl view-enter">
             <div class="bg-gradient-to-r from-orange-700 to-orange-500 p-5 flex justify-between items-center">
                 <div>
-                    <h3 class="text-white font-black text-lg">📦 ORDEN DE COMPRA</h3>
-                    <p id="oc-subtitle" class="text-orange-200 text-[10px] font-bold mt-0.5">Repuestos bajo mínimo</p>
+                    <h3 class="text-white font-black text-lg">📦 Orden de compra</h3>
+                    <p id="oc-subtitle" class="text-orange-200 text-[10px] font-bold mt-0.5">Productos del inventario</p>
                 </div>
                 <button onclick="closeOrdenesCompra()" class="text-white bg-black/30 w-9 h-9 rounded-full font-bold text-lg">✕</button>
             </div>
-            <div class="p-4 space-y-3 max-h-[70vh] overflow-y-auto no-scrollbar">
+            <div class="p-4 space-y-3 max-h-[76vh] overflow-y-auto no-scrollbar">
                 <!-- Selector de proveedor -->
                 <div>
-                    <label class="text-[10px] text-slate-400 font-bold block mb-1">PROVEEDOR</label>
+                    <div class="flex items-center justify-between mb-1"><label class="text-[10px] text-slate-400 font-bold">PROVEEDOR</label><button onclick="openProveedoresModal()" class="text-[10px] text-teal-300 font-bold">+ Gestionar proveedores</button></div>
                     <select id="oc-proveedor" class="w-full font-bold text-sm"></select>
+                    <div id="oc-proveedor-info" class="mt-2 min-h-10 flex items-center justify-between gap-2 bg-black/20 border border-white/5 rounded-xl px-3 py-2 text-[10px] text-slate-400"></div>
                 </div>
                 <!-- Lista de artículos -->
                 <div>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2">Artículos a pedir</p>
+                    <div class="flex items-center justify-between mb-2"><p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Productos del inventario</p><span id="oc-selected-count" class="text-[10px] text-orange-300 font-bold"></span></div>
+                    <input type="search" id="oc-product-search" placeholder="Buscar producto, código o proveedor…" oninput="filterOCProducts()" class="w-full text-xs mb-2">
                     <div id="oc-items-list" class="space-y-2"></div>
                 </div>
                 <!-- Notas -->
-                <textarea id="oc-notas" rows="2" placeholder="Notas para el proveedor…" class="w-full text-xs"></textarea>
+                <textarea id="oc-notas" rows="2" placeholder="Notas para el proveedor (forma de entrega, urgencia, condiciones)…" class="w-full text-xs"></textarea>
                 <!-- Botones -->
                 <div class="grid grid-cols-2 gap-2">
                     <button onclick="sendOCWhatsApp()" class="bg-emerald-600 py-3 rounded-xl font-black text-xs uppercase active:scale-95 transition">💬 WhatsApp</button>
@@ -2161,6 +2164,10 @@
                 <div>
                     <label class="text-[10px] text-slate-400 block mb-1">PROVEEDOR</label>
                     <input type="text" id="stock-modal-supplier" placeholder="Nombre del proveedor" class="w-full text-sm">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 block mb-1">WHATSAPP / CONTACTO DEL PROVEEDOR</label>
+                    <input type="tel" id="stock-modal-supplier-phone" placeholder="Ej: +57 300 123 4567" class="w-full text-sm" autocomplete="tel">
                 </div>
                 <div>
                     <label class="text-[10px] text-slate-400 block mb-1">NOTAS</label>
@@ -3115,23 +3122,35 @@
     <!-- Venta con datos de cliente y ticket imprimible -->
     <div id="invoice-sale-modal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="invoice-sale-title" onclick="if(event.target===this)closeInvoiceSaleModal()">
       <div class="invoice-panel">
-        <div class="invoice-head"><div><h2 id="invoice-sale-title">🛒 Nueva venta</h2><p>Registra la venta, descuenta inventario y genera el ticket para el cliente.</p></div><button type="button" class="invoice-close" onclick="closeInvoiceSaleModal()" aria-label="Cerrar">×</button></div>
-        <form id="invoice-sale-form" onsubmit="submitInvoiceSale(event)">
-          <div class="invoice-grid">
-            <div class="invoice-field full"><label for="inv-product-btn">Producto</label><input type="hidden" id="inv-product"><button type="button" id="inv-product-btn" class="inv-picker-btn" onclick="openProductPicker()"><span id="inv-product-label" class="inv-picker-label">🔍 Buscar producto del inventario…</span><span class="inv-picker-arrow">▼</span></button></div>
-            <div class="invoice-field"><label for="inv-qty">Cantidad</label><input id="inv-qty" type="number" min="1" step="1" value="1" oninput="updateInvoicePreview()"></div>
-            <div class="invoice-field"><label for="inv-price">Precio unitario</label><input id="inv-price" type="number" min="0" step="1" oninput="updateInvoicePreview()"></div>
-            <div class="invoice-field full"><div class="inv-price-row"><span id="inv-price-hint">Elige un producto para ver su precio de inventario</span><button type="button" class="inv-price-edit" onclick="openPriceEditor()" title="Abre descuentos rápidos, redondeo y ajuste fino del precio (solo para esta venta)">✏️ Rebaja / ajustar precio</button></div></div>
-            <div class="invoice-field full"><button type="button" class="inv-add" onclick="addInvoiceLine()">➕ Agregar al ticket</button></div>
-            <div class="invoice-field full"><label>Productos del ticket</label><div id="inv-cart"><div class="inv-cart-empty">Aún no agregas productos al ticket</div></div></div>
-            <div class="invoice-field" style="position:relative"><label for="inv-client">Cliente (opcional)</label><input id="inv-client" maxlength="120" placeholder="Vacío = Cliente de mostrador" autocomplete="off" oninput="invoiceClientSuggest()" onfocus="invoiceClientSuggest()" onblur="setTimeout(invoiceClientHide,180)"><div id="inv-client-hits" class="inv-client-hits hidden"></div></div>
-            <div class="invoice-field"><label for="inv-id">Documento / NIT (opcional)</label><input id="inv-id" maxlength="40" placeholder="CC, NIT u otro"></div>
-            <div class="invoice-field"><label for="inv-phone">Teléfono (opcional)</label><input id="inv-phone" maxlength="30" inputmode="tel" placeholder="Número de contacto"></div>
-            <div class="invoice-field"><label for="inv-payment">Método de pago</label><select id="inv-payment"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Otro</option></select></div>
-            <div class="invoice-field full"><label for="inv-notes">Observaciones (opcional)</label><textarea id="inv-notes" rows="2" maxlength="300" placeholder="Garantía, referencia u observaciones"></textarea></div>
+        <div class="invoice-head"><div><div class="invoice-head-kicker">PUNTO DE VENTA · CAJA</div><h2 id="invoice-sale-title">Nueva venta</h2><p>Agrega productos y completa los datos del comprobante.</p></div><button type="button" class="invoice-close" onclick="closeInvoiceSaleModal()" aria-label="Cerrar">×</button></div>
+        <form id="invoice-sale-form" class="invoice-form" onsubmit="submitInvoiceSale(event)">
+          <div class="invoice-layout">
+            <section class="invoice-main" aria-label="Productos de la venta">
+              <div class="invoice-product-block">
+                <h3 class="invoice-section-title">Productos</h3>
+                <div class="invoice-grid">
+                  <div class="invoice-field full"><label for="inv-product-btn">Producto del inventario</label><input type="hidden" id="inv-product"><button type="button" id="inv-product-btn" class="inv-picker-btn" onclick="openProductPicker()"><span id="inv-product-label" class="inv-picker-label">🔍 Buscar producto del inventario…</span><span class="inv-picker-arrow">▼</span></button></div>
+                  <div class="invoice-field"><label for="inv-qty">Cantidad</label><input id="inv-qty" type="number" min="1" step="1" value="1" oninput="updateInvoicePreview()"></div>
+                  <div class="invoice-field"><label for="inv-price">Precio unitario</label><input id="inv-price" type="number" min="0" step="1" oninput="updateInvoicePreview()"></div>
+                  <div class="invoice-field full"><div class="inv-price-row"><span id="inv-price-hint">Elige un producto para ver su precio de inventario</span><button type="button" class="inv-price-edit" onclick="openPriceEditor()" title="Abre descuentos rápidos, redondeo y ajuste fino del precio (solo para esta venta)">✏️ Ajustar precio</button></div></div>
+                  <div class="invoice-field full"><button type="button" class="inv-add" onclick="addInvoiceLine()">＋ Agregar producto</button></div>
+                </div>
+              </div>
+              <div class="invoice-cart-section"><div class="invoice-cart-heading"><h3 class="invoice-section-title">Detalle de la venta</h3><p class="invoice-section-caption">Productos que aparecerán en el ticket</p></div><div id="inv-cart"><div class="inv-cart-empty">Aún no agregas productos al ticket</div></div></div>
+            </section>
+            <aside class="invoice-details" aria-label="Datos del comprobante">
+              <h3 class="invoice-section-title">Datos del comprobante</h3>
+              <div class="invoice-grid">
+                <div class="invoice-field full" style="position:relative"><label for="inv-client">Cliente <span style="font-weight:500;color:#71838a">· opcional</span></label><input id="inv-client" maxlength="120" placeholder="Cliente de mostrador" autocomplete="off" oninput="invoiceClientSuggest()" onfocus="invoiceClientSuggest()" onblur="setTimeout(invoiceClientHide,180)"><div id="inv-client-hits" class="inv-client-hits hidden"></div></div>
+                <div class="invoice-field"><label for="inv-id">Documento / NIT</label><input id="inv-id" maxlength="40" placeholder="Opcional"></div>
+                <div class="invoice-field"><label for="inv-phone">Teléfono</label><input id="inv-phone" maxlength="30" inputmode="tel" placeholder="Opcional"></div>
+                <div class="invoice-field full"><label for="inv-payment">Método de pago</label><select id="inv-payment"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Otro</option></select></div>
+                <div class="invoice-field full"><label for="inv-notes">Observaciones</label><textarea id="inv-notes" rows="3" maxlength="300" placeholder="Garantía, referencia u observaciones · opcional"></textarea></div>
+              </div>
+            </aside>
           </div>
           <div class="invoice-total"><span>Total de la venta</span><strong id="inv-total">$0</strong></div>
-          <p class="invoice-note">Agrega varios productos al mismo ticket; si dejas uno elegido sin pulsar «Agregar», se incluye al registrar. La rebaja de precio aplica solo a esta venta (el inventario no cambia). Si no escribes cliente, el ticket sale a nombre de «Cliente de mostrador». Es un comprobante comercial que puedes enviar por WhatsApp, descargar en PDF o imagen, o imprimir; no sustituye una factura electrónica validada por la DIAN.</p>
+          <p class="invoice-note">Puedes agregar varios productos. El ajuste de precio aplica solo a esta venta y el comprobante generado es un ticket comercial.</p>
           <div class="invoice-actions"><button type="button" onclick="closeInvoiceSaleModal()">Cancelar</button><button class="primary" id="inv-submit" type="submit">✓ Registrar venta y generar ticket</button></div>
         </form>
       </div>
