@@ -29,6 +29,89 @@
             return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
         }
 
+        // Selector visual para el origen del cliente; el <select> sigue siendo la fuente de datos.
+        function syncOriginPicker() {
+            const select = document.getElementById('c-origen');
+            const value = document.getElementById('c-origen-value');
+            const menu = document.getElementById('c-origen-menu');
+            if (!select || !value) return;
+            const option = select.options[select.selectedIndex];
+            value.textContent = option ? option.textContent.trim() : 'Sin especificar';
+            value.classList.toggle('origin-picker-placeholder', !select.value);
+            if (menu) menu.querySelectorAll('.origin-picker-option').forEach(button => {
+                const selected = button.dataset.value === select.value;
+                button.setAttribute('aria-selected', String(selected));
+                const check = button.querySelector('.origin-picker-check');
+                if (check) check.textContent = selected ? '✓' : '';
+            });
+        }
+
+        function _originPickerBuildOptions() {
+            const select = document.getElementById('c-origen');
+            const menu = document.getElementById('c-origen-menu');
+            if (!select || !menu || menu.children.length) return;
+            menu.innerHTML = [...select.options].map(option =>
+                `<button type="button" class="origin-picker-option" role="option" data-value="${_acEscape(option.value)}" aria-selected="false"><span>${_acEscape(option.textContent.trim())}</span><span class="origin-picker-check" aria-hidden="true"></span></button>`
+            ).join('');
+            menu.addEventListener('click', e => {
+                const choice = e.target.closest('.origin-picker-option');
+                if (!choice) return;
+                select.value = choice.dataset.value;
+                select.dispatchEvent(new Event('change', { bubbles: true }));
+                syncOriginPicker();
+                closeOriginPicker(true);
+            });
+            menu.addEventListener('keydown', e => {
+                const options = [...menu.querySelectorAll('.origin-picker-option')];
+                const current = options.indexOf(document.activeElement);
+                let next = -1;
+                if (e.key === 'ArrowDown') next = Math.min(options.length - 1, current + 1);
+                else if (e.key === 'ArrowUp') next = Math.max(0, current < 0 ? 0 : current - 1);
+                else if (e.key === 'Home') next = 0;
+                else if (e.key === 'End') next = options.length - 1;
+                else if (e.key === 'Escape') { e.preventDefault(); closeOriginPicker(true); return; }
+                if (next >= 0) { e.preventDefault(); options[next].focus(); }
+            });
+        }
+
+        function toggleOriginPicker() {
+            const menu = document.getElementById('c-origen-menu');
+            if (!menu) return;
+            if (!menu.hidden) { closeOriginPicker(false); return; }
+            _originPickerBuildOptions();
+            syncOriginPicker();
+            const trigger = document.getElementById('c-origen-trigger');
+            const rect = trigger.getBoundingClientRect();
+            menu.hidden = false;
+            menu.style.left = '0px'; menu.style.top = '0px'; menu.style.width = `${rect.width}px`;
+            menu.style.maxHeight = `${Math.max(160, window.innerHeight - 24)}px`;
+            const menuHeight = menu.getBoundingClientRect().height;
+            const left = Math.max(8, Math.min(rect.left, window.innerWidth - rect.width - 8));
+            const top = rect.bottom + menuHeight + 12 <= window.innerHeight
+                ? rect.bottom + 8
+                : Math.max(12, rect.top - menuHeight - 8);
+            menu.style.left = `${left}px`; menu.style.top = `${top}px`;
+            trigger.setAttribute('aria-expanded', 'true');
+            const selected = menu.querySelector('[aria-selected="true"]') || menu.querySelector('.origin-picker-option');
+            if (selected) selected.focus({ preventScroll: true });
+        }
+
+        function closeOriginPicker(returnFocus) {
+            const menu = document.getElementById('c-origen-menu');
+            const trigger = document.getElementById('c-origen-trigger');
+            if (!menu || menu.hidden) return;
+            menu.hidden = true;
+            if (trigger) trigger.setAttribute('aria-expanded', 'false');
+            if (returnFocus && trigger) trigger.focus();
+        }
+
+        function originPickerTriggerKeydown(e) {
+            if (['Enter', ' ', 'ArrowDown', 'ArrowUp'].includes(e.key)) {
+                e.preventDefault();
+                toggleOriginPicker();
+            }
+        }
+
         function ac_onInput(inputEl, kind) {
             if (_acBlurTimer) { clearTimeout(_acBlurTimer); _acBlurTimer = null; }
             const dropdown = document.getElementById('ac-dropdown-' + kind);
@@ -110,7 +193,11 @@
                     d.style.display = 'none';
                 });
             }
+            if (!e.target.closest('#c-origen-picker') && !e.target.closest('#c-origen-menu')) closeOriginPicker(false);
         });
+        document.addEventListener('scroll', e => {
+            if (!e.target.closest || !e.target.closest('#c-origen-menu')) closeOriginPicker(false);
+        }, true);
 
         function calcSaldoPreview() {
             const val = Number(document.getElementById('c-val').value) || 0;
@@ -176,6 +263,7 @@
             document.getElementById('c-presupuesto').value = 'pendiente';
             document.getElementById('c-tecnico').value = '';
             document.getElementById('c-origen').value = '';
+            syncOriginPicker();
             document.getElementById('client-alert').innerText = '';
             const clientCard = document.getElementById('client-info-card');
             if (clientCard) clientCard.classList.add('hidden');
@@ -213,7 +301,7 @@
                             if (elNom) elNom.value = src.nom || '';
                             if (elTel) elTel.value = src.tel || '';
                             // Origen: si era nuevo antes, ahora es "cliente_frecuente"
-                            if (elOrigen) elOrigen.value = 'cliente_frecuente';
+                            if (elOrigen) { elOrigen.value = 'cliente_frecuente'; syncOriginPicker(); }
                             // Vaciar campos específicos del equipo (el cliente usualmente trae otro)
                             if (elEqu) elEqu.value = '';
                             if (elFal) elFal.value = '';

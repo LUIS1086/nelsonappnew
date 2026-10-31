@@ -150,11 +150,11 @@
                         ? { label: `💳 PARCIAL ${pctPagado}%`, color: '#60a5fa', bg: 'rgba(96,165,250,0.12)', border: 'rgba(96,165,250,0.3)' }
                         : { label: '⏳ PENDIENTE', color: '#fb923c', bg: 'rgba(251,146,60,0.12)', border: 'rgba(251,146,60,0.3)' };
 
-                return `<div class="card order-card-pro" style="position:relative;padding:0;overflow:hidden;content-visibility:auto;contain-intrinsic-size:auto 420px;border-left:4px solid ${cardAccent};box-shadow:0 4px 12px rgba(0,0,0,0.2),0 0 0 1px ${cardGlow};">
+                return `<div class="card order-card-pro" style="--order-accent:${cardAccent};position:relative;padding:0;overflow:hidden;content-visibility:auto;contain-intrinsic-size:auto 420px;border-left:4px solid ${cardAccent};box-shadow:0 4px 12px rgba(0,0,0,0.2),0 0 0 1px ${cardGlow};">
                     <div style="position:absolute;top:-40px;right:-40px;width:140px;height:140px;background:radial-gradient(circle,${cardGlow},transparent 70%);pointer-events:none;"></div>
 
                     <!-- HEADER: avatar + cliente + estado -->
-                    <div style="position:relative;padding:14px 14px 10px;display:flex;align-items:flex-start;gap:12px;">
+                    <div class="order-card-heading" style="position:relative;padding:14px 14px 10px;display:flex;align-items:flex-start;gap:12px;">
                         <div onclick="editOrder(${o.id})" style="flex-shrink:0;width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,hsl(${avatarHue},70%,55%),hsl(${avatarHue},70%,40%));display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;color:#fff;box-shadow:0 4px 12px hsla(${avatarHue},70%,50%,0.35);cursor:pointer;letter-spacing:-0.5px;">${nameInitials}</div>
                         <div style="flex:1;min-width:0;">
                             <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap;">
@@ -167,7 +167,7 @@
                             <p style="font-size:13px;color:#fb923c;font-weight:700;margin:3px 0 0;line-height:1.25;">🔧 ${escapeHtml(o.equ)}</p>
                             ${(tecnicoBadge || origenBadge || partsUsedBadge) ? `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:5px;">${tecnicoBadge}${origenBadge}${partsUsedBadge}</div>` : ''}
                         </div>
-                        <div style="flex-shrink:0;" id="sta-wrap-${o.id}">
+                        <div class="order-card-status-control" style="flex-shrink:0;" id="sta-wrap-${o.id}">
                             ${(()=>{
                                 const cfg = {
                                     recibido:      {bg:'#1e293b', color:'#94a3b8', icon:'📥'},
@@ -192,7 +192,7 @@
                         </div>
                     </div>
 
-                    <div style="padding:0 14px 10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
+                    <div class="order-card-meta" style="padding:0 14px 10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
                         <span style="font-size:11px;color:#64748b;font-weight:700;">📅 ${new Date(o.fecha).toLocaleDateString('es-ES', {day:'2-digit',month:'short'})}</span>
                         <span style="font-size:11px;color:${isOverdue ? '#f87171':'#64748b'};font-weight:${isOverdue?'900':'700'};">· 🕒 ${daysInShop}d en taller</span>
                         <span style="font-size:11px;font-weight:800;" class="${staColors[o.sta]||'text-slate-400'}">· ${daysInStatus}d en ${o.sta}</span>
@@ -200,10 +200,10 @@
                     ${fechaEstBadge ? `<div style="padding:0 14px 10px;">${fechaEstBadge}</div>` : ''}
                     ${notasBadge ? `<div style="padding:0 14px 10px;">${notasBadge}</div>` : ''}
 
-                    <div style="margin:0 14px 10px;padding:11px 12px;background:rgba(15,23,42,0.5);border:1px solid rgba(255,255,255,0.04);border-left:3px solid ${cardAccent};border-radius:10px;font-size:12.5px;color:#cbd5e1;line-height:1.4;text-transform:uppercase;letter-spacing:0.3px;font-weight:600;">${escapeHtml(o.det||'Sin detalle')}</div>
+                    <div class="order-card-description" style="margin:0 14px 10px;padding:11px 12px;background:rgba(15,23,42,0.5);border:1px solid rgba(255,255,255,0.04);border-left:3px solid ${cardAccent};border-radius:10px;font-size:12.5px;color:#cbd5e1;line-height:1.4;text-transform:uppercase;letter-spacing:0.3px;font-weight:600;">${escapeHtml(o.det||'Sin detalle')}</div>
 
                     <!-- DINERO -->
-                    <div style="margin:0 14px 12px;padding:12px;background:linear-gradient(135deg,rgba(16,185,129,0.05),rgba(15,23,42,0.5));border:1px solid rgba(16,185,129,0.12);border-radius:12px;">
+                    <div class="order-card-finance" style="margin:0 14px 12px;padding:12px;background:linear-gradient(135deg,rgba(16,185,129,0.05),rgba(15,23,42,0.5));border:1px solid rgba(16,185,129,0.12);border-radius:12px;">
                         <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:8px;">
                             <div>
                                 <div style="font-size:9px;font-weight:900;color:#64748b;letter-spacing:1.5px;text-transform:uppercase;">Total</div>

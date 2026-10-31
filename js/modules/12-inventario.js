@@ -13,7 +13,8 @@
                 s.n.toLowerCase().includes(st) ||
                 (s.code || '').toLowerCase().includes(st) ||
                 (s.cat  || '').toLowerCase().includes(st) ||
-                (s.supplier || '').toLowerCase().includes(st)
+                (s.supplier || '').toLowerCase().includes(st) ||
+                (s.supplierPhone || '').toLowerCase().includes(st)
             );
 
             if (activeStockCategory) stock = stock.filter(s => (s.cat || '') === activeStockCategory);
@@ -64,43 +65,46 @@
                 const margin  = s.cost > 0 && s.p > 0 ? Math.round(((s.p - s.cost) / s.cost) * 100) : null;
                 const catIcon = catIcons[s.cat] || '📦';
                 const imgHtml = s.img
-                    ? `<img src="${s.img}" class="w-10 h-10 rounded-xl object-cover flex-shrink-0" loading="lazy">`
-                    : `<div class="w-10 h-10 rounded-xl bg-slate-700/60 flex items-center justify-center text-lg flex-shrink-0">${catIcon}</div>`;
-                const statusBar = isOut
-                    ? `<div class="h-1 rounded-full bg-rose-500 mt-1" style="width:100%"></div>`
-                    : isLow
-                    ? `<div class="h-1 rounded-full bg-amber-400 mt-1" style="width:${Math.min(100,(s.q/minSt)*100)}%"></div>`
-                    : `<div class="h-1 rounded-full bg-emerald-500/40 mt-1" style="width:${Math.min(100,(s.q/Math.max(s.q,minSt*2))*100)}%"></div>`;
+                    ? `<img src="${s.img}" class="stock-thumb" loading="lazy" alt="${escapeHtml(s.n)}">`
+                    : `<div class="stock-thumb stock-thumb-empty" aria-hidden="true">${catIcon}</div>`;
+                const stockState = isOut ? 'agotado' : isLow ? 'bajo' : 'normal';
+                const statusBadge = isOut
+                    ? '<span class="stock-state stock-state-out">Agotado</span>'
+                    : isLow ? '<span class="stock-state stock-state-low">Stock bajo</span>' : '';
+                const supplierLine = (s.supplier || s.supplierPhone)
+                    ? `<div class="stock-supplier"><span>Proveedor</span><strong>${escapeHtml(s.supplier || 'Contacto guardado')}</strong>${s.supplierPhone ? `<small>${escapeHtml(s.supplierPhone)}</small>` : ''}</div>`
+                    : '<div class="stock-supplier stock-supplier-empty">Sin proveedor asignado</div>';
 
-                return `<div class="flex items-center gap-3 p-3 rounded-xl border transition ${isOut ? 'bg-rose-500/5 border-rose-500/20' : isLow ? 'bg-amber-500/5 border-amber-500/20' : 'bg-slate-800/30 border-white/5'} active:scale-[0.99]">
-                    ${imgHtml}
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-1.5">
-                            <p class="font-black text-sm truncate uppercase">${escapeHtml(s.n)}</p>
-                            ${isOut ? '<span class="text-[9px] bg-rose-500/20 text-rose-400 px-1.5 py-0.5 rounded-full font-black flex-shrink-0">AGOTADO</span>' : isLow ? '<span class="text-[9px] bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded-full font-black flex-shrink-0">BAJO</span>' : ''}
+                return `<article class="stock-row stock-row-${stockState}">
+                    <div class="stock-row-main">
+                        ${imgHtml}
+                        <div class="stock-product-info">
+                            <div class="stock-product-title"><h4>${escapeHtml(s.n)}</h4>${statusBadge}</div>
+                            <div class="stock-product-meta">${s.code ? `<span class="stock-code">${escapeHtml(s.code)}</span>` : ''}${s.cat ? `<span>${escapeHtml(s.cat)}</span>` : ''}</div>
+                            ${supplierLine}
                         </div>
-                        ${s.code ? `<p class="text-[10px] text-slate-500 font-mono">${s.code}</p>` : ''}
-                        <div class="flex items-center gap-2 mt-0.5">
-                            <p class="text-emerald-400 text-xs font-black">${getCurrency()}${s.p.toLocaleString()}</p>
-                            ${s.cost > 0 ? `<p class="text-slate-500 text-[10px]">costo: ${getCurrency()}${s.cost.toLocaleString()}</p>` : ''}
-                            ${margin !== null ? `<p class="text-[10px] font-bold ${margin>=0?'text-emerald-400':'text-rose-400'}">${margin>=0?'+':''}${margin}%</p>` : ''}
-                        </div>
-                        ${statusBar}
-                    </div>
-                    <div class="flex flex-col items-end gap-2 flex-shrink-0">
-                        <div class="flex items-center gap-1 bg-slate-900/60 rounded-full px-1 py-0.5">
-                            <button onclick="modQty(${s.id},-1)" class="w-7 h-7 rounded-full bg-slate-700 text-sm font-black active:scale-90 transition">−</button>
-                            <span class="font-black text-sm w-8 text-center">${s.q}</span>
-                            <button onclick="modQty(${s.id},1)" class="w-7 h-7 rounded-full bg-orange-600/60 text-sm font-black active:scale-90 transition">+</button>
-                        </div>
-                        <div class="flex gap-1">
-                            <button onclick="openQRItemModal(${s.id})" class="text-violet-400 text-xs bg-violet-500/10 w-7 h-7 rounded-lg flex items-center justify-center hidden" title="Generar etiqueta QR">🏷️</button>
-                            <button onclick="openStockHistory(${s.id})" class="text-blue-400 text-xs bg-blue-500/10 w-7 h-7 rounded-lg flex items-center justify-center" title="Historial">📋</button>
-                            <button onclick="editStockItem(${s.id})" class="text-slate-400 text-xs bg-slate-700/40 w-7 h-7 rounded-lg flex items-center justify-center">✏️</button>
-                            <button onclick="deleteStockItem(${s.id})" class="text-rose-400 text-xs bg-rose-500/10 w-7 h-7 rounded-lg flex items-center justify-center">🗑️</button>
+                        <div class="stock-quantity">
+                            <span class="stock-quantity-label">Disponible</span>
+                            <strong>${s.q}</strong><span class="stock-unit">uds</span>
+                            <div class="stock-stepper" role="group" aria-label="Ajustar cantidad de ${escapeHtml(s.n)}">
+                                <button type="button" onclick="modQty(${s.id},-1)" aria-label="Restar una unidad">−</button>
+                                <button type="button" onclick="modQty(${s.id},1)" aria-label="Agregar una unidad">+</button>
+                            </div>
                         </div>
                     </div>
-                </div>`;
+                    <div class="stock-row-footer">
+                        <div class="stock-prices"><span class="stock-price-main">${getCurrency()}${Number(s.p || 0).toLocaleString()}</span><span class="stock-price-label">Precio de venta</span>
+                            ${s.cost > 0 ? `<span class="stock-price-cost">Costo ${getCurrency()}${Number(s.cost).toLocaleString()}</span>` : ''}
+                            ${margin !== null ? `<span class="stock-margin ${margin < 0 ? 'stock-margin-negative' : ''}">${margin >= 0 ? '+' : ''}${margin}% margen</span>` : ''}
+                        </div>
+                        <div class="stock-row-actions" role="group" aria-label="Acciones para ${escapeHtml(s.n)}">
+                            ${(s.supplier || s.supplierPhone) ? `<button type="button" class="stock-action stock-action-contact" onclick="pedirAProveedor(${s.id})" title="Contactar al proveedor por WhatsApp">WhatsApp</button>` : ''}
+                            <button type="button" class="stock-action" onclick="openStockHistory(${s.id})" title="Ver historial de movimientos" aria-label="Historial">📋</button>
+                            <button type="button" class="stock-action" onclick="editStockItem(${s.id})" title="Editar producto" aria-label="Editar">✎</button>
+                            <button type="button" class="stock-action stock-action-delete" onclick="deleteStockItem(${s.id})" title="Eliminar producto" aria-label="Eliminar">×</button>
+                        </div>
+                    </div>
+                </article>`;
             };
 
             // Pintar el primer batch YA

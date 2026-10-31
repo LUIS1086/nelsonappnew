@@ -27,7 +27,9 @@
         banknote:  '<rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/>',
         lock:      '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
         mic:       '<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/>',
-        edit:      '<path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/>'
+        edit:      '<path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/>',
+        link:      '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+        trash:     '<path d="M3 6h18M8 6V4h8v2m3 0-1 14H6L5 6m4 4v6m6-6v6"/>'
     };
     // emoji (sin selector de variación) → icono
     var MAP = {
@@ -36,7 +38,8 @@
         '\u2328': 'keyboard', '\u2795': 'plus', '\uD83D\uDD0D': 'search', '\uD83D\uDC64': 'user',
         '\uD83D\uDCF1': 'phone', '\u2B07': 'download', '\uD83D\uDCDD': 'edit',
         '\uD83D\uDEE1': 'shield', '\uD83D\uDCC5': 'calendar', '\uD83D\uDCE3': 'megaphone', '\uD83D\uDCB5': 'banknote',
-        '\uD83D\uDD12': 'lock', '\uD83C\uDFA4': 'mic', '\uD83D\uDC77': 'user'
+        '\uD83D\uDD12': 'lock', '\uD83C\uDFA4': 'mic', '\uD83D\uDC77': 'user',
+        '\uD83D\uDD17': 'link', '\uD83D\uDDD1': 'trash', '\u270E': 'edit', '×': 'trash'
     };
 
     function svg(name) {
@@ -89,6 +92,34 @@
         document.querySelectorAll('.voice-mic-btn').forEach(function (e) { swapWhole(e, 'ios-ic'); });
         document.querySelectorAll('#shortcuts-overlay h3').forEach(swapLeading);
         document.querySelectorAll('#sidebar-footer button').forEach(swapLeading);
+        applyListIcons(document);
+    }
+
+    function applyListIcons(root) {
+        if (!root || !root.querySelectorAll) return;
+        if (root.matches && root.matches('.oa-ico')) swapWhole(root, 'ios-ic');
+        if (root.matches && root.matches('.stock-action:not(.stock-action-contact)')) swapWhole(root, 'ios-ic');
+        root.querySelectorAll('.order-act .oa-ico').forEach(function (e) { swapWhole(e, 'ios-ic'); });
+        root.querySelectorAll('.stock-action:not(.stock-action-contact)').forEach(function (e) { swapWhole(e, 'ios-ic'); });
+    }
+
+    // Las tarjetas se dibujan después de cargar los datos; conserva el mismo icono en cada render.
+    if (window.MutationObserver) {
+        var listObserver = new MutationObserver(function (records) {
+            records.forEach(function (record) {
+                if (record.target.closest) {
+                    var actionIcon = record.target.closest('.order-act .oa-ico, .stock-action:not(.stock-action-contact)');
+                    if (actionIcon) swapWhole(actionIcon, 'ios-ic');
+                }
+                record.addedNodes.forEach(function (node) {
+                    if (node.nodeType === 1) applyListIcons(node);
+                });
+            });
+        });
+        ['orders-list', 'stock-list'].forEach(function (id) {
+            var list = document.getElementById(id);
+            if (list) listObserver.observe(list, { childList: true, subtree: true });
+        });
     }
 
     apply();
