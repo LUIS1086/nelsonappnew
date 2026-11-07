@@ -102,115 +102,173 @@ html[data-theme="light"] select {
 }
 html[data-theme="light"] input::placeholder,
 html[data-theme="light"] textarea::placeholder { color: rgba(60, 60, 67, .5) !important; opacity: 1; }
-html[data-theme="light"] input:focus, html[data-theme="light"] textarea:focus, html[data-theme="light"] select:focus {
+html[data-theme="light"] input:focus,
+html[data-theme="light"] textarea:focus,
+html[data-theme="light"] select:focus {
   background: #fff !important; border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(249, 115, 22, .18) !important;
 }
 html[data-theme="light"] .suggestion-box { background: #fff; border-color: var(--nn-line); box-shadow: var(--nn-shadow-pop); }
 
 /* ── 4. Textos de Tailwind sobre fondo claro ──────────────────────── */
-html[data-theme="light"] .text-white,
-html[data-theme="light"] .text-slate-100, html[data-theme="light"] .text-slate-200,
-html[data-theme="light"] .text-gray-100, html[data-theme="light"] .text-gray-200 { color: var(--nn-text) !important; }
-html[data-theme="light"] .text-slate-300, html[data-theme="light"] .text-gray-300 { color: #3a3a3f !important; }
-html[data-theme="light"] .text-slate-400, html[data-theme="light"] .text-slate-500,
-html[data-theme="light"] .text-gray-400, html[data-theme="light"] .text-gray-500 { color: var(--nn-faint) !important; }
-html[data-theme="light"] .text-emerald-300, html[data-theme="light"] .text-emerald-400 { color: #0f7a4a !important; }
-html[data-theme="light"] .text-rose-300, html[data-theme="light"] .text-rose-400 { color: #c81e43 !important; }
-html[data-theme="light"] .text-blue-300, html[data-theme="light"] .text-blue-400, html[data-theme="light"] .text-sky-400, html[data-theme="light"] .text-cyan-400 { color: #1d4ed8 !important; }
-html[data-theme="light"] .text-amber-300, html[data-theme="light"] .text-amber-400, html[data-theme="light"] .text-yellow-400 { color: #a16207 !important; }
-html[data-theme="light"] .text-orange-300, html[data-theme="light"] .text-orange-400, html[data-theme="light"] .text-orange-500 { color: var(--nn-accent-text) !important; }
-html[data-theme="light"] .text-violet-300, html[data-theme="light"] .text-violet-400, html[data-theme="light"] .text-purple-400 { color: #6d28d9 !important; }
+html[data-theme="light"] .text-white:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .text-slate-100:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .text-slate-200:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .text-gray-100:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .text-gray-200:not(#monthly-report-printable *):not(#invoice-printable *) { color: var(--nn-text) !important; }
+html[data-theme="light"] .text-slate-300:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .text-gray-300:not(#monthly-report-printable *):not(#invoice-printable *) { color: #3a3a3f !important; }
+html[data-theme="light"] .text-slate-400:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .text-slate-500:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .text-gray-400:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .text-gray-500:not(#monthly-report-printable *):not(#invoice-printable *) { color: var(--nn-faint) !important; }
+html[data-theme="light"] .text-emerald-300:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .text-emerald-400:not(#monthly-report-printable *):not(#invoice-printable *) { color: #0f7a4a !important; }
+html[data-theme="light"] .text-rose-300:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .text-rose-400:not(#monthly-report-printable *):not(#invoice-printable *) { color: #c81e43 !important; }
+html[data-theme="light"] .text-blue-300:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .text-blue-400:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .text-sky-400:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .text-cyan-400:not(#monthly-report-printable *):not(#invoice-printable *) { color: #1d4ed8 !important; }
+html[data-theme="light"] .text-amber-300:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .text-amber-400:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .text-yellow-400:not(#monthly-report-printable *):not(#invoice-printable *) { color: #a16207 !important; }
+html[data-theme="light"] .text-orange-300:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .text-orange-400:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .text-orange-500:not(#monthly-report-printable *):not(#invoice-printable *) { color: var(--nn-accent-text) !important; }
+html[data-theme="light"] .text-violet-300:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .text-violet-400:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .text-purple-400:not(#monthly-report-printable *):not(#invoice-printable *) { color: #6d28d9 !important; }
 /* …pero el texto blanco sobre botones de color se queda blanco */
-html[data-theme="light"] [class*="bg-orange-"] .text-white, html[data-theme="light"] .bg-orange-600.text-white,
-html[data-theme="light"] [class*="bg-blue-6"] .text-white, html[data-theme="light"] [class*="bg-emerald-6"] .text-white,
-html[data-theme="light"] [class*="bg-rose-6"] .text-white, html[data-theme="light"] [class*="bg-gradient-to"].text-white,
-html[data-theme="light"] [class*="from-"][class*="to-"] .text-white { color: #fff !important; }
+html[data-theme="light"] [class*="bg-orange-"] .text-white:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .bg-orange-600.text-white:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [class*="bg-blue-6"] .text-white:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [class*="bg-emerald-6"] .text-white:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [class*="bg-rose-6"] .text-white:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [class*="bg-gradient-to"].text-white:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [class*="from-"][class*="to-"] .text-white:not(#monthly-report-printable *):not(#invoice-printable *) { color: #fff !important; }
 
 /* Fondos de Tailwind pensados para oscuro */
-html[data-theme="light"] .bg-black\/20, html[data-theme="light"] .bg-black\/30, html[data-theme="light"] .bg-black\/40,
-html[data-theme="light"] .bg-slate-800\/40, html[data-theme="light"] .bg-slate-800\/60, html[data-theme="light"] .bg-slate-900\/50,
-html[data-theme="light"] .bg-white\/5 { background: var(--ios-fill) !important; }
-html[data-theme="light"] .bg-white\/10 { background: rgba(120, 120, 128, .16) !important; }
-html[data-theme="light"] .bg-slate-700, html[data-theme="light"] .bg-gray-700, html[data-theme="light"] .bg-slate-700\/60 { background: rgba(120, 120, 128, .28) !important; }
-html[data-theme="light"] .bg-slate-800, html[data-theme="light"] .bg-slate-900, html[data-theme="light"] .bg-\[\#111827\] { background: var(--nn-surface) !important; }
-html[data-theme="light"] .border-white\/5, html[data-theme="light"] .border-white\/10, html[data-theme="light"] .border-white\/20 { border-color: var(--nn-line) !important; }
-html[data-theme="light"] .divide-white\/5 > * + *, html[data-theme="light"] .divide-white\/10 > * + * { border-color: var(--nn-line) !important; }
+html[data-theme="light"] .bg-black\/20:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .bg-black\/30:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .bg-black\/40:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .bg-slate-800\/40:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .bg-slate-800\/60:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .bg-slate-900\/50:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .bg-white\/5:not(#monthly-report-printable *):not(#invoice-printable *) { background: var(--ios-fill) !important; }
+html[data-theme="light"] .bg-white\/10:not(#monthly-report-printable *):not(#invoice-printable *) { background: rgba(120, 120, 128, .16) !important; }
+html[data-theme="light"] .bg-slate-700:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .bg-gray-700:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .bg-slate-700\/60:not(#monthly-report-printable *):not(#invoice-printable *) { background: rgba(120, 120, 128, .28) !important; }
+html[data-theme="light"] .bg-slate-800:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .bg-slate-900:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .bg-\[\#111827\]:not(#monthly-report-printable *):not(#invoice-printable *) { background: var(--nn-surface) !important; }
+html[data-theme="light"] .border-white\/5:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .border-white\/10:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .border-white\/20:not(#monthly-report-printable *):not(#invoice-printable *) { border-color: var(--nn-line) !important; }
+html[data-theme="light"] .divide-white\/5 > * + *:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] .divide-white\/10 > * + *:not(#monthly-report-printable *):not(#invoice-printable *) { border-color: var(--nn-line) !important; }
 
-html[data-theme="light"] [style*="linear-gradient"][style*="#0b0f1e"]:not([style*="width:"]),
-html[data-theme="light"] [style*="linear-gradient"][style*="#0d0f1a"]:not([style*="width:"]),
-html[data-theme="light"] [style*="linear-gradient"][style*="#0c1220"]:not([style*="width:"]),
-html[data-theme="light"] [style*="linear-gradient"][style*="#0a0f1a"]:not([style*="width:"]),
-html[data-theme="light"] [style*="linear-gradient"][style*="#0a1628"]:not([style*="width:"]),
-html[data-theme="light"] [style*="linear-gradient"][style*="#0d1f35"]:not([style*="width:"]),
-html[data-theme="light"] [style*="linear-gradient"][style*="#0d1a2e"]:not([style*="width:"]),
-html[data-theme="light"] [style*="linear-gradient"][style*="#1a0f08"]:not([style*="width:"]),
-html[data-theme="light"] [style*="linear-gradient"][style*="#2d1506"]:not([style*="width:"]),
-html[data-theme="light"] [style*="linear-gradient"][style*="#3d1a04"]:not([style*="width:"]),
-html[data-theme="light"] [style*="linear-gradient"][style*="#0d2218"]:not([style*="width:"]),
-html[data-theme="light"] [style*="linear-gradient"][style*="#1a1608"]:not([style*="width:"]),
-html[data-theme="light"] [style*="linear-gradient"][style*="#0f0c04"]:not([style*="width:"]),
-html[data-theme="light"] [style*="linear-gradient"][style*="#0a1a14"]:not([style*="width:"]),
-html[data-theme="light"] [style*="linear-gradient"][style*="#050c08"]:not([style*="width:"]),
-html[data-theme="light"] [style*="linear-gradient"][style*="#0a1e14"]:not([style*="width:"]),
-html[data-theme="light"] [style*="linear-gradient"][style*="#04100a"]:not([style*="width:"]),
-html[data-theme="light"] [style*="linear-gradient"][style*="#0a0e1a"]:not([style*="width:"]),
-html[data-theme="light"] [style*="linear-gradient"][style*="#050812"]:not([style*="width:"]),
-html[data-theme="light"] [style*="linear-gradient"][style*="#08090f"]:not([style*="width:"]),
-html[data-theme="light"] [style*="linear-gradient"][style*="#0d1117"]:not([style*="width:"]),
-html[data-theme="light"] [style*="linear-gradient"][style*="#14172a"]:not([style*="width:"]),
-html[data-theme="light"] [style*="linear-gradient"][style*="#111827"]:not([style*="width:"]),
-html[data-theme="light"] [style*="linear-gradient"][style*="#0f172a"]:not([style*="width:"]),
-html[data-theme="light"] [style*="linear-gradient"][style*="#16213e"]:not([style*="width:"]),
-html[data-theme="light"] [style*="linear-gradient"][style*="#1e1e2e"]:not([style*="width:"]) {
+html[data-theme="light"] [style*="linear-gradient"][style*="#0b0f1e"]:not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="linear-gradient"][style*="#0d0f1a"]:not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="linear-gradient"][style*="#0c1220"]:not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="linear-gradient"][style*="#0a0f1a"]:not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="linear-gradient"][style*="#0a1628"]:not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="linear-gradient"][style*="#0d1f35"]:not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="linear-gradient"][style*="#0d1a2e"]:not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="linear-gradient"][style*="#1a0f08"]:not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="linear-gradient"][style*="#2d1506"]:not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="linear-gradient"][style*="#3d1a04"]:not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="linear-gradient"][style*="#0d2218"]:not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="linear-gradient"][style*="#1a1608"]:not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="linear-gradient"][style*="#0f0c04"]:not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="linear-gradient"][style*="#0a1a14"]:not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="linear-gradient"][style*="#050c08"]:not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="linear-gradient"][style*="#0a1e14"]:not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="linear-gradient"][style*="#04100a"]:not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="linear-gradient"][style*="#0a0e1a"]:not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="linear-gradient"][style*="#050812"]:not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="linear-gradient"][style*="#08090f"]:not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="linear-gradient"][style*="#0d1117"]:not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="linear-gradient"][style*="#14172a"]:not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="linear-gradient"][style*="#111827"]:not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="linear-gradient"][style*="#0f172a"]:not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="linear-gradient"][style*="#16213e"]:not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="linear-gradient"][style*="#1e1e2e"]:not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *) {
   background: var(--nn-surface) !important; border-color: var(--nn-line) !important; box-shadow: var(--nn-shadow-card) !important;
 }
-html[data-theme="light"] [style*="background:linear-gradient(135deg,#0"]:not(.ios-row-icon):not([style*="width:"]),
-html[data-theme="light"] [style*="background:linear-gradient(145deg,#0"]:not(.ios-row-icon):not([style*="width:"]),
-html[data-theme="light"] [style*="background:linear-gradient(160deg,#0"]:not(.ios-row-icon):not([style*="width:"]),
-html[data-theme="light"] [style*="background:linear-gradient(180deg,#0"]:not(.ios-row-icon):not([style*="width:"]),
-html[data-theme="light"] [style*="background:linear-gradient(135deg,#1a"]:not(.ios-row-icon):not([style*="width:"]),
-html[data-theme="light"] [style*="background:linear-gradient(135deg,#1e"]:not(.ios-row-icon):not([style*="width:"]),
-html[data-theme="light"] [style*="background:linear-gradient(135deg,#14"]:not(.ios-row-icon):not([style*="width:"]),
-html[data-theme="light"] [style*="background:linear-gradient(135deg,#11"]:not(.ios-row-icon):not([style*="width:"]),
-html[data-theme="light"] [style*="background:linear-gradient(135deg,#2d"]:not(.ios-row-icon):not([style*="width:"]),
-html[data-theme="light"] [style*="background:linear-gradient(135deg,#3d"]:not(.ios-row-icon):not([style*="width:"]),
-html[data-theme="light"] [style*="background:linear-gradient(145deg,#1"]:not(.ios-row-icon):not([style*="width:"]),
-html[data-theme="light"] [style*="background:linear-gradient(160deg,#1"]:not(.ios-row-icon):not([style*="width:"]),
-html[data-theme="light"] [style*="background:linear-gradient(180deg,#1"]:not(.ios-row-icon):not([style*="width:"]),
-html[data-theme="light"] [style*="background:linear-gradient(90deg,#0"]:not(.ios-row-icon):not([style*="width:"]),
-html[data-theme="light"] [style*="background:linear-gradient(90deg,#1"]:not(.ios-row-icon):not([style*="width:"]) {
+html[data-theme="light"] [style*="background:linear-gradient(135deg,#0"]:not(.ios-row-icon):not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:linear-gradient(145deg,#0"]:not(.ios-row-icon):not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:linear-gradient(160deg,#0"]:not(.ios-row-icon):not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:linear-gradient(180deg,#0"]:not(.ios-row-icon):not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:linear-gradient(135deg,#1a"]:not(.ios-row-icon):not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:linear-gradient(135deg,#1e"]:not(.ios-row-icon):not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:linear-gradient(135deg,#14"]:not(.ios-row-icon):not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:linear-gradient(135deg,#11"]:not(.ios-row-icon):not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:linear-gradient(135deg,#2d"]:not(.ios-row-icon):not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:linear-gradient(135deg,#3d"]:not(.ios-row-icon):not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:linear-gradient(145deg,#1"]:not(.ios-row-icon):not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:linear-gradient(160deg,#1"]:not(.ios-row-icon):not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:linear-gradient(180deg,#1"]:not(.ios-row-icon):not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:linear-gradient(90deg,#0"]:not(.ios-row-icon):not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:linear-gradient(90deg,#1"]:not(.ios-row-icon):not([style*="width:"]):not(#monthly-report-printable *):not(#invoice-printable *) {
   background: var(--nn-surface) !important; border-color: var(--nn-line) !important; box-shadow: var(--nn-shadow-card) !important;
 }
 /* ── 5. Estilos en línea con fondos oscuros fijos (incluye HTML que inyecta el JS) ─ */
-html[data-theme="light"] [style*="background:#0b0f1e"], html[data-theme="light"] [style*="background:#0d0f1a"],
-html[data-theme="light"] [style*="background:#111827"], html[data-theme="light"] [style*="background:#1e293b"],
-html[data-theme="light"] [style*="background:#14172a"], html[data-theme="light"] [style*="background:#0f172a"],
-html[data-theme="light"] [style*="background:#0d1a2e"], html[data-theme="light"] [style*="background:#1a2235"],
-html[data-theme="light"] [style*="background:#111c30"], html[data-theme="light"] [style*="background:#08090f"],
-html[data-theme="light"] [style*="background:#1e1e2e"], html[data-theme="light"] [style*="background:#0d1117"],
-html[data-theme="light"] [style*="background:#050812"], html[data-theme="light"] [style*="background:#0a0e1a"],
-html[data-theme="light"] [style*="background:rgba(15,23,42"], html[data-theme="light"] [style*="background: rgba(15,23,42"],
-html[data-theme="light"] [style*="background:rgba(0,0,0,0.3"], html[data-theme="light"] [style*="background:rgba(0,0,0,0.25"] {
+html[data-theme="light"] [style*="background:#0b0f1e"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:#0d0f1a"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:#111827"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:#1e293b"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:#14172a"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:#0f172a"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:#0d1a2e"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:#1a2235"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:#111c30"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:#08090f"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:#1e1e2e"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:#0d1117"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:#050812"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:#0a0e1a"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:rgba(15,23,42"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background: rgba(15,23,42"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:rgba(0,0,0,0.3"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:rgba(0,0,0,0.25"]:not(#monthly-report-printable *):not(#invoice-printable *) {
   background: var(--nn-surface) !important;
   border-color: var(--nn-line) !important;
   box-shadow: var(--nn-shadow-card) !important;
 }
-html[data-theme="light"] [style*="background:rgba(255,255,255,0.0"], html[data-theme="light"] [style*="background:rgba(255,255,255,.0"],
-html[data-theme="light"] [style*="background: rgba(255,255,255,0.0"] { background: var(--ios-fill) !important; }
-html[data-theme="light"] [style*="background:rgba(255,255,255,0.1"], html[data-theme="light"] [style*="background:rgba(255,255,255,0.12"] { background: rgba(120, 120, 128, .18) !important; }
-html[data-theme="light"] [style*="border:1px solid rgba(255,255,255"], html[data-theme="light"] [style*="border: 1px solid rgba(255,255,255"],
-html[data-theme="light"] [style*="border-bottom:1px solid rgba(255,255,255"], html[data-theme="light"] [style*="border-top:1px solid rgba(255,255,255"] { border-color: var(--nn-line) !important; }
+html[data-theme="light"] [style*="background:rgba(255,255,255,0.0"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:rgba(255,255,255,.0"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background: rgba(255,255,255,0.0"]:not(#monthly-report-printable *):not(#invoice-printable *) { background: var(--ios-fill) !important; }
+html[data-theme="light"] [style*="background:rgba(255,255,255,0.1"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="background:rgba(255,255,255,0.12"]:not(#monthly-report-printable *):not(#invoice-printable *) { background: rgba(120, 120, 128, .18) !important; }
+html[data-theme="light"] [style*="border:1px solid rgba(255,255,255"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="border: 1px solid rgba(255,255,255"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="border-bottom:1px solid rgba(255,255,255"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="border-top:1px solid rgba(255,255,255"]:not(#monthly-report-printable *):not(#invoice-printable *) { border-color: var(--nn-line) !important; }
 /* Textos claros en línea */
-html[data-theme="light"] [style*="color:#cbd5e1"], html[data-theme="light"] [style*="color:#e2e8f0"], html[data-theme="light"] [style*="color:#e5e7eb"],
-html[data-theme="light"] [style*="color:#f1f5f9"], html[data-theme="light"] [style*="color:#f8fafc"], html[data-theme="light"] [style*="color:#ebebf5"],
-html[data-theme="light"] [style*="color:#e8eaf6"], html[data-theme="light"] [style*="color:#f0f4ff"] { color: var(--nn-text) !important; }
-html[data-theme="light"] [style*="color:#8e8e93"], html[data-theme="light"] [style*="color:#94a3b8"], html[data-theme="light"] [style*="color:#64748b"] { color: var(--nn-faint) !important; }
-html[data-theme="light"] [style*="color:#60a5fa"], html[data-theme="light"] [style*="color:#93c5fd"] { color: #1d4ed8 !important; }
-html[data-theme="light"] [style*="color:#34d399"], html[data-theme="light"] [style*="color:#6ee7b7"] { color: #0f7a4a !important; }
-html[data-theme="light"] [style*="color:#fdba74"], html[data-theme="light"] [style*="color:#fb923c"] { color: var(--nn-accent-text) !important; }
-html[data-theme="light"] [style*="color:#fcd34d"], html[data-theme="light"] [style*="color:#fbbf24"], html[data-theme="light"] [style*="color:#fde68a"] { color: #a16207 !important; }
-html[data-theme="light"] [style*="color:#fda4af"] { color: #c81e43 !important; }
-html[data-theme="light"] [style*="color:#c4b5fd"], html[data-theme="light"] [style*="color:#a5b4fc"] { color: #5b3fd0 !important; }
+html[data-theme="light"] [style*="color:#cbd5e1"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="color:#e2e8f0"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="color:#e5e7eb"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="color:#f1f5f9"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="color:#f8fafc"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="color:#ebebf5"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="color:#e8eaf6"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="color:#f0f4ff"]:not(#monthly-report-printable *):not(#invoice-printable *) { color: var(--nn-text) !important; }
+html[data-theme="light"] [style*="color:#8e8e93"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="color:#94a3b8"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="color:#64748b"]:not(#monthly-report-printable *):not(#invoice-printable *) { color: var(--nn-faint) !important; }
+html[data-theme="light"] [style*="color:#60a5fa"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="color:#93c5fd"]:not(#monthly-report-printable *):not(#invoice-printable *) { color: #1d4ed8 !important; }
+html[data-theme="light"] [style*="color:#34d399"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="color:#6ee7b7"]:not(#monthly-report-printable *):not(#invoice-printable *) { color: #0f7a4a !important; }
+html[data-theme="light"] [style*="color:#fdba74"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="color:#fb923c"]:not(#monthly-report-printable *):not(#invoice-printable *) { color: var(--nn-accent-text) !important; }
+html[data-theme="light"] [style*="color:#fcd34d"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="color:#fbbf24"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="color:#fde68a"]:not(#monthly-report-printable *):not(#invoice-printable *) { color: #a16207 !important; }
+html[data-theme="light"] [style*="color:#fda4af"]:not(#monthly-report-printable *):not(#invoice-printable *) { color: #c81e43 !important; }
+html[data-theme="light"] [style*="color:#c4b5fd"]:not(#monthly-report-printable *):not(#invoice-printable *),
+html[data-theme="light"] [style*="color:#a5b4fc"]:not(#monthly-report-printable *):not(#invoice-printable *) { color: #5b3fd0 !important; }
 
 /* ── 6. Fondo de los modales y hojas ──────────────────────────────── */
 html[data-theme="light"] .modal-custom { background: var(--nn-overlay) !important; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
@@ -218,16 +276,23 @@ html[data-theme="light"] .modal-custom { background: var(--nn-overlay) !importan
 /* ── 7. Configuración (hoja iOS) y tarjetas de la pestaña Datos ───── */
 html[data-theme="light"] #modal-config .ios-modal-wrap { background: var(--nn-bg) !important; border: 1px solid var(--nn-line) !important; box-shadow: var(--nn-shadow-pop) !important; }
 html[data-theme="light"] #modal-config .ios-header { background: rgba(255, 255, 255, .92) !important; border-bottom: 1px solid var(--nn-line) !important; }
-html[data-theme="light"] #modal-config .cfg-title-wrap, html[data-theme="light"] #modal-config .cfg-title-wrap * ,
-html[data-theme="light"] #modal-config h2, html[data-theme="light"] #modal-config .ios-row-title { color: var(--nn-text) !important; }
+html[data-theme="light"] #modal-config .cfg-title-wrap,
+html[data-theme="light"] #modal-config .cfg-title-wrap *,
+html[data-theme="light"] #modal-config h2,
+html[data-theme="light"] #modal-config .ios-row-title { color: var(--nn-text) !important; }
 html[data-theme="light"] #modal-config .cfg-eyebrow { color: var(--nn-accent-text) !important; }
 html[data-theme="light"] #modal-config .cfg-version { background: var(--ios-fill) !important; color: var(--nn-faint) !important; }
 html[data-theme="light"] #modal-config .ios-close-btn { background: var(--ios-fill) !important; color: var(--nn-text) !important; }
-html[data-theme="light"] #modal-config .cfg-search, html[data-theme="light"] #modal-config .cfg-search:focus { background: var(--ios-fill) !important; color: var(--nn-text) !important; }
-html[data-theme="light"] #modal-config .cfg-stat, html[data-theme="light"] #modal-config .cfg-quick-btn {
+html[data-theme="light"] #modal-config .cfg-search,
+html[data-theme="light"] #modal-config .cfg-search:focus { background: var(--ios-fill) !important; color: var(--nn-text) !important; }
+html[data-theme="light"] #modal-config .cfg-stat,
+html[data-theme="light"] #modal-config .cfg-quick-btn {
   background: #fff !important; border: 1px solid var(--nn-line) !important; box-shadow: var(--nn-shadow-card) !important; color: var(--nn-text) !important; }
-html[data-theme="light"] #modal-config .cfg-stat *, html[data-theme="light"] #modal-config .cfg-quick-btn span { color: var(--nn-text); }
-html[data-theme="light"] #modal-config .cfg-stat-label, html[data-theme="light"] #modal-config .ios-row-sub, html[data-theme="light"] #modal-config .ios-section-label,
+html[data-theme="light"] #modal-config .cfg-stat *,
+html[data-theme="light"] #modal-config .cfg-quick-btn span { color: var(--nn-text); }
+html[data-theme="light"] #modal-config .cfg-stat-label,
+html[data-theme="light"] #modal-config .ios-row-sub,
+html[data-theme="light"] #modal-config .ios-section-label,
 html[data-theme="light"] #modal-config .ios-input-label { color: var(--nn-faint) !important; }
 html[data-theme="light"] #modal-config .ios-group { background: #fff !important; border: 1px solid var(--nn-line) !important; box-shadow: var(--nn-shadow-card) !important; }
 html[data-theme="light"] #modal-config .ios-row { background: transparent !important; border-color: var(--nn-line) !important; }
@@ -242,7 +307,8 @@ html[data-theme="light"] #drive-status-card { background: #fff !important; borde
 html[data-theme="light"] #drive-status-text { color: var(--nn-faint) !important; }
 html[data-theme="light"] #nia-card { background: linear-gradient(135deg, #fff7ed, #ffffff 70%) !important; border: 1px solid rgba(249, 115, 22, .25) !important; box-shadow: var(--nn-shadow-card) !important; }
 html[data-theme="light"] #nia-card *:not(svg):not(path):not([class*="badge"]):not(button) { color: inherit; }
-html[data-theme="light"] #nia-card p, html[data-theme="light"] #nia-card span { color: var(--nn-text); }
+html[data-theme="light"] #nia-card p,
+html[data-theme="light"] #nia-card span { color: var(--nn-text); }
 
 /* Selector Tema (control segmentado): sirve en claro y en oscuro */
 .nn-seg { display: flex; gap: 2px; padding: 2px; border-radius: 12px; background: rgba(120, 120, 128, .24); }
@@ -254,20 +320,25 @@ html[data-theme="light"] .nn-seg button.is-on { background: #fff !important; col
 
 /* ── 8. Ajustes finos del modo claro ──────────────────────────────── */
 html[data-theme="light"] #modal-config .ios-scroll-area { background: var(--nn-bg) !important; }
-html[data-theme="light"] #modal-config .cfg-stat-val, html[data-theme="light"] #modal-config .cfg-stat-val * { color: var(--nn-text) !important; }
-html[data-theme="light"] #modal-config .cfg-health-label, html[data-theme="light"] #modal-config .cfg-health-pct { color: var(--nn-faint) !important; }
+html[data-theme="light"] #modal-config .cfg-stat-val,
+html[data-theme="light"] #modal-config .cfg-stat-val * { color: var(--nn-text) !important; }
+html[data-theme="light"] #modal-config .cfg-health-label,
+html[data-theme="light"] #modal-config .cfg-health-pct { color: var(--nn-faint) !important; }
 html[data-theme="light"] #modal-config .cfg-health-track { background: rgba(120, 120, 128, .18) !important; }
-html[data-theme="light"] #nia-card p, html[data-theme="light"] #nia-card span:not([style*="color:#052e16"]) { color: var(--nn-text) !important; }
+html[data-theme="light"] #nia-card p,
+html[data-theme="light"] #nia-card span:not([style*="color:#052e16"]) { color: var(--nn-text) !important; }
 html[data-theme="light"] #nia-card p[style*="color:#fb923c"] { color: var(--nn-accent-text) !important; }
 html[data-theme="light"] #nia-card div[style*="background:#10b981"] { border-color: #fff !important; }
 html[data-theme="light"] #drive-status-card button[onclick*="ackup"],
 html[data-theme="light"] #drive-status-card button[style*="rgba(16,185,129"] { background: rgba(16, 185, 129, .12) !important; color: #0f7a4a !important; border: 1px solid rgba(16, 185, 129, .35) !important; }
 /* Iconos blancos dentro de fichas neutras → tinta oscura (las fichas de color conservan el blanco) */
-html[data-theme="light"] [style*="background:rgba(255,255,255,0.0"] svg,
+html[data-theme="light"] [style*="background:rgba(255,255,255,0.0"] svg:not(#monthly-report-printable *):not(#invoice-printable *),
 html[data-theme="light"] .ios-row-icon:not([style*="gradient"]) svg { stroke: var(--nn-text); color: var(--nn-text); }
 html[data-theme="light"] #daily-panel { background: #fff !important; border: 1px solid var(--nn-line) !important; box-shadow: var(--nn-shadow-card) !important; }
-html[data-theme="light"] #daily-panel [style*="color:#34d399"], html[data-theme="light"] #daily-panel [style*="color:#6ee7b7"] { color: #0f7a4a !important; }
-html[data-theme="light"] #daily-panel [style*="color:#a5b4fc"], html[data-theme="light"] #daily-panel [style*="color:#818cf8"] { color: #4f46e5 !important; }
+html[data-theme="light"] #daily-panel [style*="color:#34d399"],
+html[data-theme="light"] #daily-panel [style*="color:#6ee7b7"] { color: #0f7a4a !important; }
+html[data-theme="light"] #daily-panel [style*="color:#a5b4fc"],
+html[data-theme="light"] #daily-panel [style*="color:#818cf8"] { color: #4f46e5 !important; }
 html[data-theme="light"] #admin-menu-card button svg[stroke="white"],
 html[data-theme="light"] #admin-menu-card button svg[stroke="#fff"] { stroke: var(--nn-text) !important; }
 html[data-theme="light"] #admin-menu-card p[style*="color:#2a3a55"] { color: var(--nn-faint) !important; }
@@ -291,18 +362,35 @@ html.nn-theme-anim, html.nn-theme-anim *, html.nn-theme-anim *::before, html.nn-
 @media (prefers-reduced-motion: reduce) { html.nn-theme-anim, html.nn-theme-anim * { transition: none !important; } }
 
 /* ── 10. Modales: Estadísticas, Exportar, Garantías, Nelson IA ───── */
-html[data-theme="light"] .stats-modal-wrap, html[data-theme="light"] .export-modal-wrap, html[data-theme="light"] .garantias-wrap {
+html[data-theme="light"] .stats-modal-wrap,
+html[data-theme="light"] .export-modal-wrap,
+html[data-theme="light"] .garantias-wrap {
   background: var(--nn-bg) !important; border: 1px solid var(--nn-line) !important; box-shadow: var(--nn-shadow-pop) !important; }
-html[data-theme="light"] .stats-modal-header, html[data-theme="light"] .export-modal-header, html[data-theme="light"] .garantias-header {
+html[data-theme="light"] .stats-modal-header,
+html[data-theme="light"] .export-modal-header,
+html[data-theme="light"] .garantias-header {
   background: rgba(255, 255, 255, .94) !important; border-bottom: 1px solid var(--nn-line) !important; }
-html[data-theme="light"] .stats-header-title, html[data-theme="light"] .export-header-title, html[data-theme="light"] .garantias-header-title,
-html[data-theme="light"] .stats-hero-value, html[data-theme="light"] .stats-mini-val, html[data-theme="light"] .stats-card-title,
-html[data-theme="light"] .stats-status-name, html[data-theme="light"] .stats-status-name-emoji, html[data-theme="light"] .export-opt-title { color: var(--nn-text) !important; }
-html[data-theme="light"] .stats-header-sub, html[data-theme="light"] .stats-hero-label { color: var(--nn-faint) !important; }
-html[data-theme="light"] .stats-close-btn, html[data-theme="light"] .export-close-btn, html[data-theme="light"] .garantias-close-btn {
+html[data-theme="light"] .stats-header-title,
+html[data-theme="light"] .export-header-title,
+html[data-theme="light"] .garantias-header-title,
+html[data-theme="light"] .stats-hero-value,
+html[data-theme="light"] .stats-mini-val,
+html[data-theme="light"] .stats-card-title,
+html[data-theme="light"] .stats-status-name,
+html[data-theme="light"] .stats-status-name-emoji,
+html[data-theme="light"] .export-opt-title { color: var(--nn-text) !important; }
+html[data-theme="light"] .stats-header-sub,
+html[data-theme="light"] .stats-hero-label { color: var(--nn-faint) !important; }
+html[data-theme="light"] .stats-close-btn,
+html[data-theme="light"] .export-close-btn,
+html[data-theme="light"] .garantias-close-btn {
   background: var(--ios-fill) !important; color: var(--nn-text) !important; border-color: transparent !important; }
-html[data-theme="light"] .stats-card, html[data-theme="light"] .stats-mini, html[data-theme="light"] .stats-hero,
-html[data-theme="light"] .export-option-btn, html[data-theme="light"] .export-seg-btn, html[data-theme="light"] .garantia-card {
+html[data-theme="light"] .stats-card,
+html[data-theme="light"] .stats-mini,
+html[data-theme="light"] .stats-hero,
+html[data-theme="light"] .export-option-btn,
+html[data-theme="light"] .export-seg-btn,
+html[data-theme="light"] .garantia-card {
   background: #fff !important; border: 1px solid var(--nn-line) !important; box-shadow: var(--nn-shadow-card) !important; }
 html[data-theme="light"] .export-seg-btn.active { border-color: var(--accent) !important; background: var(--nn-accent-soft) !important; }
 html[data-theme="light"] .export-seg-btn-icon { color: var(--nn-text) !important; }
@@ -310,18 +398,25 @@ html[data-theme="light"] #nia-api-key-input { background: var(--ios-fill) !impor
 html[data-theme="light"] .tracking-wide { color: var(--nn-text); }
 
 /* ── 11. Nelson IA (chat y configuración) y detalles de Exportar ─── */
-html[data-theme="light"] #nia-setup .nia-step-text, html[data-theme="light"] #nia-setup p,
-html[data-theme="light"] #nia-messages .nia-msg, html[data-theme="light"] #nia-messages .nia-msg *:not(strong):not(code):not(a) { color: var(--nn-text) !important; }
-html[data-theme="light"] #nia-setup .nia-step-text a, html[data-theme="light"] #nia-messages .nia-msg a, html[data-theme="light"] #nia-messages .nia-msg strong { color: var(--nn-accent-text) !important; }
+html[data-theme="light"] #nia-setup .nia-step-text,
+html[data-theme="light"] #nia-setup p,
+html[data-theme="light"] #nia-messages .nia-msg,
+html[data-theme="light"] #nia-messages .nia-msg *:not(strong):not(code):not(a) { color: var(--nn-text) !important; }
+html[data-theme="light"] #nia-setup .nia-step-text a,
+html[data-theme="light"] #nia-messages .nia-msg a,
+html[data-theme="light"] #nia-messages .nia-msg strong { color: var(--nn-accent-text) !important; }
 html[data-theme="light"] #nia-setup .nia-step { background: #fff !important; border: 1px solid var(--nn-line) !important; }
-html[data-theme="light"] #nia-messages .nia-msg.user, html[data-theme="light"] #nia-messages .nia-msg.user * { color: #fff !important; }
-html[data-theme="light"] .nia-chip, html[data-theme="light"] .nia-action-btn { background: #fff !important; border: 1px solid var(--nn-line) !important; color: var(--nn-text) !important; }
+html[data-theme="light"] #nia-messages .nia-msg.user,
+html[data-theme="light"] #nia-messages .nia-msg.user * { color: #fff !important; }
+html[data-theme="light"] .nia-chip,
+html[data-theme="light"] .nia-action-btn { background: #fff !important; border: 1px solid var(--nn-line) !important; color: var(--nn-text) !important; }
 html[data-theme="light"] .export-range-chip { color: var(--nn-text) !important; background: var(--ios-fill) !important; border-color: transparent !important; }
 html[data-theme="light"] .export-range-chip.active { background: var(--nn-accent-soft) !important; color: var(--nn-accent-text) !important; border-color: rgba(194, 65, 12, .3) !important; }
 html[data-theme="light"] .export-footer { background: rgba(255, 255, 255, .94) !important; border-top: 1px solid var(--nn-line) !important; color: var(--nn-faint) !important; }
 html[data-theme="light"] .export-footer * { color: var(--nn-faint) !important; }
 html[data-theme="light"] #nia-setup *:not(a):not(code):not(.nia-step-num):not(button):not(button *):not(svg):not(path) { color: var(--nn-text) !important; }
-html[data-theme="light"] #nia-setup strong, html[data-theme="light"] #nia-setup b { color: var(--nn-accent-text) !important; }
+html[data-theme="light"] #nia-setup strong,
+html[data-theme="light"] #nia-setup b { color: var(--nn-accent-text) !important; }
 html[data-theme="light"] .export-seg-btn.active { background: #fff !important; border: 1.5px solid var(--accent) !important; box-shadow: 0 2px 8px rgba(249, 115, 22, .2) !important; }
 html[data-theme="light"] .export-seg-btn.active * { color: var(--nn-accent-text) !important; }
 
@@ -342,6 +437,53 @@ html[data-theme="dark"] .nn-toast { border-left: 3px solid var(--tone, var(--acc
 .admin-menu-list button:active { background: rgba(255, 255, 255, .06) !important; }
 html[data-theme="light"] .admin-menu-list button:active { background: var(--ios-fill) !important; }
 html[data-theme="light"] #admin-menu-card button > div > div:first-child:not(.ios-row-icon) { background: var(--ios-fill) !important; box-shadow: none !important; }
-html[data-theme="light"] #admin-menu-card button div[style*="color:#3a4a6a"], html[data-theme="light"] #admin-menu-card button p[style*="color:#3a4a6a"] { color: var(--nn-faint) !important; }
+html[data-theme="light"] #admin-menu-card button div[style*="color:#3a4a6a"],
+html[data-theme="light"] #admin-menu-card button p[style*="color:#3a4a6a"] { color: var(--nn-faint) !important; }
 html[data-theme="light"] #admin-menu-card button p[style*="font-weight:700"] { color: var(--nn-text) !important; }
-html[data-theme="light"] #client-alert, html[data-theme="light"] #config-warranty-alert { background: #fff !important; color: var(--nn-text) !important; border-color: var(--nn-line-2) !important; box-shadow: var(--nn-shadow-card) !important; }
+html[data-theme="light"] #client-alert,
+html[data-theme="light"] #config-warranty-alert { background: #fff !important; color: var(--nn-text) !important; border-color: var(--nn-line-2) !important; box-shadow: var(--nn-shadow-card) !important; }
+
+/* ── 13. Órdenes: botones de acción, estado y chips ───────────────── */
+html[data-theme="light"] .oa-wa    { color: #0f7a4a; background: rgba(16, 185, 129, .12); border-color: rgba(16, 185, 129, .35); }
+html[data-theme="light"] .oa-call  { color: #1d4ed8; background: rgba(59, 130, 246, .10); border-color: rgba(59, 130, 246, .30); }
+html[data-theme="light"] .oa-track { color: #0369a1; background: rgba(14, 165, 233, .10); border-color: rgba(14, 165, 233, .30); }
+html[data-theme="light"] .oa-print { color: #a16207; background: rgba(245, 158, 11, .13); border-color: rgba(245, 158, 11, .35); }
+html[data-theme="light"] .oa-notes { color: #0e7490; background: rgba(6, 182, 212, .11); border-color: rgba(6, 182, 212, .32); }
+html[data-theme="light"] .oa-dup   { color: #6d28d9; background: rgba(139, 92, 246, .11); border-color: rgba(139, 92, 246, .30); }
+html[data-theme="light"] .oa-client{ color: #c2410c; background: rgba(249, 115, 22, .11); border-color: rgba(249, 115, 22, .32); }
+html[data-theme="light"] .oa-del   { color: #be123c; background: rgba(244, 63, 94, .09); border-color: rgba(244, 63, 94, .30); }
+html[data-theme="light"] .oa-off   { color: var(--nn-faint); }
+html[data-theme="light"] .oa-sub   { opacity: .9; }
+html[data-theme="light"] .presupuesto-badge { background: var(--ios-fill) !important; }
+html[data-theme="light"] .presupuesto-badge.text-blue-400 { background: rgba(59, 130, 246, .12) !important; }
+html[data-theme="light"] .presupuesto-badge.text-emerald-400 { background: rgba(16, 185, 129, .14) !important; }
+html[data-theme="light"] .presupuesto-badge.text-rose-400 { background: rgba(244, 63, 94, .12) !important; }
+
+/* Botón de estado + menú desplegable */
+html[data-theme="light"] button[onclick^="toggleStaMenu"] { background: #fff !important; border-width: 1px !important; box-shadow: 0 1px 2px rgba(16, 24, 40, .06); }
+html[data-theme="light"] button[onclick^="toggleStaMenu"][style*="color:#94a3b8"] { color: #5c5c62 !important; border-color: rgba(92, 92, 98, .35) !important; background: #f2f2f7 !important; }
+html[data-theme="light"] button[onclick^="toggleStaMenu"][style*="color:#fbbf24"] { color: #a16207 !important; border-color: rgba(161, 98, 7, .35) !important; background: #fef3c7 !important; }
+html[data-theme="light"] button[onclick^="toggleStaMenu"][style*="color:#4ade80"] { color: #15803d !important; border-color: rgba(21, 128, 61, .35) !important; background: #dcfce7 !important; }
+html[data-theme="light"] button[onclick^="toggleStaMenu"][style*="color:#60a5fa"] { color: #1d4ed8 !important; border-color: rgba(29, 78, 216, .35) !important; background: #dbeafe !important; }
+html[data-theme="light"] button[onclick^="toggleStaMenu"][style*="color:#f87171"] { color: #be123c !important; border-color: rgba(190, 18, 60, .35) !important; background: #ffe4e6 !important; }
+html[data-theme="light"] [id^="sta-menu-"] { background: #fff !important; border: 1px solid var(--nn-line-2) !important; box-shadow: var(--nn-shadow-pop) !important; }
+html[data-theme="light"] [id^="sta-menu-"] > div { background: transparent !important; border-bottom-color: var(--nn-line) !important; }
+html[data-theme="light"] [id^="sta-menu-"] > div:active { background: var(--ios-fill) !important; }
+html[data-theme="light"] [id^="sta-menu-"] > div[style*="color:#94a3b8"] { color: #5c5c62 !important; }
+html[data-theme="light"] [id^="sta-menu-"] > div[style*="color:#fbbf24"] { color: #a16207 !important; }
+html[data-theme="light"] [id^="sta-menu-"] > div[style*="color:#4ade80"] { color: #15803d !important; }
+html[data-theme="light"] [id^="sta-menu-"] > div[style*="color:#60a5fa"] { color: #1d4ed8 !important; }
+html[data-theme="light"] [id^="sta-menu-"] > div[style*="color:#f87171"] { color: #be123c !important; }
+
+/* ── 14. Reporte ejecutivo / Factura: la tarjeta imprimible conserva su diseño de marca ─
+   (se exporta como imagen, así que NO cambia con el tema). Solo el marco del modal es claro. */
+html[data-theme="light"] #modal-monthly-report button[onclick^="closeMonthlyReportModal"] { color: var(--nn-text) !important; background: var(--ios-fill) !important; border-color: transparent !important; }
+html[data-theme="light"] #modal-monthly-report [style*="border-top:1px solid rgba(255,255,255,0.06)"] { background: rgba(255, 255, 255, .92) !important; }
+html[data-theme="light"] #modal-monthly-report #monthly-report-content { background: var(--nn-bg) !important; }
+
+/* ── 15. Repuestos usados (modal de piezas) ───────────────────────── */
+html[data-theme="light"] .parts-modal-wrap { background: var(--nn-bg) !important; border: 1px solid var(--nn-line) !important; box-shadow: var(--nn-shadow-pop) !important; }
+html[data-theme="light"] .parts-modal-header { background: rgba(255, 255, 255, .94) !important; border-bottom: 1px solid var(--nn-line) !important; }
+html[data-theme="light"] .parts-header-title, html[data-theme="light"] .parts-sum-val { color: var(--nn-text) !important; }
+html[data-theme="light"] .parts-header-sub { color: var(--nn-faint) !important; }
+html[data-theme="light"] .parts-close-btn, html[data-theme="light"] .parts-btn-skip { background: var(--ios-fill) !important; color: var(--nn-text) !important; border-color: transparent !important; }
