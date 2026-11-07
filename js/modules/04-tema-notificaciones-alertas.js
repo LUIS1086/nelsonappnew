@@ -2,22 +2,60 @@
    Tema, toasts, avisos de stock bajo y ordenes vencidas
    (extraido sin cambios de index.html; el orden de carga importa) */
         // ==================== TEMA CLARO / OSCURO ====================
-        // NOTA: modo claro desactivado por ahora. La app mantiene su identidad "Taller Pro"
-        // oscura de forma consistente. Muchas tarjetas (Menú Datos, Nelson IA, Google Drive,
-        // modales) usan colores hardcoded que no respetan light-mode. Cuando queramos
-        // retomar el tema claro, hay que pasar esas cards a variables CSS.
+        // Tres modos guardados en localStorage('appTheme'): 'dark' (por defecto), 'light' y 'system'
+        // (sigue al teléfono). El tema se aplica en <html data-theme> Y en <body class>, porque las
+        // capas CSS viejas usan body.light-mode / body.dark-mode y la capa 30-tema usa html[data-theme].
+        // (El mismo valor lo lee dashboard.html, así que ambos quedan sincronizados.)
+        const _THEME_COLORS = { dark: '#0a0c12', light: '#f2f2f7' };
+        function _themeMode() {
+            const m = localStorage.getItem('appTheme');
+            return (m === 'light' || m === 'system') ? m : 'dark';
+        }
+        function _resolveTheme(mode) {
+            if (mode === 'system') {
+                return (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+            }
+            return mode === 'light' ? 'light' : 'dark';
+        }
+        function _paintTheme(theme) {
+            const isLight = theme === 'light';
+            const root = document.documentElement, body = document.body;
+            root.setAttribute('data-theme', theme);
+            root.style.colorScheme = theme;
+            body.classList.toggle('light-mode', isLight);
+            body.classList.toggle('dark-mode', !isLight);
+            document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.setAttribute('content', _THEME_COLORS[theme]));
+            const cs = document.querySelector('meta[name="color-scheme"]');
+            if (cs) cs.setAttribute('content', 'dark light');
+            ['theme-btn', 'sidebar-theme-btn', 'desktop-theme-btn'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = id.includes('sidebar') ? (isLight ? '☀️ Tema' : '🌙 Tema') : (isLight ? '☀️' : '🌙');
+            });
+            document.querySelectorAll('[data-theme-opt]').forEach(b => {
+                const on = b.getAttribute('data-theme-opt') === _themeMode();
+                b.classList.toggle('is-on', on);
+                b.setAttribute('aria-pressed', on ? 'true' : 'false');
+            });
+        }
+        function applyStoredTheme() { _paintTheme(_resolveTheme(_themeMode())); }
+        function setThemeMode(mode) {
+            if (mode !== 'light' && mode !== 'system') mode = 'dark';
+            // transición suave solo durante el cambio
+            const r = document.documentElement; r.classList.add('nn-theme-anim');
+            clearTimeout(window._nnThemeAnim); window._nnThemeAnim = setTimeout(() => r.classList.remove('nn-theme-anim'), 380);
+            try { localStorage.setItem('appTheme', mode); } catch (e) {}
+            _paintTheme(_resolveTheme(mode));
+        }
         function toggleTheme() {
-            // Desactivado — si se llama, simplemente asegurar modo oscuro
-            document.body.classList.remove('light-mode');
-            document.body.classList.add('dark-mode');
-            localStorage.setItem('appTheme', 'dark');
+            // Botón rápido: alterna claro <-> oscuro (si estaba en "sistema" pasa al contrario del actual)
+            setThemeMode(_resolveTheme(_themeMode()) === 'light' ? 'dark' : 'light');
         }
-        function applyStoredTheme() {
-            // Siempre forzar modo oscuro
-            document.body.classList.remove('light-mode');
-            document.body.classList.add('dark-mode');
-            localStorage.setItem('appTheme', 'dark');
-        }
+        // Si el teléfono cambia de claro a oscuro mientras la app está abierta y el modo es "sistema"
+        try {
+            window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+                if (_themeMode() === 'system') applyStoredTheme();
+            });
+        } catch (e) {}
 
         // (sidebar sync is embedded in tab() and syncSidebarCash() above)
         function showToast(msg, type = 'info') {

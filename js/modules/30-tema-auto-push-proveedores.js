@@ -28,25 +28,9 @@
             if (!cfg.enabled) return;
             const h      = new Date().getHours();
             const isDay  = h >= (cfg.dayH ?? 7) && h < (cfg.nightH ?? 19);
-            const body   = document.body;
-            const wasLight = body.classList.contains('light-mode');
-            if (isDay && !wasLight) {
-                body.classList.add('light-mode');
-                body.classList.remove('dark-mode');
-                ['theme-btn','sidebar-theme-btn','desktop-theme-btn'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.innerText = id.includes('sidebar') ? '☀️ Tema' : '☀️';
-                });
-                localStorage.setItem('appTheme', 'light');
-            } else if (!isDay && wasLight) {
-                body.classList.remove('light-mode');
-                body.classList.add('dark-mode');
-                ['theme-btn','sidebar-theme-btn','desktop-theme-btn'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.innerText = id.includes('sidebar') ? '🌙 Tema' : '🌙';
-                });
-                localStorage.setItem('appTheme', 'dark');
-            }
+            const want   = isDay ? 'light' : 'dark';
+            // Solo cambia cuando hace falta (evita parpadeos cada minuto)
+            if (document.documentElement.getAttribute('data-theme') !== want) setThemeMode(want);
         }
 
         function startAutoThemeWatcher() {
