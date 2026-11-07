@@ -16,7 +16,7 @@ const BUNDLES = {
     'tailwind', '17-responsive-premium-hardening', '12-extras-1', '13-extras-2',
     '14-configuracion-command-center', '15-nelson-ia', '18-native-premium', '19-desktop-premium',
     '20-responsive-pro', '21-ticket-venta', '22-seguimiento', '24-ios-fluidez',
-    '25-visual-refresh', '26-iconos-svg', '27-correcciones', '29-selector-ios'
+    '25-visual-refresh', '26-iconos-svg', '27-correcciones', '29-selector-ios', '30-tema-claro-oscuro'
   ],
   'css/dashboard.bundle.css': [    // dashboard.html
     'dashboard', 'dashboard-premium', '24-ios-dash'
