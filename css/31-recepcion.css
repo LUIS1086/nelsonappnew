@@ -1,0 +1,50 @@
+/* Nelson App Pro · css/31-recepcion.css
+   Formulario "Nueva recepción" por secciones: Cliente · Equipo · Seguimiento · Pago · Notas.
+   Solo presentación: todos los ids, campos y eventos del formulario se conservan. */
+.rx-card { border: 1px solid var(--nn-line, rgba(148,163,184,.16)) !important; border-radius: 18px !important; background-image: none !important; }
+.rx-top { display: flex; align-items: center; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--nn-line, rgba(148,163,184,.16)); }
+.rx-top-txt { flex: 1; min-width: 0; }
+.rx-top-eyebrow { font-size: 12px; font-weight: 600; color: var(--nn-muted, #94a3b8); letter-spacing: .01em; }
+.rx-top-title { font-size: 18px; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; margin-top: 2px; color: var(--nn-text, #f1f5f9); }
+.rx-num { flex-shrink: 0; padding: 5px 10px; border-radius: 8px; border: 1px solid var(--nn-line-2, rgba(148,163,184,.28)); background: var(--nn-surface-2, transparent); color: var(--nn-muted, #94a3b8); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+.rx-body { padding: 4px 20px 20px; }
+
+.rx-sec { padding: 18px 0; border-bottom: 1px solid var(--nn-line, rgba(148,163,184,.16)); background: none !important; border-radius: 0 !important; }
+.rx-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; list-style: none; }
+.rx-head::-webkit-details-marker { display: none; }
+.rx-n { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--nn-line-2, rgba(148,163,184,.3)); color: var(--nn-muted, #94a3b8); font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+.rx-t { font-size: 15px; font-weight: 650; letter-spacing: -.01em; color: var(--nn-text, #f1f5f9); }
+.rx-tag { margin-left: auto; font-size: 11.5px; font-weight: 500; color: var(--nn-faint, #8190ad); }
+.rx-fold > summary { cursor: pointer; margin-bottom: 0; -webkit-tap-highlight-color: transparent; }
+.rx-fold[open] > summary { margin-bottom: 14px; }
+.rx-chev { margin-left: 8px; color: var(--nn-muted, #94a3b8); transition: transform .2s ease; flex-shrink: 0; }
+.rx-fold[open] .rx-chev { transform: rotate(180deg); }
+.rx-fields { display: grid; gap: 12px; }
+.rx-fields > * { min-width: 0; }
+.rx-lbl { display: block; margin: 0 0 6px 2px; font-size: 12px; font-weight: 600; color: var(--nn-muted, #94a3b8); text-transform: none; letter-spacing: 0; }
+
+/* Campos: color de texto neutro (antes naranja/azul/verde) */
+.rx-card #c-equ, .rx-card #c-fecha-estimada, .rx-card #c-val, .rx-card #c-adelanto { color: var(--nn-text, #f1f5f9) !important; }
+.rx-card #c-val, .rx-card #c-adelanto { font-size: 17px !important; font-weight: 650 !important; text-align: left !important; font-variant-numeric: tabular-nums; }
+.rx-ico { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--nn-muted, #94a3b8); pointer-events: none; z-index: 2; display: flex; }
+
+/* Bloque de fotos y ficha de cliente: neutros */
+.rx-card [style*="dashed"] { background: var(--nn-surface-2, rgba(15,23,42,.4)) !important; border: 1px dashed var(--nn-line-2, rgba(148,163,184,.3)) !important; border-radius: 12px !important; }
+.rx-card [style*="Fotos de recepci"], .rx-card [style*="letter-spacing:1px"][style*="text-transform:uppercase"] { text-transform: none !important; letter-spacing: 0 !important; font-size: 13px !important; font-weight: 650 !important; color: var(--nn-text, #f1f5f9) !important; }
+.rx-card .camera-btn { background: var(--nn-surface, transparent) !important; border: 1px solid var(--nn-line-2, rgba(148,163,184,.3)) !important; box-shadow: none !important; border-radius: 12px !important; }
+#client-info-card { background: var(--nn-surface-2, rgba(59,130,246,.06)) !important; border: 1px solid var(--nn-line, rgba(148,163,184,.16)) !important; box-shadow: none !important; }
+
+/* Saldo: fila limpia */
+#saldo-preview { background: var(--nn-surface-2, rgba(30,41,59,.6)) !important; border: 1px solid var(--nn-line, rgba(148,163,184,.16)); border-radius: 12px !important; }
+#saldo-preview-val { font-variant-numeric: tabular-nums; }
+
+/* Botón principal */
+.rx-cta { width: 100%; margin-top: 20px; min-height: 54px; padding: 0 20px !important; border: 0 !important; border-radius: 14px !important;
+  background: var(--taller-btn-primary, #f97316) !important; background-image: none !important; color: #fff !important;
+  font-size: 15px !important; font-weight: 650 !important; letter-spacing: 0 !important; text-transform: none !important; text-shadow: none !important;
+  box-shadow: none !important; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+.rx-cta:active { filter: brightness(.92); }
+.rx-fold:last-of-type { border-bottom: 0; }
+@media (min-width: 768px) { .rx-body { padding: 4px 28px 24px; } .rx-top { padding: 20px 28px; } }
+.rx-fields .grid { gap: 12px; }
+@media (min-width: 340px) { .rx-fields .grid.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
