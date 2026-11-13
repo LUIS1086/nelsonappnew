@@ -2,6 +2,14 @@
    Panel diario, sidebar, KPIs y atajos de escritorio
    (extraido sin cambios de index.html; el orden de carga importa) */
         // ==================== PANEL DE HOY (Taller) ====================
+        function toggleDailyPanel() {
+            const panel = document.getElementById('daily-panel'); if (!panel) return;
+            const open = !panel.classList.contains('sp-open');
+            panel.classList.toggle('sp-open', open);
+            const h = panel.querySelector('.sp-head'); if (h) h.setAttribute('aria-expanded', open ? 'true' : 'false');
+            try { localStorage.setItem('nn_resumen_abierto', open ? '1' : '0'); } catch (e) {}
+        }
+
         async function _refreshDailyPanel() {
             const panel = document.getElementById('daily-panel');
             const items = document.getElementById('daily-panel-items');
@@ -32,30 +40,49 @@
                 const threshold = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
                 const bajoMinimo = stock.filter(s => (s.q || 0) <= (s.minStock || threshold) && (s.q || 0) > 0).length;
 
-                const cards = [
-                    { label:'Listos', count:listos, tone:'#34d399', action:'notifyAllReady()' },
-                    { label:'Vencidos', count:vencidos, tone:'#fb7185', action:"tab('ordenes')" },
-                    { label:'Bajo mínimo', count:bajoMinimo, tone:'#fbbf24', action:'openOrdenesCompra()' }
-                ];
+                const nrPend = orders.filter(o => o.sta === 'no-reparable' && o.destinoNR && !(o.destinoNR === 'devolver' ? o.devueltoNR : o.desechadoNR));
+                const cur = (typeof getCurrency === 'function') ? getCurrency() : '$';
+                const fmt = n => cur + Math.round(n).toLocaleString();
+                const activas = orders.filter(o => !['entregado','cancelado','no-reparable'].includes(o.sta));
+                const reparadas = orders.filter(o => o.sta === 'reparado');
+                const porCobrar = orders.filter(o => o.sta !== 'cancelado' && (Number(o.saldo != null ? o.saldo : o.val) || 0) > 0);
+                const montoCobrar = porCobrar.reduce((a, o) => a + (Number(o.saldo != null ? o.saldo : o.val) || 0), 0);
+                const ico = d => `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+                const chev = ico('<polyline points="9 18 15 12 9 6"/>');
+                const kpi = (label, value, sub, action, tone) => `
+                    <button type="button" class="sp-kpi${tone ? ' sp-' + tone : ''}" onclick="${action}">
+                        <span class="sp-kpi-label">${label}</span>
+                        <span class="sp-kpi-value">${value}</span>
+                        <span class="sp-kpi-sub">${sub}</span>
+                    </button>`;
+                const row = (iconPath, text, count, action, tone) => `
+                    <button type="button" class="sp-row sp-${tone}" onclick="${action}">
+                        <span class="sp-row-ico">${ico(iconPath)}</span>
+                        <span class="sp-row-txt">${text}</span>
+                        <span class="sp-row-count">${count}</span>
+                        <span class="sp-row-chev">${chev}</span>
+                    </button>`;
+                const attention = [];
+                if (listos > 0) attention.push(row('<path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 21l2.1-5.6A8.4 8.4 0 1 1 21 11.5z"/>', 'Equipos listos por avisar', listos, 'notifyAllReady()', 'ok'));
+                if (vencidos > 0) attention.push(row('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>', 'Órdenes con entrega vencida', vencidos, "tab('ordenes')", 'bad'));
+                if (bajoMinimo > 0) attention.push(row('<path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7z"/>', 'Repuestos bajo el mínimo', bajoMinimo, 'openOrdenesCompra()', 'warn'));
 
-                items.innerHTML = cards.map(c => `
-                    <div class="nn-stat${c.count > 0 ? ' is-live' : ''}" style="--nn-tone:${c.tone}" onclick="${c.action}">
-                        <div class="nn-stat-value">${c.count}</div>
-                        <div class="nn-stat-label">${c.label}</div>
+                if (nrPend.length > 0) attention.push(row('<circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/>', 'No reparables por resolver', nrPend.length, "tab('ordenes')", 'warn'));
+                const pendientes = listos + vencidos + bajoMinimo + nrPend.length;
+                const sumEl = document.getElementById('daily-panel-sum');
+                if (sumEl) sumEl.innerHTML = `<span>${activas.length} en taller</span><span class="sp-dotsep"></span>` + (pendientes > 0 ? `<span class="sp-pill">${pendientes} ${pendientes === 1 ? 'pendiente' : 'pendientes'}</span>` : `<span class="sp-pill sp-pill-ok">Al día</span>`);
+                const abierto = localStorage.getItem('nn_resumen_abierto') === '1';
+                panel.classList.toggle('sp-open', abierto);
+                const hd = panel.querySelector('.sp-head'); if (hd) hd.setAttribute('aria-expanded', abierto ? 'true' : 'false');
+
+                items.innerHTML = `
+                    <div class="sp-kpis">
+                        ${kpi('En taller', activas.length, activas.length === 1 ? 'equipo en proceso' : 'equipos en proceso', "tab('ordenes')")}
+                        ${kpi('Listos', reparadas.length, 'para entregar', "tab('ordenes')", reparadas.length ? 'ok' : '')}
+                        ${kpi('Por cobrar', fmt(montoCobrar), porCobrar.length + (porCobrar.length === 1 ? ' orden con saldo' : ' órdenes con saldo'), "tab('ventas')", montoCobrar ? 'money' : '')}
+                        ${kpi('Vencidos', vencidos, 'pasaron su fecha', "tab('ordenes')", vencidos ? 'bad' : '')}
                     </div>
-                `).join('');
-
-                // Si TODO está en 0, mostrar mensaje limpio
-                const total = listos + vencidos + bajoMinimo;
-                if (total === 0) {
-                    items.innerHTML = `<div class="nn-stat-empty">
-                        <span class="nn-stat-empty-dot"></span>
-                        <div>
-                            <div class="nn-stat-empty-title">Todo al día</div>
-                            <div class="nn-stat-empty-text">Sin pendientes urgentes</div>
-                        </div>
-                    </div>`;
-                }
+                    <div class="sp-attn">${attention.length ? attention.join('') : `<div class="sp-clear">${ico('<polyline points="20 6 9 17 4 12"/>')}<span>Sin pendientes urgentes</span></div>`}</div>`;
 
                 panel.classList.remove('hidden');
             } catch (e) {

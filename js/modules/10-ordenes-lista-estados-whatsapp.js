@@ -88,7 +88,7 @@
                 }
 
                 const presColors = { pendiente: 'text-slate-400 bg-slate-700/40', enviado: 'text-blue-400 bg-blue-500/20', aprobado: 'text-emerald-400 bg-emerald-500/20', rechazado: 'text-rose-400 bg-rose-500/20' };
-                const presLabels = { pendiente: '⏳ Presup.', enviado: '📤 Enviado', aprobado: '✅ Aprobado', rechazado: '❌ Rechazado' };
+                const presLabels = { pendiente: 'Presup. pendiente', enviado: 'Presup. enviado', aprobado: 'Presup. aprobado', rechazado: 'Presup. rechazado' };
                 const presBadge = `<button onclick="openPresupuestoModal(${o.id})" class="presupuesto-badge ${presColors[o.presupuesto||'pendiente']} px-2 py-1">${presLabels[o.presupuesto||'pendiente']}</button>`;
 
                 const deliveryPhotoCount = o.fotosEntrega ? o.fotosEntrega.length : 0;
@@ -145,11 +145,28 @@
                 const pagadoVal = Math.max(0, totalVal - saldo);
                 const pctPagado = totalVal > 0 ? Math.min(100, Math.round((pagadoVal / totalVal) * 100)) : 0;
                 const saldoStatus = saldo <= 0 && totalVal > 0
-                    ? { label: '✅ PAGADO', color: '#34d399', bg: 'rgba(52,211,153,0.12)', border: 'rgba(52,211,153,0.3)' }
+                    ? { label: 'Pagado', color: '#34d399', bg: 'rgba(52,211,153,0.12)', border: 'rgba(52,211,153,0.3)' }
                     : adelanto > 0
-                        ? { label: `💳 PARCIAL ${pctPagado}%`, color: '#60a5fa', bg: 'rgba(96,165,250,0.12)', border: 'rgba(96,165,250,0.3)' }
-                        : { label: '⏳ PENDIENTE', color: '#fb923c', bg: 'rgba(251,146,60,0.12)', border: 'rgba(251,146,60,0.3)' };
+                        ? { label: `Parcial ${pctPagado}%`, color: '#60a5fa', bg: 'rgba(96,165,250,0.12)', border: 'rgba(96,165,250,0.3)' }
+                        : { label: 'Pendiente', color: '#fb923c', bg: 'rgba(251,146,60,0.12)', border: 'rgba(251,146,60,0.3)' };
 
+                const nrBadge = (o.sta === 'no-reparable' && o.destinoNR) ? (() => {
+                    const dev = o.destinoNR === 'devolver';
+                    const hecho = dev ? o.devueltoNR : o.desechadoNR;
+                    const f = d => new Date(d).toLocaleDateString('es-ES', {day:'2-digit', month:'short'});
+                    return `<div class="nr-box${hecho ? ' nr-done' : ''}"><span class="nr-dot"></span><span class="nr-txt">${hecho ? (dev ? 'Devuelto al cliente' : 'Desechado') + ' · ' + f(hecho) : (dev ? 'El cliente recoge el equipo' : 'El cliente lo deja para desechar')}</span>${hecho ? '' : `<button type="button" class="nr-act" onclick="marcarDestinoNR(${o.id})">${dev ? 'Marcar entregado' : 'Marcar desechado'}</button>`}</div>`;
+                })() : '';
+                const _oi = (k) => { const P = {
+                    wa:'<path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 21l2.1-5.6A8.4 8.4 0 1 1 21 11.5z"/>',
+                    phone:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>',
+                    print:'<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
+                    link:'<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>',
+                    note:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="14" y2="17"/>',
+                    copy:'<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+                    user:'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+                    trash:'<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>',
+                    chev:'<polyline points="6 9 12 15 18 9"/>' };
+                    return `<svg class="oc-ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[k]}</svg>`; };
                 return `<div class="card order-card-pro" style="position:relative;padding:0;overflow:hidden;content-visibility:auto;contain-intrinsic-size:auto 420px;border-left:4px solid ${cardAccent};box-shadow:0 4px 12px rgba(0,0,0,0.2),0 0 0 1px ${cardGlow};">
                     <div style="position:absolute;top:-40px;right:-40px;width:140px;height:140px;background:radial-gradient(circle,${cardGlow},transparent 70%);pointer-events:none;"></div>
 
@@ -164,7 +181,7 @@
                             <h3 onclick="editOrder(${o.id})" style="font-size:17px;font-weight:900;color:#f1f5f9;cursor:pointer;line-height:1.2;margin:0;display:flex;align-items:center;gap:6px;" class="hover:text-orange-400">
                                 ${escapeHtml(o.nom)} <span style="font-size:11px;opacity:0.5;">✏️</span>
                             </h3>
-                            <p style="font-size:13px;color:#fb923c;font-weight:700;margin:3px 0 0;line-height:1.25;">🔧 ${escapeHtml(o.equ)}</p>
+                            <p style="font-size:13px;color:#fb923c;font-weight:700;margin:3px 0 0;line-height:1.25;">${escapeHtml(o.equ)}</p>
                             ${(tecnicoBadge || origenBadge || partsUsedBadge) ? `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:5px;">${tecnicoBadge}${origenBadge}${partsUsedBadge}</div>` : ''}
                         </div>
                         <div style="flex-shrink:0;" id="sta-wrap-${o.id}">
@@ -178,7 +195,7 @@
                                 };
                                 const c = cfg[o.sta] || cfg.recibido;
                                 return `<button onclick="toggleStaMenu(${o.id},event)" style="background:${c.bg};color:${c.color};border:1px solid ${c.color}44;border-radius:11px;padding:6px 10px;font-size:10px;font-weight:900;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;min-width:98px;justify-content:space-between;text-transform:uppercase;letter-spacing:0.5px;">
-                                    <span>${c.icon} ${o.sta}</span><span style="font-size:8px;opacity:0.6;">▼</span>
+                                    <span class="oc-sta">${o.sta}</span><span style="font-size:8px;opacity:0.6;">▼</span>
                                 </button>
                                 <div id="sta-menu-${o.id}" style="display:none;position:absolute;right:14px;top:48px;z-index:200;background:#1e293b;border:1px solid rgba(255,255,255,0.12);border-radius:12px;overflow:hidden;box-shadow:0 12px 32px rgba(0,0,0,0.7);min-width:140px;">
                                     ${Object.entries(cfg).map(([k,v])=>`
@@ -193,11 +210,12 @@
                     </div>
 
                     <div style="padding:0 14px 10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
-                        <span style="font-size:11px;color:#64748b;font-weight:700;">📅 ${new Date(o.fecha).toLocaleDateString('es-ES', {day:'2-digit',month:'short'})}</span>
-                        <span style="font-size:11px;color:${isOverdue ? '#f87171':'#64748b'};font-weight:${isOverdue?'900':'700'};">· 🕒 ${daysInShop}d en taller</span>
+                        <span style="font-size:11px;color:#64748b;font-weight:700;">${new Date(o.fecha).toLocaleDateString('es-ES', {day:'2-digit',month:'short'})}</span>
+                        <span style="font-size:11px;color:${isOverdue ? '#f87171':'#64748b'};font-weight:${isOverdue?'900':'700'};">· ${daysInShop}d en taller</span>
                         <span style="font-size:11px;font-weight:800;" class="${staColors[o.sta]||'text-slate-400'}">· ${daysInStatus}d en ${o.sta}</span>
                     </div>
                     ${fechaEstBadge ? `<div style="padding:0 14px 10px;">${fechaEstBadge}</div>` : ''}
+                    ${nrBadge ? `<div style="padding:0 14px 10px;">${nrBadge}</div>` : ''}
                     ${notasBadge ? `<div style="padding:0 14px 10px;">${notasBadge}</div>` : ''}
 
                     <div style="margin:0 14px 10px;padding:11px 12px;background:rgba(15,23,42,0.5);border:1px solid rgba(255,255,255,0.04);border-left:3px solid ${cardAccent};border-radius:10px;font-size:12.5px;color:#cbd5e1;line-height:1.4;text-transform:uppercase;letter-spacing:0.3px;font-weight:600;">${escapeHtml(o.det||'Sin detalle')}</div>
@@ -218,7 +236,7 @@
                             <div style="width:${pctPagado}%;height:100%;background:linear-gradient(90deg,#3b82f6,#60a5fa);border-radius:99px;transition:width 0.3s ease;"></div>
                         </div>
                         <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:700;">
-                            <span style="color:#60a5fa;">💵 Adelanto: ${cur}${adelanto.toLocaleString()}</span>
+                            <span style="color:#60a5fa;">Adelanto: ${cur}${adelanto.toLocaleString()}</span>
                             <span style="color:${saldo > 0 ? '#f87171' : '#34d399'};">Saldo: ${cur}${saldo.toLocaleString()}</span>
                         </div>` : ''}
                     </div>
@@ -226,40 +244,27 @@
                     <div style="padding:0 14px 10px;display:flex;gap:6px;flex-wrap:wrap;">
                         ${presBadge}
                         ${(o.fotos?.length || 0) > 0
-                            ? `<button onclick="openPhotoModal(${o.id})" title="Ver las fotos de recepción o agregar otra" style="flex:1;min-width:110px;padding:7px 10px;background:rgba(148,163,184,0.1);border:1px solid rgba(148,163,184,0.2);border-radius:10px;font-size:10px;font-weight:800;color:#cbd5e1;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;">📸 ${o.fotos.length} recep.</button>`
-                            : `<button onclick="openPhotoModal(${o.id})" title="Esta orden no tiene fotos de recepción: toca para tomarlas ahora" style="flex:1;min-width:110px;padding:7px 10px;background:rgba(251,146,60,0.14);border:1px solid rgba(251,146,60,0.45);border-radius:10px;font-size:10px;font-weight:900;color:#fdba74;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;">📸 Sin foto · tomar</button>`}
-                        <button onclick="${deliveryPhotoCount > 0 ? `openPhotoModal(${o.id},'entrega')` : `openDeliveryPhotosModal(${o.id})`}" style="flex:1;min-width:110px;padding:7px 10px;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.25);border-radius:10px;font-size:10px;font-weight:800;color:#34d399;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;">📷 ${deliveryPhotoCount} entrega</button>
+                            ? `<button onclick="openPhotoModal(${o.id})" title="Ver las fotos de recepción o agregar otra" style="flex:1;min-width:110px;padding:7px 10px;background:rgba(148,163,184,0.1);border:1px solid rgba(148,163,184,0.2);border-radius:10px;font-size:10px;font-weight:800;color:#cbd5e1;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;">${o.fotos.length} fotos recepción</button>`
+                            : `<button onclick="openPhotoModal(${o.id})" title="Esta orden no tiene fotos de recepción: toca para tomarlas ahora" style="flex:1;min-width:110px;padding:7px 10px;background:rgba(251,146,60,0.14);border:1px solid rgba(251,146,60,0.45);border-radius:10px;font-size:10px;font-weight:900;color:#fdba74;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;">Sin fotos · tomar</button>`}
+                        <button onclick="${deliveryPhotoCount > 0 ? `openPhotoModal(${o.id},'entrega')` : `openDeliveryPhotosModal(${o.id})`}" style="flex:1;min-width:110px;padding:7px 10px;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.25);border-radius:10px;font-size:10px;font-weight:800;color:#34d399;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;">${deliveryPhotoCount} fotos entrega</button>
                     </div>
                     ${(o.fotos?.length > 0 && deliveryPhotoCount > 0) ? `<div style="padding:0 14px 10px;"><button onclick="openCompareModal(${o.id})" style="width:100%;padding:8px;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);border-radius:10px;font-size:10px;font-weight:900;color:#c4b5fd;cursor:pointer;letter-spacing:1px;text-transform:uppercase;" class="active:scale-95 transition">🔀 Comparar antes / después</button></div>` : ''}
 
-                    <div class="order-acts" role="group" aria-label="Acciones de la orden">
-                        <button type="button" class="order-act oa-wa" onclick="sendWA(${o.id})" title="Elige un mensaje listo (recepción, presupuesto, listo, cobro…) y lo envía por WhatsApp">
-                            <span class="oa-ico">💬</span><span class="oa-name">WhatsApp</span><span class="oa-sub">Avisar al cliente</span>
-                        </button>
-                        ${o.tel ? `<a class="order-act oa-call" href="tel:${escapeHtml(String(o.tel).replace(/\D/g,''))}" title="Llama al cliente desde este teléfono">
-                            <span class="oa-ico">📞</span><span class="oa-name">Llamar</span><span class="oa-sub">Marcar número</span>
-                        </a>` : `<button type="button" class="order-act oa-off" onclick="showAlert('Esta orden no tiene teléfono registrado. Edítala para agregarlo.','warning')" title="Esta orden no tiene teléfono">
-                            <span class="oa-ico">📞</span><span class="oa-name">Llamar</span><span class="oa-sub">Sin teléfono</span>
-                        </button>`}
-                        <button type="button" class="order-act oa-track" onclick="openSeguimiento(${o.id})" title="Enlace y QR para que el cliente vea el estado de su equipo">
-                            <span class="oa-ico">🔗</span><span class="oa-name">Seguimiento</span><span class="oa-sub">Enlace y QR</span>
-                        </button>
-                        <button type="button" class="order-act oa-print" onclick="printInvoice(${o.id})" title="Genera el recibo/factura de esta orden para imprimir o compartir">
-                            <span class="oa-ico">🧾</span><span class="oa-name">Imprimir</span><span class="oa-sub">Recibo o factura</span>
-                        </button>
-                        <button type="button" class="order-act oa-notes" onclick="openOrderChat(${o.id})" title="Notas internas del taller: el cliente no las ve">
-                            <span class="oa-ico">📝</span><span class="oa-name">Notas</span><span class="oa-sub">Solo internas</span>
-                        </button>
-                        <button type="button" class="order-act oa-dup" onclick="duplicateOrder(${o.id})" title="Crea una orden nueva con los datos de este cliente">
-                            <span class="oa-ico">📋</span><span class="oa-name">Duplicar</span><span class="oa-sub">Misma persona</span>
-                        </button>
-                        <button type="button" class="order-act oa-client" onclick="showClientHistory('${escapeHtml(o.nom || '').replace(/'/g, '&#39;')}')" title="Abre la ficha del cliente: órdenes, pagos y deuda">
-                            <span class="oa-ico">👤</span><span class="oa-name">Cliente</span><span class="oa-sub">Ficha y deuda</span>
-                        </button>
-                        <button type="button" class="order-act oa-del" onclick="delOrder(${o.id})" title="Elimina esta orden de forma permanente (pide confirmación)">
-                            <span class="oa-ico">🗑️</span><span class="oa-name">Eliminar</span><span class="oa-sub">Borrar orden</span>
-                        </button>
+                    <div class="oc-acts" role="group" aria-label="Acciones de la orden">
+                        <button type="button" class="oc-btn" onclick="sendWA(${o.id})" title="Elige un mensaje listo (recepción, presupuesto, listo, cobro…) y lo envía por WhatsApp">${_oi('wa')}<span>WhatsApp</span></button>
+                        ${o.tel ? `<a class="oc-btn" href="tel:${escapeHtml(String(o.tel).replace(/\D/g,''))}" title="Llama al cliente desde este teléfono">${_oi('phone')}<span>Llamar</span></a>` : `<button type="button" class="oc-btn oc-off" onclick="showAlert('Esta orden no tiene teléfono registrado. Edítala para agregarlo.','warning')" title="Esta orden no tiene teléfono">${_oi('phone')}<span>Llamar</span></button>`}
+                        <button type="button" class="oc-btn" onclick="printInvoice(${o.id})" title="Genera el recibo/factura de esta orden para imprimir o compartir">${_oi('print')}<span>Imprimir</span></button>
                     </div>
+                    <details class="oc-more">
+                        <summary><span>Más acciones</span>${_oi('chev')}</summary>
+                        <div class="oc-more-grid">
+                            <button type="button" class="oc-btn oc-sm" onclick="openSeguimiento(${o.id})" title="Enlace y QR para que el cliente vea el estado de su equipo">${_oi('link')}<span>Seguimiento</span></button>
+                            <button type="button" class="oc-btn oc-sm" onclick="openOrderChat(${o.id})" title="Notas internas del taller: el cliente no las ve">${_oi('note')}<span>Notas</span></button>
+                            <button type="button" class="oc-btn oc-sm" onclick="duplicateOrder(${o.id})" title="Crea una orden nueva con los datos de este cliente">${_oi('copy')}<span>Duplicar</span></button>
+                            <button type="button" class="oc-btn oc-sm" onclick="showClientHistory('${escapeHtml(o.nom || '').replace(/'/g, '&#39;')}')" title="Abre la ficha del cliente: órdenes, pagos y deuda">${_oi('user')}<span>Cliente</span></button>
+                            <button type="button" class="oc-btn oc-sm oc-danger" onclick="delOrder(${o.id})" title="Elimina esta orden de forma permanente (pide confirmación)">${_oi('trash')}<span>Eliminar</span></button>
+                        </div>
+                    </details>
                 </div>`;
             };
 
@@ -363,6 +368,52 @@
             }).catch(() => showAlert("No se pudo guardar la imagen.", "error"));
         }
 
+        // ── No reparable: destino del equipo ─────────────────────────────
+        function _pedirDestinoNoReparable(o) {
+            return new Promise(resolve => {
+                const prev = document.getElementById('nr-sheet'); if (prev) prev.remove();
+                const wrap = document.createElement('div');
+                wrap.id = 'nr-sheet'; wrap.className = 'nr-overlay';
+                wrap.setAttribute('role', 'dialog'); wrap.setAttribute('aria-modal', 'true'); wrap.setAttribute('aria-label', 'Destino del equipo no reparable');
+                const ic = d => `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+                wrap.innerHTML = `<div class="nr-panel">
+                    <div class="nr-title">Equipo no reparable</div>
+                    <div class="nr-sub">¿Qué pasará con el equipo de <strong>${escapeHtml(o.nom || 'el cliente')}</strong>?</div>
+                    <button type="button" class="nr-opt" data-dest="devolver">
+                        <span class="nr-opt-ico">${ic('<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/>')}</span>
+                        <span class="nr-opt-txt"><span class="nr-opt-name">Se lo lleva el cliente</span><span class="nr-opt-desc">Queda pendiente de entrega al cliente</span></span>
+                    </button>
+                    <button type="button" class="nr-opt" data-dest="desechar">
+                        <span class="nr-opt-ico">${ic('<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>')}</span>
+                        <span class="nr-opt-txt"><span class="nr-opt-name">Lo deja para desechar</span><span class="nr-opt-desc">El cliente autoriza que el taller lo deseche</span></span>
+                    </button>
+                    <button type="button" class="nr-cancel" data-cancel="1">Cancelar</button>
+                </div>`;
+                const done = v => { document.removeEventListener('keydown', onKey); wrap.remove(); resolve(v); };
+                const onKey = e => { if (e.key === 'Escape') done(null); };
+                wrap.addEventListener('click', e => {
+                    if (e.target === wrap || e.target.closest('[data-cancel]')) return done(null);
+                    const b = e.target.closest('[data-dest]'); if (b) done(b.dataset.dest);
+                });
+                document.addEventListener('keydown', onKey);
+                document.body.appendChild(wrap);
+            });
+        }
+
+        async function marcarDestinoNR(id) {
+            const orders = await getAll('orders');
+            const o = orders.find(x => x.id === id);
+            if (!o || !o.destinoNR) return;
+            const dev = o.destinoNR === 'devolver';
+            showConfirm(dev ? '¿Confirmas que el equipo ya se le entregó al cliente?' : '¿Confirmas que el equipo ya fue desechado?', async () => {
+                if (dev) o.devueltoNR = Date.now(); else o.desechadoNR = Date.now();
+                await put('orders', o);
+                await logChatSistema(o.id, dev ? 'Equipo no reparable entregado al cliente' : 'Equipo no reparable desechado');
+                await renderOrders();
+                if (typeof _refreshDailyPanel === 'function') _refreshDailyPanel();
+            }, 'info');
+        }
+
         async function updateSta(id, newSta) {
             const orders = await getAll('orders');
             const o = orders.find(x=>x.id===id);
@@ -385,6 +436,15 @@
         }
 
         async function _doUpdateSta(o, newSta, oldSta) {
+            // No reparable: preguntar qué pasará con el equipo (lo recoge el cliente o lo deja para desechar)
+            let _destNR = null;
+            if (newSta === 'no-reparable' && oldSta !== 'no-reparable') {
+                _destNR = await _pedirDestinoNoReparable(o);
+                if (!_destNR) { await renderOrders(); return; }
+            }
+            if (oldSta === 'no-reparable' && newSta !== 'no-reparable') {
+                delete o.destinoNR; delete o.fechaDestinoNR; delete o.devueltoNR; delete o.desechadoNR;
+            }
             o.sta = newSta;
             o.fechaEstado = Date.now();
             // Guardar marca específica al entrar en "reparado" — se usa en el modal Avisar Listos
@@ -400,6 +460,8 @@
             if (newSta === 'no-reparable' && oldSta !== 'no-reparable') {
                 o.val = 0;
                 o.saldo = 0;
+                o.destinoNR = _destNR; o.fechaDestinoNR = Date.now();
+                delete o.devueltoNR; delete o.desechadoNR;
                 // Si había adelanto registrado, avisar al usuario
                 if (o.adelanto && o.adelanto > 0) {
                     showToast(`⚠️ Hay un adelanto de ${getCurrency()}${o.adelanto.toLocaleString()} que debes devolver al cliente`, 'warning');
@@ -407,6 +469,7 @@
             }
 
             await put('orders', o);
+            if (_destNR) await logChatSistema(o.id, _destNR === 'devolver' ? 'Equipo no reparable: el cliente lo recoge' : 'Equipo no reparable: el cliente lo deja para desechar');
 
             // Registrar cambio de estado en el chat interno
             const staEmojis = { recibido:'📥', 'revisión':'🔍', reparado:'✅', entregado:'📦', 'no-reparable':'🚫' };
