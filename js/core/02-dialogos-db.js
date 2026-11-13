@@ -142,6 +142,7 @@
                             fechaEstado: o.fechaEstado, fechaEstimada: o.fechaEstimada,
                             notas: o.notas, origen: o.origen, presupuesto: o.presupuesto,
                             adelanto: o.adelanto, saldo: o.saldo, val: o.val,
+                            destinoNR: o.destinoNR, fechaDestinoNR: o.fechaDestinoNR, devueltoNR: o.devueltoNR, desechadoNR: o.desechadoNR,
                             partsUsed: Array.isArray(o.partsUsed) ? o.partsUsed : [],
                             // La tarjeta solo necesita saber si hay fotos y cuántas.
                             // La imagen completa se recupera al abrir el modal correspondiente.
