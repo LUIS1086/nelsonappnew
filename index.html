@@ -238,7 +238,7 @@
         <div class="splash-title" id="splash-biz-name">NELSON</div>
         <div class="splash-sub">Taller &amp; Repuestos</div>
         <div class="splash-bar-track"><div class="splash-bar-fill"></div></div>
-        <div class="splash-version" id="splash-version">v3.9.9</div>
+        <div class="splash-version" id="splash-version">v3.9.10</div>
     </div>
 
     <!-- PIN MODAL -->
@@ -643,16 +643,16 @@
                     <p id="stock-summary-text" class="text-[10px] text-slate-500 mt-0.5"></p>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="openStockReport()" class="text-[10px] bg-purple-600/20 text-purple-400 border border-purple-500/30 px-3 py-1.5 rounded-xl font-bold transition active:scale-95">📊</button>
-                    <button onclick="openQRBulk()" class="text-[10px] bg-violet-600/20 text-violet-400 border border-violet-500/30 px-3 py-1.5 rounded-xl font-bold transition active:scale-95 hidden" title="Etiquetas QR en lote">🏷️</button>
-                    <button onclick="scanBarcode()" class="text-[10px] bg-blue-600/20 text-blue-400 border border-blue-500/30 px-3 py-1.5 rounded-xl font-bold transition active:scale-95 hidden">📷</button>
-                    <button onclick="addStockItem()" class="text-[10px] bg-orange-600/20 text-orange-400 border border-orange-500/30 px-3 py-1.5 rounded-xl font-bold active:scale-95">+ NUEVO</button>
+                    <button onclick="openStockReport()" class="st-hbtn" title="Reporte de inventario" aria-label="Reporte de inventario"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Reporte</span></button>
+                    <button onclick="openQRBulk()" class="st-hbtn hidden" title="Etiquetas QR en lote" aria-label="Etiquetas QR"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L2 12V2h10l8.6 8.6a2 2 0 0 1 0 2.8z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></button>
+                    <button onclick="scanBarcode()" class="st-hbtn hidden" title="Escanear código" aria-label="Escanear código"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></button>
+                    <button onclick="addStockItem()" class="st-hbtn st-hbtn-main"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Nuevo</span></button>
                 </div>
             </div>
             <!-- Búsqueda y ordenar -->
             <div class="flex gap-2 mb-3">
                 <div class="relative flex-1">
-                    <input type="text" id="stock-search" placeholder="🔍 Buscar repuesto" class="w-full text-xs py-2 pl-3 pr-9 rounded-xl" oninput="renderStock()">
+                    <input type="text" id="stock-search" placeholder="Buscar" class="w-full text-xs py-2 pl-3 pr-9 rounded-xl" oninput="renderStock()">
                     <button onclick="openQRScanner('stock')" class="absolute right-2 top-1/2 -translate-y-1/2 text-violet-400 text-base leading-none active:scale-90 transition hidden" title="Escanear código QR/barras">📷</button>
                 </div>
                 <select id="stock-sort" class="text-xs py-2 px-2 rounded-xl w-28 flex-shrink-0" onchange="renderStock()">
@@ -875,7 +875,7 @@
                                 <p style="font-size:15px;font-weight:900;color:#f1f5f9;margin:0;letter-spacing:-0.3px;">Luis Eduardo Gaviria</p>
                                 <p style="font-size:10px;color:#64748b;margin:3px 0 0;font-weight:700;display:flex;align-items:center;gap:6px;">
                                     <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 6px rgba(16,185,129,0.6);animation:pulseDot 2s ease-in-out infinite;"></span>
-                                    NelsonApp Pro · <span id="credits-version">v3.9.9</span>
+                                    NelsonApp Pro · <span id="credits-version">v3.9.10</span>
                                 </p>
                             </div>
                             <span id="credits-arrow" style="font-size:14px;color:#64748b;transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);flex-shrink:0;">▼</span>
@@ -2345,7 +2345,7 @@
                         <div class="cfg-title-wrap">
                             <p class="cfg-eyebrow">
                                 <span id="cfg-header-biz">NelsonApp Pro</span>
-                                <span class="cfg-version" id="cfg-header-version">v3.9.9</span>
+                                <span class="cfg-version" id="cfg-header-version">v3.9.10</span>
                             </p>
                             <h3 class="cfg-h1">Configuración</h3>
                         </div>
