@@ -241,8 +241,30 @@
             const gastos = await getAll('gastos');
             const movs = [...sales.filter(s=>s.fecha>lastCierre && s.tipo!=='adelanto' && s.tipo!=='cobro_entrega').map(s=>({...s,type:'sale'})), ...gastos.filter(g=>g.fecha>lastCierre).map(g=>({...g,type:'gasto'}))].sort((a,b)=>b.fecha-a.fecha);
             const container = document.getElementById('movimientos-history');
-            if(!movs.length) { container.innerHTML = '<div class="text-center py-4 text-slate-500 text-xs">Sin movimientos en la caja actual</div>'; return; }
-            container.innerHTML = movs.map(m => m.type==='sale' ? `<div class="flex justify-between bg-emerald-500/10 p-2 rounded-xl"><div><p class="text-xs font-bold">+ ${escapeHtml(m.item)}</p><p class="text-[9px]">${m.qty} unid</p></div><div class="flex gap-2"><p class="text-xs font-black text-emerald-400">+${cur}${m.val.toLocaleString()}</p><button onclick="openSaleTicket(${m.id})" title="Ticket" aria-label="Ver ticket" class="text-emerald-300 text-[10px] bg-emerald-500/20 px-2 py-1 rounded-lg">🧾</button><button onclick="annulSale(${m.id})" class="text-rose-400 text-[10px] bg-rose-500/20 px-2 py-1 rounded-lg">✕</button></div></div>` : `<div class="flex justify-between bg-rose-500/10 p-2 rounded-xl"><div><p class="text-xs font-bold">- ${escapeHtml(m.det)}</p><p class="text-[9px]">Gasto</p></div><div class="flex gap-2"><p class="text-xs font-black text-rose-400">-${cur}${m.val.toLocaleString()}</p><button onclick="annulGasto(${m.id})" class="text-rose-400 text-[10px] bg-rose-500/20 px-2 py-1 rounded-lg">✕</button></div></div>`).join('');
+            if(!movs.length) { container.innerHTML = '<div class="text-center py-4 text-slate-500 text-xs">Sin movimientos en la caja actual</div>'; try { renderCajaResumen(); } catch (e) { /* no crítico */ } return; }
+            const _mi = d => `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+            const _rec = _mi('<path d="M4 2v20l3-2 3 2 3-2 3 2 3-2 2 1.5V2l-2 1.5L17 2l-3 2-3-2-3 2-3-2z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="14" y2="13"/>');
+            const _del = _mi('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>');
+            const _hr = ms => { try { return new Date(ms).toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' }).replace(/\s+/g, ' '); } catch (e) { return ''; } };
+            container.innerHTML = movs.map(m => m.type==='sale'
+                ? `<div class="mv-row"><div class="mv-main"><p class="mv-t">${escapeHtml(m.item)}</p><p class="mv-s">${m.qty} ${m.qty==1?'unidad':'unidades'} · ${_hr(m.fecha)}</p></div><span class="mv-amt mv-in">+${cur}${m.val.toLocaleString()}</span><button type="button" class="mv-btn" onclick="openSaleTicket(${m.id})" title="Ver comprobante" aria-label="Ver comprobante">${_rec}</button><button type="button" class="mv-btn mv-del" onclick="annulSale(${m.id})" title="Anular venta" aria-label="Anular venta">${_del}</button></div>`
+                : `<div class="mv-row"><div class="mv-main"><p class="mv-t">${escapeHtml(m.det)}</p><p class="mv-s">Gasto · ${_hr(m.fecha)}</p></div><span class="mv-amt mv-out">-${cur}${m.val.toLocaleString()}</span><button type="button" class="mv-btn mv-del" onclick="annulGasto(${m.id})" title="Eliminar gasto" aria-label="Eliminar gasto">${_del}</button></div>`).join('');
+            try { renderCajaResumen(); } catch (e) { /* no crítico */ }
+        }
+        async function renderCajaResumen() {
+            const neto = document.getElementById('cj-neto'); if (!neto) return;
+            const cur = getCurrency();
+            const lastCierre = Number(localStorage.getItem('lastCierreCaja')) || 0;
+            const [orders, sales, gastos] = [await getOrdersLite(), await getAll('sales'), await getAll('gastos')];
+            const ingOrd = orders.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha) > lastCierre).reduce((a, b) => a + (b.val || 0), 0);
+            const ingVen = sales.filter(v => v.fecha > lastCierre && v.tipo !== 'adelanto' && v.tipo !== 'cobro_entrega').reduce((a, b) => a + (b.val || 0), 0);
+            const gas = gastos.filter(g => g.fecha > lastCierre).reduce((a, b) => a + (b.val || 0), 0);
+            const ing = ingOrd + ingVen, tot = ing - gas;
+            neto.textContent = (tot < 0 ? '-' : '') + cur + Math.abs(tot).toLocaleString();
+            neto.classList.toggle('cj-neg', tot < 0);
+            const ei = document.getElementById('cj-ing'), eg = document.getElementById('cj-gas');
+            if (ei) ei.textContent = cur + ing.toLocaleString();
+            if (eg) eg.textContent = (gas ? '-' : '') + cur + gas.toLocaleString();
         }
         async function annulGasto(id) { showConfirm("¿Eliminar este gasto?", async () => { await del('gastos', id); await updateTotal(); }); }
 

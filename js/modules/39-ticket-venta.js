@@ -304,6 +304,121 @@
       '<div style="text-align:center;font-size:9px;color:#777;margin-top:4px">Comprobante comercial; no es factura electrónica DIAN.</div>';
   }
 
+
+  /* ───────────────────────── Comprobante profesional (vista previa, imagen y PDF) ───────────────────────── */
+  function receiptDate(ms) {
+    try { return new Date(ms).toLocaleString('es-CO', { day: '2-digit', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }).replace(/\s+/g, ' '); }
+    catch (e) { return new Date(ms).toLocaleString(); }
+  }
+  function receiptMarkup(t, b) {
+    const meta = [b.nit ? 'NIT ' + b.nit : '', b.address || '', b.phone ? 'Tel. ' + b.phone : ''].filter(Boolean);
+    const units = t.items.reduce((a, it) => a + (Number(it.qty) || 0), 0);
+    const sub = [t.documento ? 'Doc/NIT ' + t.documento : '', t.telefono ? 'Tel. ' + t.telefono : ''].filter(Boolean).join(' · ');
+    return '<div class="rc-bar"></div><div class="rc-inner">' +
+      '<div class="rc-top">' +
+        '<div class="rc-biz"><div class="rc-name">' + esc(bizName(b)) + '</div>' + (meta.length ? '<div class="rc-meta">' + meta.map(esc).join('<br>') + '</div>' : '') + '</div>' +
+        '<div class="rc-id"><div class="rc-kicker">Comprobante de venta</div><div class="rc-no">' + esc(t.no) + '</div><div class="rc-date">' + esc(receiptDate(t.fecha)) + '</div></div>' +
+      '</div>' +
+      '<div class="rc-info">' +
+        '<div><div class="rc-label">Cliente</div><div class="rc-val">' + esc(t.cliente) + '</div>' + (sub ? '<div class="rc-sub">' + esc(sub) + '</div>' : '') + '</div>' +
+        '<div><div class="rc-label">Método de pago</div><div class="rc-val">' + esc(t.metodoPago || '—') + '</div></div>' +
+      '</div>' +
+      '<table class="rc-table"><thead><tr><th class="l">Descripción</th><th>Cant.</th><th>Precio</th><th>Total</th></tr></thead><tbody>' +
+        t.items.map(it => '<tr><td class="l">' + esc(it.item) + '</td><td>' + esc(it.qty) + '</td><td>' + esc(money(it.precioUnit)) + '</td><td class="b">' + esc(money(it.total)) + '</td></tr>').join('') +
+      '</tbody></table>' +
+      '<div class="rc-total"><span class="rc-units">' + esc(units) + (units === 1 ? ' unidad' : ' unidades') + '</span><span class="rc-tl">Total a pagar</span><strong>' + esc(money(t.total)) + '</strong></div>' +
+      (t.observaciones ? '<div class="rc-obs"><div class="rc-label">Observaciones</div><div>' + esc(t.observaciones) + '</div></div>' : '') +
+      '<div class="rc-foot"><div class="rc-thanks">' + esc(b.footer || 'Gracias por tu compra.') + '</div><div class="rc-legal">Comprobante comercial; no es factura electrónica DIAN.</div></div>' +
+    '</div>';
+  }
+
+  /* PDF con texto real (vectorial), hoja A4 */
+  const pdfTxt = v => String(v == null ? '' : v).replace(/\s+/g, ' ').replace(/[^\x20-\x7E\u00A0-\u00FF]/g, '').trim();
+  function buildReceiptPdf(JsPDF, t, b) {
+    const small = t.items.length <= 6;            // ventas normales: hoja A5; con muchos productos: A4
+    const doc = new JsPDF({ unit: 'mm', format: small ? 'a5' : 'a4', orientation: 'portrait' });
+    const W = small ? 148 : 210, H = small ? 210 : 297, M = small ? 14 : 18, R = W - M;
+    const cantX = R - (small ? 58 : 64), precX = R - (small ? 30 : 32), bw = small ? 72 : 100, iw = small ? 60 : 90, ix = small ? 84 : 118, tw = small ? 72 : 84, dw = cantX - M - 3 - 17;
+    const INK = [17, 24, 39], MUT = [107, 114, 128], LINE = [229, 231, 235], SOFT = [243, 244, 246], BRAND = [249, 115, 22];
+    const col = c => doc.setTextColor(c[0], c[1], c[2]);
+    const font = (sz, bold) => { doc.setFont('helvetica', bold ? 'bold' : 'normal'); doc.setFontSize(sz); };
+    const lines = (txt, w) => doc.splitTextToSize(pdfTxt(txt), w);
+    const topBar = () => { doc.setFillColor(BRAND[0], BRAND[1], BRAND[2]); doc.rect(0, 0, W, 4, 'F'); };
+    const tableHead = y => {
+      doc.setFillColor(SOFT[0], SOFT[1], SOFT[2]); doc.rect(M, y, R - M, 8, 'F');
+      font(7.5, true); col(MUT);
+      doc.text('DESCRIPCIÓN', M + 3, y + 5.3);
+      doc.text('CANT.', cantX, y + 5.3, { align: 'right' });
+      doc.text('PRECIO UNIT.', precX, y + 5.3, { align: 'right' });
+      doc.text('TOTAL', R - 3, y + 5.3, { align: 'right' });
+      return y + 8;
+    };
+
+    topBar();
+    // Encabezado: negocio (izq.) y número de comprobante (der.)
+    let yl = 22; font(17, true); col(INK);
+    lines(bizName(b), bw).forEach(l => { doc.text(l, M, yl); yl += 7; });
+    font(9, false); col(MUT);
+    [b.nit ? 'NIT ' + b.nit : '', b.address || '', b.phone ? 'Tel. ' + b.phone : ''].filter(Boolean)
+      .forEach(m => lines(m, bw).forEach(l => { doc.text(l, M, yl); yl += 4.6; }));
+    font(7.5, true); col(MUT); doc.text('COMPROBANTE DE VENTA', R, 22, { align: 'right' });
+    font(17, true); col(INK); doc.text(pdfTxt(t.no), R, 30, { align: 'right' });
+    font(9, false); col(MUT); doc.text(pdfTxt(receiptDate(t.fecha)), R, 36, { align: 'right' });
+    let y = Math.max(yl, 40) + 5;
+    doc.setDrawColor(LINE[0], LINE[1], LINE[2]); doc.setLineWidth(0.3); doc.line(M, y, R, y); y += 9;
+
+    // Cliente y pago
+    font(7.5, true); col(MUT); doc.text('CLIENTE', M, y); doc.text('MÉTODO DE PAGO', ix, y);
+    font(11.5, true); col(INK);
+    let yc = y + 6; lines(t.cliente, iw).forEach(l => { doc.text(l, M, yc); yc += 5.4; });
+    doc.text(pdfTxt(t.metodoPago || '-'), ix, y + 6);
+    const sub = [t.documento ? 'Doc/NIT ' + t.documento : '', t.telefono ? 'Tel. ' + t.telefono : ''].filter(Boolean).join('  ·  ');
+    if (sub) { font(9, false); col(MUT); doc.text(pdfTxt(sub), M, yc); yc += 4.6; }
+    y = Math.max(yc, y + 12) + 6;
+
+    // Tabla de productos
+    y = tableHead(y);
+    t.items.forEach(it => {
+      const dl = lines(it.item, dw);
+      const rh = Math.max(9, dl.length * 4.8 + 4.4);
+      if (y + rh > H - 47) { doc.addPage(); topBar(); y = tableHead(18); }
+      font(10, false); col(INK);
+      dl.forEach((l, i) => doc.text(l, M + 3, y + 6 + i * 4.8));
+      doc.text(pdfTxt(it.qty), cantX, y + 6, { align: 'right' });
+      doc.text(pdfTxt(money(it.precioUnit)), precX, y + 6, { align: 'right' });
+      font(10, true); doc.text(pdfTxt(money(it.total)), R - 3, y + 6, { align: 'right' });
+      y += rh; doc.setDrawColor(LINE[0], LINE[1], LINE[2]); doc.line(M, y, R, y);
+    });
+
+    // Total
+    y += 8; if (y > H - 47) { doc.addPage(); topBar(); y = 22; }
+    const units = t.items.reduce((a, it) => a + (Number(it.qty) || 0), 0);
+    font(9, false); col(MUT); doc.text(units + (units === 1 ? ' unidad' : ' unidades'), M, y + 8.5);
+    doc.setFillColor(INK[0], INK[1], INK[2]); doc.roundedRect(R - tw, y, tw, 14, 2, 2, 'F');
+    doc.setTextColor(255, 255, 255); font(9, false); doc.text('TOTAL A PAGAR', R - tw + 5, y + 8.6);
+    font(14, true); doc.text(pdfTxt(money(t.total)), R - 5, y + 9, { align: 'right' });
+    y += 22;
+
+    // Observaciones
+    if (t.observaciones) {
+      const ol = lines(t.observaciones, R - M);
+      if (y + 8 + ol.length * 4.6 > H - 35) { doc.addPage(); topBar(); y = 22; }
+      font(7.5, true); col(MUT); doc.text('OBSERVACIONES', M, y);
+      font(9.5, false); col(INK); ol.forEach((l, i) => doc.text(l, M, y + 5.5 + i * 4.6));
+    }
+
+    // Pie de página en todas las hojas
+    const n = doc.getNumberOfPages();
+    for (let i = 1; i <= n; i++) {
+      doc.setPage(i);
+      doc.setDrawColor(LINE[0], LINE[1], LINE[2]); doc.line(M, H - 21, R, H - 21);
+      font(9.5, true); col(INK); doc.text(pdfTxt(b.footer || 'Gracias por tu compra.'), W / 2, H - 15, { align: 'center' });
+      font(7.5, false); col(MUT); doc.text('Comprobante comercial; no es factura electrónica DIAN.', W / 2, H - 10, { align: 'center' });
+      if (n > 1) doc.text('Página ' + i + ' de ' + n, R, H - 10, { align: 'right' });
+    }
+    return doc;
+  }
+
   /* ───────────────────────── Modal "Venta registrada" ───────────────────────── */
   let state = null; // { t: ticket, b: businessConfig }
 
@@ -317,17 +432,17 @@
         '<div class="tk-head"><div class="tk-badge" id="tk-badge">✅</div><div><h2 id="tk-title">Venta registrada</h2><p id="tk-sub"></p></div>' +
         '<button type="button" class="tk-x" onclick="closeSaleTicket()" aria-label="Cerrar">×</button></div>' +
         '<div class="tk-body">' +
-          '<div class="tk-paper-wrap"><div id="ticket-sale-capture" class="tk-paper" style="font-family:\'Courier New\',monospace;width:300px;background:#fff;color:#111;padding:18px 16px;box-sizing:border-box;font-size:12px;line-height:1.5"></div></div>' +
+          '<div class="tk-paper-wrap"><div id="ticket-sale-capture" class="tk-paper rc-doc"></div></div>' +
           '<div class="tk-phone"><label for="tk-phone">WhatsApp del cliente</label>' +
           '<input id="tk-phone" type="tel" inputmode="tel" maxlength="20" placeholder="Ej. 3001234567" autocomplete="off"></div>' +
           '<p class="tk-hint">«WhatsApp» envía el detalle como mensaje al número. Para mandar la imagen del ticket usa «Compartir» y elige el chat del cliente.</p>' +
         '</div>' +
         '<div class="tk-actions">' +
-          '<button type="button" class="tk-btn wa" id="tk-wa" onclick="sendSaleTicketWhatsApp()">💬 Enviar por WhatsApp</button>' +
-          '<button type="button" class="tk-btn" id="tk-share" onclick="shareSaleTicketImage()">📤 Compartir</button>' +
-          '<button type="button" class="tk-btn" id="tk-pdf" onclick="downloadSaleTicketPdf()">📄 PDF</button>' +
-          '<button type="button" class="tk-btn" id="tk-img" onclick="downloadSaleTicketImage()">🖼️ Imagen</button>' +
-          '<button type="button" class="tk-btn" id="tk-print" onclick="printSaleTicket()">🖨️ Imprimir</button>' +
+          '<button type="button" class="tk-btn wa" id="tk-wa" onclick="sendSaleTicketWhatsApp()">Enviar por WhatsApp</button>' +
+          '<button type="button" class="tk-btn" id="tk-share" onclick="shareSaleTicketImage()">Compartir</button>' +
+          '<button type="button" class="tk-btn" id="tk-pdf" onclick="downloadSaleTicketPdf()">PDF</button>' +
+          '<button type="button" class="tk-btn" id="tk-img" onclick="downloadSaleTicketImage()">Imagen</button>' +
+          '<button type="button" class="tk-btn" id="tk-print" onclick="printSaleTicket()">Imprimir</button>' +
           '<button type="button" class="tk-btn done" onclick="closeSaleTicket()">Listo</button>' +
         '</div>' +
       '</div>';
@@ -341,7 +456,7 @@
     byId('tk-title').textContent = isNew ? 'Venta registrada' : 'Comprobante ' + t.no;
     byId('tk-badge').textContent = isNew ? '✅' : '🧾';
     byId('tk-sub').textContent = isNew ? ('Comprobante ' + t.no + ' · ' + t.items.length + (t.items.length === 1 ? ' producto' : ' productos') + ' · stock actualizado') : 'Reenviar, descargar o imprimir';
-    byId('ticket-sale-capture').innerHTML = ticketMarkup(t, b);
+    byId('ticket-sale-capture').innerHTML = receiptMarkup(t, b);
     byId('tk-phone').value = t.telefono || '';
     m.classList.remove('hidden');
   }
@@ -415,7 +530,14 @@
 
   async function ticketCanvas() {
     if (typeof html2canvas === 'undefined') throw new Error('html2canvas no disponible');
-    return html2canvas(byId('ticket-sale-capture'), { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+    const host = document.createElement('div');
+    host.style.cssText = 'position:fixed;left:-10000px;top:0;width:600px;pointer-events:none';
+    host.innerHTML = '<div class="rc-doc rc-fixed">' + receiptMarkup(state.t, state.b) + '</div>';
+    document.body.appendChild(host);
+    try {
+      if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch (e) { /* sigue */ } }
+      return await html2canvas(host.firstChild, { scale: 3, backgroundColor: '#ffffff', useCORS: true });
+    } finally { host.remove(); }
   }
   const canvasBlob = canvas => new Promise((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error('No se pudo crear la imagen')), 'image/png'));
 
@@ -474,14 +596,12 @@
     if (!state) return;
     setBusy('tk-pdf', true);
     try {
-      const [JsPDF, canvas] = await Promise.all([loadJsPdf(), ticketCanvas()]);
-      const w = 80, h = Math.max(40, w * canvas.height / canvas.width); // rollo de 80 mm
-      const doc = new JsPDF({ unit: 'mm', format: [w, h], orientation: h >= w ? 'portrait' : 'landscape' });
-      doc.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, w, h);
+      const JsPDF = await loadJsPdf();
+      const doc = buildReceiptPdf(JsPDF, state.t, state.b);
       downloadBlob(doc.output('blob'), fileBase() + '.pdf');
       toast('PDF descargado', 'success');
     } catch (e) {
-      console.error(e); alertBox('No se pudo generar el PDF del ticket.', 'error');
+      console.error(e); alertBox('No se pudo generar el PDF del comprobante.', 'error');
     } finally { setBusy('tk-pdf', false); }
   };
 
