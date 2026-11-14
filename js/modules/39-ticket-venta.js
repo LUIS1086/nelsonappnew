@@ -70,7 +70,7 @@
   function clearPendingProduct() {
     byId('inv-product').value = ''; byId('inv-qty').value = 1; byId('inv-price').value = '';
     const lbl = byId('inv-product-label');
-    if (lbl) { lbl.textContent = '🔍 Buscar producto del inventario…'; lbl.classList.remove('has-value'); }
+    if (lbl) { lbl.textContent = 'Buscar producto…'; lbl.classList.remove('has-value'); }
     renderPriceHint();
   }
 
