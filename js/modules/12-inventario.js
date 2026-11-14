@@ -36,12 +36,12 @@
             const sumEl = document.getElementById('stock-summary-text');
             if (sumEl) sumEl.innerHTML =
                 `${allStock.length} productos · <span class="text-emerald-400 font-bold">${getCurrency()}${totalVal.toLocaleString()}</span>` +
-                (lowCount ? ` · <span class="text-amber-400 font-bold">⚠️ ${lowCount} bajo mínimo</span>` : '') +
-                (outCount ? ` · <span class="text-rose-400 font-bold">❌ ${outCount} agotados</span>` : '');
+                (lowCount ? ` · <span class="st-sum-low">${lowCount} bajo mínimo</span>` : '') +
+                (outCount ? ` · <span class="st-sum-out">${outCount} ${outCount === 1 ? 'agotado' : 'agotados'}</span>` : '');
 
             const c = document.getElementById('stock-list');
             if (!stock.length) {
-                c.innerHTML = '<div class="text-center py-8 text-slate-500 text-xs">📦 Sin repuestos que coincidan</div>';
+                c.innerHTML = '<div class="text-center py-8 text-slate-500 text-xs">Sin repuestos que coincidan</div>';
                 return;
             }
 
@@ -63,43 +63,43 @@
                 const isLow   = s.q <= minSt && s.q > 0;
                 const isOut   = s.q === 0;
                 const margin  = s.cost > 0 && s.p > 0 ? Math.round(((s.p - s.cost) / s.cost) * 100) : null;
-                const catIcon = catIcons[s.cat] || '📦';
+                const sv = d => `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
                 const imgHtml = s.img
-                    ? `<img src="${s.img}" class="w-10 h-10 rounded-xl object-cover flex-shrink-0" loading="lazy">`
-                    : `<div class="w-10 h-10 rounded-xl bg-slate-700/60 flex items-center justify-center text-lg flex-shrink-0">${catIcon}</div>`;
-                const statusBar = isOut
-                    ? `<div class="h-1 rounded-full bg-rose-500 mt-1" style="width:100%"></div>`
-                    : isLow
-                    ? `<div class="h-1 rounded-full bg-amber-400 mt-1" style="width:${Math.min(100,(s.q/minSt)*100)}%"></div>`
-                    : `<div class="h-1 rounded-full bg-emerald-500/40 mt-1" style="width:${Math.min(100,(s.q/Math.max(s.q,minSt*2))*100)}%"></div>`;
+                    ? `<img src="${s.img}" class="st-img st-photo" loading="lazy" alt="">`
+                    : `<div class="st-img">${sv('<path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7z"/><polyline points="3.3 7 12 12 20.7 7"/><line x1="12" y1="22" x2="12" y2="12"/>')}</div>`;
+                const pct = isOut ? 100 : isLow ? Math.min(100, (s.q / minSt) * 100) : Math.min(100, (s.q / Math.max(s.q, minSt * 2)) * 100);
+                const pill = isOut ? '<span class="st-pill st-pill-out">Agotado</span>' : isLow ? '<span class="st-pill st-pill-low">Stock bajo</span>' : '';
+                const supplier = (s.supplier || s.supplierPhone)
+                    ? `<p class="st-sup">${escapeHtml(s.supplier || 'Proveedor')}${s.supplierPhone ? ` · ${escapeHtml(s.supplierPhone)}` : ''}</p><button type="button" onclick="pedirAProveedor(${s.id})" class="st-order" title="Pedir al proveedor por WhatsApp">Pedir por WhatsApp</button>`
+                    : '';
 
-                return `<div class="flex items-center gap-3 p-3 rounded-xl border transition ${isOut ? 'bg-rose-500/5 border-rose-500/20' : isLow ? 'bg-amber-500/5 border-amber-500/20' : 'bg-slate-800/30 border-white/5'} active:scale-[0.99]">
-                    ${imgHtml}
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-1.5">
-                            <p class="font-black text-sm truncate uppercase">${escapeHtml(s.n)}</p>
-                            ${isOut ? '<span class="text-[9px] bg-rose-500/20 text-rose-400 px-1.5 py-0.5 rounded-full font-black flex-shrink-0">AGOTADO</span>' : isLow ? '<span class="text-[9px] bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded-full font-black flex-shrink-0">BAJO</span>' : ''}
+                return `<div class="st-item${isOut ? ' st-out' : isLow ? ' st-low' : ''}">
+                    <div class="st-top">
+                        ${imgHtml}
+                        <div class="st-info">
+                            <p class="st-name">${escapeHtml(s.n)}</p>
+                            ${s.code ? `<p class="st-code">${escapeHtml(String(s.code))}</p>` : ''}
+                            ${supplier}
                         </div>
-                        ${s.code ? `<p class="text-[10px] text-slate-500 font-mono">${s.code}</p>` : ''}
-                        ${(s.supplier || s.supplierPhone) ? `<p class="text-[10px] text-cyan-400 font-bold truncate">📌 ${escapeHtml(s.supplier || 'Proveedor')}${s.supplierPhone ? ` · ${escapeHtml(s.supplierPhone)}` : ''}</p><button type="button" onclick="pedirAProveedor(${s.id})" class="text-[10px] text-emerald-400 font-bold text-left" title="Pedir al proveedor por WhatsApp">💬 Pedir por WhatsApp</button>` : ''}
-                        <div class="flex items-center gap-2 mt-0.5">
-                            <p class="text-emerald-400 text-xs font-black">${getCurrency()}${s.p.toLocaleString()}</p>
-                            ${s.cost > 0 ? `<p class="text-slate-500 text-[10px]">costo: ${getCurrency()}${s.cost.toLocaleString()}</p>` : ''}
-                            ${margin !== null ? `<p class="text-[10px] font-bold ${margin>=0?'text-emerald-400':'text-rose-400'}">${margin>=0?'+':''}${margin}%</p>` : ''}
-                        </div>
-                        ${statusBar}
+                        ${pill}
                     </div>
-                    <div class="flex flex-col items-end gap-2 flex-shrink-0">
-                        <div class="flex items-center gap-1 bg-slate-900/60 rounded-full px-1 py-0.5">
-                            <button onclick="modQty(${s.id},-1)" class="w-7 h-7 rounded-full bg-slate-700 text-sm font-black active:scale-90 transition">−</button>
-                            <span class="font-black text-sm w-8 text-center">${s.q}</span>
-                            <button onclick="modQty(${s.id},1)" class="w-7 h-7 rounded-full bg-orange-600/60 text-sm font-black active:scale-90 transition">+</button>
+                    <div class="st-mid">
+                        <span class="st-price">${getCurrency()}${s.p.toLocaleString()}</span>
+                        ${s.cost > 0 ? `<span class="st-cost">Costo ${getCurrency()}${s.cost.toLocaleString()}</span>` : ''}
+                        ${margin !== null ? `<span class="st-margin ${margin >= 0 ? 'st-up' : 'st-down'}">${margin >= 0 ? '+' : ''}${margin}%</span>` : ''}
+                    </div>
+                    <div class="st-bar"><span style="width:${pct}%"></span></div>
+                    <div class="st-bottom">
+                        <div class="st-stepper">
+                            <button type="button" onclick="modQty(${s.id},-1)" class="st-step" aria-label="Quitar una unidad">−</button>
+                            <span class="st-qty">${s.q}<small>uds</small></span>
+                            <button type="button" onclick="modQty(${s.id},1)" class="st-step st-step-add" aria-label="Agregar una unidad">+</button>
                         </div>
-                        <div class="flex gap-1">
-                            <button onclick="openQRItemModal(${s.id})" class="text-violet-400 text-xs bg-violet-500/10 w-7 h-7 rounded-lg flex items-center justify-center hidden" title="Generar etiqueta QR">🏷️</button>
-                            <button onclick="openStockHistory(${s.id})" class="text-blue-400 text-xs bg-blue-500/10 w-7 h-7 rounded-lg flex items-center justify-center" title="Historial">📋</button>
-                            <button onclick="editStockItem(${s.id})" class="text-slate-400 text-xs bg-slate-700/40 w-7 h-7 rounded-lg flex items-center justify-center">✏️</button>
-                            <button onclick="deleteStockItem(${s.id})" class="text-rose-400 text-xs bg-rose-500/10 w-7 h-7 rounded-lg flex items-center justify-center">🗑️</button>
+                        <div class="st-actions">
+                            <button type="button" onclick="openQRItemModal(${s.id})" class="st-act hidden" title="Generar etiqueta QR" aria-label="Etiqueta QR">${sv('<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14"/><line x1="21" y1="14" x2="21" y2="21"/><line x1="14" y1="21" x2="17" y2="21"/>')}</button>
+                            <button type="button" onclick="openStockHistory(${s.id})" class="st-act" title="Historial" aria-label="Historial">${sv('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>')}</button>
+                            <button type="button" onclick="editStockItem(${s.id})" class="st-act" title="Editar" aria-label="Editar">${sv('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>')}</button>
+                            <button type="button" onclick="deleteStockItem(${s.id})" class="st-act st-act-del" title="Eliminar" aria-label="Eliminar">${sv('<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/>')}</button>
                         </div>
                     </div>
                 </div>`;
@@ -131,7 +131,7 @@
                 'Cuadrantes':'📐','Acoples Oster':'🔩','Suiches':'🔘',
                 'Tapones olla':'🔒','Otros':'📦'
             };
-            const chips = [{ label: 'Todos', val: '' }, ...cats.map(c => ({ label: `${catIcons[c]||'📦'} ${c}`, val: c }))];
+            const chips = [{ label: 'Todos', val: '' }, ...cats.map(c => ({ label: c, val: c }))];
             wrap.innerHTML = chips.map(ch =>
                 `<button onclick="setCategoryFilter('${ch.val}')" class="flex-shrink-0 text-[10px] font-black px-3 py-1.5 rounded-full border transition ${activeStockCategory === ch.val ? 'bg-orange-600 border-orange-500 text-white' : 'bg-slate-800/60 border-white/10 text-slate-400'}">${ch.label}</button>`
             ).join('');

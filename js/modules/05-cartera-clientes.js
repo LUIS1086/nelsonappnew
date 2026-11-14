@@ -27,23 +27,13 @@
             const deudores = clientes.filter(c => c.deuda > 0).sort((a,b) => b.deuda - a.deuda);
             const container = document.getElementById('cartera-list');
             if (!deudores.length) {
-                container.innerHTML = `<div style="text-align:center;padding:28px 16px;">
-                    <div style="font-size:36px;margin-bottom:8px;">🎉</div>
-                    <div style="font-size:12px;font-weight:800;color:#34d399;letter-spacing:1px;">Sin deudas pendientes</div>
-                    <div style="font-size:10px;color:#64748b;margin-top:4px;">Todos los clientes al día</div>
-                </div>`;
+                container.innerHTML = `<div class="cb-empty"><span class="cb-empty-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></span><div class="cb-empty-t">Sin deudas pendientes</div><div class="cb-empty-s">Todos los clientes están al día</div></div>`;
                 return;
             }
             const avatarHues = [12, 35, 145, 200, 260, 320];
             const totalDeuda = deudores.reduce((a, c) => a + (c.deuda || 0), 0);
             // Resumen superior
-            let html = `<div style="padding:10px 12px;margin-bottom:10px;background:linear-gradient(135deg,rgba(244,63,94,0.08),rgba(15,23,42,0.4));border:1px solid rgba(244,63,94,0.2);border-radius:12px;display:flex;justify-content:space-between;align-items:center;">
-                <div>
-                    <div style="font-size:9px;font-weight:900;color:#fb7185;letter-spacing:1.5px;text-transform:uppercase;">Por cobrar</div>
-                    <div style="font-size:17px;font-weight:900;color:#f87171;font-variant-numeric:tabular-nums;letter-spacing:-0.3px;">${cur}${totalDeuda.toLocaleString()}</div>
-                </div>
-                <div style="padding:6px 12px;border-radius:99px;background:rgba(244,63,94,0.15);border:1px solid rgba(244,63,94,0.3);font-size:10px;font-weight:900;color:#fb7185;letter-spacing:1px;">${deudores.length} ${deudores.length === 1 ? 'cliente' : 'clientes'}</div>
-            </div>`;
+            let html = `<div class="cb-sum"><div><div class="cb-sum-l">Total por cobrar</div><div class="cb-sum-v">${cur}${totalDeuda.toLocaleString()}</div></div><div class="cb-sum-n">${deudores.length} ${deudores.length === 1 ? 'cliente' : 'clientes'}</div></div>`;
             html += deudores.map((c, idx) => {
                 const nameInitials = (c.nombre || 'C').split(/\s+/).filter(Boolean).slice(0,2).map(w => w[0]?.toUpperCase() || '').join('') || 'C';
                 let hashVal = 0;
@@ -56,38 +46,20 @@
                 const _waNum = _digits ? (_digits.length <= 10 ? '57' + _digits : _digits) : '';
                 const _bizName = (typeof _safeBizConfig === 'function' ? (_safeBizConfig().name || '') : '') || 'Todo Repuestos Nelson';
                 const waUrl = _waNum ? `https://wa.me/${_waNum}?text=${encodeURIComponent('Hola ' + c.nombre + ', cómo estás? Te escribo por el saldo pendiente de ' + cur + c.deuda.toLocaleString() + ' en ' + _bizName + '. Quedo atento a tu respuesta.')}` : '';
-                return `<div style="position:relative;padding:12px;background:rgba(15,23,42,0.5);border:1px solid rgba(244,63,94,0.12);border-left:3px solid hsl(${hue},70%,55%);border-radius:14px;margin-bottom:8px;transition:all 0.15s ease;" onmouseenter="this.style.background='rgba(15,23,42,0.7)'" onmouseleave="this.style.background='rgba(15,23,42,0.5)'">
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <div style="flex-shrink:0;width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,hsl(${hue},70%,55%),hsl(${hue},70%,40%));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff;box-shadow:0 4px 10px hsla(${hue},70%,50%,0.3);letter-spacing:-0.3px;">${nameInitials}</div>
-                        <div style="flex:1;min-width:0;">
-                            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:3px;">
-                                <span style="font-size:13px;font-weight:900;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(c.nombre)}</span>
-                                <span style="font-size:14px;font-weight:900;color:#f87171;font-variant-numeric:tabular-nums;flex-shrink:0;letter-spacing:-0.2px;">${cur}${c.deuda.toLocaleString()}</span>
-                            </div>
-                            <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-                                <span style="font-size:10px;color:#94a3b8;font-weight:600;">📱 ${tel || 'Sin teléfono'}</span>
-                                ${idx === 0 ? '<span style="font-size:8px;font-weight:900;color:#f87171;padding:1px 6px;background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.3);border-radius:99px;letter-spacing:1px;">MAYOR</span>' : ''}
-                            </div>
-                            <div style="height:3px;background:rgba(15,23,42,0.8);border-radius:99px;overflow:hidden;">
-                                <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#f43f5e,#fb7185);border-radius:99px;"></div>
-                            </div>
+                return `<div class="cb-card" style="--cb-hue:${hue}">
+                    <div class="cb-top">
+                        <div class="cb-av">${nameInitials}</div>
+                        <div class="cb-main">
+                            <div class="cb-row"><span class="cb-name">${escapeHtml(c.nombre)}</span><span class="cb-debt">${cur}${c.deuda.toLocaleString()}</span></div>
+                            <div class="cb-sub">${tel ? escapeHtml(tel) : 'Sin teléfono'}${idx === 0 && deudores.length > 1 ? ' · <span class="cb-top1">Mayor deuda</span>' : ''}</div>
+                            <div class="cb-bar"><span style="width:${pct}%"></span></div>
                         </div>
                     </div>
-                    <div class="cartera-actions">
-                        <button type="button" class="cartera-act" onclick="showClientHistory('${safeName}')" title="Abre la ficha con sus órdenes, pagos y datos" aria-label="Ver historial de ${escapeHtml(c.nombre)}">
-                            <span class="cartera-act-ico">📜</span><span class="cartera-act-txt"><strong>Ver historial</strong><small>Órdenes y pagos</small></span>
-                        </button>
-                        <button type="button" class="cartera-act cartera-act-pay" onclick="openClientPayment('${safeName}')" title="Registra un abono y lo descuenta de la deuda" aria-label="Registrar abono de ${escapeHtml(c.nombre)}">
-                            <span class="cartera-act-ico">💵</span><span class="cartera-act-txt"><strong>Registrar abono</strong><small>Descuenta de la deuda</small></span>
-                        </button>
-                        ${tel ? `<a class="cartera-act cartera-act-wa" href="${waUrl}" target="_blank" rel="noopener" title="Abre WhatsApp con un recordatorio del saldo ya escrito" aria-label="Cobrar por WhatsApp a ${escapeHtml(c.nombre)}">
-                            <span class="cartera-act-ico">💬</span><span class="cartera-act-txt"><strong>Cobrar por WhatsApp</strong><small>Recordatorio del saldo</small></span>
-                        </a>
-                        <a class="cartera-act cartera-act-call" href="tel:${escapeHtml(_digits)}" title="Llama al cliente desde este teléfono" aria-label="Llamar a ${escapeHtml(c.nombre)}">
-                            <span class="cartera-act-ico">📞</span><span class="cartera-act-txt"><strong>Llamar</strong><small>Marcar ${escapeHtml(tel)}</small></span>
-                        </a>` : `<div class="cartera-act cartera-act-off" style="grid-column:1/-1" title="Agrega el teléfono en una orden de este cliente para poder cobrarle por WhatsApp o llamarlo">
-                            <span class="cartera-act-ico">📵</span><span class="cartera-act-txt"><strong>Sin teléfono</strong><small>Agrégalo en una orden para cobrar por WhatsApp o llamar</small></span>
-                        </div>`}
+                    <div class="cb-actions">
+                        <button type="button" class="cb-pay" onclick="openClientPayment('${safeName}')" title="Registra un abono y lo descuenta de la deuda" aria-label="Registrar abono de ${escapeHtml(c.nombre)}">Registrar abono</button>
+                        ${tel ? `<a class="cb-ico cb-wa" href="${waUrl}" target="_blank" rel="noopener" title="Cobrar por WhatsApp (recordatorio del saldo)" aria-label="Cobrar por WhatsApp a ${escapeHtml(c.nombre)}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 21l2.1-5.6A8.4 8.4 0 1 1 21 11.5z"/></svg></a>
+                        <a class="cb-ico" href="tel:${escapeHtml(_digits)}" title="Llamar al cliente" aria-label="Llamar a ${escapeHtml(c.nombre)}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg></a>` : ''}
+                        <button type="button" class="cb-ico" onclick="showClientHistory('${safeName}')" title="Ver historial: órdenes y pagos" aria-label="Ver historial de ${escapeHtml(c.nombre)}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button>
                     </div>
                 </div>`;
             }).join('');
