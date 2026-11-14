@@ -1,0 +1,34 @@
+/* Nelson App Pro · css/37-datos.css — Menú de Datos sobrio: íconos neutros, un solo color de texto. */
+#view-admin .admin-menu-list { background: none !important; }
+#view-admin .admin-menu-list > p[style*="letter-spacing:3px"] { text-transform: none !important; letter-spacing: .01em !important; font-size: 12px !important; font-weight: 650 !important; color: var(--nn-muted, #94a3b8) !important; padding: 12px 6px 6px !important; }
+#view-admin .admin-menu-list > div[style*="height:1px"] { background: var(--nn-line, rgba(148,163,184,.16)) !important; }
+#view-admin .admin-menu-list > button { min-height: 62px; border-radius: 14px !important; -webkit-tap-highlight-color: transparent; }
+#view-admin .admin-menu-list > button:active { background: var(--nn-surface-2, rgba(148,163,184,.1)) !important; }
+/* Mosaico de ícono: neutro con línea fina */
+#view-admin .admin-menu-list [style*="width:46px"][style*="border-radius:14px"] { background: var(--nn-surface-2, rgba(148,163,184,.1)) !important; background-image: none !important; border: 1px solid var(--nn-line, rgba(148,163,184,.18)) !important; box-shadow: none !important; width: 42px !important; height: 42px !important; border-radius: 12px !important; color: var(--nn-muted, #94a3b8); }
+#view-admin .admin-menu-list [style*="width:46px"] svg { stroke: var(--nn-muted, #94a3b8) !important; width: 20px; height: 20px; }
+/* Título y descripción del ítem */
+#view-admin .admin-menu-list p[style*="font-size:15px"] { color: var(--nn-text, #f1f5f9) !important; font-weight: 650 !important; }
+#view-admin .admin-menu-list p[style*="font-size:11px"] { color: var(--nn-muted, #94a3b8) !important; font-size: 12px !important; }
+#view-admin .admin-menu-list > button > svg { stroke: var(--nn-faint, #8190ad) !important; }
+/* Tarjetas de Drive e IA: planas, sin resplandor */
+#view-admin > div[style*="border-radius:20px"], #view-admin > div[style*="border-radius:22px"], #view-admin > div[style*="border-radius:24px"] {
+  background: var(--nn-surface, #0f1729) !important; background-image: none !important; border: 1px solid var(--nn-line, rgba(148,163,184,.16)) !important; box-shadow: none !important; }
+#view-admin > div > div[style*="radial-gradient"] { display: none !important; }
+#view-admin [style*="width:54px"][style*="border-radius:16px"], #view-admin [style*="width:46px"][style*="border-radius:14px"]:not(.admin-menu-list *) { background: var(--nn-surface-2, rgba(148,163,184,.1)) !important; background-image: none !important; border: 1px solid var(--nn-line, rgba(148,163,184,.18)) !important; box-shadow: none !important; }
+#view-admin [style*="color:#60a5fa"], #view-admin [style*="color:#93c5fd"] { color: var(--nn-text, #f1f5f9) !important; }
+#view-admin [style*="letter-spacing:2.5px"], #view-admin [style*="letter-spacing:2px"] { text-transform: none !important; letter-spacing: .01em !important; font-size: 11.5px !important; font-weight: 600 !important; color: var(--nn-muted, #94a3b8) !important; }
+#view-admin button[style*="rgba(16,185,129"], #view-admin button[style*="rgba(59,130,246"], #view-admin button[style*="rgba(29,78,216"] { background: transparent !important; border: 1px solid var(--nn-line-2, rgba(148,163,184,.3)) !important; color: var(--nn-text, #f1f5f9) !important; }
+#view-admin button[style*="rgba(16,185,129"] svg, #view-admin button[style*="rgba(59,130,246"] svg { stroke: var(--nn-muted, #94a3b8) !important; }
+
+/* Modo claro: mismo criterio (un solo color de texto, sin acentos por ítem) */
+html[data-theme] #view-admin#view-admin .admin-menu-list > button p[style*="font-size:15px"] { color: var(--nn-text, #f1f5f9) !important; }
+html[data-theme] #view-admin#view-admin .admin-menu-list > button p[style*="font-size:11px"] { color: var(--nn-muted, #94a3b8) !important; }
+html[data-theme] #view-admin#view-admin [style*="color:#60a5fa"], html[data-theme] #view-admin#view-admin [style*="color:#2563eb"], html[data-theme] #view-admin#view-admin [style*="color:#1d4ed8"] { color: var(--nn-text, #f1f5f9) !important; }
+html[data-theme] #view-admin#view-admin [style*="letter-spacing:2.5px"][style*="color:#fb923c"], html[data-theme] #view-admin#view-admin [style*="letter-spacing:2.5px"] { color: var(--nn-muted, #94a3b8) !important; }
+html[data-theme] #view-admin#view-admin [style*="border-top:1px solid"], html[data-theme] #view-admin#view-admin [style*="border-bottom:1px solid"] { border-color: var(--nn-line, rgba(148,163,184,.16)) !important; }
+html[data-theme] #view-admin#view-admin button[style*="rgba(249,115,22"], html[data-theme] #view-admin#view-admin button[style*="rgba(251,146,60"] { background: var(--nn-surface-2, rgba(148,163,184,.1)) !important; border: 1px solid var(--nn-line-2, rgba(148,163,184,.28)) !important; color: var(--nn-text, #f1f5f9) !important; }
+html[data-theme="light"] #view-admin#view-admin button[style*="rgba(16,185,129"], html[data-theme="light"] #view-admin#view-admin button[style*="rgba(59,130,246"] { background: transparent !important; color: var(--nn-text, #0f172a) !important; border: 1px solid var(--nn-line-2, rgba(15,23,42,.2)) !important; }
+html[data-theme] #view-admin#view-admin [style*="width:54px"][style*="border-radius:16px"], html[data-theme] #view-admin#view-admin [style*="width:46px"][style*="border-radius:14px"] { background: var(--nn-surface-2, rgba(148,163,184,.1)) !important; border: 1px solid var(--nn-line, rgba(148,163,184,.18)) !important; }
+html[data-theme] #view-admin#view-admin #nia-card p[style*="color:#fb923c"], html[data-theme] #view-admin#view-admin #nia-card [style*="color:#fb923c"] { color: var(--nn-muted, #94a3b8) !important; }
+html[data-theme] #view-admin#view-admin #nia-card button { color: var(--nn-text, #f1f5f9) !important; }

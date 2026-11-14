@@ -88,3 +88,112 @@ html[data-theme="light"] .mv-in { color: #0f7a4d; } html[data-theme="light"] .mv
 .tk-actions .tk-btn.wa, .tk-actions .tk-btn.done { grid-column: 1 / -1; min-height: 48px !important; font-size: 14px !important; }
 .tk-actions .tk-btn.wa { order: -1; }
 .tk-actions .tk-btn.done { order: 9; }
+
+/* ═══ Modo claro y oscuro coherentes en venta, selector de producto y editor de precio ═══ */
+#invoice-sale-modal .invoice-head h2 { color: var(--nn-text, #f1f5f9) !important; }
+#invoice-sale-modal .invoice-close { background: var(--nn-surface-2, rgba(148,163,184,.1)) !important; border: 1px solid var(--nn-line-2, rgba(148,163,184,.28)) !important; color: var(--nn-text, #f1f5f9) !important; box-shadow: none !important; }
+#invoice-sale-modal .inv-picker-btn { background: var(--nn-surface-2, rgba(148,163,184,.08)) !important; background-image: none !important; border: 1px solid var(--nn-line-2, rgba(148,163,184,.28)) !important; color: var(--nn-text, #f1f5f9) !important; box-shadow: none !important; border-radius: 12px !important; }
+#invoice-sale-modal .inv-picker-label { color: var(--nn-muted, #94a3b8) !important; }
+#invoice-sale-modal .inv-picker-label.has-value { color: var(--nn-text, #f1f5f9) !important; font-weight: 600; }
+#invoice-sale-modal .inv-picker-arrow { color: var(--nn-muted, #94a3b8) !important; font-size: 10px; }
+#invoice-sale-modal .inv-price-row { background: var(--nn-surface-2, rgba(148,163,184,.06)) !important; border: 1px dashed var(--nn-line-2, rgba(148,163,184,.3)) !important; border-radius: 12px !important; }
+#invoice-sale-modal #inv-price-hint { color: var(--nn-muted, #94a3b8) !important; font-weight: 500 !important; }
+#invoice-sale-modal .inv-line, #invoice-sale-modal .inv-line * { color: var(--nn-text, #f1f5f9); }
+#invoice-sale-modal .inv-line small, #invoice-sale-modal .inv-line .inv-line-meta { color: var(--nn-muted, #94a3b8) !important; }
+
+/* Hojas inferiores (selector de producto y editor de precio): superficie del tema, texto del tema */
+#pp-sheet, #modal-price-editor > div {
+  background: var(--nn-surface, #0f1729) !important; background-image: none !important;
+  border: 1px solid var(--nn-line-2, rgba(148,163,184,.28)) !important; border-bottom: 0 !important;
+  box-shadow: 0 -18px 50px -18px rgba(0,0,0,.55) !important; }
+#pp-sheet [style*="color:#f1f5f9"], #modal-price-editor [style*="color:#f1f5f9"] { color: var(--nn-text, #f1f5f9) !important; }
+#pp-sheet [style*="color:#e2e8f0"], #modal-price-editor [style*="color:#e2e8f0"] { color: var(--nn-text, #f1f5f9) !important; }
+#pp-sheet [style*="color:#94a3b8"], #modal-price-editor [style*="color:#94a3b8"],
+#pp-sheet [style*="color:#64748b"], #modal-price-editor [style*="color:#64748b"],
+#pp-sheet [style*="color:#475569"], #modal-price-editor [style*="color:#475569"] { color: var(--nn-muted, #94a3b8) !important; }
+#pp-sheet [style*="letter-spacing:2.5px"], #modal-price-editor [style*="letter-spacing:2.5px"],
+#modal-price-editor [style*="letter-spacing:2px"] { text-transform: none !important; letter-spacing: 0 !important; font-size: 11.5px !important; font-weight: 600 !important; color: var(--nn-muted, #94a3b8) !important; }
+#pp-sheet [style*="rgba(255,255,255,0.0"], #modal-price-editor [style*="rgba(255,255,255,0.0"],
+#pp-sheet [style*="rgba(255,255,255,0.1"], #modal-price-editor [style*="rgba(255,255,255,0.1"] {
+  background-color: var(--nn-surface-2, rgba(148,163,184,.08)) !important; border-color: var(--nn-line, rgba(148,163,184,.18)) !important; }
+#pp-sheet [style*="linear-gradient(135deg"], #modal-price-editor [style*="linear-gradient(135deg"] {
+  background-image: none !important; background-color: var(--nn-surface-2, rgba(148,163,184,.1)) !important; border: 1px solid var(--nn-line, rgba(148,163,184,.18)) !important; box-shadow: none !important; }
+#pp-sheet [style*="rgba(15,23,42"], #modal-price-editor [style*="rgba(15,23,42"] { background: var(--nn-surface-2, rgba(148,163,184,.08)) !important; }
+#pp-sheet input, #modal-price-editor input { color: var(--nn-text, #f1f5f9) !important; }
+#pp-sheet #pp-search { background: var(--nn-surface-2, rgba(148,163,184,.08)) !important; border: 1px solid var(--nn-line-2, rgba(148,163,184,.28)) !important; }
+#pp-sheet #pp-search:focus { border-color: var(--taller-btn-primary, #f97316) !important; box-shadow: 0 0 0 3px rgba(249,115,22,.18) !important; }
+html[data-theme="light"] #pp-sheet [style*="color:#34d399"], html[data-theme="light"] #modal-price-editor [style*="color:#34d399"] { color: #0f7a4d !important; }
+html[data-theme="light"] #pp-sheet [style*="color:#fb923c"], html[data-theme="light"] #modal-price-editor [style*="color:#fb923c"] { color: #b45309 !important; }
+html[data-theme="light"] #modal-product-picker, html[data-theme="light"] #modal-price-editor { background: rgba(15, 23, 42, .45) !important; }
+.pe-chip { background: var(--nn-surface-2, rgba(148,163,184,.1)) !important; border: 1px solid var(--nn-line-2, rgba(148,163,184,.28)) !important; color: var(--nn-text, #f1f5f9) !important; }
+
+/* Editor de precio: botones con buen contraste en ambos modos */
+.pe-chip-soft, #modal-price-editor button[onclick^="nudgePrice"], #modal-price-editor button[onclick^="adjustPrice"], #modal-price-editor button[onclick^="applyPriceDelta"] {
+  background: var(--nn-surface-2, rgba(148,163,184,.1)) !important; border: 1px solid var(--nn-line-2, rgba(148,163,184,.28)) !important; color: var(--nn-text, #f1f5f9) !important; }
+#modal-price-editor button[onclick*="Delta"], #modal-price-editor button[onclick*="nudge"], #modal-price-editor button[onclick*="Fine"] { color: var(--nn-text, #f1f5f9) !important; }
+#modal-price-editor button { -webkit-text-fill-color: currentColor; }
+
+/* Modal del comprobante: legible en claro */
+#ticket-sale-modal .tk-head h2, #ticket-sale-modal .tk-head strong, #ticket-sale-modal .tk-head [class*="title"] { color: var(--nn-text, #f1f5f9) !important; }
+#ticket-sale-modal .tk-head p, #ticket-sale-modal .tk-head small, #ticket-sale-modal .tk-hint { color: var(--nn-muted, #94a3b8) !important; }
+#ticket-sale-modal .tk-x { background: var(--nn-surface-2, rgba(148,163,184,.1)) !important; border: 1px solid var(--nn-line-2, rgba(148,163,184,.28)) !important; color: var(--nn-text, #f1f5f9) !important; }
+#ticket-sale-modal .tk-badge { background: var(--nn-surface-2, rgba(52,211,153,.12)) !important; border: 1px solid var(--nn-line, rgba(148,163,184,.2)) !important; }
+#ticket-sale-modal .tk-btn:not(.wa) { background: var(--nn-surface-2, rgba(148,163,184,.1)) !important; border: 1px solid var(--nn-line-2, rgba(148,163,184,.28)) !important; color: var(--nn-text, #f1f5f9) !important; }
+#ticket-sale-modal .tk-btn.wa { color: #fff !important; }
+#ticket-sale-modal .tk-actions, #ticket-sale-modal .tk-body { background: var(--nn-surface, #0f172a) !important; }
+
+/* Comprobante en pantallas angostas: que quepa completo */
+@media (max-width: 420px) {
+  .rc-doc:not(.rc-fixed) .rc-inner { padding: 16px 12px 14px; }
+  .rc-doc:not(.rc-fixed) .rc-table thead th { padding: 7px 4px; font-size: 8.5px; letter-spacing: .03em; }
+  .rc-doc:not(.rc-fixed) .rc-table thead th:first-child { padding-left: 8px; }
+  .rc-doc:not(.rc-fixed) .rc-table thead th:last-child { padding-right: 8px; }
+  .rc-doc:not(.rc-fixed) .rc-table td { padding: 10px 4px; font-size: 12px; }
+  .rc-doc:not(.rc-fixed) .rc-table td.l { padding-left: 8px; }
+  .rc-doc:not(.rc-fixed) .rc-table td.b { padding-right: 8px; }
+  .rc-doc:not(.rc-fixed) .rc-top { gap: 10px; }
+  .rc-doc:not(.rc-fixed) .rc-info { gap: 10px; }
+}
+
+/* ═══ Registrar venta: hoja a pantalla completa en el celular, letras grandes y sin cortes ═══ */
+#invoice-sale-modal { padding: 0 !important; align-items: flex-end !important; }
+#invoice-sale-modal .invoice-panel { width: min(680px, 100%) !important; max-height: 100% !important; height: auto; border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; border-bottom: 0 !important; border-top-left-radius: 24px !important; border-top-right-radius: 24px !important; }
+@media (min-width: 700px) { #invoice-sale-modal { align-items: center !important; padding: 16px !important; } #invoice-sale-modal .invoice-panel { border-radius: 24px !important; border-bottom: 1px solid var(--nn-line-2, rgba(148,163,184,.28)) !important; max-height: 92% !important; } }
+#invoice-sale-modal .invoice-head { padding: 20px 20px 14px !important; }
+#invoice-sale-modal .invoice-head h2 { font-size: 22px !important; }
+#invoice-sale-modal .invoice-head p { font-size: 14px !important; line-height: 1.4; }
+#invoice-sale-modal .invoice-close { width: 42px !important; height: 42px !important; font-size: 22px !important; border-radius: 12px !important; flex-shrink: 0; }
+#invoice-sale-form .invoice-grid { padding: 6px 20px 10px !important; gap: 14px !important; }
+.inv-sec { font-size: 13.5px !important; letter-spacing: .03em !important; }
+#invoice-sale-form label, #invoice-sale-form .invoice-field label { font-size: 14.5px !important; font-weight: 600 !important; }
+#invoice-sale-form input:not([type="hidden"]), #invoice-sale-form select, #invoice-sale-form textarea { font-size: 17px !important; min-height: 52px; padding: 0 14px !important; border-radius: 13px !important; }
+#invoice-sale-form textarea { padding: 12px 14px !important; min-height: 76px; }
+#invoice-sale-modal .inv-picker-btn { min-height: 54px !important; padding: 0 14px !important; }
+#invoice-sale-modal .inv-picker-label { font-size: 16.5px !important; }
+#invoice-sale-modal #inv-price-hint { font-size: 14px !important; line-height: 1.4; }
+#invoice-sale-form .inv-price-edit { min-height: 44px; font-size: 14.5px !important; padding: 0 14px !important; }
+#invoice-sale-form .inv-add { min-height: 54px !important; font-size: 16.5px !important; }
+#invoice-sale-form .inv-cart-empty { font-size: 14.5px !important; padding: 22px 16px !important; }
+#invoice-sale-form .inv-line { padding: 12px 14px !important; }
+#invoice-sale-form .inv-line * { font-size: 15px; }
+#invoice-sale-form .inv-line strong, #invoice-sale-form .inv-line-name { font-size: 16px !important; font-weight: 650 !important; }
+#invoice-sale-form .inv-line small, #invoice-sale-form .inv-line .inv-line-meta { font-size: 13.5px !important; }
+#invoice-sale-form .inv-line-sub { font-size: 16.5px !important; }
+.inv-fold > summary { min-height: 56px !important; font-size: 16px !important; }
+.inv-fold > summary em { font-size: 13px !important; }
+#invoice-sale-form .invoice-total { padding: 14px 20px !important; }
+#invoice-sale-form .invoice-total span { font-size: 15.5px !important; }
+#invoice-sale-form .invoice-total strong { font-size: 28px !important; }
+#invoice-sale-form .invoice-actions { padding: 8px 20px calc(16px + env(safe-area-inset-bottom, 0px)) !important; gap: 12px !important; }
+#invoice-sale-form .invoice-actions button { min-height: 56px !important; font-size: 17px !important; }
+#invoice-sale-form .invoice-total { bottom: 72px !important; }
+/* Selector de producto: nombres y búsqueda más grandes */
+#pp-sheet #pp-search { font-size: 16.5px !important; padding: 14px 16px !important; }
+#pp-sheet #pp-list button div[style*="font-size:13px"], #pp-sheet #pp-list button div[style*="font-size:12px"], #pp-sheet #pp-list button div[style*="font-size:14px"] { font-size: 15.5px !important; }
+#pp-sheet #pp-list button div[style*="font-size:16px"], #pp-sheet #pp-list button div[style*="font-size:15px"] { font-size: 17px !important; }
+#pp-sheet #pp-list button span { font-size: 12.5px !important; }
+/* Pie más compacto: deja más espacio a los campos */
+#invoice-sale-form .invoice-total { padding: 10px 20px !important; bottom: 64px !important; }
+#invoice-sale-form .invoice-total strong { font-size: 26px !important; }
+#invoice-sale-form .invoice-actions { padding: 6px 20px calc(12px + env(safe-area-inset-bottom, 0px)) !important; }
+#invoice-sale-form .invoice-actions button { min-height: 52px !important; }
