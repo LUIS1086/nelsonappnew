@@ -238,7 +238,7 @@
         <div class="splash-title" id="splash-biz-name">NELSON</div>
         <div class="splash-sub">Taller &amp; Repuestos</div>
         <div class="splash-bar-track"><div class="splash-bar-fill"></div></div>
-        <div class="splash-version" id="splash-version">v3.9.6</div>
+        <div class="splash-version" id="splash-version">v3.9.7</div>
     </div>
 
     <!-- PIN MODAL -->
@@ -593,32 +593,46 @@
     </main>
 
     <main id="view-ventas" class="app-view hidden p-4 space-y-6 max-container">
-        <div class="card p-5 space-y-3 bg-gradient-to-br from-emerald-900/20 to-transparent">
-            <h3 class="text-center text-[11px] font-black text-emerald-400 uppercase tracking-widest">Nueva venta</h3>
-            <button type="button" id="v-new-sale-btn" onclick="openInvoiceSaleModal()" class="invoice-sale-cta">
-                <span class="invoice-sale-cta-icon">🛒</span>
-                <span><strong>Registrar venta</strong><small>Varios productos · rebajas de precio · cliente opcional · ticket por WhatsApp, PDF o impresión</small></span>
-                <span class="invoice-sale-cta-arrow">→</span>
-            </button>
+        <div class="card cj-hero" id="caja-resumen">
+            <div class="cj-eyebrow">Caja actual</div>
+            <div id="cj-neto" class="cj-neto">$0</div>
+            <div class="cj-kpis">
+                <div class="cj-kpi"><span class="cj-kpi-l">Ingresos</span><strong id="cj-ing" class="cj-in">$0</strong></div>
+                <div class="cj-kpi"><span class="cj-kpi-l">Gastos</span><strong id="cj-gas" class="cj-out">$0</strong></div>
+            </div>
         </div>
-        <div class="card p-5 space-y-3 bg-gradient-to-br from-rose-900/20 to-transparent border-rose-500/10">
-            <h3 class="text-center text-[11px] font-black text-rose-400 uppercase tracking-widest">Registrar gasto</h3>
-            <input type="text" id="g-det" placeholder="Motivo (Ej. Pago luz, Repuestos...)" class="w-full font-bold uppercase text-sm">
-            <input type="number" id="g-val" placeholder="VALOR $" class="w-full text-center font-black text-rose-400" min="1">
-            <button onclick="saveGasto()" class="w-full bg-rose-600 py-3 rounded-xl font-black uppercase text-xs shadow-md active:scale-95 transition">💾 GUARDAR GASTO</button>
+
+        <button type="button" id="v-new-sale-btn" onclick="openInvoiceSaleModal()" class="cj-cta">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>Nueva venta</span>
+        </button>
+
+        <details class="card cj-gasto">
+            <summary>
+                <span class="cj-gasto-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+                <span class="cj-gasto-t">Registrar gasto</span>
+                <span class="cj-gasto-chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span>
+            </summary>
+            <div class="cj-gasto-body">
+                <label class="cj-lbl" for="g-det">Motivo</label>
+                <input type="text" id="g-det" placeholder="Ej. Pago de luz, repuestos…" class="w-full font-bold uppercase text-sm">
+                <label class="cj-lbl" for="g-val">Valor</label>
+                <input type="number" id="g-val" placeholder="0" class="w-full text-sm" min="1" inputmode="numeric">
+                <button type="button" onclick="saveGasto()" class="cj-save">Guardar gasto</button>
+            </div>
+        </details>
+
+        <div class="card p-5">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-[11px] font-black text-slate-400 uppercase flex items-center gap-2">Movimientos recientes · hoy</h3>
+                <button onclick="openMovimientosCompletos()" class="text-[10px] bg-blue-600/20 text-blue-400 border border-blue-500/30 px-3 py-1.5 rounded-xl font-black uppercase active:scale-95 transition">Ver todo</button>
+            </div>
+            <div id="movimientos-history" class="space-y-2 max-h-80 overflow-y-auto no-scrollbar"></div>
         </div>
 
         <div class="card p-5">
             <h3 class="text-[11px] font-black text-slate-400 uppercase mb-3 flex items-center gap-2">Cartera · clientes con deuda</h3>
             <div id="cartera-list" class="space-y-2 overflow-y-auto no-scrollbar" style="max-height:360px;"></div>
-        </div>
-
-        <div class="card p-5">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="text-[11px] font-black text-slate-400 uppercase flex items-center gap-2">Movimientos recientes · hoy</h3>
-                <button onclick="openMovimientosCompletos()" class="text-[10px] bg-blue-600/20 text-blue-400 border border-blue-500/30 px-3 py-1.5 rounded-xl font-black uppercase active:scale-95 transition">📋 VER TODO</button>
-            </div>
-            <div id="movimientos-history" class="space-y-2 max-h-48 overflow-y-auto no-scrollbar"></div>
         </div>
 
         <div class="card p-5">
@@ -861,7 +875,7 @@
                                 <p style="font-size:15px;font-weight:900;color:#f1f5f9;margin:0;letter-spacing:-0.3px;">Luis Eduardo Gaviria</p>
                                 <p style="font-size:10px;color:#64748b;margin:3px 0 0;font-weight:700;display:flex;align-items:center;gap:6px;">
                                     <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 6px rgba(16,185,129,0.6);animation:pulseDot 2s ease-in-out infinite;"></span>
-                                    NelsonApp Pro · <span id="credits-version">v3.9.6</span>
+                                    NelsonApp Pro · <span id="credits-version">v3.9.7</span>
                                 </p>
                             </div>
                             <span id="credits-arrow" style="font-size:14px;color:#64748b;transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);flex-shrink:0;">▼</span>
@@ -2331,7 +2345,7 @@
                         <div class="cfg-title-wrap">
                             <p class="cfg-eyebrow">
                                 <span id="cfg-header-biz">NelsonApp Pro</span>
-                                <span class="cfg-version" id="cfg-header-version">v3.9.6</span>
+                                <span class="cfg-version" id="cfg-header-version">v3.9.7</span>
                             </p>
                             <h3 class="cfg-h1">Configuración</h3>
                         </div>
@@ -3110,24 +3124,29 @@
     <!-- Venta con datos de cliente y ticket imprimible -->
     <div id="invoice-sale-modal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="invoice-sale-title" onclick="if(event.target===this)closeInvoiceSaleModal()">
       <div class="invoice-panel">
-        <div class="invoice-head"><div><h2 id="invoice-sale-title">🛒 Nueva venta</h2><p>Registra la venta, descuenta inventario y genera el ticket para el cliente.</p></div><button type="button" class="invoice-close" onclick="closeInvoiceSaleModal()" aria-label="Cerrar">×</button></div>
+        <div class="invoice-head"><div><h2 id="invoice-sale-title">Nueva venta</h2><p>Registra la venta, descuenta inventario y genera el comprobante.</p></div><button type="button" class="invoice-close" onclick="closeInvoiceSaleModal()" aria-label="Cerrar">×</button></div>
         <form id="invoice-sale-form" onsubmit="submitInvoiceSale(event)">
           <div class="invoice-grid">
+            <div class="inv-sec full">Agregar producto</div>
             <div class="invoice-field full"><label for="inv-product-btn">Producto</label><input type="hidden" id="inv-product"><button type="button" id="inv-product-btn" class="inv-picker-btn" onclick="openProductPicker()"><span id="inv-product-label" class="inv-picker-label">🔍 Buscar producto del inventario…</span><span class="inv-picker-arrow">▼</span></button></div>
             <div class="invoice-field"><label for="inv-qty">Cantidad</label><input id="inv-qty" type="number" min="1" step="1" value="1" oninput="updateInvoicePreview()"></div>
             <div class="invoice-field"><label for="inv-price">Precio unitario</label><input id="inv-price" type="number" min="0" step="1" oninput="updateInvoicePreview()"></div>
-            <div class="invoice-field full"><div class="inv-price-row"><span id="inv-price-hint">Elige un producto para ver su precio de inventario</span><button type="button" class="inv-price-edit" onclick="openPriceEditor()" title="Abre descuentos rápidos, redondeo y ajuste fino del precio (solo para esta venta)">✏️ Rebaja / ajustar precio</button></div></div>
-            <div class="invoice-field full"><button type="button" class="inv-add" onclick="addInvoiceLine()">➕ Agregar al ticket</button></div>
-            <div class="invoice-field full"><label>Productos del ticket</label><div id="inv-cart"><div class="inv-cart-empty">Aún no agregas productos al ticket</div></div></div>
+            <div class="invoice-field full"><div class="inv-price-row"><span id="inv-price-hint">Elige un producto para ver su precio de inventario</span><button type="button" class="inv-price-edit" onclick="openPriceEditor()" title="Abre descuentos rápidos, redondeo y ajuste fino del precio (solo para esta venta)">Rebaja o ajuste de precio</button></div></div>
+            <div class="invoice-field full"><button type="button" class="inv-add" onclick="addInvoiceLine()">Agregar a la venta</button></div>
+            <div class="inv-sec full">Detalle de la venta</div>
+            <div class="invoice-field full"><div id="inv-cart"><div class="inv-cart-empty">Aún no agregas productos al ticket</div></div></div>
+            <details class="inv-fold full"><summary><span>Datos del cliente</span><em>Opcional</em></summary><div class="invoice-grid inv-fold-body">
             <div class="invoice-field" style="position:relative"><label for="inv-client">Cliente (opcional)</label><input id="inv-client" maxlength="120" placeholder="Vacío = Cliente de mostrador" autocomplete="off" oninput="invoiceClientSuggest()" onfocus="invoiceClientSuggest()" onblur="setTimeout(invoiceClientHide,180)"><div id="inv-client-hits" class="inv-client-hits hidden"></div></div>
             <div class="invoice-field"><label for="inv-id">Documento / NIT (opcional)</label><input id="inv-id" maxlength="40" placeholder="CC, NIT u otro"></div>
             <div class="invoice-field"><label for="inv-phone">Teléfono (opcional)</label><input id="inv-phone" maxlength="30" inputmode="tel" placeholder="Número de contacto"></div>
+          </div></details>
+            <div class="inv-sec full">Pago</div>
             <div class="invoice-field"><label for="inv-payment">Método de pago</label><select id="inv-payment"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Otro</option></select></div>
             <div class="invoice-field full"><label for="inv-notes">Observaciones (opcional)</label><textarea id="inv-notes" rows="2" maxlength="300" placeholder="Garantía, referencia u observaciones"></textarea></div>
           </div>
           <div class="invoice-total"><span>Total de la venta</span><strong id="inv-total">$0</strong></div>
           <p class="invoice-note">Agrega varios productos al mismo ticket; si dejas uno elegido sin pulsar «Agregar», se incluye al registrar. La rebaja de precio aplica solo a esta venta (el inventario no cambia). Si no escribes cliente, el ticket sale a nombre de «Cliente de mostrador». Es un comprobante comercial que puedes enviar por WhatsApp, descargar en PDF o imagen, o imprimir; no sustituye una factura electrónica validada por la DIAN.</p>
-          <div class="invoice-actions"><button type="button" onclick="closeInvoiceSaleModal()">Cancelar</button><button class="primary" id="inv-submit" type="submit">✓ Registrar venta y generar ticket</button></div>
+          <div class="invoice-actions"><button type="button" onclick="closeInvoiceSaleModal()">Cancelar</button><button class="primary" id="inv-submit" type="submit">Registrar venta</button></div>
         </form>
       </div>
     </div>
