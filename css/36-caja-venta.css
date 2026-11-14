@@ -1,0 +1,90 @@
+/* Nelson App Pro · css/36-caja-venta.css — Caja (resumen, acciones, movimientos) y modal "Nueva venta". */
+/* ── Caja: resumen ── */
+.cj-hero { padding: 20px !important; }
+.cj-eyebrow { font-size: 12.5px; font-weight: 600; color: var(--nn-muted, #94a3b8); }
+.cj-neto { margin-top: 4px; font-size: 34px; font-weight: 700; letter-spacing: -.035em; line-height: 1.1; color: var(--nn-text, #f1f5f9); font-variant-numeric: tabular-nums; }
+.cj-neto.cj-neg { color: #f87171; }
+.cj-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+.cj-kpi { display: flex; flex-direction: column; gap: 2px; padding: 11px 13px; border-radius: 12px; background: var(--nn-surface-2, rgba(148,163,184,.07)); border: 1px solid var(--nn-line, rgba(148,163,184,.16)); }
+.cj-kpi-l { font-size: 11.5px; font-weight: 600; color: var(--nn-muted, #94a3b8); }
+.cj-kpi strong { font-size: 16px; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.cj-in { color: #34d399; } .cj-out { color: #f87171; }
+html[data-theme="light"] .cj-in { color: #0f7a4d; } html[data-theme="light"] .cj-out { color: #c2332f; }
+/* ── Caja: acción principal ── */
+.cj-cta { width: 100%; min-height: 54px; display: flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 14px; cursor: pointer;
+  background: var(--taller-btn-primary, #f97316); color: #fff; font-size: 15px; font-weight: 650; -webkit-tap-highlight-color: transparent; }
+.cj-cta:active { filter: brightness(.92); }
+/* ── Caja: gasto plegable ── */
+.cj-gasto { padding: 0 !important; overflow: hidden; }
+.cj-gasto > summary { list-style: none; display: flex; align-items: center; gap: 12px; padding: 14px 16px; min-height: 56px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.cj-gasto > summary::-webkit-details-marker { display: none; }
+.cj-gasto-ico { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; background: var(--nn-surface-2, rgba(148,163,184,.1)); border: 1px solid var(--nn-line, rgba(148,163,184,.16)); color: #f87171; flex-shrink: 0; }
+.cj-gasto-t { flex: 1; font-size: 14.5px; font-weight: 650; color: var(--nn-text, #f1f5f9); }
+.cj-gasto-chev { display: inline-flex; color: var(--nn-muted, #94a3b8); transition: transform .2s ease; }
+.cj-gasto[open] .cj-gasto-chev { transform: rotate(180deg); }
+.cj-gasto-body { display: grid; gap: 8px; padding: 2px 16px 16px; border-top: 1px solid var(--nn-line, rgba(148,163,184,.16)); padding-top: 14px; }
+.cj-lbl { font-size: 12px; font-weight: 600; color: var(--nn-muted, #94a3b8); margin: 4px 0 -2px 2px; }
+.cj-gasto-body input { text-align: left !important; color: var(--nn-text, #f1f5f9) !important; }
+.cj-save { min-height: 48px; margin-top: 6px; border-radius: 12px; border: 1px solid var(--nn-line-2, rgba(148,163,184,.3)); background: var(--nn-surface-2, transparent); color: var(--nn-text, #f1f5f9); font-size: 14px; font-weight: 650; cursor: pointer; }
+.cj-save:active { filter: brightness(.9); }
+/* ── Movimientos ── */
+#movimientos-history { display: grid; gap: 0; }
+.mv-row { display: flex; align-items: center; gap: 8px; padding: 11px 2px; border-bottom: 1px solid var(--nn-line, rgba(148,163,184,.14)); }
+.mv-row:last-child { border-bottom: 0; }
+.mv-main { flex: 1; min-width: 0; }
+.mv-t { font-size: 13.5px; font-weight: 600; color: var(--nn-text, #f1f5f9); line-height: 1.3; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.mv-s { font-size: 11.5px; color: var(--nn-muted, #94a3b8); margin-top: 1px; }
+.mv-amt { flex-shrink: 0; font-size: 14px; font-weight: 700; letter-spacing: -.01em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.mv-in { color: #34d399; } .mv-out { color: #f87171; }
+html[data-theme="light"] .mv-in { color: #0f7a4d; } html[data-theme="light"] .mv-out { color: #c2332f; }
+.mv-btn { width: 34px; height: 34px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; border: 1px solid var(--nn-line, rgba(148,163,184,.16)); background: transparent; color: var(--nn-muted, #94a3b8); cursor: pointer; }
+.mv-btn:active { background: var(--nn-surface-2, rgba(148,163,184,.12)); }
+.mv-del { color: #f87171; }
+
+/* ── Modal "Nueva venta" ── */
+#invoice-sale-modal .invoice-panel { padding: 0 !important; border-radius: 22px !important; background: var(--nn-surface, #0f1729) !important; border: 1px solid var(--nn-line-2, rgba(148,163,184,.28)) !important; display: flex; flex-direction: column; overflow: hidden !important; max-height: 94dvh; }
+#invoice-sale-modal .invoice-head { padding: 18px 18px 12px; margin: 0 !important; border-bottom: 1px solid var(--nn-line, rgba(148,163,184,.16)); align-items: flex-start; }
+#invoice-sale-modal .invoice-head h2 { font-size: 18px !important; font-weight: 700 !important; letter-spacing: -.02em; }
+#invoice-sale-modal .invoice-head p { font-size: 12.5px !important; color: var(--nn-muted, #94a3b8) !important; margin-top: 2px; }
+#invoice-sale-form { display: flex; flex-direction: column; min-height: 0; flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+#invoice-sale-form .invoice-grid { padding: 4px 18px 8px; gap: 12px !important; }
+.inv-sec { grid-column: 1 / -1; margin-top: 10px; padding-top: 14px; border-top: 1px solid var(--nn-line, rgba(148,163,184,.16)); font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--nn-muted, #94a3b8); }
+#invoice-sale-form .invoice-grid > .inv-sec:first-child { border-top: 0; margin-top: 4px; padding-top: 8px; }
+#invoice-sale-form label { font-size: 12px !important; font-weight: 600 !important; letter-spacing: 0 !important; text-transform: none !important; color: var(--nn-muted, #94a3b8) !important; }
+#invoice-sale-form .inv-add { min-height: 46px; border-radius: 12px !important; background: transparent !important; border: 1px solid var(--nn-line-2, rgba(148,163,184,.3)) !important; color: var(--nn-text, #f1f5f9) !important; font-weight: 650 !important; letter-spacing: 0 !important; text-transform: none !important; box-shadow: none !important; }
+#invoice-sale-form .inv-price-edit { background: transparent !important; border: 1px solid var(--nn-line-2, rgba(148,163,184,.3)) !important; color: var(--nn-muted, #94a3b8) !important; border-radius: 10px !important; font-weight: 600 !important; }
+#invoice-sale-form .inv-cart-empty { padding: 18px; border-radius: 12px; background: var(--nn-surface-2, rgba(148,163,184,.06)); border: 1px dashed var(--nn-line-2, rgba(148,163,184,.3)); color: var(--nn-muted, #94a3b8); font-size: 13px; text-align: center; }
+#invoice-sale-form .inv-line { background: var(--nn-surface-2, rgba(148,163,184,.07)) !important; border: 1px solid var(--nn-line, rgba(148,163,184,.16)) !important; border-radius: 12px !important; }
+#invoice-sale-form .inv-line-sub { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--nn-text, #f1f5f9) !important; white-space: nowrap; }
+.inv-fold { border: 1px solid var(--nn-line, rgba(148,163,184,.16)); border-radius: 12px; background: var(--nn-surface-2, rgba(148,163,184,.05)); margin-top: 2px; }
+.inv-fold > summary { list-style: none; display: flex; align-items: center; gap: 8px; padding: 0 14px; min-height: 48px; font-size: 14px; font-weight: 650; color: var(--nn-text, #f1f5f9); cursor: pointer; }
+.inv-fold > summary::-webkit-details-marker { display: none; }
+.inv-fold > summary span { flex: 1; }
+.inv-fold > summary em { font-style: normal; font-size: 11.5px; font-weight: 500; color: var(--nn-faint, #8190ad); }
+.inv-fold > summary::after { content: ""; width: 8px; height: 8px; border-right: 2px solid var(--nn-muted, #94a3b8); border-bottom: 2px solid var(--nn-muted, #94a3b8); transform: rotate(45deg) translateY(-2px); transition: transform .2s ease; }
+.inv-fold[open] > summary::after { transform: rotate(-135deg); }
+.inv-fold-body { padding: 4px 14px 14px !important; }
+#invoice-sale-form .invoice-note { display: none; }
+/* Pie fijo: total + botones siempre visibles */
+#invoice-sale-form .invoice-total { position: sticky; bottom: 62px; margin: 0 !important; padding: 12px 18px !important; background: var(--nn-surface, #0f1729) !important; border-top: 1px solid var(--nn-line, rgba(148,163,184,.16)); border-radius: 0 !important; border-left: 0 !important; border-right: 0 !important; border-bottom: 0 !important; display: flex; align-items: center; justify-content: space-between; z-index: 2; }
+#invoice-sale-form .invoice-total span { font-size: 13px; font-weight: 600; color: var(--nn-muted, #94a3b8); }
+#invoice-sale-form .invoice-total strong { font-size: 22px; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; color: var(--nn-text, #f1f5f9) !important; }
+#invoice-sale-form .invoice-actions { position: sticky; bottom: 0; margin: 0 !important; padding: 8px 18px 16px !important; background: var(--nn-surface, #0f1729) !important; display: grid !important; grid-template-columns: 1fr 1.6fr; gap: 10px; z-index: 2; }
+#invoice-sale-form .invoice-actions button { min-height: 50px; border-radius: 13px !important; font-size: 14.5px !important; font-weight: 650 !important; letter-spacing: 0 !important; text-transform: none !important; }
+#invoice-sale-form .invoice-actions button:not(.primary) { background: transparent !important; border: 1px solid var(--nn-line-2, rgba(148,163,184,.3)) !important; color: var(--nn-text, #f1f5f9) !important; }
+#invoice-sale-form .invoice-actions .primary { background: var(--taller-btn-primary, #f97316) !important; border: 0 !important; color: #fff !important; box-shadow: none !important; }
+
+/* ── Modal del comprobante (botones) ── */
+.tk-panel { background: var(--nn-surface, #0f172a) !important; }
+.tk-btn { font-weight: 600 !important; letter-spacing: 0 !important; }
+@media (max-width: 520px) {
+  #invoice-sale-form .invoice-grid { grid-template-columns: 1fr 1fr !important; }
+  #invoice-sale-form .invoice-grid > .full, #invoice-sale-form .invoice-grid > .inv-sec { grid-column: 1 / -1 !important; }
+  .inv-fold-body .invoice-field:first-child { grid-column: 1 / -1; }
+}
+/* Acciones del comprobante: compactas para ver más del papel */
+.tk-actions { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 8px !important; padding: 10px 14px 14px !important; }
+.tk-actions .tk-btn { min-height: 44px !important; padding: 0 4px !important; font-size: 12.5px !important; border-radius: 12px !important; white-space: nowrap; }
+.tk-actions .tk-btn.wa, .tk-actions .tk-btn.done { grid-column: 1 / -1; min-height: 48px !important; font-size: 14px !important; }
+.tk-actions .tk-btn.wa { order: -1; }
+.tk-actions .tk-btn.done { order: 9; }
