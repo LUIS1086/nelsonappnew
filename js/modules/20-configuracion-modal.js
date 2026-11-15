@@ -30,11 +30,7 @@
                 document.getElementById('business-short-name').innerText = config.shortName || 'TODO REPUESTOS';
                 document.getElementById('business-name-display').innerHTML = config.name || 'NELSON';
             }
-            const logo = localStorage.getItem('businessLogo');
-            if (logo) {
-                const el = document.getElementById('logo-preview');
-                if (el) el.innerHTML = `<img src="${logo}" style="width:100%;height:100%;object-fit:cover;">`;
-            }
+            applyBrandLogo();
         }
         function saveLowStockThreshold() {
             const val = parseInt(document.getElementById('config-low-stock').value);
@@ -178,6 +174,7 @@
                         logoEl.innerHTML = '🔧';
                     }
                 }
+                applyBrandLogo();
                 if (verEl) verEl.textContent = (window.APP_VERSION || 'v3.3.0');
             } catch(e) {}
         }
@@ -267,7 +264,7 @@
                 const b = _safeBizConfig();
                 if (Object.keys(b).length > 0) {
                     const filled = ['name','phone','address'].filter(k => b[k] && String(b[k]).trim()).length;
-                    if (filled === 3 && b.logo) cfgSetBadge('cfg-negocio', 'Completo', 'ok');
+                    if (filled === 3 && (b.logo || localStorage.getItem('businessLogo'))) cfgSetBadge('cfg-negocio', 'Completo', 'ok');
                     else if (filled === 0) cfgSetBadge('cfg-negocio', 'Configurar', 'warn');
                     else cfgSetBadge('cfg-negocio', `${filled}/3`, 'warn');
                 } else {
@@ -350,7 +347,7 @@
             try {
                 let score = 0; const total = 8;
                 const bizRaw = localStorage.getItem('businessConfig');
-                if (bizRaw) { try { const b = JSON.parse(bizRaw); if (b.name && b.phone && b.address) score++; if (b.logo) score++; } catch(e){} }
+                if (bizRaw) { try { const b = JSON.parse(bizRaw); if (b.name && b.phone && b.address) score++; if (b.logo || localStorage.getItem('businessLogo')) score++; } catch(e){} }
                 const tecs = JSON.parse(localStorage.getItem('tecnicos') || '[]');
                 if (tecs.length > 0) score++;
                 const tplSaved = localStorage.getItem('whatsappTemplates');

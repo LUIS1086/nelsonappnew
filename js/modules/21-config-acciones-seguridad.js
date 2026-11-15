@@ -322,17 +322,52 @@
         }
 
         // ==================== LOGO ====================
+        function getBizLogo() {
+            try { return localStorage.getItem('businessLogo') || (_safeBizConfig().logo) || ''; } catch (e) { return ''; }
+        }
+        function applyBrandLogo() {
+            const logo = getBizLogo();
+            const hl = document.getElementById('hdr-left'); if (hl) hl.classList.toggle('has-logo', !!logo);
+            const hdr = document.getElementById('header-logo');
+            if (hdr) { if (logo) { hdr.src = logo; hdr.classList.remove('hidden'); } else { hdr.removeAttribute('src'); hdr.classList.add('hidden'); } }
+            const prev = document.getElementById('logo-preview');
+            if (prev) prev.innerHTML = logo ? `<img src="${logo}" alt="Logo" style="width:100%;height:100%;object-fit:contain;">` : '🔧';
+            const rm = document.getElementById('logo-remove'); if (rm) rm.classList.toggle('hidden', !logo);
+            const cl = document.getElementById('cfg-header-logo');
+            if (cl) { if (logo) { cl.innerHTML = `<img src="${logo}" alt="logo">`; cl.style.background = '#fff'; } else { cl.innerHTML = '🔧'; cl.style.background = ''; } }
+        }
         function previewLogo(input) {
-            if (!input.files || !input.files[0]) return;
+            const file = input.files && input.files[0];
+            if (!file) return;
+            if (!/^image\//.test(file.type)) { showToast('Elige una imagen (PNG o JPG)', 'error'); input.value = ''; return; }
             const reader = new FileReader();
             reader.onload = (e) => {
-                const data = e.target.result;
-                localStorage.setItem('businessLogo', data);
-                const el = document.getElementById('logo-preview');
-                if (el) el.innerHTML = `<img src="${data}" style="width:100%;height:100%;object-fit:cover;">`;
-                showToast('Logo guardado', 'success');
+                const img = new Image();
+                img.onload = () => {
+                    // Se reduce a 512 px como máximo: más liviano para guardar y para el PDF
+                    const MAX = 512;
+                    const k = Math.min(1, MAX / Math.max(img.naturalWidth, img.naturalHeight));
+                    const w = Math.max(1, Math.round(img.naturalWidth * k)), h = Math.max(1, Math.round(img.naturalHeight * k));
+                    const c = document.createElement('canvas'); c.width = w; c.height = h;
+                    c.getContext('2d').drawImage(img, 0, 0, w, h);
+                    const keepAlpha = /png|webp|svg|gif/.test(file.type);
+                    let data;
+                    try { data = c.toDataURL(keepAlpha ? 'image/png' : 'image/jpeg', 0.92); } catch (err) { data = e.target.result; }
+                    try { localStorage.setItem('businessLogo', data); }
+                    catch (err) { showToast('El logo es muy pesado. Usa una imagen más pequeña.', 'error'); return; }
+                    applyBrandLogo();
+                    showToast('Logo guardado', 'success');
+                };
+                img.onerror = () => showToast('No se pudo leer la imagen', 'error');
+                img.src = e.target.result;
             };
-            reader.readAsDataURL(input.files[0]);
+            reader.readAsDataURL(file);
+            input.value = '';
+        }
+        function removeBizLogo() {
+            localStorage.removeItem('businessLogo');
+            applyBrandLogo();
+            showToast('Logo quitado', 'info');
         }
 
         // ==================== REGIONAL ====================

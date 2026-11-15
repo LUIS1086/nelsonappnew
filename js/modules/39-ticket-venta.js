@@ -20,6 +20,7 @@
     } catch (e) { return {}; }
   }
   const bizName = b => b.name || 'Todo Repuestos Nelson';
+  const bizLogo = () => { try { return (typeof getBizLogo === 'function') ? getBizLogo() : (localStorage.getItem('businessLogo') || ''); } catch (e) { return ''; } };
   const newId = () => (typeof _uid === 'function' ? _uid() : Date.now() * 1000 + Math.floor(Math.random() * 1000));
 
   /* ───────────────────────── Formulario de venta (carrito) ───────────────────────── */
@@ -312,11 +313,12 @@
   }
   function receiptMarkup(t, b) {
     const meta = [b.nit ? 'NIT ' + b.nit : '', b.address || '', b.phone ? 'Tel. ' + b.phone : ''].filter(Boolean);
+    const logo = bizLogo();
     const units = t.items.reduce((a, it) => a + (Number(it.qty) || 0), 0);
     const sub = [t.documento ? 'Doc/NIT ' + t.documento : '', t.telefono ? 'Tel. ' + t.telefono : ''].filter(Boolean).join(' · ');
     return '<div class="rc-bar"></div><div class="rc-inner">' +
       '<div class="rc-top">' +
-        '<div class="rc-biz"><div class="rc-name">' + esc(bizName(b)) + '</div>' + (meta.length ? '<div class="rc-meta">' + meta.map(esc).join('<br>') + '</div>' : '') + '</div>' +
+        '<div class="rc-biz">' + (logo ? '<img class="rc-logo" alt="" src="' + logo + '">' : '') + '<div class="rc-biz-txt"><div class="rc-name">' + esc(bizName(b)) + '</div>' + (meta.length ? '<div class="rc-meta">' + meta.map(esc).join('<br>') + '</div>' : '') + '</div></div>' +
         '<div class="rc-id"><div class="rc-kicker">Comprobante de venta</div><div class="rc-no">' + esc(t.no) + '</div><div class="rc-date">' + esc(receiptDate(t.fecha)) + '</div></div>' +
       '</div>' +
       '<div class="rc-info">' +
@@ -334,7 +336,22 @@
 
   /* PDF con texto real (vectorial), hoja A4 */
   const pdfTxt = v => String(v == null ? '' : v).replace(/\s+/g, ' ').replace(/[^\x20-\x7E\u00A0-\u00FF]/g, '').trim();
-  function buildReceiptPdf(JsPDF, t, b) {
+  function loadLogoForPdf() {
+    return new Promise(resolve => {
+      const d = bizLogo(); if (!d) return resolve(null);
+      const im = new Image();
+      im.onload = () => {
+        try {
+          const c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight;
+          const x = c.getContext('2d'); x.fillStyle = '#ffffff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(im, 0, 0);
+          resolve({ data: c.toDataURL('image/jpeg', 0.92), w: im.naturalWidth, h: im.naturalHeight });
+        } catch (e) { resolve(null); }
+      };
+      im.onerror = () => resolve(null);
+      im.src = d;
+    });
+  }
+  function buildReceiptPdf(JsPDF, t, b, logo) {
     const small = t.items.length <= 6;            // ventas normales: hoja A5; con muchos productos: A4
     const doc = new JsPDF({ unit: 'mm', format: small ? 'a5' : 'a4', orientation: 'portrait' });
     const W = small ? 148 : 210, H = small ? 210 : 297, M = small ? 14 : 18, R = W - M;
@@ -356,11 +373,19 @@
 
     topBar();
     // Encabezado: negocio (izq.) y número de comprobante (der.)
-    let yl = 22; font(17, true); col(INK);
-    lines(bizName(b), bw).forEach(l => { doc.text(l, M, yl); yl += 7; });
+    let bx = M, logoBottom = 0;
+    if (logo && logo.w && logo.h) {
+      const lh = small ? 15 : 17, lw = Math.min(small ? 26 : 34, lh * logo.w / logo.h), lhh = lw * logo.h / logo.w;
+      try { doc.addImage(logo.data, 'JPEG', M, 14, lw, lhh); bx = M + lw + 4; logoBottom = 14 + lhh; } catch (e) { bx = M; }
+    }
+    const bwEff = Math.max(30, (R - M) - (small ? 46 : 60) - (bx - M));
+    const nameSz = (small && bx > M) ? 14 : 17;
+    let yl = 22; font(nameSz, true); col(INK);
+    lines(bizName(b), bwEff).forEach(l => { doc.text(l, bx, yl); yl += nameSz > 14 ? 7 : 6; });
     font(9, false); col(MUT);
     [b.nit ? 'NIT ' + b.nit : '', b.address || '', b.phone ? 'Tel. ' + b.phone : ''].filter(Boolean)
-      .forEach(m => lines(m, bw).forEach(l => { doc.text(l, M, yl); yl += 4.6; }));
+      .forEach(m => lines(m, bwEff).forEach(l => { doc.text(l, bx, yl); yl += 4.6; }));
+    yl = Math.max(yl, logoBottom + 2);
     font(7.5, true); col(MUT); doc.text('COMPROBANTE DE VENTA', R, 22, { align: 'right' });
     font(17, true); col(INK); doc.text(pdfTxt(t.no), R, 30, { align: 'right' });
     font(9, false); col(MUT); doc.text(pdfTxt(receiptDate(t.fecha)), R, 36, { align: 'right' });
@@ -597,7 +622,7 @@
     setBusy('tk-pdf', true);
     try {
       const JsPDF = await loadJsPdf();
-      const doc = buildReceiptPdf(JsPDF, state.t, state.b);
+      const doc = buildReceiptPdf(JsPDF, state.t, state.b, await loadLogoForPdf());
       downloadBlob(doc.output('blob'), fileBase() + '.pdf');
       toast('PDF descargado', 'success');
     } catch (e) {
