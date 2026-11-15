@@ -40,7 +40,7 @@
 
 /* Botón principal */
 .rx-cta { width: 100%; margin-top: 20px; min-height: 54px; padding: 0 20px !important; border: 0 !important; border-radius: 14px !important;
-  background: var(--taller-btn-primary, #f97316) !important; background-image: none !important; color: #fff !important;
+  background: var(--taller-btn-primary, #ea580c) !important; background-image: none !important; color: #fff !important;
   font-size: 15px !important; font-weight: 650 !important; letter-spacing: 0 !important; text-transform: none !important; text-shadow: none !important;
   box-shadow: none !important; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
 .rx-cta:active { filter: brightness(.92); }

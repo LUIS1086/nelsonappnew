@@ -16,7 +16,7 @@
 .order-card-pro [style*="font-size:18px;font-weight:900;color:#34d399"] { color: var(--nn-text, #f1f5f9) !important; font-weight: 700 !important; font-size: 20px !important; letter-spacing: -.02em !important; }
 .order-card-pro [style*="padding:3px 10px;border-radius:99px"] { font-size: 11px !important; font-weight: 600 !important; letter-spacing: 0 !important; }
 .order-card-pro [style*="height:6px"] { height: 4px !important; }
-.order-card-pro [style*="linear-gradient(90deg,#3b82f6,#60a5fa)"] { background: var(--taller-btn-primary, #f97316) !important; }
+.order-card-pro [style*="linear-gradient(90deg,#3b82f6,#60a5fa)"] { background: var(--taller-btn-primary, #ea580c) !important; }
 .order-card-pro [style*="color:#60a5fa;\">Adelanto"] { color: var(--nn-muted, #94a3b8) !important; }
 /* Fila de chips (presupuesto / fotos / entrega): neutros */
 .order-card-pro div[style*="padding:0 14px 10px;display:flex;gap:6px"] > * { background: var(--nn-surface-2, rgba(148,163,184,.08)) !important; border: 1px solid var(--nn-line, rgba(148,163,184,.16)) !important; color: var(--nn-muted, #94a3b8) !important; font-weight: 600 !important; letter-spacing: 0 !important; }

@@ -12,7 +12,7 @@
 html[data-theme="light"] .cj-in { color: #0f7a4d; } html[data-theme="light"] .cj-out { color: #c2332f; }
 /* ── Caja: acción principal ── */
 .cj-cta { width: 100%; min-height: 54px; display: flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 14px; cursor: pointer;
-  background: var(--taller-btn-primary, #f97316); color: #fff; font-size: 15px; font-weight: 650; -webkit-tap-highlight-color: transparent; }
+  background: var(--taller-btn-primary, #ea580c); color: #fff; font-size: 15px; font-weight: 650; -webkit-tap-highlight-color: transparent; }
 .cj-cta:active { filter: brightness(.92); }
 /* ── Caja: gasto plegable ── */
 .cj-gasto { padding: 0 !important; overflow: hidden; }
@@ -72,7 +72,7 @@ html[data-theme="light"] .mv-in { color: #0f7a4d; } html[data-theme="light"] .mv
 #invoice-sale-form .invoice-actions { position: sticky; bottom: 0; margin: 0 !important; padding: 8px 18px 16px !important; background: var(--nn-surface, #0f1729) !important; display: grid !important; grid-template-columns: 1fr 1.6fr; gap: 10px; z-index: 2; }
 #invoice-sale-form .invoice-actions button { min-height: 50px; border-radius: 13px !important; font-size: 14.5px !important; font-weight: 650 !important; letter-spacing: 0 !important; text-transform: none !important; }
 #invoice-sale-form .invoice-actions button:not(.primary) { background: transparent !important; border: 1px solid var(--nn-line-2, rgba(148,163,184,.3)) !important; color: var(--nn-text, #f1f5f9) !important; }
-#invoice-sale-form .invoice-actions .primary { background: var(--taller-btn-primary, #f97316) !important; border: 0 !important; color: #fff !important; box-shadow: none !important; }
+#invoice-sale-form .invoice-actions .primary { background: var(--taller-btn-primary, #ea580c) !important; border: 0 !important; color: #fff !important; box-shadow: none !important; }
 
 /* ── Modal del comprobante (botones) ── */
 .tk-panel { background: var(--nn-surface, #0f172a) !important; }
@@ -121,7 +121,7 @@ html[data-theme="light"] .mv-in { color: #0f7a4d; } html[data-theme="light"] .mv
 #pp-sheet [style*="rgba(15,23,42"], #modal-price-editor [style*="rgba(15,23,42"] { background: var(--nn-surface-2, rgba(148,163,184,.08)) !important; }
 #pp-sheet input, #modal-price-editor input { color: var(--nn-text, #f1f5f9) !important; }
 #pp-sheet #pp-search { background: var(--nn-surface-2, rgba(148,163,184,.08)) !important; border: 1px solid var(--nn-line-2, rgba(148,163,184,.28)) !important; }
-#pp-sheet #pp-search:focus { border-color: var(--taller-btn-primary, #f97316) !important; box-shadow: 0 0 0 3px rgba(249,115,22,.18) !important; }
+#pp-sheet #pp-search:focus { border-color: var(--taller-btn-primary, #ea580c) !important; box-shadow: 0 0 0 3px rgba(249,115,22,.18) !important; }
 html[data-theme="light"] #pp-sheet [style*="color:#34d399"], html[data-theme="light"] #modal-price-editor [style*="color:#34d399"] { color: #0f7a4d !important; }
 html[data-theme="light"] #pp-sheet [style*="color:#fb923c"], html[data-theme="light"] #modal-price-editor [style*="color:#fb923c"] { color: #b45309 !important; }
 html[data-theme="light"] #modal-product-picker, html[data-theme="light"] #modal-price-editor { background: rgba(15, 23, 42, .45) !important; }

@@ -1,0 +1,12 @@
+/* Nelson App Pro · css/40-logo.css — Logo del negocio en la cabecera y en el comprobante. */
+.hdr-left { min-width: 0; }
+.hdr-left.has-logo { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 12px; align-items: center; }
+.hdr-left.has-logo > :not(img) { grid-column: 2; }
+.hdr-logo { width: 44px; height: 44px; grid-column: 1; grid-row: 1 / span 4; object-fit: contain; background: #fff; border-radius: 12px; padding: 4px; border: 1px solid var(--nn-line, rgba(148,163,184,.25)); flex-shrink: 0; }
+.hdr-logo.hidden { display: none; }
+.rc-biz { display: flex; align-items: flex-start; gap: 12px; }
+.rc-biz-txt { min-width: 0; }
+.rc-logo { width: auto; height: 46px; max-width: 110px; object-fit: contain; flex-shrink: 0; border-radius: 6px; }
+@media (max-width: 420px) { .rc-doc:not(.rc-fixed) .rc-logo { height: 38px; max-width: 80px; } .rc-doc:not(.rc-fixed) .rc-biz { gap: 8px; } }
+#logo-preview img { object-fit: contain !important; background: #fff; }
+.hdr-left.has-logo #business-name-display { font-size: 1.4rem !important; line-height: 1.15; font-style: normal !important; }
