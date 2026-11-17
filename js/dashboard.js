@@ -72,7 +72,7 @@ function dashSearch(q) {
     buildOrdersPanel(_dashOrders, prefix, Date.now());
     const threshold = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
     buildStockPanel(_dashStock || [], threshold);
-    buildDeudaPanel(_dashClientes || []);
+    buildClientesPanel(_dashClientes || []);
     return;
   }
 
@@ -245,34 +245,38 @@ let _db = null;
 function openDB() {
   return new Promise((res, rej) => {
     if (_db) return res(_db);
-    // Abre la DB sin forzar versión — usa la que ya exista en la app principal.
-    // Esto evita conflictos si el index.html migra a versiones mayores.
+    // El dashboard es de solo lectura: nunca debe crear una DB vacía ni bloquear
+    // una migración de la app principal.
     const r = indexedDB.open(DB_NAME);
-    r.onerror = () => { console.warn('[Dashboard] Error abriendo DB:', r.error); rej(r.error); };
+    r.onerror = () => { console.warn('[Dashboard] Error abriendo DB:', r.error); rej(r.error || new Error('No se pudo abrir la base de datos')); };
+    r.onupgradeneeded = () => {
+      // Abrir un nombre inexistente crea una DB nueva. Abortamos para dejar que
+      // solo la app principal inicialice y migre sus stores.
+      r.transaction.abort();
+    };
     r.onsuccess = () => {
       _db = r.result;
       console.log('[Dashboard] DB abierta v' + _db.version + ' · stores:', Array.from(_db.objectStoreNames));
+      _db.onversionchange = () => { try { _db.close(); } catch (_) {} _db = null; };
+      _db.onclose = () => { _db = null; };
       res(_db);
     };
     r.onblocked = () => console.warn('[Dashboard] DB bloqueada');
-    // No definimos onupgradeneeded — el dashboard es solo lectura, no debe crear ni migrar stores.
   });
 }
 async function getAll(store) {
   try {
     await openDB();
-    // Si el store no existe (porque la app aún no lo creó), devolvemos vacío sin lanzar error
     if (!_db.objectStoreNames.contains(store)) {
-      console.warn('[Dashboard] Store no existe:', store);
-      return [];
+      throw new Error('No existe la tabla «' + store + '» en la base de datos de la app.');
     }
-    return new Promise(res => {
+    return new Promise((res, rej) => {
       const tx = _db.transaction(store, 'readonly');
       const req = tx.objectStore(store).getAll();
       req.onsuccess = () => res(req.result || []);
-      req.onerror = () => { console.warn('[Dashboard] Error leyendo', store, req.error); res([]); };
+      req.onerror = () => { console.warn('[Dashboard] Error leyendo', store, req.error); rej(req.error || new Error('Error leyendo ' + store)); };
     });
-  } catch (e) { console.warn('[Dashboard] getAll falló:', store, e); return []; }
+  } catch (e) { console.warn('[Dashboard] getAll falló:', store, e); throw e; }
 }
 
 // ════════════════════════════════════════
@@ -331,6 +335,12 @@ async function loadDashboard(silent) {
   if (!silent) showSkeletons();
   showRefreshIndicator('refreshing');
   try {
+    const db = await openDB();
+    const requiredStores = ['orders', 'stock', 'sales', 'gastos', 'clientes'];
+    const missingStores = requiredStores.filter(store => !db.objectStoreNames.contains(store));
+    if (missingStores.length) {
+      throw new Error('La base de datos abierta no contiene las tablas de la app (' + missingStores.join(', ') + ').');
+    }
     const [ordersRaw, stockRaw, salesRaw, gastosRaw, clientesRaw] = await Promise.all([
       getAll('orders'), getAll('stock'), getAll('sales'), getAll('gastos'), getAll('clientes')
     ]);
@@ -456,7 +466,7 @@ async function loadDashboard(silent) {
   buildTopPanel(sales, startMonth);
 
   // ── DEUDA ──
-  buildDeudaPanel(clientes);
+  buildClientesPanel(clientes);
 
   // ── GARANTÍAS ──
   buildGarantiaPanel(orders, now);
@@ -472,6 +482,11 @@ async function loadDashboard(silent) {
 
   } catch (e) {
     console.error('[Dashboard] Error en loadDashboard:', e);
+    const banner = document.getElementById('alert-banner');
+    if (banner) {
+      banner.style.display = 'block';
+      banner.innerHTML = `<div class="alert-chip amber" style="cursor:default"><span>⚠️</span><span><b>No se pudieron cargar los datos reales.</b> Abre primero Nelson App en este mismo navegador y perfil, confirma que tus datos aparezcan y luego vuelve a cargar este dashboard. Detalle: ${esc(e && e.message ? e.message : 'error de base de datos')}</span></div>`;
+    }
   } finally {
     showRefreshIndicator('done');
   }
@@ -655,21 +670,25 @@ function buildMovPanel(orders, sales, gastos, lastCierre) {
 
 // ────────────────────────────────────────
 function buildTopPanel(sales, startMonth) {
-  const mesSales = sales.filter(s => s.fecha >= startMonth);
+  // Adelantos y cobros de entrega son ingresos del taller, no ventas de repuestos.
+  const mesSales = sales.filter(s => s.fecha >= startMonth && s.tipo !== 'adelanto' && s.tipo !== 'cobro_entrega');
+  const totalMes = mesSales.reduce((sum, sale) => sum + (Number(sale.val) || 0), 0);
+  const unidadesMes = mesSales.reduce((sum, sale) => sum + (Number(sale.qty) || 1), 0);
   const counts = {};
   mesSales.forEach(s => { counts[s.item] = (counts[s.item]||0) + (s.qty||1); });
   const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
   const el = document.getElementById('top-panel');
+  const resumen = `<div style="padding:10px 0 14px;border-bottom:1px solid var(--border);margin-bottom:10px;display:flex;justify-content:space-between;gap:12px;align-items:center"><div><div style="font-size:9px;font-weight:800;letter-spacing:1.5px;color:var(--text2);text-transform:uppercase">Total vendido este mes</div><div style="font-size:22px;font-weight:900;color:var(--green);margin-top:3px">${fmt(totalMes)}</div></div><div style="text-align:right;font-size:11px;color:var(--text2)">${mesSales.length} registros<br>${unidadesMes} unidades</div></div>`;
   if (!sorted.length) {
-    el.innerHTML = `<div class="empty-illust">
+    el.innerHTML = resumen + `<div class="empty-illust">
       <div class="empty-illust-icon">🏆</div>
       <div class="empty-illust-title">Sin ventas este mes</div>
-      <div class="empty-illust-sub">Los más vendidos aparecerán aquí</div>
+      <div class="empty-illust-sub">Las ventas registradas aparecerán aquí</div>
     </div>`;
     return;
   }
   const rankClass = ['gold','silver','bronze','',''];
-  el.innerHTML = sorted.map(([name,qty], i) =>
+  el.innerHTML = resumen + sorted.map(([name,qty], i) =>
     `<div class="top-item">
       <div class="top-rank ${rankClass[i]}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div>
       <div class="top-info">
@@ -682,28 +701,31 @@ function buildTopPanel(sales, startMonth) {
 }
 
 // ────────────────────────────────────────
-function buildDeudaPanel(clientes) {
-  const deudores = clientes.filter(c=>c.deuda>0).sort((a,b)=>b.deuda-a.deuda).slice(0,6);
+function buildClientesPanel(clientes) {
+  const todos = Array.from(_buildClientIndex().values())
+    .sort((a,b) => (b.ultima || 0) - (a.ultima || 0) || a.nombre.localeCompare(b.nombre, 'es'));
   const el = document.getElementById('deuda-panel');
-  if (!deudores.length) {
+  const label = document.getElementById('clientes-count-label');
+  if (label) label.textContent = `${todos.length} ${todos.length === 1 ? 'cliente registrado' : 'clientes registrados'}`;
+  if (!todos.length) {
     el.innerHTML = `<div class="empty-illust">
-      <div class="empty-illust-icon">✅</div>
-      <div class="empty-illust-title">Cartera al día</div>
-      <div class="empty-illust-sub">Sin deudas pendientes</div>
+      <div class="empty-illust-icon">👥</div>
+      <div class="empty-illust-title">Aún no hay clientes</div>
+      <div class="empty-illust-sub">Los clientes guardados en órdenes o cartera aparecerán aquí</div>
     </div>`;
     return;
   }
-  el.innerHTML = deudores.map((c,i) =>
+  el.innerHTML = todos.slice(0, 8).map((c,i) =>
     `<div class="deuda-item" onclick="openClienteDeudaModal('${_encClient(c)}')">
       <div class="deuda-rank">${i+1}</div>
       <div class="deuda-avatar">👤</div>
       <div class="deuda-info">
         <div class="deuda-name">${esc(c.nombre)}</div>
-        <div class="deuda-since">${esc(c.telefono||'Sin teléfono')}</div>
+        <div class="deuda-since">${esc(c.telefono||'Sin teléfono')} · ${c.ordenes} ${c.ordenes === 1 ? 'orden' : 'órdenes'}</div>
       </div>
-      <div class="deuda-val">${fmt(c.deuda)}</div>
+      <div class="deuda-val" ${c.deuda > 0 ? '' : 'style="color:var(--green)"'}>${c.deuda > 0 ? fmt(c.deuda) : 'Al día'}</div>
     </div>`
-  ).join('');
+  ).join('') + (todos.length > 8 ? `<div style="padding:8px 0;color:var(--text2);font-size:10px;text-align:center">Mostrando 8 de ${todos.length} clientes · búscalos arriba</div>` : '');
 }
 
 // ────────────────────────────────────────
