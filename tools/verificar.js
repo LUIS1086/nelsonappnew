@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Uso:  node tools/verificar.js        (desde la raiz del proyecto, sin instalar nada)
-// Revisa: archivos referenciados existen · sintaxis de cada .js · todo esta en el precache del SW.
+// Revisa: archivos referenciados existen · sintaxis de cada .js · todo esta en el precache del SW ·
+//         onclick del HTML apuntan a funciones reales · no hay funciones usadas sin definir (ESLint opcional).
 const fs=require('fs'),path=require('path'),cp=require('child_process');
 const root=path.resolve(__dirname,'..');
 const html=['index.html','dashboard.html'].map(f=>fs.readFileSync(path.join(root,f),'utf8')).join('\n');
@@ -47,5 +48,16 @@ catch(e){ err('Los bundles de CSS están desactualizados. Corre:  node tools/bui
 ['index.html','dashboard.html'].forEach(f=>{ const t=fs.readFileSync(path.join(root,f),'utf8');
   const sueltas=[...t.matchAll(/<link rel="stylesheet" href="css\/(?!(?:app|dashboard)\.bundle\.css)[^"]+">/g)];
   if(sueltas.length) err(f+' enlaza '+sueltas.length+' hoja(s) CSS suelta(s); deben ir dentro del bundle (tools/build-css.js)'); });
+// ── Los onclick/oninput/onchange del HTML deben llamar a funciones que existan en algún .js ──
+{ const todos=walk(path.join(root,'js')).filter(f=>f.endsWith('.js')&&!f.includes(path.sep+'libs'+path.sep)).map(f=>fs.readFileSync(f,'utf8')).join('\n');
+  const ignora=new Set(['if','for','while','return','void','function','alert','confirm','prompt','setTimeout','parseInt','parseFloat','Number','String','Boolean','this','event','window','document','navigator','history','location','localStorage','sessionStorage','stopPropagation','preventDefault','focus','blur','click','remove','add','toggle','scrollTo','scrollIntoView','reset','select','back','close','open','submit','querySelector','getElementById','querySelectorAll','closest','classList','contains','setAttribute','getAttribute','toFixed','toLowerCase','toUpperCase','trim','replace','stopImmediatePropagation']);
+  for(const f of ['index.html','dashboard.html','seguimiento.html']){ const t=fs.readFileSync(path.join(root,f),'utf8'); const falt=new Set();
+    for(const m of t.matchAll(/\son(?:click|input|change|keydown|keyup|submit|focus|blur)="([^"]+)"/g))
+      for(const x of m[1].matchAll(/(?<![.\w$])([A-Za-z_$][\w$]*)\s*\(/g)){ const n=x[1]; if(ignora.has(n)) continue;
+        if(!new RegExp('function\\s*\\*?\\s*'+n.replace(/\$/g,'\\$')+'\\b|(?:const|let|var)\\s+'+n.replace(/\$/g,'\\$')+'\\b|\\b(?:window|self)\\.'+n.replace(/\$/g,'\\$')+'\\s*=').test(todos+t.replace(/<script[^>]+src[^>]*>/g,''))) falt.add(n); }
+    if(falt.size) err(f+' llama desde un atributo on… a funciones que no existen: '+[...falt].join(', ')); } }
+// ── Funciones/variables usadas pero no definidas (requiere ESLint; ver tools/lint-globales.js) ──
+try{ const o=cp.execFileSync(process.execPath,[path.join(__dirname,'lint-globales.js')],{stdio:'pipe'}).toString().trim(); if(o) console.log(o); }
+catch(e){ errores++; console.log(String(e.stdout).trim()||String(e.stderr).trim()); }
 console.log(errores?`\n${errores} problema(s) encontrados`:`✓ Todo en orden (${refs.length} archivos css/js, precache y manifest correctos)`);
 process.exit(errores?1:0);
