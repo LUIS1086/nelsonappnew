@@ -1,0 +1,6 @@
+{
+  "name": "nelsonapp-lint",
+  "private": true,
+  "description": "Solo para tools/lint-globales.js (detecta funciones/variables que se usan pero no existen)",
+  "devDependencies": { "eslint": "^8.57.0" }
+}
