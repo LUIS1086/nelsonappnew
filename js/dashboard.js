@@ -983,6 +983,26 @@ function setupMobileShell() {
 }
 
 // ════════════════════════════════════════
+//  ★ BOTÓN "VOLVER ARRIBA" + sombra del topbar al hacer scroll
+//  (v3.9.13: la función se llamaba pero no existía y rompía el arranque)
+// ════════════════════════════════════════
+function setupScrollFab() {
+  const fab = document.getElementById('scroll-top-fab');
+  const bar = document.querySelector('.topbar');
+  let ticking = false;
+  const update = () => {
+    ticking = false;
+    const y = window.scrollY || document.documentElement.scrollTop || 0;
+    if (fab) fab.classList.toggle('show', y > 400);
+    if (bar) bar.classList.toggle('is-scrolled', y > 8);
+  };
+  window.addEventListener('scroll', () => {
+    if (!ticking) { ticking = true; requestAnimationFrame(update); }
+  }, { passive: true });
+  update();
+}
+
+// ════════════════════════════════════════
 //  ★ ATAJOS DE TECLADO
 // ════════════════════════════════════════
 function setupKeyboardShortcuts() {
@@ -1037,6 +1057,224 @@ document.addEventListener('visibilitychange', () => {
     if (sec > 15) loadDashboard(true);
   }
 });
+// ════════════════════════════════════════════════════════════════════
+//  ★ v3.9.13 · BLOQUE RECONSTRUIDO
+//  Estas funciones y variables las usa el resto del dashboard pero NO existían
+//  en el archivo (se perdieron en la división modular), por eso el dashboard
+//  se quedaba en "Cargando...". Sin ellas loadDashboard() fallaba al primer paso.
+// ════════════════════════════════════════════════════════════════════
+let _allOrders = [], _allSales = [], _allGastos = [];
+let _dashSales = [], _dashGastos = [], _dashStock = [], _dashClientes = [];
+let _chartRange = 7;
+let _lastRefreshTs = 0;
+let _activeBranch = 'all';
+
+// ── Utilidades ──
+function _encClient(c) { return encodeURIComponent(String((c && c.nombre) || c || '')); }
+function cleanPhone(t) {
+  let d = String(t || '').replace(/\D/g, '');
+  if (d.length === 10) d = '57' + d;          // celular colombiano sin indicativo
+  return d.length >= 11 ? d : '';
+}
+function openWhatsApp(tel, msg) {
+  const p = cleanPhone(tel);
+  if (!p) { alert('⚠️ Este cliente no tiene un teléfono válido.'); return; }
+  window.open('https://wa.me/' + p + (msg ? '?text=' + encodeURIComponent(msg) : ''), '_blank', 'noopener');
+}
+
+// ── Navegación hacia la app principal (index.html lee estas claves al desbloquear) ──
+function goApp(tabName) {
+  try { sessionStorage.setItem('dashGoTab', tabName || 'taller'); } catch (_) {}
+  window.location.href = './index.html';
+}
+function goAction(action) {
+  try { sessionStorage.setItem('dashAction', action); } catch (_) {}
+  window.location.href = './index.html';
+}
+
+// ── Sucursales (solo aparece el selector si los datos traen 2 o más) ──
+function _branchOf(x) { return String((x && (x.sucursal || x.branch || x.sede)) || '').trim(); }
+function filterByBranch(arr) {
+  arr = arr || [];
+  if (!_activeBranch || _activeBranch === 'all') return arr;
+  return arr.filter(x => _branchOf(x) === _activeBranch);
+}
+function buildBranchSelector() {
+  const el = document.getElementById('branch-selector');
+  if (!el) return;
+  const names = Array.from(new Set([].concat(_allOrders, _allSales, _allGastos).map(_branchOf).filter(Boolean))).sort();
+  if (names.length < 2) { el.style.display = 'none'; el.innerHTML = ''; return; }
+  el.style.display = '';
+  el.innerHTML = ['all'].concat(names).map(n =>
+    `<button class="branch-btn ${n === _activeBranch ? 'active' : ''}" data-b="${esc(n)}">${n === 'all' ? 'Todas' : esc(n)}</button>`
+  ).join('');
+  el.querySelectorAll('.branch-btn').forEach(b => b.onclick = () => {
+    _activeBranch = b.dataset.b;
+    try { localStorage.setItem('dashActiveBranch', _activeBranch); } catch (_) {}
+    loadDashboard(true);
+  });
+}
+
+// ── Indicador de actualización ──
+function showRefreshIndicator(state) {
+  const el = document.getElementById('refresh-pulse');
+  const tx = document.getElementById('refresh-pulse-text');
+  if (!el) return;
+  if (state === 'refreshing') {
+    el.classList.add('show', 'refreshing'); if (tx) tx.textContent = 'actualizando…';
+  } else {
+    _lastRefreshTs = Date.now();
+    el.classList.remove('refreshing');
+    if (tx) tx.textContent = 'actualizado ' + new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+    setTimeout(() => el.classList.remove('show'), 1800);
+  }
+}
+
+// ── Tiempo desde el último cierre de caja ──
+function updateCajaTime() {
+  const el = document.getElementById('sb-cash-time');
+  if (!el) return;
+  const last = Number(localStorage.getItem('lastCierreCaja')) || 0;
+  if (!last) { el.textContent = 'Sin cierre registrado'; el.className = 'sb-caja-time'; return; }
+  const h = Math.floor((Date.now() - last) / 3600000);
+  const txt = h < 1 ? 'hace menos de 1 h' : h < 24 ? `hace ${h} h` : `hace ${Math.floor(h / 24)} d`;
+  el.textContent = '🕒 Último cierre ' + txt;
+  el.className = 'sb-caja-time ' + (h >= 48 ? 'urgent' : h < 6 ? 'recent' : '');
+}
+
+// ── Panel "Estado del Taller · Hoy" ──
+function buildTodayPanel(orders, sales, gastos) {
+  const n = new Date();
+  const start = new Date(n.getFullYear(), n.getMonth(), n.getDate()).getTime();
+  const dl = document.getElementById('today-date-label');
+  if (dl) dl.textContent = n.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+  const recibidas = orders.filter(o => (o.fecha || 0) >= start).length;
+  const entregadas = orders.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha || 0) >= start);
+  const ingreso = entregadas.reduce((a, b) => a + (b.val || 0), 0) + sales.filter(s => (s.fecha || 0) >= start).reduce((a, b) => a + (b.val || 0), 0);
+  const gasto = gastos.filter(g => (g.fecha || 0) >= start).reduce((a, b) => a + (b.val || 0), 0);
+  const listas = orders.filter(o => o.sta === 'reparado').length;
+  const el = document.getElementById('today-stats');
+  if (!el) return;
+  el.innerHTML = `
+    <div class="today-stat success" onclick="openKpiModal('caja')"><div class="today-stat-label">Ingresos hoy</div><div class="today-stat-val">${fmt(ingreso)}</div><div class="today-stat-sub">-${fmt(gasto)} en gastos</div></div>
+    <div class="today-stat" onclick="goApp('ordenes')"><div class="today-stat-label">Recibidas hoy</div><div class="today-stat-val">${recibidas}</div><div class="today-stat-sub">equipos nuevos</div></div>
+    <div class="today-stat" onclick="goApp('ordenes')"><div class="today-stat-label">Entregadas hoy</div><div class="today-stat-val">${entregadas.length}</div><div class="today-stat-sub">reparaciones</div></div>
+    <div class="today-stat ${listas ? 'alert' : ''}" onclick="openStatusModal('reparado')"><div class="today-stat-label">Listas por entregar</div><div class="today-stat-val">${listas}</div><div class="today-stat-sub">avisar al cliente</div></div>`;
+}
+
+// ── Insights ──
+function buildInsights(orders, sales, gastos, stock) {
+  const el = document.getElementById('insights-row');
+  if (!el) return;
+  const now = Date.now(), cards = [];
+  const viejas = orders.filter(o => o.sta !== 'entregado' && daysDiff(o.fecha || now, now) > 30).length;
+  if (viejas) cards.push({ c: 'warning', i: '⏰', t: `<strong>${viejas}</strong> ${viejas === 1 ? 'equipo lleva' : 'equipos llevan'} más de 30 días sin entregarse` });
+  const th = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
+  const bajos = stock.filter(s => (s.q || 0) <= th).length;
+  if (bajos) cards.push({ c: 'info', i: '📦', t: `<strong>${bajos}</strong> repuestos agotados o por debajo del mínimo` });
+  const sm = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
+  const ing = orders.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha) >= sm).reduce((a, b) => a + (b.val || 0), 0) + sales.filter(s => s.fecha >= sm).reduce((a, b) => a + (b.val || 0), 0);
+  const gas = gastos.filter(g => g.fecha >= sm).reduce((a, b) => a + (b.val || 0), 0);
+  if (ing > 0) cards.push({ c: ing - gas >= 0 ? 'positive' : 'warning', i: ing - gas >= 0 ? '📈' : '📉', t: `Utilidad del mes: <strong>${fmt(ing - gas)}</strong>` });
+  el.innerHTML = cards.slice(0, 3).map(k => `<div class="insight-card ${k.c}"><div class="insight-icon">${k.i}</div><div class="insight-text">${k.t}</div></div>`).join('');
+}
+
+// ── Rango de la gráfica ──
+function setChartRange(n) {
+  _chartRange = Number(n) || 7;
+  document.querySelectorAll('#range-toggle .range-btn').forEach(b => b.classList.toggle('active', Number(b.dataset.range) === _chartRange));
+  buildBarChart(_dashOrders, _dashSales, _dashGastos);
+}
+
+// ── Modales ──
+function _dmOpen(icon, title, sub, body, foot) {
+  document.getElementById('dm-icon').textContent = icon;
+  document.getElementById('dm-title').textContent = title;
+  document.getElementById('dm-sub').textContent = sub || '';
+  document.getElementById('dm-body').innerHTML = body || '';
+  document.getElementById('dm-foot').innerHTML = foot || '';
+  document.getElementById('dash-modal').classList.add('open');
+}
+function closeDashModal() { const m = document.getElementById('dash-modal'); if (m) m.classList.remove('open'); }
+function _dmRow(ico, name, sub, val, cls, click) {
+  return `<div class="dd-row" ${click ? `style="cursor:pointer" onclick="${click}"` : ''}><div class="dd-row-left"><div class="dd-row-ico">${ico}</div><div class="dd-row-text"><div class="dd-row-name">${esc(name)}</div><div class="dd-row-sub">${esc(sub || '')}</div></div></div><div class="dd-row-val ${cls || ''}">${val}</div></div>`;
+}
+function _dmOrderRows(list) {
+  if (!list.length) return '<div class="dd-empty">Sin resultados</div>';
+  return '<div class="dd-list">' + list.slice(0, 40).map(o => _dmRow('🔧', `${_ordLabel(o)} · ${o.nom || '—'}`, `${o.equ || ''} · ${daysDiff(o.fecha || Date.now(), Date.now())}d`, fmt(o.val || 0), '', `openOrdenModal('${_oid(o)}')`)).join('') + '</div>';
+}
+function openKpiModal(kind) {
+  const lc = Number(localStorage.getItem('lastCierreCaja')) || 0;
+  const sm = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
+  const O = _dashOrders, S = _dashSales, G = _dashGastos, ST = _dashStock;
+  const foot = `<button class="btn accent" onclick="goApp('ventas')">Abrir en la app</button><button class="btn" onclick="closeDashModal()">Cerrar</button>`;
+  if (kind === 'caja') {
+    const ing = O.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha) > lc).reduce((a, b) => a + (b.val || 0), 0) + S.filter(s => s.fecha > lc).reduce((a, b) => a + (b.val || 0), 0);
+    const gas = G.filter(g => g.fecha > lc).reduce((a, b) => a + (b.val || 0), 0);
+    const mov = S.filter(s => s.fecha > lc).map(s => ({ f: s.fecha, n: s.item || 'Venta', v: s.val || 0 }))
+      .concat(G.filter(g => g.fecha > lc).map(g => ({ f: g.fecha, n: g.desc || g.concepto || 'Gasto', v: -(g.val || 0) })))
+      .sort((a, b) => b.f - a.f).slice(0, 25);
+    _dmOpen('💵', 'Caja neta', 'Desde el último cierre',
+      `<div class="dd-summary"><div class="dd-summary-box"><div class="dd-summary-label">Ingresos</div><div class="dd-summary-val green">${fmt(ing)}</div></div><div class="dd-summary-box"><div class="dd-summary-label">Gastos</div><div class="dd-summary-val red">${fmt(gas)}</div></div><div class="dd-summary-box"><div class="dd-summary-label">Neto</div><div class="dd-summary-val accent">${fmt(ing - gas)}</div></div></div>` +
+      (mov.length ? '<div class="dd-list">' + mov.map(m => _dmRow(m.v >= 0 ? '🛒' : '💸', m.n, fmtTime(m.f), fmt(Math.abs(m.v)), m.v >= 0 ? 'pos' : 'neg')).join('') + '</div>' : '<div class="dd-empty">Sin movimientos desde el último cierre</div>'), foot);
+  } else if (kind === 'activas') {
+    _dmOpen('📋', 'Órdenes activas', 'En taller y por entregar', _dmOrderRows(O.filter(o => o.sta !== 'entregado').sort((a, b) => (a.fecha || 0) - (b.fecha || 0))), foot.replace("goApp('ventas')", "goApp('ordenes')"));
+  } else if (kind === 'ingresos') {
+    const ent = O.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha) >= sm);
+    const vt = S.filter(s => s.fecha >= sm);
+    const r = ent.reduce((a, b) => a + (b.val || 0), 0), v = vt.reduce((a, b) => a + (b.val || 0), 0);
+    _dmOpen('🔧', 'Ingresos del mes', new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }),
+      `<div class="dd-summary"><div class="dd-summary-box"><div class="dd-summary-label">Reparaciones</div><div class="dd-summary-val green">${fmt(r)}</div></div><div class="dd-summary-box"><div class="dd-summary-label">Ventas</div><div class="dd-summary-val green">${fmt(v)}</div></div><div class="dd-summary-box"><div class="dd-summary-label">Total</div><div class="dd-summary-val accent">${fmt(r + v)}</div></div></div>` + _dmOrderRows(ent), foot);
+  } else if (kind === 'inventario') {
+    const th = parseInt(localStorage.getItem('lowStockThreshold')) || 3;
+    const crit = ST.filter(s => (s.q || 0) <= th).sort((a, b) => (a.q || 0) - (b.q || 0));
+    const val = ST.reduce((a, b) => a + (b.p || 0) * (b.q || 0), 0);
+    _dmOpen('📦', 'Valor de inventario', `${ST.length} productos`,
+      `<div class="dd-summary"><div class="dd-summary-box"><div class="dd-summary-label">Valor</div><div class="dd-summary-val accent">${fmt(val)}</div></div><div class="dd-summary-box"><div class="dd-summary-label">Productos</div><div class="dd-summary-val">${ST.length}</div></div><div class="dd-summary-box"><div class="dd-summary-label">Críticos</div><div class="dd-summary-val red">${crit.length}</div></div></div>` +
+      (crit.length ? '<div class="dd-section-title">⚠️ Agotados o bajos</div><div class="dd-list">' + crit.slice(0, 30).map(s => _dmRow('📦', s.n, fmt(s.p), s.q === 0 ? 'AGOTADO' : s.q + ' uds', s.q === 0 ? 'neg' : '')).join('') + '</div>' : ''), foot);
+  }
+}
+function openStockCriticoModal() { openKpiModal('inventario'); }
+function openStatusModal(key) {
+  const names = { recibido: 'Recibidos', 'revisión': 'En revisión', reparado: 'Listos para entregar', entregado: 'Entregados' };
+  const list = _dashOrders.filter(o => o.sta === key).sort((a, b) => (b.fecha || 0) - (a.fecha || 0));
+  _dmOpen('📊', names[key] || key, `${list.length} órdenes`, _dmOrderRows(list),
+    `<button class="btn accent" onclick="goApp('ordenes')">Abrir órdenes</button><button class="btn" onclick="closeDashModal()">Cerrar</button>`);
+}
+function openBarDayModal(start, end, label) {
+  const ent = _dashOrders.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha) >= start && (o.fechaEntrega || o.fecha) < end);
+  const vt = _dashSales.filter(s => s.fecha >= start && s.fecha < end);
+  const gs = _dashGastos.filter(g => g.fecha >= start && g.fecha < end);
+  const tot = ent.reduce((a, b) => a + (b.val || 0), 0) + vt.reduce((a, b) => a + (b.val || 0), 0);
+  const gas = gs.reduce((a, b) => a + (b.val || 0), 0);
+  _dmOpen('📅', label, 'Detalle del día',
+    `<div class="dd-summary"><div class="dd-summary-box"><div class="dd-summary-label">Ingresos</div><div class="dd-summary-val green">${fmt(tot)}</div></div><div class="dd-summary-box"><div class="dd-summary-label">Gastos</div><div class="dd-summary-val red">${fmt(gas)}</div></div><div class="dd-summary-box"><div class="dd-summary-label">Neto</div><div class="dd-summary-val accent">${fmt(tot - gas)}</div></div></div>` +
+    ((ent.length + vt.length + gs.length) ? '<div class="dd-list">' +
+      ent.map(o => _dmRow('🔧', `${_ordLabel(o)} · ${o.nom || ''}`, o.equ, fmt(o.val || 0), 'pos')).join('') +
+      vt.map(s => _dmRow('🛒', s.item || 'Venta', fmtTime(s.fecha), fmt(s.val || 0), 'pos')).join('') +
+      gs.map(g => _dmRow('💸', g.desc || g.concepto || 'Gasto', fmtTime(g.fecha), fmt(g.val || 0), 'neg')).join('') + '</div>'
+      : '<div class="dd-empty">Sin movimientos este día</div>'),
+    `<button class="btn" onclick="closeDashModal()">Cerrar</button>`);
+}
+function openOrdenModal(id) {
+  const o = _findOrder(id);
+  if (!o) return;
+  const f = (l, v) => `<div class="dd-field"><div class="dd-field-label">${l}</div><div class="dd-field-val">${esc(v == null || v === '' ? '—' : v)}</div></div>`;
+  _dmOpen('🔧', `${_ordLabel(o)} · ${o.nom || ''}`, o.equ || '',
+    `<div class="dd-section">${f('Estado', o.sta)}${f('Teléfono', o.tel)}${f('Falla', o.det)}${f('Valor', fmt(o.val || 0))}${f('Saldo', fmt(o.saldo || 0))}${f('Recibido', fmtTime(o.fecha || Date.now()))}${o.fechaEntrega ? f('Entregado', fmtTime(o.fechaEntrega)) : ''}${f('Técnico', o.tecnico)}</div>`,
+    `${cleanPhone(o.tel) ? `<button class="btn primary" onclick="openWhatsApp('${esc(o.tel)}','Hola ${esc(o.nom || '')}, le escribimos de ${esc((JSON.parse(localStorage.getItem('businessConfig') || '{}').name) || 'Todo Repuestos Nelson')} sobre su ${esc(o.equ || 'equipo')}.')">💬 WhatsApp</button>` : ''}<button class="btn accent" onclick="goApp('ordenes')">Abrir en la app</button><button class="btn" onclick="closeDashModal()">Cerrar</button>`);
+}
+function openClienteDeudaModal(enc) {
+  const nombre = decodeURIComponent(enc || '');
+  const c = _buildClientIndex().get(_normalizeText(nombre).trim());
+  if (!c) return;
+  const ords = (_allOrders.length ? _allOrders : _dashOrders).filter(o => _normalizeText(o.nom).trim() === _normalizeText(c.nombre).trim()).sort((a, b) => (b.fecha || 0) - (a.fecha || 0));
+  _dmOpen('👤', c.nombre, c.telefono || 'Sin teléfono',
+    `<div class="dd-client-card"><div class="dd-client-avatar">👤</div><div><div class="dd-client-name">${esc(c.nombre)}</div><div class="dd-client-phone">${esc(c.telefono || 'Sin teléfono')}</div></div></div>` +
+    `<div class="dd-summary"><div class="dd-summary-box"><div class="dd-summary-label">Órdenes</div><div class="dd-summary-val">${c.ordenes}</div></div><div class="dd-summary-box"><div class="dd-summary-label">Deuda</div><div class="dd-summary-val ${c.deuda > 0 ? 'red' : 'green'}">${c.deuda > 0 ? fmt(c.deuda) : 'Al día'}</div></div><div class="dd-summary-box"><div class="dd-summary-label">Última</div><div class="dd-summary-val">${c.ultima ? new Date(c.ultima).toLocaleDateString('es-CO') : '—'}</div></div></div>` + _dmOrderRows(ords),
+    `${cleanPhone(c.telefono) ? `<button class="btn primary" onclick="openWhatsApp('${esc(c.telefono)}','')">💬 WhatsApp</button>` : ''}<button class="btn" onclick="closeDashModal()">Cerrar</button>`);
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
   // El dashboard se inicializa también en móviles y tablets.
 
@@ -1057,9 +1295,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   });
 
   // ★ Pulido: scroll FAB, atajos, refresh tiempo caja
-  setupScrollFab();
-  setupMobileShell();
-  setupKeyboardShortcuts();
+  // Cada paso va aislado: si uno falla, el dashboard igual carga los datos.
+  [setupScrollFab, setupMobileShell, setupKeyboardShortcuts].forEach(fn => {
+    try { fn(); } catch (e) { console.error('[Dashboard] Falló ' + fn.name + ':', e); }
+  });
   setInterval(updateCajaTime, 60000); // cada minuto refresca el tiempo
 
   await loadDashboard();
