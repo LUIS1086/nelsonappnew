@@ -1,0 +1,29 @@
+/* Nelson App Pro · css/34-no-reparable.css — hoja de destino (no reparable) e insignia en la tarjeta. */
+.nr-overlay { position: fixed; inset: 0; z-index: 10050; display: flex; align-items: flex-end; justify-content: center; padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  background: rgba(4, 8, 20, .62); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); animation: nrFade .18s ease; }
+.nr-panel { width: 100%; max-width: 440px; padding: 20px 18px 14px; border-radius: 22px; background: var(--nn-surface, #0f1729); border: 1px solid var(--nn-line-2, rgba(148,163,184,.28));
+  box-shadow: 0 30px 80px -20px rgba(0,0,0,.6); color: var(--nn-text, #f1f5f9); animation: nrUp .22s ease; }
+.nr-title { font-size: 17px; font-weight: 700; letter-spacing: -.01em; }
+.nr-sub { font-size: 13.5px; color: var(--nn-muted, #94a3b8); margin: 4px 0 16px; line-height: 1.4; }
+.nr-sub strong { color: var(--nn-text, #f1f5f9); font-weight: 600; }
+.nr-opt { display: flex; align-items: center; gap: 14px; width: 100%; padding: 14px; margin-bottom: 10px; text-align: left; cursor: pointer; border-radius: 14px;
+  background: var(--nn-surface-2, rgba(148,163,184,.08)); border: 1px solid var(--nn-line-2, rgba(148,163,184,.28)); color: inherit; -webkit-tap-highlight-color: transparent; }
+.nr-opt:active { filter: brightness(.92); }
+.nr-opt-ico { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: 12px; background: var(--nn-surface, transparent); border: 1px solid var(--nn-line, rgba(148,163,184,.16)); color: var(--nn-muted, #94a3b8); flex-shrink: 0; }
+.nr-opt-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.nr-opt-name { font-size: 15px; font-weight: 650; }
+.nr-opt-desc { font-size: 12.5px; color: var(--nn-muted, #94a3b8); line-height: 1.35; }
+.nr-cancel { width: 100%; min-height: 44px; margin-top: 2px; background: transparent; border: 0; color: var(--nn-muted, #94a3b8); font-size: 14px; font-weight: 600; cursor: pointer; }
+@keyframes nrFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes nrUp { from { transform: translateY(14px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (min-width: 768px) { .nr-overlay { align-items: center; } }
+@media (prefers-reduced-motion: reduce) { .nr-overlay, .nr-panel { animation: none; } }
+
+.nr-box { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: rgba(248,113,113,.08); border: 1px solid rgba(248,113,113,.26); }
+.nr-dot { width: 8px; height: 8px; border-radius: 50%; background: #f87171; flex-shrink: 0; }
+.nr-txt { flex: 1; min-width: 0; font-size: 12.5px; font-weight: 600; color: var(--nn-text, #f1f5f9); }
+.nr-act { flex-shrink: 0; min-height: 32px; padding: 0 12px; border-radius: 9px; border: 1px solid var(--nn-line-2, rgba(148,163,184,.3)); background: var(--nn-surface, transparent); color: var(--nn-text, #f1f5f9); font-size: 12px; font-weight: 600; cursor: pointer; }
+.nr-box.nr-done { background: var(--nn-surface-2, rgba(148,163,184,.08)); border-color: var(--nn-line, rgba(148,163,184,.16)); }
+.nr-box.nr-done .nr-dot { background: #34d399; }
+.nr-box.nr-done .nr-txt { color: var(--nn-muted, #94a3b8); }
+html[data-theme="light"] .nr-box:not(.nr-done) { background: #fdecec; border-color: #f3c2c2; }

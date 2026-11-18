@@ -1,0 +1,9 @@
+/* Nelson App Pro · css/12-extras-1.css
+   Estilos adicionales (bloque 2 original)
+   (extraido sin cambios de index.html; el orden de carga importa) */
+
+        @keyframes tourPulse {
+            0%,100% { box-shadow: 0 0 0 6px rgba(251,191,36,0.45), 0 0 0 9999px rgba(5,7,14,0.78); }
+            50%     { box-shadow: 0 0 0 10px rgba(251,191,36,0.55), 0 0 0 9999px rgba(5,7,14,0.78); }
+        }
+    

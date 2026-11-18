@@ -1,0 +1,39 @@
+/* Nelson App Pro · css/35-comprobante-venta.css — Comprobante de venta profesional (vista previa e imagen). */
+.rc-doc { background: #fff; color: #111827; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; font-size: 13px; line-height: 1.45; width: 100%; max-width: 640px; margin: 0 auto; overflow: hidden; text-align: left; letter-spacing: 0; box-sizing: border-box; }
+.rc-doc *, .rc-doc *::before { box-sizing: border-box; font-family: inherit; }
+.rc-fixed { width: 600px; max-width: none; border-radius: 0 !important; box-shadow: none !important; }
+.rc-bar { height: 5px; background: #f97316; }
+.rc-inner { padding: 22px 22px 20px; }
+.rc-top { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; padding-bottom: 16px; border-bottom: 1px solid #e5e7eb; }
+.rc-biz { min-width: 0; flex: 1 1 52%; }
+.rc-name { font-size: 18px; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; color: #111827; }
+.rc-meta { margin-top: 6px; font-size: 11.5px; color: #6b7280; line-height: 1.55; }
+.rc-id { text-align: right; flex: 0 0 auto; max-width: 48%; }
+.rc-kicker { font-size: 9.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #6b7280; }
+.rc-no { margin-top: 3px; font-size: 18px; font-weight: 700; letter-spacing: 0; color: #111827; white-space: nowrap; }
+.rc-date { margin-top: 2px; font-size: 11.5px; color: #6b7280; }
+.rc-info { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; padding: 16px 0; }
+.rc-label { font-size: 9.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #6b7280; margin-bottom: 4px; }
+.rc-val { font-size: 14px; font-weight: 650; color: #111827; word-break: break-word; }
+.rc-sub { margin-top: 2px; font-size: 11.5px; color: #6b7280; }
+.rc-table { width: 100%; border-collapse: collapse; table-layout: auto; }
+.rc-table thead th { background: #f3f4f6; font-size: 9.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #6b7280; padding: 8px 8px; text-align: right; white-space: nowrap; }
+.rc-table thead th.l, .rc-table td.l { text-align: left; }
+.rc-table thead th:first-child { border-radius: 8px 0 0 8px; padding-left: 10px; }
+.rc-table thead th:last-child { border-radius: 0 8px 8px 0; padding-right: 10px; }
+.rc-table td { padding: 11px 8px; border-bottom: 1px solid #eceef1; text-align: right; font-size: 12.5px; font-variant-numeric: tabular-nums; vertical-align: top; color: #111827; white-space: nowrap; }
+.rc-table td.l { white-space: normal; padding-left: 10px; width: 100%; font-weight: 550; word-break: break-word; }
+.rc-table td.b { font-weight: 700; padding-right: 10px; }
+.rc-total { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding: 14px 16px; background: #111827; color: #fff; border-radius: 12px; }
+.rc-units { flex: 1; font-size: 11.5px; color: #9ca3af; }
+.rc-tl { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #d1d5db; }
+.rc-total strong { font-size: 20px; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.rc-obs { margin-top: 16px; font-size: 12.5px; color: #374151; }
+.rc-foot { margin-top: 20px; padding-top: 14px; border-top: 1px solid #e5e7eb; text-align: center; }
+.rc-thanks { font-size: 13px; font-weight: 650; color: #111827; }
+.rc-legal { margin-top: 3px; font-size: 10.5px; color: #9ca3af; }
+@media (max-width: 420px) { .rc-inner { padding: 18px 16px 16px; } .rc-name { font-size: 16px; } .rc-no { font-size: 16px; } .rc-total strong { font-size: 18px; } .rc-units { display: none; } .rc-tl { flex: 1; } }
+
+/* Marco de la vista previa dentro del modal */
+.tk-paper-wrap { padding: 0 !important; background: transparent !important; border: 0 !important; overflow: visible !important; }
+.tk-paper.rc-doc { border-radius: 14px !important; box-shadow: 0 10px 30px rgba(0,0,0,.35) !important; flex-shrink: 1 !important; }

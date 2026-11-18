@@ -1,0 +1,125 @@
+/* Nelson App Pro · css/02-componentes-base.css
+   Autocompletado, selector de producto, editor de precio
+   (extraido sin cambios de index.html; el orden de carga importa) */
+        /* ===== AUTOCOMPLETE CUSTOM (reemplaza datalist nativo) ===== */
+        .ac-dropdown {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0; right: 0;
+            background: #14172a;
+            border: 1px solid rgba(249,115,22,0.25);
+            border-radius: 14px;
+            max-height: 220px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            z-index: 100;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.05) inset;
+            -webkit-overflow-scrolling: touch;
+            animation: acFadeIn 0.15s ease;
+        }
+        @keyframes acFadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .ac-item {
+            padding: 11px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #e2e8f0;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            transition: background 0.12s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            -webkit-tap-highlight-color: transparent;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .ac-item:last-child { border-bottom: none; }
+        .ac-item:hover, .ac-item.ac-active {
+            background: rgba(249,115,22,0.12);
+            color: #fb923c;
+        }
+        .ac-item-icon {
+            font-size: 14px;
+            opacity: 0.6;
+            flex-shrink: 0;
+        }
+        .ac-item-text {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .ac-item mark {
+            background: rgba(249,115,22,0.25);
+            color: #fb923c;
+            font-weight: 900;
+            padding: 0 1px;
+            border-radius: 2px;
+        }
+        .ac-empty {
+            padding: 14px; text-align: center;
+            font-size: 11px; color: #64748b;
+            font-weight: 600;
+        }
+        /* Scrollbar fino para el dropdown */
+        .ac-dropdown::-webkit-scrollbar { width: 4px; }
+        .ac-dropdown::-webkit-scrollbar-thumb { background: rgba(249,115,22,0.3); border-radius: 2px; }
+        .ac-dropdown::-webkit-scrollbar-track { background: transparent; }
+
+        /* ===== MODAL SELECTOR DE PRODUCTO ===== */
+        .modal-product-picker-wrap { align-items: flex-end; justify-content: center; }
+        .modal-product-picker-wrap:not(.hidden) { display: flex; }
+
+        /* ===== EDITOR DE PRECIO — chips ===== */
+        .pe-chip {
+            padding: 10px 6px;
+            background: rgba(251,146,60,0.08);
+            border: 1px solid rgba(251,146,60,0.25);
+            border-radius: 12px;
+            color: #fb923c;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.12s ease;
+            text-align: center;
+        }
+        .pe-chip:active { transform: scale(0.95); background: rgba(251,146,60,0.18); }
+        .pe-chip.pe-chip-active { background: rgba(251,146,60,0.22); border-color: rgba(251,146,60,0.55); box-shadow: 0 0 0 2px rgba(251,146,60,0.15); }
+        .pe-chip-soft {
+            padding: 10px 4px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            color: #cbd5e1;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.12s ease;
+            text-align: center;
+        }
+        .pe-chip-soft:active { transform: scale(0.95); background: rgba(255,255,255,0.07); }
+        .pe-step {
+            flex: 1;
+            padding: 10px 2px;
+            background: rgba(15,23,42,0.7);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            color: #e2e8f0;
+            font-size: 10px;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+            cursor: pointer;
+            transition: all 0.12s ease;
+        }
+        .pe-step:active { transform: scale(0.92); background: rgba(251,146,60,0.12); border-color: rgba(251,146,60,0.3); }
+        #pe-new-card.pe-pulse { animation: pePulse 0.45s ease; }
+        @keyframes pePulse {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.04); box-shadow: 0 0 0 6px rgba(251,146,60,0.12); }
+            100% { transform: scale(1); }
+        }
+        #pe-input-wrap.pe-focused { border-color: rgba(251,146,60,0.6); box-shadow: 0 0 0 4px rgba(251,146,60,0.1); }
+

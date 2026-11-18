@@ -1,0 +1,93 @@
+/* Nelson App Pro · css/09-busqueda-config-red.css
+   Busqueda global, secciones de config, badge offline
+   (extraido sin cambios de index.html; el orden de carga importa) */
+        /* ===== BLOQUE 2: BÚSQUEDA GLOBAL + REPORTES ===== */
+        #global-search-bar { position:relative; }
+        #global-search-input { width:100%;padding:9px 14px 9px 36px;border-radius:14px;font-size:13px;font-weight:600;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#e8eaf6;transition:all 0.2s; }
+        #global-search-input:focus { border-color:var(--accent);box-shadow:0 0 0 3px rgba(249,115,22,0.15); }
+        #global-search-icon { position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none; }
+        #global-search-results { position:absolute;top:calc(100% + 6px);left:0;right:0;background:#1a1d2e;border:1px solid rgba(255,255,255,0.1);border-radius:16px;z-index:200;max-height:320px;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.5);display:none; }
+        #global-search-results.open { display:block;animation:slideUp 0.2s ease; }
+        .gsr-item { padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.05);transition:background 0.15s; }
+        .gsr-item:last-child { border-bottom:none; }
+        .gsr-item:hover { background:rgba(249,115,22,0.1); }
+        .gsr-tag { display:inline-block;padding:1px 6px;border-radius:6px;font-size:9px;font-weight:800;margin-right:4px; }
+        .gsr-tag.orden  { background:rgba(249,115,22,0.2);color:#fb923c; }
+        .gsr-tag.stock  { background:rgba(16,185,129,0.2);color:#34d399; }
+        .gsr-tag.cliente{ background:rgba(59,130,246,0.2);color:#60a5fa; }
+        /* Pestaña activa en el modal de reportes */
+        .report-tab { padding:8px 14px;border-radius:10px;font-size:11px;font-weight:800;cursor:pointer;transition:all 0.2s;border:1px solid transparent;color:#64748b; }
+        .report-tab.active { background:rgba(249,115,22,0.15);border-color:rgba(249,115,22,0.3);color:#fb923c; }
+        .bar-track { height:8px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;flex:1; }
+        .bar-fill  { height:100%;border-radius:99px;transition:width 0.7s ease; }
+        .deadline-ok   { background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.3); }
+        .deadline-warn { background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3); }
+        .deadline-late { background:rgba(244,63,94,0.15);color:#f87171;border:1px solid rgba(244,63,94,0.3);animation:pulse-dead 1.4s ease infinite; }
+        .deadline-today{ background:rgba(249,115,22,0.22);color:#fb923c;border:1px solid rgba(249,115,22,0.5); }
+        @keyframes pulse-dead { 0%,100%{opacity:1} 50%{opacity:0.55} }
+
+        .photo-compare-grid { display:grid;grid-template-columns:1fr 1fr;gap:8px; }
+        .photo-compare-label { font-size:9px;font-weight:800;letter-spacing:2px;text-align:center;padding:3px 0;border-radius:8px;margin-bottom:5px; }
+        .compare-entrada .photo-compare-label { background:rgba(249,115,22,0.15);color:#fb923c; }
+        .compare-salida  .photo-compare-label { background:rgba(16,185,129,0.15);color:#34d399; }
+
+        /* ===== SECCIONES COLAPSABLES EN CONFIG ===== */
+        .cfg-section { border-bottom: 1px solid rgba(255,255,255,0.07); }
+        .cfg-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 0; cursor: pointer; user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .cfg-header:active { opacity: 0.7; }
+        .cfg-arrow { font-size: 11px; color: #64748b; transition: transform 0.3s ease; flex-shrink: 0; }
+        .cfg-body { overflow: hidden; max-height: 0; opacity: 0; transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease; }
+        .cfg-body.open { max-height: 900px; opacity: 1; }
+        .cfg-header.open .cfg-arrow { transform: rotate(180deg); }
+
+        /* ===== BADGE OFFLINE / ONLINE ===== */
+        #net-badge {
+            position: fixed; top: 72px; left: 50%; transform: translateX(-50%) translateY(-8px);
+            z-index: 9990; padding: 6px 16px; border-radius: 999px;
+            font-size: 11px; font-weight: 800; letter-spacing: 1px;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            white-space: nowrap; box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+        }
+        #net-badge.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+        #net-badge.offline { background: #dc2626; color: #fff; }
+        #net-badge.online  { background: #059669; color: #fff; }
+
+        /* ===== FONDO DECORATIVO DESKTOP ===== */
+        @media (min-width: 640px) {
+            body { background: var(--bg-dark) !important; }
+            body.light-mode { background: var(--bg-light) !important; }
+            body::before {
+                content: '';
+                position: fixed; inset: 0; z-index: -1;
+                background:
+                    radial-gradient(ellipse 600px 400px at 15% 20%, rgba(249,115,22,0.06) 0%, transparent 70%),
+                    radial-gradient(ellipse 500px 350px at 85% 75%, rgba(56,189,248,0.05) 0%, transparent 70%),
+                    radial-gradient(ellipse 400px 300px at 50% 50%, rgba(16,185,129,0.03) 0%, transparent 70%);
+            }
+            body::after {
+                content: '';
+                position: fixed; inset: 0; z-index: -1;
+                background-image:
+                    linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px);
+                background-size: 48px 48px;
+            }
+            body.light-mode::before {
+                background:
+                    radial-gradient(ellipse 600px 400px at 15% 20%, rgba(249,115,22,0.05) 0%, transparent 70%),
+                    radial-gradient(ellipse 500px 350px at 85% 75%, rgba(56,189,248,0.04) 0%, transparent 70%);
+            }
+            body.light-mode::after {
+                background-image:
+                    linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px);
+                background-size: 48px 48px;
+            }
+            .max-container { filter: drop-shadow(0 0 40px rgba(249,115,22,0.03)); }
+        }
+
