@@ -1,0 +1,6 @@
+# v3.9.13 — Dashboard: arreglo de carga ("Cargando..." infinito)
+- **Causa raíz:** `js/dashboard.js` llamaba a ~20 funciones/variables que no existían en el archivo (se perdieron en la división modular): `setupScrollFab`, `buildTodayPanel`, `buildInsights`, `filterByBranch`, `buildBranchSelector`, `showRefreshIndicator`, `updateCajaTime`, `goApp`, `goAction`, `openKpiModal`, `closeDashModal`, `openOrdenModal`, `openClienteDeudaModal`, `openBarDayModal`, `openStatusModal`, `openStockCriticoModal`, `setChartRange`, `cleanPhone`, `openWhatsApp`, `_encClient` y las variables `_allOrders`, `_dashSales`, `_chartRange`, etc. El arranque lanzaba ReferenceError y `loadDashboard()` nunca se ejecutaba.
+- Se reconstruyeron todas (bloque "v3.9.13 · BLOQUE RECONSTRUIDO"). El selector de sucursal solo aparece si los datos traen 2+ sucursales (las órdenes actuales no guardan sucursal).
+- El arranque ahora aísla cada paso visual con try/catch: un fallo decorativo ya no impide cargar los datos.
+- Limpieza: se eliminaron copias idénticas de librerías en `js/core/` (chart, html2canvas, jspdf, autotable, qrcode, xlsx) y `jspdf.umd.min.js` de la raíz; nadie las referenciaba (-2 MB).
+- Verificado con ESLint (no-undef = 0 en dashboard.js) y simulación con IndexedDB de prueba (caja, activas, ingresos e inventario calculan bien).
