@@ -245,10 +245,20 @@
         }
 
         // CAJA
+        // v3.9.20: «COP» pegado al número se leía mal ("COP182.000"); con código de letras se deja un espacio.
+        const _ccur = c => (/[A-Za-z]$/.test(String(c)) ? c + ' ' : c);
+        // Achica la letra de un monto solo lo necesario para que quepa completo en su tarjeta.
+        function _fitMoney(el, max, min) {
+            if (!el) return;
+            el.style.fontSize = max + 'px';
+            let s = max;
+            while (s > min && el.scrollWidth > el.clientWidth + 1) { s -= 2; el.style.fontSize = s + 'px'; }
+        }
         function showCierreConfirmModal() {
             const total = document.getElementById('modal-caja-total')?.innerText || '$0';
             document.getElementById('cierre-monto-preview').innerText = total;
             document.getElementById('modal-confirm').classList.remove('hidden');
+            try { _fitMoney(document.getElementById('cierre-monto-preview'), 30, 16); } catch (e) { /* no crítico */ }
             closeCajaModal();
         }
         function closeConfirmModal() { document.getElementById('modal-confirm').classList.add('hidden'); }
@@ -259,18 +269,22 @@
             const tOrders = orders.filter(o => o.sta === 'entregado' && (o.fechaEntrega || o.fecha) > lastCierre).reduce((a,b) => a + (b.val||0), 0);
             const tSales = sales.filter(v => v.fecha > lastCierre && v.tipo !== 'adelanto' && v.tipo !== 'cobro_entrega').reduce((a,b) => a + (b.val||0), 0);
             const tGastos = gastos.filter(g => g.fecha > lastCierre).reduce((a,b) => a + (b.val||0), 0);
-            document.getElementById('modal-caja-ingresos').innerText = 'Ingresos: ' + cur + (tOrders + tSales).toLocaleString();
-            document.getElementById('modal-caja-gastos').innerText = 'Gastos: ' + cur + tGastos.toLocaleString();
-            document.getElementById('modal-caja-total').innerText = cur + (tOrders + tSales - tGastos).toLocaleString();
+            document.getElementById('modal-caja-ingresos').innerText = 'Ingresos: ' + _ccur(cur) + (tOrders + tSales).toLocaleString();
+            document.getElementById('modal-caja-gastos').innerText = 'Gastos: ' + _ccur(cur) + tGastos.toLocaleString();
+            const neto = tOrders + tSales - tGastos;
+            document.getElementById('modal-caja-total').innerText = (neto < 0 ? '-' : '') + _ccur(cur) + Math.abs(neto).toLocaleString();
+            const btnCierre = document.getElementById('btn-cerrar-caja');   // antes decía siempre "($0)"
+            if (btnCierre) btnCierre.textContent = 'CERRAR CAJA (' + (neto < 0 ? '-' : '') + _ccur(cur) + Math.abs(neto).toLocaleString() + ')';
             const dailyData = {};
-            const processItem = (item, dateField, isGasto=false) => { const d = new Date(item[dateField]); const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; if(!dailyData[key]) dailyData[key] = { display: d.toLocaleDateString('es-ES', { weekday: 'short', month: 'short', day: 'numeric' }), total: 0 }; isGasto ? dailyData[key].total -= (item.val||0) : dailyData[key].total += (item.val||0); };
+            const processItem = (item, dateField, isGasto=false) => { const d = new Date(item[dateField]); if (isNaN(d.getTime())) { if(!dailyData['0000-sin-fecha']) dailyData['0000-sin-fecha'] = { display: 'Sin fecha (revisar registro)', total: 0 }; isGasto ? dailyData['0000-sin-fecha'].total -= (item.val||0) : dailyData['0000-sin-fecha'].total += (item.val||0); return; } const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; if(!dailyData[key]) dailyData[key] = { display: d.toLocaleDateString('es-ES', { weekday: 'short', month: 'short', day: 'numeric' }), total: 0 }; isGasto ? dailyData[key].total -= (item.val||0) : dailyData[key].total += (item.val||0); };
             orders.filter(o=>o.sta==='entregado').forEach(o=>processItem(o, o.fechaEntrega ? 'fechaEntrega' : 'fecha'));
             sales.filter(v => v.tipo !== 'adelanto' && v.tipo !== 'cobro_entrega').forEach(v=>processItem(v,'fecha'));
             gastos.forEach(g=>processItem(g,'fecha',true));
             const list = document.getElementById('daily-income-list');
             const keys = Object.keys(dailyData).sort((a,b)=>b.localeCompare(a));
-            list.innerHTML = keys.length ? keys.map(k=>`<div class="flex justify-between bg-white/5 p-3 rounded-xl"><span>${dailyData[k].display}</span><span class="font-black ${dailyData[k].total>=0?'text-emerald-400':'text-rose-400'}">${cur}${dailyData[k].total.toLocaleString()}</span></div>`).join('') : '<div class="text-center py-6 text-slate-500">No hay registros diarios</div>';
+            list.innerHTML = keys.length ? keys.map(k=>`<div class="flex justify-between bg-white/5 p-3 rounded-xl"><span>${dailyData[k].display}</span><span class="font-black ${dailyData[k].total>=0?'text-emerald-400':'text-rose-400'}">${dailyData[k].total<0?'-':''}${_ccur(cur)}${Math.abs(dailyData[k].total).toLocaleString()}</span></div>`).join('') : '<div class="text-center py-6 text-slate-500">No hay registros diarios</div>';
             document.getElementById('modal-caja').classList.remove('hidden');
+            try { _fitMoney(document.getElementById('modal-caja-total'), 48, 22); } catch (e) { /* no crítico */ }
         }
         function closeCajaModal() { document.getElementById('modal-caja').classList.add('hidden'); }
         function executeCierreCaja() { localStorage.setItem('lastCierreCaja', Date.now()); updateTotal(); closeConfirmModal(); showAlert("Caja reiniciada correctamente.", "success"); }
