@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <script>
-    /* v3.9.19 · html2canvas (199 KB) ya no se carga al abrir la app: se descarga la primera vez que se usa
+    /* v3.9.20 · html2canvas (199 KB) ya no se carga al abrir la app: se descarga la primera vez que se usa
        (tickets, QR, diagnósticos). Mientras tanto existe esta función puente con la MISMA firma, así que el
        resto del código la llama igual que antes; al terminar de cargar, la librería real la reemplaza. */
     (function () {
@@ -272,7 +272,7 @@
         <div class="splash-title" id="splash-biz-name">NELSON</div>
         <div class="splash-sub">Taller &amp; Repuestos</div>
         <div class="splash-bar-track"><div class="splash-bar-fill"></div></div>
-        <div class="splash-version" id="splash-version">v3.9.19</div>
+        <div class="splash-version" id="splash-version">v3.9.20</div>
     </div>
 
     <!-- PIN MODAL -->
@@ -909,7 +909,7 @@
                                 <p style="font-size:15px;font-weight:900;color:#f1f5f9;margin:0;letter-spacing:-0.3px;">Luis Eduardo Gaviria</p>
                                 <p style="font-size:10px;color:#64748b;margin:3px 0 0;font-weight:700;display:flex;align-items:center;gap:6px;">
                                     <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 6px rgba(16,185,129,0.6);animation:pulseDot 2s ease-in-out infinite;"></span>
-                                    NelsonApp Pro · <span id="credits-version">v3.9.19</span>
+                                    NelsonApp Pro · <span id="credits-version">v3.9.20</span>
                                 </p>
                             </div>
                             <span id="credits-arrow" style="font-size:14px;color:#64748b;transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);flex-shrink:0;">▼</span>
@@ -1847,7 +1847,7 @@
                 </div>
                 <div><div class="flex items-center gap-2 mb-3 px-1"><span class="text-slate-500">📅</span><p class="text-[11px] text-slate-400 uppercase font-bold tracking-widest">Historial Diario (Neto)</p></div>
                 <div id="daily-income-list" class="max-h-56 overflow-y-auto space-y-2 pr-1 no-scrollbar"></div></div>
-                <button onclick="showCierreConfirmModal()" class="w-full bg-rose-600/10 text-rose-400 border border-rose-600/30 hover:bg-rose-600 hover:text-white py-4 rounded-xl font-black uppercase tracking-[2px] transition-all active:scale-95">CERRAR CAJA ($0)</button>
+                <button onclick="showCierreConfirmModal()" id="btn-cerrar-caja" class="w-full bg-rose-600/10 text-rose-400 border border-rose-600/30 hover:bg-rose-600 hover:text-white py-4 rounded-xl font-black uppercase tracking-[2px] transition-all active:scale-95">CERRAR CAJA ($0)</button>
             </div>
         </div>
     </div>
@@ -2379,7 +2379,7 @@
                         <div class="cfg-title-wrap">
                             <p class="cfg-eyebrow">
                                 <span id="cfg-header-biz">NelsonApp Pro</span>
-                                <span class="cfg-version" id="cfg-header-version">v3.9.19</span>
+                                <span class="cfg-version" id="cfg-header-version">v3.9.20</span>
                             </p>
                             <h3 class="cfg-h1">Configuración</h3>
                         </div>
