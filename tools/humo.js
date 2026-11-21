@@ -67,6 +67,15 @@ function abrir(htmlFile, errs) {
     await w.renderOrders(); await wait(600);
     if (!w.document.body.textContent.includes('Cliente Prueba')) fallos.push('index: la orden creada no aparece en la lista');
   } catch (e) { fallos.push('index: ' + e.message); }
+  try { // ── Control de caja: botón con el monto real y fila "Sin fecha" en vez de "Invalid Date" ──
+    await w.put('gastos', { id: 'humo-g-sinfecha', det: 'Gasto sin fecha', val: 1000 });
+    await w.openCajaModal(); await wait(200);
+    const dd = w.document, btn = dd.getElementById('btn-cerrar-caja');
+    if (!btn || /\$0\)/.test(btn.textContent) || !/110[.,]000/.test(btn.textContent)) fallos.push('caja: el botón «Cerrar caja» no muestra el monto real: ' + (btn && btn.textContent));
+    if (/Invalid Date/.test(dd.getElementById('daily-income-list').textContent)) fallos.push('caja: el historial muestra «Invalid Date»');
+    if (!/Sin fecha/.test(dd.getElementById('daily-income-list').textContent)) fallos.push('caja: debía mostrar «Sin fecha» para el registro sin fecha');
+    w.closeCajaModal(); await w.del('gastos', 'humo-g-sinfecha');
+  } catch (e) { fallos.push('caja: ' + e.message); }
   try { // helpers de v3.9.16: número de WhatsApp y registro de errores
     if (w._waNumber('+57 300 123 4567') !== '573001234567' || w._waNumber('300-123-4567') !== '573001234567') fallos.push('index: _waNumber no normaliza bien el teléfono');
     w._guardarErrorLocal('prueba', new Error('error de prueba'));
