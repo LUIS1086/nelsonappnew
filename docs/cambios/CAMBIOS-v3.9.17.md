@@ -1,0 +1,6 @@
+# v3.9.17 — Reparaciones
+- **Caja del dashboard inflada (error real):** el dashboard sumaba como ventas los adelantos (`tipo:'adelanto'`) y los cobros de entrega (`tipo:'cobro_entrega'`) además del valor de la orden entregada, es decir, contaba ese dinero dos veces. La app principal ya los excluía (`updateTotal`, reportes, cierres). Ahora el dashboard filtra igual en un solo punto (`_esVentaReal` en `loadDashboard`), lo que corrige Caja neta, Ingresos del mes, la gráfica, los movimientos, "Hoy" y los modales. Ejemplo de la prueba: orden entregada de $80.000 + venta de $30.000 → caja $110.000 (antes mostraba $190.000).
+- `tools/humo.js` ahora comprueba esa contabilidad; con el filtro quitado, la prueba falla.
+- **Funciones huérfanas que fallaban si se llamaban** (su HTML ya no existe en `index.html`): `toggleDashboardInline`/`openDashboardModal`/`closeDashboardModal` ahora abren `dashboard.html`; `globalSearch` sale sin error. No se quitó ninguna función.
+- Accesibilidad: `alt` en las 2 imágenes de la etiqueta QR.
+- Revisión sin hallazgos: ESLint con reglas de errores (claves duplicadas, código inalcanzable, etc.) sin problemas; las etiquetas HTML están balanceadas; 184 funciones de pintar/actualizar ejecutadas con datos de prueba sin errores propios de la app.
