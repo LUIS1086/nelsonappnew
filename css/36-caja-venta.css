@@ -197,3 +197,13 @@ html[data-theme="light"] #modal-product-picker, html[data-theme="light"] #modal-
 #invoice-sale-form .invoice-total strong { font-size: 26px !important; }
 #invoice-sale-form .invoice-actions { padding: 6px 20px calc(12px + env(safe-area-inset-bottom, 0px)) !important; }
 #invoice-sale-form .invoice-actions button { min-height: 52px !important; }
+
+/* ── Control de caja (v3.9.20): el monto no se sale de la tarjeta y el botón de cierre siempre se alcanza ── */
+html #modal-caja.modal-custom > div:first-child { display: flex !important; flex-direction: column; overflow: hidden !important; }
+#modal-caja > div:first-child > div:first-child { flex-shrink: 0; }
+#modal-caja > div:first-child > div.space-y-5 {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+}
+#modal-caja-total, #cierre-monto-preview { white-space: nowrap; line-height: 1.1; max-width: 100%; }
+#modal-caja #daily-income-list { max-height: min(14rem, 26dvh); }
