@@ -6,6 +6,10 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#0b1220">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="Consulta en vivo el estado de la reparación de tu equipo.">
+<link rel="icon" type="image/png" href="icons/icon-96x96.png">
+<link rel="apple-touch-icon" href="icons/icon-192x192.png">
 <title>Seguimiento de tu equipo</title>
 <style>
 :root{--bg:#0b1220;--card:#111a2e;--line:#22304d;--tx:#e8edf7;--mut:#8fa0bf;--acc:#f97316;--ok:#22c55e;--warn:#f59e0b;--bad:#f43f5e}
@@ -71,10 +75,18 @@ body{min-height:100dvh;background:radial-gradient(900px 420px at 50% -120px,rgba
 .pbtn:active{transform:scale(.98)}.pbtn:disabled{opacity:.55;pointer-events:none}
 .perr{color:#fda4af;font-size:12px;margin-top:12px;line-height:1.45}
 .btn.mt{margin-top:14px}
+.btn.alt{background:#1b2742;color:var(--tx);border:1px solid var(--line);margin-top:10px}
+.photo{cursor:zoom-in}
+.lb{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:calc(16px + env(safe-area-inset-top,0)) 16px calc(16px + env(safe-area-inset-bottom,0));background:rgba(2,6,23,.92);cursor:zoom-out}
+.lb img{max-width:100%;max-height:100%;border-radius:14px;object-fit:contain}
+.lb button{position:absolute;top:calc(12px + env(safe-area-inset-top,0));right:14px;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:#111a2e;color:var(--tx);font-size:20px;cursor:pointer}
+.nojs{max-width:520px;margin:40px auto;padding:0 16px;text-align:center;color:var(--mut);font-size:14px;line-height:1.55}
+.btn:focus-visible,.pbtn:focus-visible,.lb button:focus-visible{outline:3px solid #fdba74;outline-offset:2px}
 @media(prefers-reduced-motion:reduce){.dot,.spin{animation:none}.steps .fill{transition:none}}
 </style>
 </head>
 <body>
+<noscript><p class="nojs">Para ver el estado de tu equipo necesitas activar JavaScript en tu navegador.</p></noscript>
 <main class="wrap">
   <header class="brand">
     <div class="logo" aria-hidden="true">🔧</div>
@@ -90,13 +102,13 @@ body{min-height:100dvh;background:radial-gradient(900px 420px at 50% -120px,rgba
   </section>
 
   <div id="v-ok" hidden>
-    <div id="off" class="offline" hidden>Sin conexión · mostrando la última información</div>
+    <div id="off" class="offline" role="status" aria-live="polite" hidden>Sin conexión · mostrando la última información</div>
 
     <section class="card hero" id="hero">
       <span class="pill"><i class="dot"></i><span id="pill">Estado</span></span>
       <h1 id="h1"></h1>
-      <p id="msg"></p>
-      <div class="steps" id="steps" aria-label="Progreso de la reparación"><div class="fill" id="fill"></div></div>
+      <p id="msg" role="status" aria-live="polite"></p>
+      <div class="steps" id="steps" role="list" aria-label="Progreso de la reparación"><div class="fill" id="fill"></div></div>
     </section>
 
     <section class="card presu" id="presu-card" hidden></section>
@@ -115,6 +127,7 @@ body{min-height:100dvh;background:radial-gradient(900px 420px at 50% -120px,rgba
     </section>
 
     <a class="btn" id="wa" href="#" target="_blank" rel="noopener" hidden>💬 Escribir al taller por WhatsApp</a>
+    <a class="btn alt" id="call" href="#" hidden>📞 Llamar al taller</a>
     <p class="foot" id="foot"></p>
   </div>
 </main>
@@ -236,7 +249,8 @@ body{min-height:100dvh;background:radial-gradient(900px 420px at 50% -120px,rgba
     STEPS.forEach(function (s, i) {
       var el = document.createElement('div'), cls = 'step';
       if (st === 'entregado' || i < idx) cls += ' done'; else if (i === idx) cls += ' now';
-      el.className = cls;
+      el.className = cls; el.setAttribute('role', 'listitem');
+      if (i === idx && st !== 'entregado') el.setAttribute('aria-current', 'step');
       var b = document.createElement('div'); b.className = 'b'; b.textContent = (cls.indexOf('done') > -1) ? '✓' : String(i + 1);
       var t = document.createElement('div'); t.className = 't'; t.textContent = s.t;
       var d = document.createElement('div'); d.className = 'd';
@@ -259,6 +273,7 @@ body{min-height:100dvh;background:radial-gradient(900px 420px at 50% -120px,rgba
       if (/^data:image\/(jpeg|png|webp);base64,/.test(p[1])) im.src = p[1];
       var sp = document.createElement('span'); sp.textContent = p[0];
       f.appendChild(im); f.appendChild(sp); ph.appendChild(f);
+      if (im.src) { f.tabIndex = 0; f.setAttribute('role', 'button'); f.setAttribute('aria-label', 'Ampliar foto: ' + p[0]); f.onclick = function () { openPhoto(im.src, p[0]); }; f.onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPhoto(im.src, p[0]); } }; }
     });
     ph.className = 'photos' + (list.length === 2 ? ' two' : ''); ph.hidden = !list.length;
 
@@ -269,6 +284,10 @@ body{min-height:100dvh;background:radial-gradient(900px 420px at 50% -120px,rgba
     if (r.falla) row(kv, 'Falla reportada', r.falla);
     if (r.fecha_ingreso) row(kv, 'Ingresó', fdate(r.fecha_ingreso, true));
     if (r.fecha_estimada && (st === 'recibido' || st === 'revisión')) row(kv, 'Entrega estimada', fdate(r.fecha_estimada + 'T12:00:00'));
+    if (st === 'entregado' && Number(r.garantia_dias) > 0 && r.fecha_estado) {
+      var gf = new Date(r.fecha_estado); gf.setDate(gf.getDate() + Number(r.garantia_dias));
+      if (!isNaN(gf)) row(kv, gf < new Date() ? 'Garantía venció el' : 'Garantía hasta el', gf.toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' }));
+    }
 
     // Valor (solo si el taller lo publica)
     var v = Number(r.valor) || 0, mc = $('money-card');
@@ -288,9 +307,32 @@ body{min-height:100dvh;background:radial-gradient(900px 420px at 50% -120px,rgba
       wa.href = 'https://wa.me/' + num + '?text=' + encodeURIComponent('Hola, consulto por mi ' + String(r.equipo || 'equipo').trim() + (r.numero ? ' (orden ' + r.numero + ')' : '') + '.');
       wa.hidden = false;
     } else wa.hidden = true;
+    var call = $('call');
+    if (num.length >= 10) { call.href = 'tel:+' + num; call.hidden = false; } else call.hidden = true;
     stamp();
     show('v-ok');
   }
+
+  // Foto ampliada (toca para ver completa; toca de nuevo o Esc para cerrar)
+  function openPhoto(src, label) {
+    var box = document.createElement('div'); box.className = 'lb'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true'); box.setAttribute('aria-label', label);
+    var im = document.createElement('img'); im.src = src; im.alt = label;
+    var x = document.createElement('button'); x.type = 'button'; x.textContent = '✕'; x.setAttribute('aria-label', 'Cerrar foto');
+    function close() { box.remove(); document.removeEventListener('keydown', onKey); }
+    function onKey(e) { if (e.key === 'Escape') close(); }
+    box.onclick = close; document.addEventListener('keydown', onKey);
+    box.appendChild(im); box.appendChild(x); document.body.appendChild(box); x.focus();
+  }
+
+  // Copia local de la última respuesta (solo en el teléfono del cliente, sin fotos) para abrir aunque no haya señal
+  var CK = 'seg:' + token.slice(0, 16);
+  function saveLocal(d) {
+    try { var c = {}; for (var k in d) if (k !== 'foto_ingreso' && k !== 'foto_final') c[k] = d[k]; localStorage.setItem(CK, JSON.stringify({ t: Date.now(), d: c })); } catch (_) {}
+  }
+  function readLocal() {
+    try { var x = JSON.parse(localStorage.getItem(CK) || 'null'); return x && x.d && x.d.estado ? x : null; } catch (_) { return null; }
+  }
+  function isFinal() { return !!last && (last.estado === 'entregado' || last.estado === 'no-reparable') && last.presupuesto_estado !== 'enviado'; }
 
   function stamp() {
     if (!last) return;
@@ -309,19 +351,21 @@ body{min-height:100dvh;background:radial-gradient(900px 420px at 50% -120px,rgba
       .then(function (d) {
         clearTimeout(to);
         if (!d) { if (first || !last) fail(); return; }
-        last = d; lastOk = Date.now(); $('off').hidden = true; render(d);
+        last = d; lastOk = Date.now(); $('off').hidden = true; saveLocal(d); render(d);
       })
       .catch(function () {
         clearTimeout(to);
         if (last) { $('off').hidden = false; stamp(); }
+        else if (first && readLocal()) { var sv = readLocal(); last = sv.d; lastOk = sv.t; $('off').hidden = false; render(last); }
         else fail('No pudimos cargar la información', 'Revisa tu conexión a internet e inténtalo de nuevo en un momento.');
       });
   }
 
   load(true);
-  setInterval(function () { if (document.visibilityState === 'visible') load(false); }, 30000);
+  // Mientras la reparación sigue en curso se consulta cada 30 s; si ya terminó, cada 5 min (menos consumo de datos y de servidor)
+  setInterval(function () { if (document.visibilityState === 'visible' && (!isFinal() || Date.now() - lastOk > 300000)) load(false); }, 30000);
   setInterval(stamp, 30000);
-  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible' && Date.now() - lastOk > 10000) load(false); });
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible' && Date.now() - lastOk > (isFinal() ? 300000 : 10000)) load(false); });
   window.addEventListener('online', function () { load(false); });
 })();
 </script>

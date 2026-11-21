@@ -5,6 +5,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NelsonApp">
+    <link rel="icon" type="image/png" href="icons/icon-96x96.png">
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -18,7 +19,40 @@
     <title>Nelson App Pro | Taller & Ventas</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <script src="js/libs/html2canvas.min.js" defer></script>
+    <script>
+    /* v3.9.19 · html2canvas (199 KB) ya no se carga al abrir la app: se descarga la primera vez que se usa
+       (tickets, QR, diagnósticos). Mientras tanto existe esta función puente con la MISMA firma, así que el
+       resto del código la llama igual que antes; al terminar de cargar, la librería real la reemplaza. */
+    (function () {
+        var puente = function () {
+            var args = arguments;
+            return window.__cargarHtml2canvas().then(function () {
+                if (window.html2canvas === puente) throw new Error('html2canvas no disponible');
+                return window.html2canvas.apply(window, args);
+            });
+        };
+        var cargando = null;
+        window.__cargarHtml2canvas = function () {
+            if (window.html2canvas !== puente) return Promise.resolve();
+            if (!cargando) cargando = new Promise(function (ok, fallo) {
+                var sc = document.createElement('script');
+                sc.src = 'js/libs/html2canvas.min.js';
+                sc.onload = ok;
+                sc.onerror = function () { cargando = null; fallo(new Error('html2canvas no disponible')); };
+                document.head.appendChild(sc);
+            });
+            return cargando;
+        };
+        window.html2canvas = puente;
+        /* Precarga silenciosa cuando el teléfono está libre (después de abrir la app): así casi siempre ya está
+           lista al usarla y no hay espera la primera vez. Si falla, se reintenta al usarla. */
+        window.addEventListener('load', function () {
+            var ir = function () { window.__cargarHtml2canvas().catch(function () {}); };
+            if (window.requestIdleCallback) window.requestIdleCallback(ir, { timeout: 6000 });
+            else setTimeout(ir, 3000);
+        });
+    })();
+    </script>
     <script src="js/libs/qrcode.min.js" defer></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -238,7 +272,7 @@
         <div class="splash-title" id="splash-biz-name">NELSON</div>
         <div class="splash-sub">Taller &amp; Repuestos</div>
         <div class="splash-bar-track"><div class="splash-bar-fill"></div></div>
-        <div class="splash-version" id="splash-version">v3.9.15</div>
+        <div class="splash-version" id="splash-version">v3.9.19</div>
     </div>
 
     <!-- PIN MODAL -->
@@ -875,7 +909,7 @@
                                 <p style="font-size:15px;font-weight:900;color:#f1f5f9;margin:0;letter-spacing:-0.3px;">Luis Eduardo Gaviria</p>
                                 <p style="font-size:10px;color:#64748b;margin:3px 0 0;font-weight:700;display:flex;align-items:center;gap:6px;">
                                     <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 6px rgba(16,185,129,0.6);animation:pulseDot 2s ease-in-out infinite;"></span>
-                                    NelsonApp Pro · <span id="credits-version">v3.9.15</span>
+                                    NelsonApp Pro · <span id="credits-version">v3.9.19</span>
                                 </p>
                             </div>
                             <span id="credits-arrow" style="font-size:14px;color:#64748b;transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);flex-shrink:0;">▼</span>
@@ -1625,9 +1659,9 @@
             <div class="p-5 flex flex-col items-center gap-4">
                 <!-- Tarjeta imprimible -->
                 <div id="qr-label-card" style="background:white;border-radius:16px;padding:20px;width:100%;max-width:280px;display:flex;flex-direction:column;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,0.3);">
-                    <div id="qr-label-logo" style="display:none;width:40px;height:40px;border-radius:8px;overflow:hidden;flex-shrink:0;"><img id="qr-label-logo-img" style="width:100%;height:100%;object-fit:contain;"></div>
+                    <div id="qr-label-logo" style="display:none;width:40px;height:40px;border-radius:8px;overflow:hidden;flex-shrink:0;"><img id="qr-label-logo-img" alt="Logo del negocio" style="width:100%;height:100%;object-fit:contain;"></div>
                     <p id="qr-label-biz" style="font-size:9px;font-weight:800;color:#f97316;letter-spacing:3px;text-transform:uppercase;margin:0;font-family:sans-serif;text-align:center;"></p>
-                    <div id="qr-label-product-img" style="display:none;width:64px;height:64px;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><img id="qr-label-product-img-el" style="width:100%;height:100%;object-fit:cover;"></div>
+                    <div id="qr-label-product-img" style="display:none;width:64px;height:64px;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><img id="qr-label-product-img-el" alt="Foto del producto" style="width:100%;height:100%;object-fit:cover;"></div>
                     <p id="qr-label-name" style="font-size:13px;font-weight:900;color:#111;text-align:center;margin:0;font-family:sans-serif;line-height:1.3;word-break:break-word;"></p>
                     <p id="qr-label-code" style="font-size:10px;color:#6b7280;font-family:monospace;margin:0;"></p>
                     <div id="qr-code-canvas" style="padding:6px;background:white;border-radius:8px;border:1px solid #e5e7eb;"></div>
@@ -2345,7 +2379,7 @@
                         <div class="cfg-title-wrap">
                             <p class="cfg-eyebrow">
                                 <span id="cfg-header-biz">NelsonApp Pro</span>
-                                <span class="cfg-version" id="cfg-header-version">v3.9.15</span>
+                                <span class="cfg-version" id="cfg-header-version">v3.9.19</span>
                             </p>
                             <h3 class="cfg-h1">Configuración</h3>
                         </div>
@@ -3218,6 +3252,7 @@
 <script src="js/modules/41-respaldo-supabase.js"></script>
 <script src="js/modules/42-ios-iconos.js"></script>
 <script src="js/modules/45-selector-ios.js"></script>
+<script src="js/modules/46-editar-venta.js"></script>
 
     <script src="js/nelson-ia.js"></script>
 

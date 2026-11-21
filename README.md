@@ -31,8 +31,12 @@ js/modules/00…45-*.js   Módulos de la app (órdenes, inventario, caja, Drive,
 js/nelson-ia.js         Asistente Nelson IA
 tools/build-css.js      Une y minifica las hojas en los 2 bundles (correr tras editar cualquier css/NN-*.css)
 tools/verificar.js      Revisa que no falte nada antes de subir (bundles al día, onclick con función real, globales sin definir)
+tools/humo.js           Prueba de humo: abre la app simulada, desbloquea, crea una orden y recorre pestañas + dashboard
+tools/ping-supabase.js    Consulta inofensiva a Supabase (la usa .github/workflows/mantener-supabase.yml para que no se pause)
+tools/humo-seguimiento.js  Prueba de seguimiento.html (página del cliente)
 tools/lint-globales.js  Detecta funciones/variables usadas pero no definidas (necesita ESLint: ver tools/lint/)
 tools/lint/             package.json de ESLint para el chequeo anterior (cd tools/lint && npm install, una vez)
+tools/ (CI)             .github/workflows/verificar.yml corre la verificación en cada subida a GitHub
 docs/cambios/           Historial de versiones (CAMBIOS-vX.Y.Z.md)
 docs/                   Auditorías, informes y guías (Supabase, seguimiento) + PDF del README
 tools/capturas.py       Capturas móvil/escritorio para comparar antes y después (necesita playwright)
@@ -57,7 +61,7 @@ No edites los `*.bundle.css` a mano: se sobrescriben. Para comparar visualmente 
 ## Antes de subir cambios
 
 ```bash
-(cd tools/lint && npm install)   # solo la primera vez (ESLint, para detectar funciones sin definir)
+(cd tools/lint && npm install)   # solo la primera vez (ESLint + simulador; requiere Node 22+)
 node tools/verificar.js
 ```
 
