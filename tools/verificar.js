@@ -59,5 +59,11 @@ catch(e){ err('Los bundles de CSS están desactualizados. Corre:  node tools/bui
 // ── Funciones/variables usadas pero no definidas (requiere ESLint; ver tools/lint-globales.js) ──
 try{ const o=cp.execFileSync(process.execPath,[path.join(__dirname,'lint-globales.js')],{stdio:'pipe'}).toString().trim(); if(o) console.log(o); }
 catch(e){ errores++; console.log(String(e.stdout).trim()||String(e.stderr).trim()); }
+// ── Prueba de humo: abre la app simulada, desbloquea, crea una orden, recorre pestañas y dashboard ──
+try{ const o=cp.execFileSync(process.execPath,[path.join(__dirname,'humo.js')],{stdio:'pipe',timeout:120000}).toString().trim(); if(o) console.log(o); }
+catch(e){ errores++; console.log(String(e.stdout).trim()||String(e.stderr).trim()||'✗ Prueba de humo falló'); }
+// ── Prueba de seguimiento.html (página del cliente) ──
+try{ const o=cp.execFileSync(process.execPath,[path.join(__dirname,'humo-seguimiento.js')],{stdio:'pipe',timeout:120000}).toString().trim(); if(o) console.log(o); }
+catch(e){ errores++; console.log(String(e.stdout).trim()||String(e.stderr).trim()||'✗ Prueba de seguimiento falló'); }
 console.log(errores?`\n${errores} problema(s) encontrados`:`✓ Todo en orden (${refs.length} archivos css/js, precache y manifest correctos)`);
 process.exit(errores?1:0);
