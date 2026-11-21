@@ -349,7 +349,9 @@ async function loadDashboard(silent) {
 
     // Aplicar filtro de sucursal
     const orders   = filterByBranch(ordersRaw);
-    const sales    = filterByBranch(salesRaw);
+    // v3.9.17: igual que la app principal, los adelantos y cobros de entrega NO son ventas aparte
+    // (ya se cuentan dentro del valor de la orden entregada); si se suman, la caja sale inflada.
+    const sales    = filterByBranch(salesRaw).filter(_esVentaReal);
     const gastos   = filterByBranch(gastosRaw);
     const stock    = stockRaw;       // stock generalmente es global
     const clientes = clientesRaw;    // clientes también globales
@@ -1070,6 +1072,7 @@ let _lastRefreshTs = 0;
 let _activeBranch = 'all';
 
 // ── Utilidades ──
+function _esVentaReal(s) { return !s || (s.tipo !== 'adelanto' && s.tipo !== 'cobro_entrega'); }
 function _encClient(c) { return encodeURIComponent(String((c && c.nombre) || c || '')); }
 function cleanPhone(t) {
   let d = String(t || '').replace(/\D/g, '');
