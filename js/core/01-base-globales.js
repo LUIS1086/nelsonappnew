@@ -147,11 +147,35 @@
         }
         let _pinHash = null; // hash PBKDF2 del PIN activo
 
+        // ════════════════ WHATSAPP: número listo para wa.me ════════════════
+        // Quita espacios, guiones y "+"; agrega 57 (Colombia) solo si el número no lo trae.
+        function _waNumber(tel) {
+            const d = String(tel || '').replace(/\D/g, '');
+            if (d.startsWith('57') && d.length >= 12) return d;   // ya trae indicativo
+            return d.length <= 10 ? '57' + d : d;
+        }
+
         // ════════════════ ESTABILIDAD: handlers globales de errores ════════════════
         // Captura errores no manejados para que no se queden silenciosos.
         // Solo notifica al usuario una vez cada 60s para no saturar.
         let _globalErrorLastShown = 0;
+        // v3.9.16: guarda los últimos 30 errores (solo en este teléfono) para poder consultarlos en "Salud de la app".
+        function _guardarErrorLocal(label, err) {
+            try {
+                const l = JSON.parse(localStorage.getItem('appErrorLog') || '[]');
+                l.push({ t: Date.now(), l: String(label).slice(0, 30), m: String((err && err.message) || err || '').slice(0, 160) });
+                localStorage.setItem('appErrorLog', JSON.stringify(l.slice(-30)));
+            } catch (_) {}
+        }
+        function _erroresRecientes(horas) {
+            try {
+                const desde = Date.now() - (horas || 24) * 3600000;
+                const l = JSON.parse(localStorage.getItem('appErrorLog') || '[]').filter(x => x && x.t >= desde);
+                return { n: l.length, ultimo: l.length ? l[l.length - 1] : null };
+            } catch (_) { return { n: 0, ultimo: null }; }
+        }
         function _logGlobalError(label, err) {
+            _guardarErrorLocal(label, err);
             console.error('[' + label + ']', err);
             const now = Date.now();
             if (now - _globalErrorLastShown < 60000) return;
