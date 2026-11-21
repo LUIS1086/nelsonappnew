@@ -468,6 +468,7 @@
           '<button type="button" class="tk-btn" id="tk-pdf" onclick="downloadSaleTicketPdf()">PDF</button>' +
           '<button type="button" class="tk-btn" id="tk-img" onclick="downloadSaleTicketImage()">Imagen</button>' +
           '<button type="button" class="tk-btn" id="tk-print" onclick="printSaleTicket()">Imprimir</button>' +
+          '<button type="button" class="tk-btn" id="tk-edit" onclick="editSaleFromTicket()">✏️ Corregir</button>' +
           '<button type="button" class="tk-btn done" onclick="closeSaleTicket()">Listo</button>' +
         '</div>' +
       '</div>';
@@ -485,6 +486,14 @@
     byId('tk-phone').value = t.telefono || '';
     m.classList.remove('hidden');
   }
+
+  // «Corregir» desde el comprobante: cierra el ticket y abre el editor de esa venta (js/modules/46-editar-venta.js)
+  window.editSaleFromTicket = function () {
+    if (!state || !state.t.ids.length) return;
+    const id = state.t.ids[0];
+    window.closeSaleTicket();
+    if (typeof window.openSaleEditor === 'function') window.openSaleEditor(id);
+  };
 
   window.closeSaleTicket = function () {
     const m = byId('ticket-sale-modal'); if (m) m.classList.add('hidden');

@@ -4,6 +4,9 @@
         function toggleDashboardInline() {
             const panel = document.getElementById('dashboard-inline-panel');
             const arrow = document.getElementById('dash-toggle-arrow');
+            // v3.9.17: el panel integrado ya no existe en index.html (el dashboard es dashboard.html);
+            // si algo llama a esta función, se abre el dashboard en vez de fallar.
+            if (!panel || !arrow) { window.location.href = './dashboard.html'; return; }
             const isOpen = panel.style.display !== 'none';
             if (isOpen) {
                 panel.style.display = 'none';

@@ -217,6 +217,16 @@
                         sub: lastBackup ? 'Respaldo en Google Drive ✓' : '⚠️ Conecta Drive para respaldar',
                         status: lastBackup ? 'ok' : 'danger'
                     },
+                    (() => {
+                        const er = (typeof _erroresRecientes === 'function') ? _erroresRecientes(24) : { n: 0, ultimo: null };
+                        return {
+                            icon: '🛠️',
+                            label: 'Errores recientes',
+                            value: er.n ? `${er.n} en las últimas 24 h` : 'Ninguno en las últimas 24 h',
+                            sub: er.n ? `Último: ${escapeHtml(er.ultimo.m || er.ultimo.l)}` : 'Todo funcionando bien ✓',
+                            status: er.n >= 5 ? 'danger' : er.n ? 'warn' : 'ok'
+                        };
+                    })(),
                     {
                         icon: '🗃️',
                         label: 'Base de datos',

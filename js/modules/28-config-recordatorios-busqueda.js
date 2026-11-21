@@ -207,6 +207,7 @@
         let _gsrDebounce = null;
         async function globalSearch(q) {
             const box = document.getElementById('global-search-results');
+            if (!box) return;   // v3.9.17: la barra de búsqueda global ya no está en index.html
             q = (q || '').trim().toUpperCase();
             if (q.length < 2) { box.classList.remove('open'); return; }
 

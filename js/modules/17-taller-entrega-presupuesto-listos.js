@@ -258,8 +258,10 @@
             await updateTotal();
             if (o.presupuesto === 'enviado' && o.tel) {
                 showConfirm(`¿Enviar presupuesto por WhatsApp a ${o.nom}?`, () => {
-                    const msg = `*TODO REPUESTOS NELSON*\nHola ${o.nom}, te enviamos el presupuesto para tu ${o.equ}.\n💰 Valor: $${o.val.toLocaleString()}\n✅ Por favor confírmanos si apruebas la reparación.`;
-                    sessionStorage.setItem('_waJump','1'); window.open(`https://wa.me/57${o.tel}?text=${encodeURIComponent(msg)}`, '_blank');
+                    let msg = `*${((typeof _safeBizConfig === 'function' ? _safeBizConfig().name : '') || 'Todo Repuestos Nelson').toUpperCase()}*\nHola ${o.nom}, te enviamos el presupuesto para tu ${o.equ}.\n💰 Valor: $${o.val.toLocaleString()}\n✅ Por favor confírmanos si apruebas la reparación.`;
+                    // v3.9.19: agrega el enlace de seguimiento (desde ahí el cliente puede aprobar o rechazar el presupuesto)
+                    if (typeof segAppendLink === 'function') msg = segAppendLink(msg, o, 'presupuesto');
+                    sessionStorage.setItem('_waJump','1'); window.open(`https://wa.me/${_waNumber(o.tel)}?text=${encodeURIComponent(msg)}`, '_blank');
                 }, "info");
             }
         }

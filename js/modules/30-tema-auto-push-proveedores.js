@@ -133,7 +133,7 @@
                             <p class="text-[10px] text-teal-400 font-bold">${stars(p.rating)}</p>
                         </div>
                         <div class="flex gap-1 flex-shrink-0 ml-2">
-                            ${p.tel ? `<button onclick="window.open('https://wa.me/57${p.tel.replace(/\\D/g,'')}','_blank')" class="bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 w-8 h-8 rounded-xl text-sm active:scale-95 transition" title="WhatsApp">💬</button>` : ''}
+                            ${p.tel ? `<button onclick="window.open('https://wa.me/${_waNumber(p.tel)}','_blank')" class="bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 w-8 h-8 rounded-xl text-sm active:scale-95 transition" title="WhatsApp">💬</button>` : ''}
                             <button onclick="openProveedorForm(${p.id})" class="bg-blue-600/20 border border-blue-500/30 text-blue-400 w-8 h-8 rounded-xl text-sm active:scale-95 transition">✏️</button>
                             <button onclick="deleteProveedor(${p.id})" class="bg-rose-600/20 border border-rose-500/30 text-rose-400 w-8 h-8 rounded-xl text-sm active:scale-95 transition">🗑️</button>
                         </div>
